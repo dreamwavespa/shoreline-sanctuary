@@ -40,4 +40,4 @@ export const SFX_FILES: Record<string, string> = {
   craftSuccess: `${SFX_BASE}/3a6a92e5-28f6-4014-8654-6bb5924ccd69.mp3`,
 };
 
-export const AMBIENCE_LOOP = `${SFX_BASE}/009dbc81-bae7-45c7-99b1-5307640cd469.mp3`;
+export const AMBIENCE_LOOP = `${SFX_BASE}/5e767b6a-1923-4961-9398-95e0e66349fa.mp3`;
