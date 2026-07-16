@@ -44,6 +44,11 @@ export const ITEMS: Record<string, ItemDef> = {
   "raw-pebbles": { id: "raw-pebbles", name: "Pebbles", category: "raw", icon: `${ICON_BASE}/33471acf-63cc-4452-958a-fc867d37b401.png`, rarity: "common", sfx: "driftwood" },
   "coconut": { id: "coconut", name: "Coconut", category: "raw", icon: "🥥", isEmoji: true, rarity: "common", sfx: "driftwood" },
   "trash-plastic": { id: "trash-plastic", name: "Plastic Debris", category: "trash", icon: "🗑️", isEmoji: true, rarity: "common", sfx: "plastic" },
+  "trophy-map": { id: "trophy-map", name: "Old Nautical Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "trophy-compass": { id: "trophy-compass", name: "Brass Compass", category: "special", icon: "🧭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "trophy-diving-gear": { id: "trophy-diving-gear", name: "Diving Gear", category: "special", icon: "🤿", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "trophy-nautilus": { id: "trophy-nautilus", name: "Golden Nautilus Shell", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "trophy-brass-dial": { id: "trophy-brass-dial", name: "Weathered Brass Dial", category: "special", icon: "🕰️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -77,12 +82,38 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "pearl-blue", weight: 1 },
 ];
 
-export function rollSpawn(): string {
-  const total = BEACH_SPAWN_POOL.reduce((s, e) => s + e.weight, 0);
+export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
+  { id: "shell-sanddollar", weight: 12 },
+  { id: "shell-abalone", weight: 8 },
+  { id: "shell-nautilus", weight: 6 },
+  { id: "glass-purple", weight: 10 },
+  { id: "glass-red", weight: 8 },
+  { id: "glass-rainbow", weight: 6 },
+  { id: "glass-blue", weight: 8 },
+  { id: "glass-pink", weight: 8 },
+  { id: "pearl-silver", weight: 6 },
+  { id: "pearl-pink", weight: 6 },
+  { id: "pearl-black", weight: 5 },
+  { id: "pearl-green", weight: 5 },
+  { id: "pearl-amber", weight: 5 },
+  { id: "pearl-blue", weight: 6 },
+  { id: "raw-driftwood-planks", weight: 4 },
+];
+
+function rollFrom(pool: { id: string; weight: number }[]): string {
+  const total = pool.reduce((s, e) => s + e.weight, 0);
   let r = Math.random() * total;
-  for (const entry of BEACH_SPAWN_POOL) {
+  for (const entry of pool) {
     if (r < entry.weight) return entry.id;
     r -= entry.weight;
   }
-  return BEACH_SPAWN_POOL[0].id;
+  return pool[0].id;
+}
+
+export function rollSpawn(): string {
+  return rollFrom(BEACH_SPAWN_POOL);
+}
+
+export function rollCoveSpawn(): string {
+  return rollFrom(COVE_SPAWN_POOL);
 }

@@ -2,8 +2,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
+import { QuestDef } from "./quests";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface AudioSettings {
@@ -22,6 +23,9 @@ interface GameState {
   workshopUnlocked: boolean;
   totalCollected: number;
   audio: AudioSettings;
+  rowboatRepaired: boolean;
+  chestOpened: boolean;
+  hasDivingGear: boolean;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -35,6 +39,9 @@ const DEFAULT_STATE: GameState = {
   workshopUnlocked: false,
   totalCollected: 0,
   audio: { master: 0.9, music: 0.8, ambience: 0.7, musicMuted: false },
+  rowboatRepaired: false,
+  chestOpened: false,
+  hasDivingGear: false,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -42,6 +49,8 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   bucket: "beach",
   workshop: "beach",
   bottles: "beach",
+  cove: "beach",
+  lighthouse: "lighthouse",
 };
 
 interface Ctx {
@@ -49,18 +58,22 @@ interface Ctx {
   screen: Screen;
   zone: Zone;
   setScreen: (s: Screen) => void;
-  collectItem: (itemId: string) => void;
+  collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
-  claimQuest: (questId: string, requires: { itemId: string; count: number }[], rewardItemId?: string, rewardCount?: number) => boolean;
+  claimQuest: (quest: QuestDef) => boolean;
+  openChest: (cost: { itemId: string; count: number }[]) => boolean;
   hasEnough: (requires: { itemId: string; count: number }[]) => boolean;
   play: (key: string) => void;
   setAudioSetting: <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => void;
+  resetProgress: () => void;
   bucketCapacity: number;
   lastToast: string | null;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
+
+const STORAGE_KEY = "shoreline-save";
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GameState>(DEFAULT_STATE);
@@ -73,7 +86,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("shoreline-save");
+      const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         setState({ ...DEFAULT_STATE, ...parsed, audio: { ...DEFAULT_STATE.audio, ...(parsed.audio || {}) } });
@@ -85,7 +98,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loaded.current) return;
     try {
-      localStorage.setItem("shoreline-save", JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {}
   }, [state]);
 
@@ -109,7 +122,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     window.setTimeout(() => setLastToast((cur) => (cur === msg ? null : cur)), 2200);
   };
 
-  const collectItem = (itemId: string) => {
+  const collectItem = (itemId: string, opts?: { silent?: boolean }) => {
     const def = ITEMS[itemId];
     if (!def) return;
     setState((s) => {
@@ -130,8 +143,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         totalCollected,
       };
     });
-    play(def.sfx);
-    toast(`+1 ${def.name}`);
+    if (!opts?.silent) {
+      play(def.sfx);
+      toast(`+1 ${def.name}`);
+    }
   };
 
   const emptyBucket = () => {
@@ -147,30 +162,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => {
       const inv = { ...s.inventory };
       for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
-      return { ...s, inventory: inv, crafted: [...s.crafted, recipeId] };
+      const next: GameState = { ...s, inventory: inv, crafted: [...s.crafted, recipeId] };
+      if (recipeId === "rowboat-repair") next.rowboatRepaired = true;
+      return next;
     });
     play("craftSuccess");
     toast("Crafted!");
     return true;
   };
 
-  const claimQuest = (
-    questId: string,
-    requires: { itemId: string; count: number }[],
-    rewardItemId?: string,
-    rewardCount?: number
-  ) => {
-    if (state.questProgress[questId]) return false;
-    if (!hasEnough(requires)) return false;
+  const claimQuest = (quest: QuestDef) => {
+    if (state.questProgress[quest.id]) return false;
+    if (quest.requiresFlag && !(state as any)[quest.requiresFlag]) return false;
+    if (quest.requiresCraft && !state.crafted.includes(quest.requiresCraft)) return false;
+    if (quest.requires.length && !hasEnough(quest.requires)) return false;
     setState((s) => {
       const inv = { ...s.inventory };
-      for (const r of requires) inv[r.itemId] = (inv[r.itemId] || 0) - r.count;
-      if (rewardItemId) inv[rewardItemId] = (inv[rewardItemId] || 0) + (rewardCount || 1);
+      for (const r of quest.requires) inv[r.itemId] = (inv[r.itemId] || 0) - r.count;
+      if (quest.rewardItemId) inv[quest.rewardItemId] = (inv[quest.rewardItemId] || 0) + (quest.rewardCount || 1);
       return {
         ...s,
         inventory: inv,
-        questProgress: { ...s.questProgress, [questId]: true },
-        workshopUnlocked: questId === "glassartisan" ? true : s.workshopUnlocked,
+        questProgress: { ...s.questProgress, [quest.id]: true },
+        workshopUnlocked: quest.unlocksWorkshop ? true : s.workshopUnlocked,
       };
     });
     play("questComplete");
@@ -178,8 +192,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const openChest = (cost: { itemId: string; count: number }[]) => {
+    if (state.chestOpened) return false;
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = { ...s.inventory };
+      for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+      inv["trophy-map"] = (inv["trophy-map"] || 0) + 1;
+      inv["trophy-compass"] = (inv["trophy-compass"] || 0) + 1;
+      inv["trophy-diving-gear"] = (inv["trophy-diving-gear"] || 0) + 1;
+      return { ...s, inventory: inv, chestOpened: true, hasDivingGear: true };
+    });
+    play("questComplete");
+    toast("Chest opened!");
+    return true;
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
+  };
+
+  const resetProgress = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setState(DEFAULT_STATE);
+    setScreen("beach");
+    toast("Progress reset");
   };
 
   const zone = SCREEN_ZONE[screen];
@@ -194,9 +233,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       emptyBucket,
       craft,
       claimQuest,
+      openChest,
       hasEnough,
       play,
       setAudioSetting,
+      resetProgress,
       bucketCapacity: BUCKET_CAPACITY,
       lastToast,
     }),

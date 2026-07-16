@@ -4,10 +4,13 @@ export interface QuestDef {
   from: string;
   letter: string;
   requires: { itemId: string; count: number }[];
+  requiresCraft?: string;
+  requiresFlag?: string;
   rewardItemId?: string;
   rewardCount?: number;
   rewardLabel: string;
   unlocksWorkshop?: boolean;
+  phase: 1 | 2;
 }
 
 export const QUESTS: QuestDef[] = [
@@ -18,6 +21,7 @@ export const QUESTS: QuestDef[] = [
     letter: "Dear Beachkeeper, I am studying the flora of the outer islands, but my supply of soil-enriching materials has run low. I hear the coconuts on your beach are exceptionally nutrient-rich! If you could shake a few down and gather them, I would be eternally grateful.",
     requires: [{ itemId: "coconut", count: 3 }],
     rewardLabel: "Wild Hibiscus Seeds 🌺",
+    phase: 1,
   },
   {
     id: "shellseeker",
@@ -28,6 +32,7 @@ export const QUESTS: QuestDef[] = [
     rewardItemId: "pearl-pink",
     rewardCount: 1,
     rewardLabel: "A sparkling Pink Pearl",
+    phase: 1,
   },
   {
     id: "harbormaster",
@@ -38,6 +43,7 @@ export const QUESTS: QuestDef[] = [
     rewardItemId: "raw-driftwood-planks",
     rewardCount: 1,
     rewardLabel: "A Weathered Boat Plank (keep this rare salvage for later)",
+    phase: 1,
   },
   {
     id: "glassartisan",
@@ -47,5 +53,31 @@ export const QUESTS: QuestDef[] = [
     requires: [{ itemId: "glass-green", count: 4 }],
     rewardLabel: "Blueprints for crafting Melodic Wind Chimes",
     unlocksWorkshop: true,
+    phase: 1,
+  },
+  {
+    id: "marinebiologist",
+    title: "The Marine Biologist",
+    from: "A marine biologist studying the reef",
+    letter: "Dear Sanctuary Caretaker, I am tracking a highly elusive species of fish called the Rainbow Seahorse. They love to hide near colorful, handmade structures. If you could build a small grotto out of your colorful sea glass, we might just spot one!",
+    requires: [],
+    requiresCraft: "fish-grotto",
+    requiresFlag: "rowboatRepaired",
+    rewardItemId: "trophy-nautilus",
+    rewardCount: 1,
+    rewardLabel: "A highly prized Golden Nautilus Shell",
+    phase: 2,
+  },
+  {
+    id: "stargazer",
+    title: "The Star-Gazer",
+    from: "A distant observatory watcher",
+    letter: "To the One Looking Up, I watch the stars from a distant observatory. Sometimes, rare celestial dust falls into the ocean and washes ashore as glowing, neon-colored glass. If you find any of this 'glowing glass', please keep it safe — it holds the light of the stars.",
+    requires: [{ itemId: "glass-rainbow", count: 3 }],
+    requiresFlag: "rowboatRepaired",
+    rewardItemId: "trophy-brass-dial",
+    rewardCount: 1,
+    rewardLabel: "A Weathered Brass Dial (a vintage shipwreck restoration part)",
+    phase: 2,
   },
 ];
