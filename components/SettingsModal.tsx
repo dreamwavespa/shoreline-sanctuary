@@ -25,7 +25,15 @@ function Slider({
         step={0.01}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
+        onInput={(e) => onChange(parseFloat((e.target as HTMLInputElement).value))}
         className="w-full accent-teal-600"
+        style={{
+          touchAction: "pan-x",
+          WebkitAppearance: "none",
+          appearance: "none",
+          height: 28,
+          background: "transparent",
+        }}
       />
       {hint && <p className="text-[11px] text-amber-600/80 mt-0.5">{hint}</p>}
     </div>
@@ -41,11 +49,15 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
       <div
         className="w-full sm:max-w-sm bg-[#fbf3e3] rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
-        style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
+        style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))", touchAction: "pan-y" }}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-amber-900">Sound Settings</h2>
-          <button onClick={onClose} className="text-amber-700 text-2xl leading-none px-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-amber-700 text-2xl leading-none px-2"
+          >
             &times;
           </button>
         </div>
@@ -70,8 +82,9 @@ export default function SettingsModal({ onClose }: { onClose: () => void }) {
         />
 
         <button
+          type="button"
           onClick={() => setAudioSetting("musicMuted", !audio.musicMuted)}
-          className={`w-full mt-2 py-2.5 rounded-xl font-semibold transition ${
+          className={`w-full mt-2 py-3 rounded-xl font-semibold transition active:scale-[0.98] ${
             audio.musicMuted ? "bg-amber-200 text-amber-800" : "bg-teal-600 text-white"
           }`}
         >
