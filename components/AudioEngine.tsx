@@ -3,6 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { useGame, Zone } from "@/lib/store";
 import { MUSIC, AMBIENCE_LOOP } from "@/lib/media";
 
+// IMPORTANT: iOS Safari silently ignores HTMLMediaElement.volume — it is a
+// hard platform restriction (volume there is only controllable by the
+// hardware buttons/silent switch). Setting `audio.volume = x` is a no-op on
+// iPhone, which is why sliders/mute previously updated the UI but never
+// changed anything audible on an actual device. The fix is to route
+// playback through the Web Audio API and control loudness with a GainNode
+// instead, which iOS *does* allow JS to control.
+
 const TRACKS: Record<Zone, string> = {
   beach: MUSIC.beach,
   lighthouse: MUSIC.lighthouse,
@@ -31,25 +39,76 @@ export default function AudioEngine() {
   const settingsRef = useRef(state.audio);
   const zoneRef = useRef(zone);
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const musicGainRef = useRef<GainNode | null>(null);
+  const ambienceGainRef = useRef<GainNode | null>(null);
+  const graphBuilt = useRef(false);
+
   zoneRef.current = zone;
   settingsRef.current = state.audio;
 
+  const ensureGraph = () => {
+    if (graphBuilt.current) return;
+    if (!musicRef.current || !ambienceRef.current) return;
+    try {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx: AudioContext = new Ctx();
+      audioCtxRef.current = ctx;
+
+      const musicSource = ctx.createMediaElementSource(musicRef.current);
+      const musicGain = ctx.createGain();
+      musicGain.gain.value = 0;
+      musicSource.connect(musicGain).connect(ctx.destination);
+      musicGainRef.current = musicGain;
+
+      const ambienceSource = ctx.createMediaElementSource(ambienceRef.current);
+      const ambienceGain = ctx.createGain();
+      ambienceGain.gain.value = 0;
+      ambienceSource.connect(ambienceGain).connect(ctx.destination);
+      ambienceGainRef.current = ambienceGain;
+
+      graphBuilt.current = true;
+
+      if (process.env.NODE_ENV !== "production") {
+        (window as any).__shorelineAudioDebug = () => ({
+          usingWebAudio: true,
+          contextState: ctx.state,
+          musicGain: musicGainRef.current?.gain.value,
+          ambienceGain: ambienceGainRef.current?.gain.value,
+        });
+      }
+    } catch {
+      // If building the Web Audio graph fails for any reason, tick() below
+      // falls back to setting .volume directly (works everywhere except iOS).
+      if (process.env.NODE_ENV !== "production") {
+        (window as any).__shorelineAudioDebug = () => ({
+          usingWebAudio: false,
+          musicVolume: musicRef.current?.volume,
+          ambienceVolume: ambienceRef.current?.volume,
+        });
+      }
+    }
+  };
+
+  // Unlock audio + resume the AudioContext on the first user gesture
+  // (required by both HTMLMediaElement autoplay policy and Web Audio API
+  // on iOS Safari).
   useEffect(() => {
     if (unlocked) return;
     const unlock = () => {
-      const all = [musicRef.current, ambienceRef.current];
-      Promise.all(
-        all.map((a) => {
-          if (!a) return Promise.resolve();
-          a.volume = 0;
-          return a.play().catch(() => {});
-        })
-      ).then(() => setUnlocked(true));
+      ensureGraph();
+      const ctx = audioCtxRef.current;
+      const els = [musicRef.current, ambienceRef.current];
+      Promise.all([
+        ctx ? ctx.resume().catch(() => {}) : Promise.resolve(),
+        ...els.map((a) => (a ? a.play().catch(() => {}) : Promise.resolve())),
+      ]).then(() => setUnlocked(true));
     };
     window.addEventListener("pointerdown", unlock, { once: true });
     return () => window.removeEventListener("pointerdown", unlock);
   }, [unlocked]);
 
+  // Swap the music track's source whenever the zone actually changes.
   useEffect(() => {
     if (currentZoneRef.current === zone) return;
     currentZoneRef.current = zone;
@@ -59,12 +118,16 @@ export default function AudioEngine() {
     el.src = TRACKS[zone];
     el.loop = true;
     currentVol.current.music = 0;
+    if (musicGainRef.current) musicGainRef.current.gain.value = 0;
     el.volume = 0;
     if (wasPlaying || unlocked) {
       void el.play().catch(() => {});
     }
   }, [zone, unlocked]);
 
+  // Fade loop: guarded so a single bad frame can never permanently kill the
+  // rAF chain. Prefers Web Audio GainNode volume control (works on iOS);
+  // falls back to HTMLMediaElement.volume only if the graph failed to build.
   useEffect(() => {
     let raf: number;
     let last = performance.now();
@@ -79,13 +142,24 @@ export default function AudioEngine() {
         const musicTarget = settings.musicMuted ? 0 : music * master;
         const ambienceTarget = ambience * master;
 
-        const speed = 0.8;
+        const speed = 0.8; // volume units per second (~1.2s fade)
         const cv = currentVol.current;
         cv.music = moveTowards(cv.music, musicTarget, speed * dt);
         cv.ambience = moveTowards(cv.ambience, ambienceTarget, speed * dt);
 
-        if (musicRef.current) musicRef.current.volume = clamp01(cv.music);
-        if (ambienceRef.current) ambienceRef.current.volume = clamp01(cv.ambience);
+        const mv = clamp01(cv.music);
+        const av = clamp01(cv.ambience);
+
+        if (musicGainRef.current) {
+          musicGainRef.current.gain.value = mv;
+        } else if (musicRef.current) {
+          musicRef.current.volume = mv;
+        }
+        if (ambienceGainRef.current) {
+          ambienceGainRef.current.gain.value = av;
+        } else if (ambienceRef.current) {
+          ambienceRef.current.volume = av;
+        }
       } catch {
         // Never let a stray error kill the loop — just skip this frame.
       }
