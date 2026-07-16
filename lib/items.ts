@@ -4,10 +4,10 @@ export interface ItemDef {
   id: string;
   name: string;
   category: ItemCategory;
-  icon: string; // hosted URL or emoji
+  icon: string;
   isEmoji?: boolean;
   rarity: "common" | "uncommon" | "rare";
-  sfx: string; // key in SFX map
+  sfx: string;
 }
 
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
@@ -49,6 +49,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "trophy-diving-gear": { id: "trophy-diving-gear", name: "Diving Gear", category: "special", icon: "🤿", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-nautilus": { id: "trophy-nautilus", name: "Golden Nautilus Shell", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "trophy-brass-dial": { id: "trophy-brass-dial", name: "Weathered Brass Dial", category: "special", icon: "🕰️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "trophy-ship-bell": { id: "trophy-ship-bell", name: "Old Ship Bell", category: "special", icon: "🔔", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "trophy-rose-window": { id: "trophy-rose-window", name: "Mosaic Rose Window Blueprints", category: "special", icon: "🪟", isEmoji: true, rarity: "rare", sfx: "questComplete" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -100,6 +102,17 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "raw-driftwood-planks", weight: 4 },
 ];
 
+export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
+  { id: "raw-driftwood-arch", weight: 14 },
+  { id: "raw-driftwood-planks", weight: 10 },
+  { id: "raw-barnacle-wood", weight: 10 },
+  { id: "pearl-green", weight: 6 },
+  { id: "pearl-amber", weight: 6 },
+  { id: "glass-rainbow", weight: 4 },
+  { id: "glass-purple", weight: 6 },
+  { id: "shell-abalone", weight: 5 },
+];
+
 function rollFrom(pool: { id: string; weight: number }[]): string {
   const total = pool.reduce((s, e) => s + e.weight, 0);
   let r = Math.random() * total;
@@ -116,4 +129,8 @@ export function rollSpawn(): string {
 
 export function rollCoveSpawn(): string {
   return rollFrom(COVE_SPAWN_POOL);
+}
+
+export function rollReefSpawn(): string {
+  return rollFrom(REEF_SPAWN_POOL);
 }

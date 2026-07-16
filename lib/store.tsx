@@ -4,7 +4,7 @@ import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface AudioSettings {
@@ -13,6 +13,8 @@ export interface AudioSettings {
   ambience: number;
   musicMuted: boolean;
 }
+
+const NET_CUT_TARGET = 8;
 
 interface GameState {
   inventory: Record<string, number>;
@@ -26,6 +28,10 @@ interface GameState {
   rowboatRepaired: boolean;
   chestOpened: boolean;
   hasDivingGear: boolean;
+  netProgress: number;
+  ghostNetCut: boolean;
+  shipRestored: boolean;
+  gameCompleted: boolean;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -42,6 +48,10 @@ const DEFAULT_STATE: GameState = {
   rowboatRepaired: false,
   chestOpened: false,
   hasDivingGear: false,
+  netProgress: 0,
+  ghostNetCut: false,
+  shipRestored: false,
+  gameCompleted: false,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -51,6 +61,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   bottles: "beach",
   cove: "beach",
   lighthouse: "lighthouse",
+  reef: "underwater",
 };
 
 interface Ctx {
@@ -63,11 +74,14 @@ interface Ctx {
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
+  cutNet: () => void;
+  restoreShip: (cost: { itemId: string; count: number }[]) => boolean;
   hasEnough: (requires: { itemId: string; count: number }[]) => boolean;
   play: (key: string) => void;
   setAudioSetting: <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => void;
   resetProgress: () => void;
   bucketCapacity: number;
+  netCutTarget: number;
   lastToast: string | null;
 }
 
@@ -185,6 +199,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         inventory: inv,
         questProgress: { ...s.questProgress, [quest.id]: true },
         workshopUnlocked: quest.unlocksWorkshop ? true : s.workshopUnlocked,
+        gameCompleted: quest.id === "grandreunion" ? true : s.gameCompleted,
       };
     });
     play("questComplete");
@@ -205,6 +220,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
     play("questComplete");
     toast("Chest opened!");
+    return true;
+  };
+
+  const cutNet = () => {
+    setState((s) => {
+      if (s.ghostNetCut) return s;
+      const nextProgress = Math.min(NET_CUT_TARGET, s.netProgress + 1);
+      const justFinished = nextProgress >= NET_CUT_TARGET;
+      return { ...s, netProgress: nextProgress, ghostNetCut: justFinished || s.ghostNetCut };
+    });
+    const willFinish = stateRef.current.netProgress + 1 >= NET_CUT_TARGET;
+    play(willFinish ? "questComplete" : "plastic");
+    toast(willFinish ? "Ghost net cleared!" : "Snip!");
+  };
+
+  const restoreShip = (cost: { itemId: string; count: number }[]) => {
+    if (state.shipRestored) return false;
+    if (!state.ghostNetCut) return false;
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = { ...s.inventory };
+      for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+      return { ...s, inventory: inv, shipRestored: true };
+    });
+    play("craftSuccess");
+    toast("The shipwreck is restored!");
     return true;
   };
 
@@ -234,11 +275,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       claimQuest,
       openChest,
+      cutNet,
+      restoreShip,
       hasEnough,
       play,
       setAudioSetting,
       resetProgress,
       bucketCapacity: BUCKET_CAPACITY,
+      netCutTarget: NET_CUT_TARGET,
       lastToast,
     }),
     [state, screen, zone, lastToast]

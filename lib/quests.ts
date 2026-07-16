@@ -10,7 +10,7 @@ export interface QuestDef {
   rewardCount?: number;
   rewardLabel: string;
   unlocksWorkshop?: boolean;
-  phase: 1 | 2;
+  phase: 1 | 2 | 3;
 }
 
 export const QUESTS: QuestDef[] = [
@@ -79,5 +79,39 @@ export const QUESTS: QuestDef[] = [
     rewardCount: 1,
     rewardLabel: "A Weathered Brass Dial (a vintage shipwreck restoration part)",
     phase: 2,
+  },
+  {
+    id: "reefguardian",
+    title: "The Reef Guardian",
+    from: "A migrating pod of whales",
+    letter: "Urgent Message from the Deep, A migrating pod of whales just passed by, but they report that a giant, forgotten nylon fishing net has snagged on the coral reef below your shore. It's trapping the local fish. Please, put on your diving gear and help us clear it!",
+    requires: [],
+    requiresFlag: "ghostNetCut",
+    rewardItemId: "trophy-ship-bell",
+    rewardCount: 1,
+    rewardLabel: "A beautifully oxidised, historic Old Ship Bell",
+    phase: 3,
+  },
+  {
+    id: "shipsghost",
+    title: "The Ship's Ghost",
+    from: "The captain of the Sovereign",
+    letter: "To the Living Soul Above, Centuries ago, I was the captain of the Sovereign. We hit a reef during a great storm, and my beautiful ship was lost to the tides. I do not wish for gold — only to see my old ship home to the ocean's creatures once more. Will you help rebuild her bones?",
+    requires: [],
+    requiresFlag: "shipRestored",
+    rewardItemId: "trophy-rose-window",
+    rewardCount: 1,
+    rewardLabel: "Exclusive Mosaic Rose Window blueprints for the captain's cabin",
+    phase: 3,
+  },
+  {
+    id: "grandreunion",
+    title: "The Grand Reunion",
+    from: "Every friend of the sanctuary",
+    letter: "Dear Friend of the Ocean, Word of your sanctuary has reached ports far and wide! A group of us — botanists, artisans, and sailors alike — are boarding a boat to visit your legendary shores. We cannot wait to see the restored ship and the thriving marine life you have nurtured.",
+    requires: [],
+    requiresFlag: "shipRestored",
+    rewardLabel: "The Grand Finale! Your sanctuary becomes a living Marine Museum.",
+    phase: 3,
   },
 ];
