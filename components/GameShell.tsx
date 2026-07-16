@@ -7,6 +7,7 @@ import Workshop from "./Workshop";
 import BottleQuests from "./BottleQuests";
 import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
+import ReefScene from "./ReefScene";
 import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
 
@@ -16,7 +17,8 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "workshop", label: "Workshop", icon: "🔨" },
   { id: "bottles", label: "Bottles", icon: "🍾" },
   { id: "cove", label: "Cove", icon: "🚣" },
-  { id: "lighthouse", label: "Lighthouse", icon: "🗼" },
+  { id: "lighthouse", label: "Tower", icon: "🗼" },
+  { id: "reef", label: "Reef", icon: "🐠" },
 ];
 
 export default function GameShell() {
@@ -27,16 +29,20 @@ export default function GameShell() {
   const isLocked = (id: Screen) => {
     if (id === "cove") return !state.rowboatRepaired;
     if (id === "lighthouse") return !state.chestOpened;
+    if (id === "reef") return !state.hasDivingGear;
     return false;
+  };
+
+  const lockMessage = (id: Screen) => {
+    if (id === "cove") return "Fill your bucket, then repair the rowboat in the Workshop first!";
+    if (id === "lighthouse") return "Open the treasure chest on the Hidden Beach first!";
+    if (id === "reef") return "Open the treasure chest on the Hidden Beach to get your Diving Gear first!";
+    return "";
   };
 
   const handleTab = (id: Screen) => {
     if (isLocked(id)) {
-      setLockMsg(
-        id === "cove"
-          ? "Fill your bucket, then repair the rowboat in the Workshop first!"
-          : "Open the treasure chest on the Hidden Beach first!"
-      );
+      setLockMsg(lockMessage(id));
       window.setTimeout(() => setLockMsg((m) => (m ? null : m)), 2200);
       return;
     }
@@ -72,6 +78,7 @@ export default function GameShell() {
         {screen === "bottles" && <BottleQuests />}
         {screen === "cove" && <CoveScene />}
         {screen === "lighthouse" && <LighthouseScreen />}
+        {screen === "reef" && <ReefScene />}
 
         {(lastToast || lockMsg) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">
@@ -83,7 +90,7 @@ export default function GameShell() {
       </main>
 
       <nav
-        className="grid grid-cols-6 bg-[#0b3d3a] border-t border-white/10"
+        className="grid grid-cols-7 bg-[#0b3d3a] border-t border-white/10"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {TABS.map((tab) => {
@@ -93,11 +100,11 @@ export default function GameShell() {
               type="button"
               key={tab.id}
               onClick={() => handleTab(tab.id)}
-              className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[9px] transition-colors ${
                 screen === tab.id ? "text-amber-300" : locked ? "text-amber-50/30" : "text-amber-50/60"
               }`}
             >
-              <span className="text-lg leading-none">{locked ? "🔒" : tab.icon}</span>
+              <span className="text-base leading-none">{locked ? "🔒" : tab.icon}</span>
               {tab.label}
             </button>
           );

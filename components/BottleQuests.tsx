@@ -20,6 +20,7 @@ export default function BottleQuests() {
 
   const isVisible = (q: QuestDef) => {
     if (q.phase === 2 && !state.rowboatRepaired) return false;
+    if (q.phase === 3 && !state.hasDivingGear) return false;
     return true;
   };
 
@@ -30,6 +31,13 @@ export default function BottleQuests() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
       </div>
       <div className="px-4 -mt-4 relative space-y-3">
+        {state.gameCompleted && (
+          <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-teal-100 p-5 shadow-md ring-1 ring-amber-300 text-center mb-2">
+            <p className="text-3xl mb-1">🎉</p>
+            <p className="font-bold text-amber-900">Shoreline Sanctuary — Complete!</p>
+            <p className="text-xs text-amber-800 mt-1">Thank you for restoring this little corner of the ocean.</p>
+          </div>
+        )}
         {QUESTS.filter(isVisible).map((q) => {
           const done = state.questProgress[q.id];
           const ready = isReady(q);
@@ -68,6 +76,11 @@ export default function BottleQuests() {
                     {q.requiresCraft && (
                       <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${state.crafted.includes(q.requiresCraft) ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>
                         🔨 {state.crafted.includes(q.requiresCraft) ? "Crafted" : "Needs crafting"}
+                      </div>
+                    )}
+                    {q.requiresFlag && (
+                      <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${(state as any)[q.requiresFlag] ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>
+                        {(state as any)[q.requiresFlag] ? "✓ Ready" : "Not yet"}
                       </div>
                     )}
                   </div>
