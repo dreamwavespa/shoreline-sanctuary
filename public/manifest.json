@@ -1,0 +1,14 @@
+{
+  "name": "Shoreline Sanctuary",
+  "short_name": "Shoreline",
+  "description": "A cozy beachcombing and restoration game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b3d3a",
+  "theme_color": "#0b3d3a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3/924154cd-d1da-40d1-bf20-1445c25f0504.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3/c02984e6-d6a6-4ea3-b96a-5115e073bcba.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
