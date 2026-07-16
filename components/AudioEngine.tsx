@@ -9,9 +9,16 @@ const TRACKS: Record<Zone, string> = {
   underwater: MUSIC.underwater,
 };
 
+function clamp01(v: number) {
+  if (Number.isNaN(v)) return 0;
+  return Math.max(0, Math.min(1, v));
+}
+
 function moveTowards(current: number, target: number, maxDelta: number) {
-  if (Math.abs(target - current) <= maxDelta) return target;
-  return current + Math.sign(target - current) * maxDelta;
+  const c = clamp01(current);
+  const t = clamp01(target);
+  if (Math.abs(t - c) <= maxDelta) return t;
+  return clamp01(c + Math.sign(t - c) * maxDelta);
 }
 
 export default function AudioEngine() {
@@ -62,20 +69,26 @@ export default function AudioEngine() {
     let raf: number;
     let last = performance.now();
     const tick = (now: number) => {
-      const dt = Math.min(0.1, (now - last) / 1000);
-      last = now;
-      const settings = settingsRef.current;
-      const musicTarget = settings.musicMuted ? 0 : settings.music * settings.master;
-      const ambienceTarget = settings.ambience * settings.master;
+      try {
+        const dt = Math.max(0, Math.min(0.1, (now - last) / 1000));
+        last = now;
+        const settings = settingsRef.current;
+        const master = clamp01(settings.master);
+        const music = clamp01(settings.music);
+        const ambience = clamp01(settings.ambience);
+        const musicTarget = settings.musicMuted ? 0 : music * master;
+        const ambienceTarget = ambience * master;
 
-      const speed = 0.8;
-      const cv = currentVol.current;
-      cv.music = moveTowards(cv.music, musicTarget, speed * dt);
-      cv.ambience = moveTowards(cv.ambience, ambienceTarget, speed * dt);
+        const speed = 0.8;
+        const cv = currentVol.current;
+        cv.music = moveTowards(cv.music, musicTarget, speed * dt);
+        cv.ambience = moveTowards(cv.ambience, ambienceTarget, speed * dt);
 
-      if (musicRef.current) musicRef.current.volume = cv.music;
-      if (ambienceRef.current) ambienceRef.current.volume = cv.ambience;
-
+        if (musicRef.current) musicRef.current.volume = clamp01(cv.music);
+        if (ambienceRef.current) ambienceRef.current.volume = clamp01(cv.ambience);
+      } catch {
+        // Never let a stray error kill the loop — just skip this frame.
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
