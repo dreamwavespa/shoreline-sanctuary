@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
-import { SCENES } from "@/lib/media";
+import { SCENES, MUSIC } from "@/lib/media";
 
 interface Spot {
   key: string;
@@ -30,6 +30,88 @@ const RESTORE_COST = [
   { itemId: "raw-driftwood-planks", count: 3 },
   { itemId: "raw-barnacle-wood", count: 3 },
 ];
+
+const LIBBY_TRADES: { give: { itemId: string; count: number }; get: { itemId: string; count: number } }[] = [
+  { give: { itemId: "shell-flake-blue", count: 1 }, get: { itemId: "nautilus-flake", count: 1 } },
+  { give: { itemId: "pearl-deepsea", count: 2 }, get: { itemId: "star-sand", count: 1 } },
+  { give: { itemId: "raw-barnacle-wood", count: 2 }, get: { itemId: "pearl-deepsea", count: 1 } },
+];
+
+function TradeRow({ trade }: { trade: (typeof LIBBY_TRADES)[number] }) {
+  const { state, tradeWithLibby, hasEnough } = useGame();
+  const giveDef = ITEMS[trade.give.itemId];
+  const getDef = ITEMS[trade.get.itemId];
+  const can = hasEnough([trade.give]);
+  const have = state.inventory[trade.give.itemId] || 0;
+
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-white/80 p-3 ring-1 ring-cyan-200 mb-2">
+      <div className="flex items-center gap-2 text-sm text-cyan-900">
+        <span>{giveDef.isEmoji ? giveDef.icon : "🔹"}</span>
+        <span className="text-xs">{trade.give.count}x {giveDef.name} ({have})</span>
+        <span className="mx-1">→</span>
+        <span>{getDef.isEmoji ? getDef.icon : "🔹"}</span>
+        <span className="text-xs">{trade.get.count}x {getDef.name}</span>
+      </div>
+      <button
+        type="button"
+        disabled={!can}
+        onClick={() => tradeWithLibby(trade.give, trade.get)}
+        className="text-xs font-semibold px-3 py-1.5 rounded-full text-white disabled:bg-cyan-200 disabled:text-cyan-500 bg-cyan-600 active:bg-cyan-700"
+      >
+        Trade
+      </button>
+    </div>
+  );
+}
+
+function LibbyCard() {
+  const { state, pryTrap, trapPryTarget } = useGame();
+  const pct = Math.min(100, Math.round((state.trapProgress / trapPryTarget) * 100));
+
+  if (!state.libbyRescued) {
+    return (
+      <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-cyan-200">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden">
+            <Image src={SCENES.lobsterTrap} alt="Lobster trap" fill unoptimized className="object-cover" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-cyan-900">A Trapped Blue Lobster</h2>
+            <p className="text-sm text-cyan-700">Libby is tangled in an old lobster trap. Pry it open, piece by piece.</p>
+          </div>
+        </div>
+        <div className="h-3 rounded-full bg-cyan-100 overflow-hidden ring-1 ring-cyan-200 mb-3">
+          <div className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-300" style={{ width: `${pct}%` }} />
+        </div>
+        <button
+          type="button"
+          onClick={pryTrap}
+          className="w-full py-3 rounded-xl font-semibold text-white transition bg-cyan-600 active:bg-cyan-700 shadow active:scale-[0.98]"
+        >
+          🦞 Pry the Trap ({state.trapProgress}/{trapPryTarget})
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-cyan-200">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden">
+          <Image src={SCENES.lobsterTrap} alt="Libby the Blue Lobster" fill unoptimized className="object-cover" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-cyan-900">Libby the Blue Lobster</h2>
+          <p className="text-sm text-cyan-700">Free and grateful — she loves to trade rare reef finds.</p>
+        </div>
+      </div>
+      {LIBBY_TRADES.map((t, i) => (
+        <TradeRow key={i} trade={t} />
+      ))}
+    </div>
+  );
+}
 
 function GhostNetCard() {
   const { state, cutNet, netCutTarget } = useGame();
@@ -125,11 +207,26 @@ export default function ReefScene() {
   const { state, collectItem } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
-  const [tab, setTab] = useState<"dive" | "restore">("dive");
+  const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
+  const musicRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setSpots(randomSpots(6));
   }, []);
+
+  useEffect(() => {
+    const el = musicRef.current;
+    if (!el) return;
+    if (tab === "libby") {
+      el.volume = 0.5 * state.audio.master * state.audio.music * (state.audio.musicMuted ? 0 : 1);
+      void el.play().catch(() => {});
+    } else {
+      el.pause();
+    }
+    return () => {
+      el.pause();
+    };
+  }, [tab, state.audio.master, state.audio.music, state.audio.musicMuted]);
 
   if (!state.hasDivingGear) {
     return (
@@ -157,6 +254,8 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
+      <audio ref={musicRef} src={MUSIC.deepReefDescent} loop preload="none" />
+
       <div className="relative w-full h-[48%] min-h-[240px] overflow-hidden select-none">
         <Image src={SCENES.shipwreck} alt="Deep Reef shipwreck" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-blue-900/25" />
@@ -185,19 +284,26 @@ export default function ReefScene() {
           <button
             type="button"
             onClick={() => setTab("dive")}
-            className={`flex-1 py-2 rounded-full text-sm font-semibold ${tab === "dive" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
+            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "dive" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
           >
             🕸️ Ghost Net
           </button>
           <button
             type="button"
             onClick={() => setTab("restore")}
-            className={`flex-1 py-2 rounded-full text-sm font-semibold ${tab === "restore" ? "bg-amber-700 text-white" : "bg-white/80 text-amber-800"}`}
+            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "restore" ? "bg-amber-700 text-white" : "bg-white/80 text-amber-800"}`}
           >
             ⚓ Shipwreck
           </button>
+          <button
+            type="button"
+            onClick={() => setTab("libby")}
+            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "libby" ? "bg-cyan-600 text-white" : "bg-white/80 text-cyan-800"}`}
+          >
+            🦞 Libby
+          </button>
         </div>
-        {tab === "dive" ? <GhostNetCard /> : <ShipwreckCard />}
+        {tab === "dive" ? <GhostNetCard /> : tab === "restore" ? <ShipwreckCard /> : <LibbyCard />}
         <p className="text-xs text-teal-200/70 text-center mt-4">Tap the glinting debris above to collect restoration materials.</p>
       </div>
     </div>
