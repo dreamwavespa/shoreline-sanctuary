@@ -1,4 +1,4 @@
-export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special";
+export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special" | "food";
 
 export interface ItemDef {
   id: string;
@@ -51,6 +51,24 @@ export const ITEMS: Record<string, ItemDef> = {
   "trophy-brass-dial": { id: "trophy-brass-dial", name: "Weathered Brass Dial", category: "special", icon: "🕰️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-ship-bell": { id: "trophy-ship-bell", name: "Old Ship Bell", category: "special", icon: "🔔", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-rose-window": { id: "trophy-rose-window", name: "Mosaic Rose Window Blueprints", category: "special", icon: "🪟", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "wild-beach-plum": { id: "wild-beach-plum", name: "Wild Beach Plum", category: "raw", icon: "🫠", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "sea-rose-petal": { id: "sea-rose-petal", name: "Sea Rose Petal", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "seaweed-fronds": { id: "seaweed-fronds", name: "Seaweed Fronds", category: "raw", icon: "🌿", isEmoji: true, rarity: "common", sfx: "driftwood" },
+  "soothing-sea-salt": { id: "soothing-sea-salt", name: "Soothing Sea Salt", category: "raw", icon: "🧂", isEmoji: true, rarity: "common", sfx: "shell" },
+  "beach-ball": { id: "beach-ball", name: "Beach Ball", category: "raw", icon: "🏐", isEmoji: true, rarity: "uncommon", sfx: "plastic" },
+  "copper-wire": { id: "copper-wire", name: "Weathered Copper Wire", category: "raw", icon: "〰️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "hemp-thread": { id: "hemp-thread", name: "Hemp Thread", category: "raw", icon: "🧵", isEmoji: true, rarity: "common", sfx: "driftwood" },
+  "coconut-cream": { id: "coconut-cream", name: "Coconut Cream", category: "special", icon: "🥥", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "luminous-sea-goo": { id: "luminous-sea-goo", name: "Luminous Sea-Goo", category: "special", icon: "✨", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "recycled-rubber": { id: "recycled-rubber", name: "Recycled Rubber Strip", category: "special", icon: "♻️", isEmoji: true, rarity: "uncommon", sfx: "plastic" },
+  "pearl-deepsea": { id: "pearl-deepsea", name: "Deep Sea Pearl", category: "special", icon: "🔵", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "shell-flake-blue": { id: "shell-flake-blue", name: "Iridescent Blue Shell Flake", category: "special", icon: "🔷", isEmoji: true, rarity: "rare", sfx: "shell" },
+  "nautilus-flake": { id: "nautilus-flake", name: "Iridescent Nautilus Flake", category: "special", icon: "🌀", isEmoji: true, rarity: "rare", sfx: "shell" },
+  "star-sand": { id: "star-sand", name: "Sparkling Star-Sand", category: "special", icon: "🌠", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "food-beach-plum-jelly": { id: "food-beach-plum-jelly", name: "Beach Plum Jelly", category: "food", icon: "🫙", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "food-sea-rose-milk": { id: "food-sea-rose-milk", name: "Soothing Sea-Rose Milk", category: "food", icon: "🥛", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "food-seaweed-chips": { id: "food-seaweed-chips", name: "Crispy Seaweed Chips", category: "food", icon: "🍟", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-campfire-marshmallow": { id: "food-campfire-marshmallow", name: "Campfire Marshmallow", category: "food", icon: "🍡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -82,6 +100,12 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "pearl-silver", weight: 1 },
   { id: "pearl-pink", weight: 1 },
   { id: "pearl-blue", weight: 1 },
+  { id: "wild-beach-plum", weight: 7 },
+  { id: "sea-rose-petal", weight: 6 },
+  { id: "seaweed-fronds", weight: 8 },
+  { id: "soothing-sea-salt", weight: 8 },
+  { id: "beach-ball", weight: 4 },
+  { id: "hemp-thread", weight: 6 },
 ];
 
 export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -100,6 +124,8 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "pearl-amber", weight: 5 },
   { id: "pearl-blue", weight: 6 },
   { id: "raw-driftwood-planks", weight: 4 },
+  { id: "wild-beach-plum", weight: 4 },
+  { id: "copper-wire", weight: 6 },
 ];
 
 export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -111,6 +137,7 @@ export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "glass-rainbow", weight: 4 },
   { id: "glass-purple", weight: 6 },
   { id: "shell-abalone", weight: 5 },
+  { id: "copper-wire", weight: 6 },
 ];
 
 function rollFrom(pool: { id: string; weight: number }[]): string {

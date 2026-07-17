@@ -7,6 +7,7 @@ const nextConfig = {
       { protocol: "https", hostname: "galaxy-prod.tlcdn.com" },
     ],
   },
+  devIndicators: false,
 };
 
 module.exports = nextConfig;

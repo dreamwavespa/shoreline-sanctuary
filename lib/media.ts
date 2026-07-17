@@ -11,12 +11,24 @@ export const SCENES = {
   treasureCove: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/24452388c2cd452faddcd564ad7ce3b7.webp",
   shipwreck: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/889fe3393ab54429b2142c95076933a7.webp",
   bucketStates: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/34b8bb2ecc694618b502795eab4d1338.webp",
+  jellyfish: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/596ca3a95c864f7598030f0b40088370.webp",
+  petBed: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/4944268393dc415281641f0e7b3609ee.webp",
+  telescopeStars: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/44fdd245fa1d4e20897ef5e25dc972c1.webp",
+  candlesWindow: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/88d4aaacee534acfb62d9a1408baa657.webp",
+  seaGlassPendant: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/1dd67dee1a54499d8a8d8894bb498425.webp",
+  beachPlumJelly: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/519ce391dce3418bb403204a45701b02.webp",
+  shipDeck: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/88a3d842d164410eb5c329c5d68c343a.webp",
+  lobsterTrap: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/5e4097ab50cd4607832ed48e13bed7c6.webp",
+  sealPontoon: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/908ffd5526974e38b77dfc1fdc4c4032.webp",
+  roseBowl: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/9121aeb40725481fa0e3b50a1d82be14.webp",
 };
 
 export const MUSIC = {
   beach: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2272649d13f1496683d46733ff6a4d7b.mp3",
   underwater: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2922b0a505d240a28037f7b469dd7d87.mp3",
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
+  kitchen: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f7f0c00c5c1d490e95569e0fcb2273d8.mp3",
+  deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
 };
 
 export const PWA_ICONS = {
