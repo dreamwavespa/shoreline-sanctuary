@@ -4,7 +4,7 @@ import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface AudioSettings {
@@ -15,6 +15,8 @@ export interface AudioSettings {
 }
 
 const NET_CUT_TARGET = 8;
+const TRAP_PRY_TARGET = 6;
+const ELLY_COOLDOWN_MS = 15000;
 
 interface GameState {
   inventory: Record<string, number>;
@@ -32,6 +34,16 @@ interface GameState {
   ghostNetCut: boolean;
   shipRestored: boolean;
   gameCompleted: boolean;
+  ellyLastTap: number;
+  snappyAwake: boolean;
+  snappyFedCount: number;
+  trapProgress: number;
+  libbyRescued: boolean;
+  marshmallowScratchCount: number;
+  marshmallowGifted: boolean;
+  saltyStreak: number;
+  saltyTotalCatches: number;
+  foundConstellations: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -52,6 +64,16 @@ const DEFAULT_STATE: GameState = {
   ghostNetCut: false,
   shipRestored: false,
   gameCompleted: false,
+  ellyLastTap: 0,
+  snappyAwake: false,
+  snappyFedCount: 0,
+  trapProgress: 0,
+  libbyRescued: false,
+  marshmallowScratchCount: 0,
+  marshmallowGifted: false,
+  saltyStreak: 0,
+  saltyTotalCatches: 0,
+  foundConstellations: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -62,6 +84,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   cove: "beach",
   lighthouse: "lighthouse",
   reef: "underwater",
+  ship: "beach",
 };
 
 interface Ctx {
@@ -72,6 +95,7 @@ interface Ctx {
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
+  cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
   cutNet: () => void;
@@ -82,7 +106,16 @@ interface Ctx {
   resetProgress: () => void;
   bucketCapacity: number;
   netCutTarget: number;
+  trapPryTarget: number;
   lastToast: string | null;
+  tapElly: () => { ok: boolean; secondsLeft?: number };
+  feedSnappy: () => boolean;
+  pryTrap: () => void;
+  tradeWithLibby: (give: { itemId: string; count: number }, get: { itemId: string; count: number }) => boolean;
+  scratchMarshmallow: () => void;
+  giftMarshmallow: () => boolean;
+  throwBallToSalty: () => { thrown: boolean; caught?: boolean };
+  addFoundConstellation: (id: string) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -168,20 +201,37 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const hasEnough = (requires: { itemId: string; count: number }[]) => {
-    return requires.every((r) => (state.inventory[r.itemId] || 0) >= r.count);
+    return requires.every((r) => (stateRef.current.inventory[r.itemId] || 0) >= r.count);
+  };
+
+  const deductCost = (inv: Record<string, number>, cost: { itemId: string; count: number }[]) => {
+    for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+    return inv;
   };
 
   const craft = (recipeId: string, cost: { itemId: string; count: number }[]) => {
     if (!hasEnough(cost)) return false;
     setState((s) => {
-      const inv = { ...s.inventory };
-      for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+      const inv = deductCost({ ...s.inventory }, cost);
       const next: GameState = { ...s, inventory: inv, crafted: [...s.crafted, recipeId] };
       if (recipeId === "rowboat-repair") next.rowboatRepaired = true;
       return next;
     });
     play("craftSuccess");
     toast("Crafted!");
+    return true;
+  };
+
+  const cook = (cost: { itemId: string; count: number }[], outputItemId: string, outputCount = 1) => {
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      inv[outputItemId] = (inv[outputItemId] || 0) + outputCount;
+      return { ...s, inventory: inv };
+    });
+    play("craftSuccess");
+    const def = ITEMS[outputItemId];
+    toast(def ? `Cooked ${def.name}!` : "Cooked!");
     return true;
   };
 
@@ -211,8 +261,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (state.chestOpened) return false;
     if (!hasEnough(cost)) return false;
     setState((s) => {
-      const inv = { ...s.inventory };
-      for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+      const inv = deductCost({ ...s.inventory }, cost);
       inv["trophy-map"] = (inv["trophy-map"] || 0) + 1;
       inv["trophy-compass"] = (inv["trophy-compass"] || 0) + 1;
       inv["trophy-diving-gear"] = (inv["trophy-diving-gear"] || 0) + 1;
@@ -240,13 +289,114 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!state.ghostNetCut) return false;
     if (!hasEnough(cost)) return false;
     setState((s) => {
-      const inv = { ...s.inventory };
-      for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
+      const inv = deductCost({ ...s.inventory }, cost);
       return { ...s, inventory: inv, shipRestored: true };
     });
     play("craftSuccess");
     toast("The shipwreck is restored!");
     return true;
+  };
+
+  const tapElly = () => {
+    const now = Date.now();
+    const elapsed = now - stateRef.current.ellyLastTap;
+    if (stateRef.current.ellyLastTap && elapsed < ELLY_COOLDOWN_MS) {
+      return { ok: false, secondsLeft: Math.ceil((ELLY_COOLDOWN_MS - elapsed) / 1000) };
+    }
+    setState((s) => {
+      const inv = { ...s.inventory };
+      inv["luminous-sea-goo"] = (inv["luminous-sea-goo"] || 0) + 1;
+      return { ...s, inventory: inv, ellyLastTap: now };
+    });
+    play("pearl");
+    toast("Elly shares some Luminous Sea-Goo! ✨");
+    return { ok: true };
+  };
+
+  const feedSnappy = () => {
+    const cost = [{ itemId: "food-sea-rose-milk", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, snappyAwake: true, snappyFedCount: s.snappyFedCount + 1 };
+    });
+    play("craftSuccess");
+    toast("Snappy wakes up, happy and refreshed! 🐢");
+    return true;
+  };
+
+  const pryTrap = () => {
+    setState((s) => {
+      if (s.libbyRescued) return s;
+      const nextProgress = Math.min(TRAP_PRY_TARGET, s.trapProgress + 1);
+      const justFinished = nextProgress >= TRAP_PRY_TARGET;
+      const inv = { ...s.inventory };
+      if (justFinished) inv["shell-flake-blue"] = (inv["shell-flake-blue"] || 0) + 1;
+      return { ...s, trapProgress: nextProgress, libbyRescued: justFinished || s.libbyRescued, inventory: inv };
+    });
+    const willFinish = stateRef.current.trapProgress + 1 >= TRAP_PRY_TARGET;
+    play(willFinish ? "questComplete" : "driftwood");
+    toast(willFinish ? "Libby the lobster is free! 🦞" : "Prying the trap...");
+  };
+
+  const tradeWithLibby = (give: { itemId: string; count: number }, get: { itemId: string; count: number }) => {
+    if (!stateRef.current.libbyRescued) return false;
+    if (!hasEnough([give])) return false;
+    setState((s) => {
+      const inv = { ...s.inventory };
+      inv[give.itemId] = (inv[give.itemId] || 0) - give.count;
+      inv[get.itemId] = (inv[get.itemId] || 0) + get.count;
+      return { ...s, inventory: inv };
+    });
+    play("shell");
+    toast("Libby trades treasures with you!");
+    return true;
+  };
+
+  const scratchMarshmallow = () => {
+    setState((s) => ({ ...s, marshmallowScratchCount: s.marshmallowScratchCount + 1 }));
+    try {
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate(40);
+      }
+    } catch {}
+    play("shell");
+    toast("Marshmallow purrs contentedly 🐈");
+  };
+
+  const giftMarshmallow = () => {
+    const cost = [{ itemId: "food-campfire-marshmallow", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, marshmallowGifted: true };
+    });
+    play("craftSuccess");
+    toast("Marshmallow the cat curls up happily by the hearth 🔥");
+    return true;
+  };
+
+  const throwBallToSalty = () => {
+    const cost = [{ itemId: "beach-ball", count: 1 }];
+    if (!hasEnough(cost)) return { thrown: false };
+    const caught = Math.random() < 0.7;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      const nextStreak = caught ? s.saltyStreak + 1 : 0;
+      const nextTotal = caught ? s.saltyTotalCatches + 1 : s.saltyTotalCatches;
+      if (caught && nextStreak % 3 === 0) {
+        inv["recycled-rubber"] = (inv["recycled-rubber"] || 0) + 1;
+        inv["pearl-deepsea"] = (inv["pearl-deepsea"] || 0) + 1;
+      }
+      return { ...s, inventory: inv, saltyStreak: nextStreak, saltyTotalCatches: nextTotal };
+    });
+    play(caught ? "questComplete" : "plastic");
+    toast(caught ? "Salty catches it! 🦭" : "Salty misses — try again!");
+    return { thrown: true, caught };
+  };
+
+  const addFoundConstellation = (id: string) => {
+    setState((s) => (s.foundConstellations.includes(id) ? s : { ...s, foundConstellations: [...s.foundConstellations, id] }));
   };
 
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
@@ -273,6 +423,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       collectItem,
       emptyBucket,
       craft,
+      cook,
       claimQuest,
       openChest,
       cutNet,
@@ -283,7 +434,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       resetProgress,
       bucketCapacity: BUCKET_CAPACITY,
       netCutTarget: NET_CUT_TARGET,
+      trapPryTarget: TRAP_PRY_TARGET,
       lastToast,
+      tapElly,
+      feedSnappy,
+      pryTrap,
+      tradeWithLibby,
+      scratchMarshmallow,
+      giftMarshmallow,
+      throwBallToSalty,
+      addFoundConstellation,
     }),
     [state, screen, zone, lastToast]
   );
