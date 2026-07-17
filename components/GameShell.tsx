@@ -8,17 +8,19 @@ import BottleQuests from "./BottleQuests";
 import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
 import ReefScene from "./ReefScene";
+import ShipScene from "./ShipScene";
 import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
 
 const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "beach", label: "Beach", icon: "🏖️" },
-  { id: "bucket", label: "Bucket", icon: "🪣" },
+  { id: "bucket", label: "Bucket", icon: "🧺" },
   { id: "workshop", label: "Workshop", icon: "🔨" },
   { id: "bottles", label: "Bottles", icon: "🍾" },
   { id: "cove", label: "Cove", icon: "🚣" },
-  { id: "lighthouse", label: "Tower", icon: "🗼" },
+  { id: "lighthouse", label: "Tower", icon: "🗼️" },
   { id: "reef", label: "Reef", icon: "🐠" },
+  { id: "ship", label: "Ship", icon: "⛵" },
 ];
 
 export default function GameShell() {
@@ -30,6 +32,7 @@ export default function GameShell() {
     if (id === "cove") return !state.rowboatRepaired;
     if (id === "lighthouse") return !state.chestOpened;
     if (id === "reef") return !state.hasDivingGear;
+    if (id === "ship") return !state.gameCompleted;
     return false;
   };
 
@@ -37,6 +40,7 @@ export default function GameShell() {
     if (id === "cove") return "Fill your bucket, then repair the rowboat in the Workshop first!";
     if (id === "lighthouse") return "Open the treasure chest on the Hidden Beach first!";
     if (id === "reef") return "Open the treasure chest on the Hidden Beach to get your Diving Gear first!";
+    if (id === "ship") return "Restore the shipwreck and complete The Grand Reunion to unlock the Community Ship!";
     return "";
   };
 
@@ -59,7 +63,7 @@ export default function GameShell() {
       <header className="flex items-center justify-between px-4 py-2 bg-[#0b3d3a] text-amber-50">
         <span className="font-serif text-lg tracking-wide">Shoreline Sanctuary</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs bg-white/10 rounded-full px-3 py-1">🪣 {state.bucketsFilled}</span>
+          <span className="text-xs bg-white/10 rounded-full px-3 py-1">🧺 {state.bucketsFilled}</span>
           <button
             type="button"
             aria-label="Sound settings"
@@ -79,6 +83,7 @@ export default function GameShell() {
         {screen === "cove" && <CoveScene />}
         {screen === "lighthouse" && <LighthouseScreen />}
         {screen === "reef" && <ReefScene />}
+        {screen === "ship" && <ShipScene />}
 
         {(lastToast || lockMsg) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">
@@ -90,7 +95,7 @@ export default function GameShell() {
       </main>
 
       <nav
-        className="grid grid-cols-7 bg-[#0b3d3a] border-t border-white/10"
+        className="grid grid-cols-8 bg-[#0b3d3a] border-t border-white/10"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {TABS.map((tab) => {
