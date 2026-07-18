@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES, MUSIC } from "@/lib/media";
-import { KITCHEN_RECIPES, JEWELRY_RECIPES } from "@/lib/recipes";
+import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -58,6 +58,7 @@ function RecipeCard({
   recipeId,
   locked,
   lockedMessage,
+  accent = "amber",
 }: {
   title: string;
   description: string;
@@ -65,6 +66,7 @@ function RecipeCard({
   recipeId: string;
   locked?: boolean;
   lockedMessage?: string;
+  accent?: string;
 }) {
   const { state, craft, hasEnough } = useGame();
   const canCraft = hasEnough(cost);
@@ -118,7 +120,30 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   );
 }
 
-type Tab = "crafting" | "kitchen" | "jewelry";
+function SandArtCard({ recipe }: { recipe: (typeof SAND_ART_RECIPES)[number] }) {
+  const { state, cook, hasEnough } = useGame();
+  const canMake = hasEnough(recipe.cost);
+  const madeCount = state.inventory[recipe.outputItemId] || 0;
+
+  return (
+    <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-pink-200 mb-4">
+      <h2 className="text-lg font-bold text-pink-900 mb-1">{recipe.name}</h2>
+      <p className="text-sm text-pink-700 mb-3">{recipe.description}</p>
+      <CostRow cost={recipe.cost} />
+      <button
+        type="button"
+        disabled={!canMake}
+        onClick={() => cook(recipe.cost, recipe.outputItemId, 1)}
+        className="w-full py-3 rounded-xl font-semibold text-white transition disabled:bg-pink-200 disabled:text-pink-500 bg-pink-600 active:bg-pink-700 shadow"
+      >
+        {canMake ? "🎨 Layer the Sand" : "Need More Sand"}
+      </button>
+      {madeCount > 0 && <p className="text-[11px] text-pink-700/70 mt-2 text-center">Bottled: {madeCount}</p>}
+    </div>
+  );
+}
+
+type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
 export default function Workshop() {
   const { state } = useGame();
@@ -139,6 +164,14 @@ export default function Workshop() {
     };
   }, [tab, state.audio.master, state.audio.music, state.audio.musicMuted]);
 
+  const TABS: { id: Tab; label: string; active: string; inactive: string }[] = [
+    { id: "crafting", label: "🔨 Crafting", active: "bg-teal-600 text-white", inactive: "bg-white/80 text-teal-800" },
+    { id: "kitchen", label: "🍲 Kitchen", active: "bg-orange-600 text-white", inactive: "bg-white/80 text-orange-800" },
+    { id: "jewelry", label: "💍 Jewelry", active: "bg-purple-600 text-white", inactive: "bg-white/80 text-purple-800" },
+    { id: "decor", label: "⛱️ Décor", active: "bg-sky-600 text-white", inactive: "bg-white/80 text-sky-800" },
+    { id: "sandart", label: "🎨 Sand Art", active: "bg-pink-600 text-white", inactive: "bg-white/80 text-pink-800" },
+  ];
+
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
       <audio ref={musicRef} src={MUSIC.kitchen} loop preload="none" />
@@ -149,28 +182,17 @@ export default function Workshop() {
       </div>
 
       <div className="px-4 -mt-6 relative">
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => setTab("crafting")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "crafting" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
-          >
-            🔨 Crafting
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("kitchen")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "kitchen" ? "bg-orange-600 text-white" : "bg-white/80 text-orange-800"}`}
-          >
-            🍲 Kitchen
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("jewelry")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "jewelry" ? "bg-purple-600 text-white" : "bg-white/80 text-purple-800"}`}
-          >
-            💍 Jewelry
-          </button>
+        <div className="flex gap-1.5 mb-4 flex-wrap">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`flex-1 min-w-[30%] py-2 rounded-full text-[11px] font-semibold ${tab === t.id ? t.active : t.inactive}`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         {!state.workshopUnlocked ? (
@@ -231,11 +253,31 @@ export default function Workshop() {
               <CookCard key={r.id} recipe={r} />
             ))}
           </>
-        ) : (
+        ) : tab === "jewelry" ? (
           <>
             <p className="text-xs text-purple-800/70 mb-3 text-center">The Jewelry Bench sparkles with wire, thread, and polished treasures.</p>
             {JEWELRY_RECIPES.map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
+            ))}
+          </>
+        ) : tab === "decor" ? (
+          <>
+            <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
+            {DECOR_RECIPES.map((r) => (
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
+            ))}
+            <RecipeCard
+              title={RAFT_RECIPE.name}
+              description={RAFT_RECIPE.description}
+              cost={RAFT_RECIPE.cost}
+              recipeId={RAFT_RECIPE.id}
+            />
+          </>
+        ) : (
+          <>
+            <p className="text-xs text-pink-800/70 mb-3 text-center">Layer colored sand into frosted bottles at the meditative sand-art station.</p>
+            {SAND_ART_RECIPES.map((r) => (
+              <SandArtCard key={r.id} recipe={r} />
             ))}
           </>
         )}
