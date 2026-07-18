@@ -9,6 +9,7 @@ import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
 import ReefScene from "./ReefScene";
 import ShipScene from "./ShipScene";
+import SandbarsScene from "./SandbarsScene";
 import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
 
@@ -21,6 +22,7 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "lighthouse", label: "Tower", icon: "🗼️" },
   { id: "reef", label: "Reef", icon: "🐠" },
   { id: "ship", label: "Ship", icon: "⛵" },
+  { id: "sandbars", label: "Sandbars", icon: "🛟" },
 ];
 
 export default function GameShell() {
@@ -33,6 +35,7 @@ export default function GameShell() {
     if (id === "lighthouse") return !state.chestOpened;
     if (id === "reef") return !state.hasDivingGear;
     if (id === "ship") return !state.gameCompleted;
+    if (id === "sandbars") return !state.sandbarsUnlocked;
     return false;
   };
 
@@ -41,6 +44,7 @@ export default function GameShell() {
     if (id === "lighthouse") return "Open the treasure chest on the Hidden Beach first!";
     if (id === "reef") return "Open the treasure chest on the Hidden Beach to get your Diving Gear first!";
     if (id === "ship") return "Restore the shipwreck and complete The Grand Reunion to unlock the Community Ship!";
+    if (id === "sandbars") return "Craft the Inflatable Rubber Raft in the Workshop's Décor tab first!";
     return "";
   };
 
@@ -84,6 +88,7 @@ export default function GameShell() {
         {screen === "lighthouse" && <LighthouseScreen />}
         {screen === "reef" && <ReefScene />}
         {screen === "ship" && <ShipScene />}
+        {screen === "sandbars" && <SandbarsScene />}
 
         {(lastToast || lockMsg) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">
@@ -95,7 +100,7 @@ export default function GameShell() {
       </main>
 
       <nav
-        className="grid grid-cols-8 bg-[#0b3d3a] border-t border-white/10"
+        className="grid grid-cols-9 bg-[#0b3d3a] border-t border-white/10"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {TABS.map((tab) => {
@@ -105,11 +110,11 @@ export default function GameShell() {
               type="button"
               key={tab.id}
               onClick={() => handleTab(tab.id)}
-              className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[9px] transition-colors ${
+              className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[8px] transition-colors ${
                 screen === tab.id ? "text-amber-300" : locked ? "text-amber-50/30" : "text-amber-50/60"
               }`}
             >
-              <span className="text-base leading-none">{locked ? "🔒" : tab.icon}</span>
+              <span className="text-sm leading-none">{locked ? "🔒" : tab.icon}</span>
               {tab.label}
             </button>
           );
