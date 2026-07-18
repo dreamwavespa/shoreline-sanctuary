@@ -44,6 +44,16 @@ interface GameState {
   saltyStreak: number;
   saltyTotalCatches: number;
   foundConstellations: string[];
+  // ========== PHASE 4 & 5: RESORT STATE ==========
+  placeduUmbrella: boolean;
+  placedPicnicBasket: boolean;
+  placedBeachBag: boolean;
+  placedRaft: boolean;
+  placedSaltLamp: boolean;
+  wearingSunHat: boolean;
+  seagullFriendship: number;
+  snappyHappiness: number;
+  sandArtCreated: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -74,6 +84,15 @@ const DEFAULT_STATE: GameState = {
   saltyStreak: 0,
   saltyTotalCatches: 0,
   foundConstellations: [],
+  placeduUmbrella: false,
+  placedPicnicBasket: false,
+  placedBeachBag: false,
+  placedRaft: false,
+  placedSaltLamp: false,
+  wearingSunHat: false,
+  seagullFriendship: 0,
+  snappyHappiness: 0,
+  sandArtCreated: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -116,6 +135,16 @@ interface Ctx {
   giftMarshmallow: () => boolean;
   throwBallToSalty: () => { thrown: boolean; caught?: boolean };
   addFoundConstellation: (id: string) => void;
+  // ========== PHASE 4 & 5: RESORT ACTIONS ==========
+  placeUmbrella: () => boolean;
+  placePicnicBasket: () => boolean;
+  placeBeachBag: () => boolean;
+  placeRaft: () => boolean;
+  placeSaltLamp: () => boolean;
+  equipSunHat: (equipped: boolean) => void;
+  createSandArt: (recipeId: string) => boolean;
+  tradeWithSeagull: (give: { itemId: string; count: number }, receive: string) => boolean;
+  increaseSnappyHappiness: (amount: number) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -399,6 +428,103 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => (s.foundConstellations.includes(id) ? s : { ...s, foundConstellations: [...s.foundConstellations, id] }));
   };
 
+  // ========== PHASE 4 & 5: RESORT ACTIONS ==========
+
+  const placeUmbrella = () => {
+    const cost = [{ itemId: "resort-umbrella", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, placeduUmbrella: true };
+    });
+    play("umbrellaWhoof");
+    toast("Beach Umbrella placed! Snappy loves the shade ☂️");
+    return true;
+  };
+
+  const placePicnicBasket = () => {
+    const cost = [{ itemId: "resort-picnic-basket", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, placedPicnicBasket: true };
+    });
+    play("picnicLatch");
+    toast("Picnic Basket placed! Ready for a seagull encounter 🧺");
+    return true;
+  };
+
+  const placeBeachBag = () => {
+    const cost = [{ itemId: "resort-beach-bag", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, placedBeachBag: true };
+    });
+    play("bagRustle");
+    toast("Beach Bag placed! Inventory expanded by 10 slots 👜");
+    return true;
+  };
+
+  const placeRaft = () => {
+    const cost = [{ itemId: "resort-inflatable-raft", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, placedRaft: true };
+    });
+    play("raftInflate");
+    toast("Inflatable Raft placed! Sandbars are now accessible ⛵");
+    return true;
+  };
+
+  const placeSaltLamp = () => {
+    const cost = [{ itemId: "resort-salt-lamp", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      return { ...s, inventory: inv, placedSaltLamp: true };
+    });
+    play("lampActivate");
+    toast("Coastal Salt Lamp placed! A cozy glow fills the sanctuary 🔥");
+    return true;
+  };
+
+  const equipSunHat = (equipped: boolean) => {
+    setState((s) => ({ ...s, wearingSunHat: equipped }));
+    if (equipped) {
+      play("hatWeave");
+      toast("Sun Hat equipped! Beachcombing time extended by 5 minutes 👒");
+    }
+  };
+
+  const createSandArt = (recipeId: string) => {
+    if (!["sand-art-sunset", "sand-art-sandbar", "sand-art-tide-pool"].includes(recipeId)) return false;
+    setState((s) => ({
+      ...s,
+      sandArtCreated: s.sandArtCreated.includes(recipeId) ? s.sandArtCreated : [...s.sandArtCreated, recipeId],
+    }));
+    play("craftSuccess");
+    toast("Sand Art created! ✨");
+    return true;
+  };
+
+  const tradeWithSeagull = (give: { itemId: string; count: number }, receive: string) => {
+    if (!hasEnough([give])) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, give);
+      inv[receive] = (inv[receive] || 0) + 1;
+      return { ...s, inventory: inv, seagullFriendship: s.seagullFriendship + 10 };
+    });
+    play("shell");
+    toast("Seagull happily traded with you! 🦅");
+    return true;
+  };
+
+  const increaseSnappyHappiness = (amount: number) => {
+    setState((s) => ({ ...s, snappyHappiness: s.snappyHappiness + amount }));
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -444,6 +570,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       giftMarshmallow,
       throwBallToSalty,
       addFoundConstellation,
+      placeUmbrella,
+      placePicnicBasket,
+      placeBeachBag,
+      placeRaft,
+      placeSaltLamp,
+      equipSunHat,
+      createSandArt,
+      tradeWithSeagull,
+      increaseSnappyHappiness,
     }),
     [state, screen, zone, lastToast]
   );
