@@ -10,7 +10,7 @@ export interface QuestDef {
   rewardCount?: number;
   rewardLabel: string;
   unlocksWorkshop?: boolean;
-  phase: 1 | 2 | 3;
+  phase: 1 | 2 | 3 | 4;
 }
 
 export const QUESTS: QuestDef[] = [
@@ -113,5 +113,41 @@ export const QUESTS: QuestDef[] = [
     requiresFlag: "shipRestored",
     rewardLabel: "The Grand Finale! Your sanctuary becomes a living Marine Museum.",
     phase: 3,
+  },
+  {
+    id: "oliverpicnic",
+    title: "The Picnic Basket Panic",
+    from: "Oliver, the Distapped Traveler",
+    letter: "Hello friend! If you are reading this, I hope your blanket is firmly anchored. I set up a beautiful spot near the dunes yesterday afternoon, opened my woven wicker basket, and poured a cold glass of Coconut Milk. The view was magnificent! But then... it happened. A shadow fell, a thunderous flap of wings echoed, and a chubby seagull dive-bombed right into my snacks! In the panic, I dropped my favorite journal somewhere in the sand. Could you help me find it? I hear those birds love trading shiny things if you leave a treat out for them.",
+    requires: [],
+    requiresFlag: "seagullTraded",
+    rewardItemId: "glass-teal",
+    rewardCount: 5,
+    rewardLabel: "Rare Blueprint: Vintage Beach Blanket & 5x Polished Teal Sea Glass",
+    phase: 4,
+  },
+  {
+    id: "marinaumbrella",
+    title: "Snappy's Sunscreen Alternative",
+    from: "Marina, the Marine Biologist",
+    letter: "Greetings from across the bay! I've been monitoring the local shorelines, and I noticed that Snappy the Sea Turtle has been spending a lot of time resting up on the hot sand dunes lately. While he loves the afternoon heat, the mid-day sun can get a bit too intense for his shell! We need a zero-stress way to keep him cool while he naps. I've sent over a design to piece together a shade shelter. If you can gather enough driftwood and washed-up canvas from the shore, we can set up a personal canopy right over his favorite resting spot!",
+    requires: [],
+    requiresCraft: "beach-umbrella",
+    rewardItemId: "pearl-silver",
+    rewardCount: 1,
+    rewardLabel: "Snappy's Blessing (increases local crab happiness) & 1x Sparkling Silver Pearl",
+    phase: 4,
+  },
+  {
+    id: "vancebeachbag",
+    title: "The Lost Luggage Mystery",
+    from: "Captain Vance, of the Stray Rowboat",
+    letter: "To whoever finds this message! My cargo ship caught a rogue wave just off the Hidden Cove last week. While the ship survived, a heavy gust of wind caught our supply deck and sent several of our newly tailored inventory expansion bags tumbling right into the surf. They are incredibly tough, made of heavy canvas duck cloth and twisted hemp rope, so they won't get ruined by the salt—but the tide has likely buried them deep under the coastal dunes by now. Keep an eye out for a mint-green strap peeking through the sand oats!",
+    requires: [],
+    requiresFlag: "hasBeachBag",
+    rewardItemId: "shiny-soda-tab",
+    rewardCount: 12,
+    rewardLabel: "Permanent Mobile Inventory Expansion (+10 Slots) & 12x Shiny Soda Tabs",
+    phase: 4,
   },
 ];
