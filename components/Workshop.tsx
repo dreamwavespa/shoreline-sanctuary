@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
-import { SCENES, MUSIC } from "@/lib/media";
+import { SCENES } from "@/lib/media";
 import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
 
 const WIND_CHIME_COST = [
@@ -146,23 +146,20 @@ function SandArtCard({ recipe }: { recipe: (typeof SAND_ART_RECIPES)[number] }) 
 type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
 export default function Workshop() {
-  const { state } = useGame();
+  const { state, setMusicOverride } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
-  const musicRef = useRef<HTMLAudioElement | null>(null);
 
+  // AudioEngine owns the single music element; this screen only tells it
+  // which track to prefer while the Kitchen sub-tab is active, and clears
+  // that preference on tab-away/unmount so the zone's default track resumes.
   useEffect(() => {
-    const el = musicRef.current;
-    if (!el) return;
     if (tab === "kitchen") {
-      el.volume = 0.5 * state.audio.master * state.audio.music * (state.audio.musicMuted ? 0 : 1);
-      void el.play().catch(() => {});
+      setMusicOverride("kitchen");
     } else {
-      el.pause();
+      setMusicOverride(null);
     }
-    return () => {
-      el.pause();
-    };
-  }, [tab, state.audio.master, state.audio.music, state.audio.musicMuted]);
+    return () => setMusicOverride(null);
+  }, [tab, setMusicOverride]);
 
   const TABS: { id: Tab; label: string; active: string; inactive: string }[] = [
     { id: "crafting", label: "🔨 Crafting", active: "bg-teal-600 text-white", inactive: "bg-white/80 text-teal-800" },
@@ -174,8 +171,6 @@ export default function Workshop() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
-      <audio ref={musicRef} src={MUSIC.kitchen} loop preload="none" />
-
       <div className="relative w-full h-48">
         <Image src={SCENES.workshop} alt="Sea Glass Workshop" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
