@@ -140,6 +140,8 @@ interface Ctx {
   splashBirds: () => void;
   ignoreBirds: () => void;
   reinflateRaft: () => void;
+  musicOverride: string | null;
+  setMusicOverride: (key: string | null) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -150,6 +152,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GameState>(DEFAULT_STATE);
   const [screen, setScreen] = useState<Screen>("beach");
   const [lastToast, setLastToast] = useState<string | null>(null);
+  // Not persisted — a transient "this screen wants a specific track instead
+  // of the zone default" signal that AudioEngine is the single owner of
+  // actually playing. Screens/tabs must NEVER instantiate their own <audio>
+  // element for music, or it plays simultaneously with AudioEngine's track
+  // (this was the exact bug that caused Kitchen and the Lobster Trap to
+  // double up on music).
+  const [musicOverride, setMusicOverride] = useState<string | null>(null);
   const audioCache = useRef<Record<string, HTMLAudioElement>>({});
   const loaded = useRef(false);
   const stateRef = useRef(state);
@@ -559,8 +568,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       splashBirds,
       ignoreBirds,
       reinflateRaft,
+      musicOverride,
+      setMusicOverride,
     }),
-    [state, screen, zone, lastToast]
+    [state, screen, zone, lastToast, musicOverride]
   );
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;
