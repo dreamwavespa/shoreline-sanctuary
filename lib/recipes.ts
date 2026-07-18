@@ -94,3 +94,102 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
     ],
   },
 ];
+
+export const DECOR_RECIPES: CraftRecipe[] = [
+  {
+    id: "beach-umbrella",
+    name: "The Beach Umbrella",
+    description: "Crafted from driftwood poles and washed-up canvas sails. Provides interactive shade for Snappy and local beach crabs.",
+    cost: [
+      { itemId: "washed-up-canvas", count: 2 },
+      { itemId: "raw-driftwood-arch", count: 2 },
+      { itemId: "hemp-thread", count: 1 },
+    ],
+  },
+  {
+    id: "picnic-basket",
+    name: "The Picnic Basket",
+    description: "Woven from dried golden sea oats and lined with a checkered cloth. The primary anchor for seagull trade encounters.",
+    cost: [
+      { itemId: "dried-sea-oats", count: 4 },
+      { itemId: "washed-up-canvas", count: 1 },
+      { itemId: "hemp-thread", count: 1 },
+    ],
+  },
+  {
+    id: "coastal-salt-lamp",
+    name: "The Coastal Salt Lamp",
+    description: "A faceted pink salt crystal bonded to a driftwood base, lit from within by a glowing firefly jar.",
+    cost: [
+      { itemId: "salt-crystal-pink", count: 3 },
+      { itemId: "raw-driftwood-planks", count: 1 },
+      { itemId: "firefly-jar", count: 1 },
+    ],
+  },
+  {
+    id: "woven-sun-hat",
+    name: "The Woven Sun Hat",
+    description: "Wide-brimmed straw hat woven from dried sea oats, banded with pastel sea roses, and buckled with a shiny soda tab.",
+    cost: [
+      { itemId: "dried-sea-oats", count: 6 },
+      { itemId: "sea-rose-petal", count: 2 },
+      { itemId: "shiny-soda-tab", count: 1 },
+    ],
+  },
+];
+
+export const RAFT_RECIPE: CraftRecipe = {
+  id: "inflatable-raft",
+  name: "Inflatable Rubber Raft",
+  description: "Beach balls and recycled rubber strips, lashed to a driftwood oar. Unlocks the Shifting Sandbars beyond the shore.",
+  cost: [
+    { itemId: "beach-ball", count: 4 },
+    { itemId: "recycled-rubber", count: 2 },
+    { itemId: "driftwood-oar", count: 1 },
+  ],
+};
+
+export interface SandArtRecipe {
+  id: string;
+  name: string;
+  description: string;
+  cost: { itemId: string; count: number }[];
+  outputItemId: string;
+}
+
+export const SAND_ART_RECIPES: SandArtRecipe[] = [
+  {
+    id: "sunset-shoreline",
+    name: "Sunset Shoreline",
+    description: "Alternating flat blocks of apricot and pink sand in a frosted bottle. Casts a golden-hour glow around nearby blankets.",
+    cost: [
+      { itemId: "sand-apricot", count: 2 },
+      { itemId: "sand-pink", count: 2 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "bottle-sunset-shoreline",
+  },
+  {
+    id: "subaquatic-sandbar",
+    name: "Sub-Aquatic Sandbar",
+    description: "Teal and apricot sand layered into a rippling wave pattern. Attracts curious sandbar crabs.",
+    cost: [
+      { itemId: "sand-teal", count: 3 },
+      { itemId: "sand-apricot", count: 1 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "bottle-subaquatic-sandbar",
+  },
+  {
+    id: "legendary-tidepool",
+    name: "Legendary Tide-Pool Glimmer",
+    description: "Pink and teal sand mixed with crushed pearl dust, layered in fine wavy lines. Unlocks a musical chime ambient loop.",
+    cost: [
+      { itemId: "sand-pink", count: 2 },
+      { itemId: "sand-teal", count: 2 },
+      { itemId: "pearl-silver", count: 1 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "bottle-legendary-tidepool",
+  },
+];
