@@ -10,6 +10,16 @@ import { MUSIC, AMBIENCE_LOOP } from "@/lib/media";
 // changed anything audible on an actual device. The fix is to route
 // playback through the Web Audio API and control loudness with a GainNode
 // instead, which iOS *does* allow JS to control.
+//
+// IMPORTANT #2: This component is the ONLY place that should ever mount a
+// music <audio> element. Individual screens (Kitchen, the Lobster Trap,
+// etc.) must never create their own background-music <audio> tags — doing
+// that plays a second track simultaneously on top of whatever AudioEngine
+// is already playing for the current zone (exactly what caused the Kitchen
+// and Lobster Trap double-music bug). Instead, a screen that wants a
+// specific track calls `setMusicOverride("kitchen")` (a key into MUSIC) via
+// useGame(), and clears it back to null on cleanup/tab-away. AudioEngine
+// picks up that override here and swaps its single music element to it.
 
 const TRACKS: Record<Zone, string> = {
   beach: MUSIC.beach,
@@ -30,11 +40,11 @@ function moveTowards(current: number, target: number, maxDelta: number) {
 }
 
 export default function AudioEngine() {
-  const { zone, state } = useGame();
+  const { zone, state, musicOverride } = useGame();
   const [unlocked, setUnlocked] = useState(false);
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
-  const currentZoneRef = useRef<Zone>(zone);
+  const currentTrackKeyRef = useRef<string>(musicOverride || zone);
   const currentVol = useRef({ music: 0, ambience: 0 });
   const settingsRef = useRef(state.audio);
   const zoneRef = useRef(zone);
@@ -46,6 +56,8 @@ export default function AudioEngine() {
 
   zoneRef.current = zone;
   settingsRef.current = state.audio;
+
+  const trackSrcFor = (key: string) => (MUSIC as Record<string, string>)[key] || TRACKS[key as Zone];
 
   const ensureGraph = () => {
     if (graphBuilt.current) return;
@@ -108,14 +120,17 @@ export default function AudioEngine() {
     return () => window.removeEventListener("pointerdown", unlock);
   }, [unlocked]);
 
-  // Swap the music track's source whenever the zone actually changes.
+  // Swap the music track's source whenever the effective track (zone, or an
+  // active screen override) actually changes. An override always wins over
+  // the zone default while it is set.
   useEffect(() => {
-    if (currentZoneRef.current === zone) return;
-    currentZoneRef.current = zone;
+    const nextKey = musicOverride || zone;
+    if (currentTrackKeyRef.current === nextKey) return;
+    currentTrackKeyRef.current = nextKey;
     const el = musicRef.current;
     if (!el) return;
     const wasPlaying = !el.paused;
-    el.src = TRACKS[zone];
+    el.src = trackSrcFor(nextKey);
     el.loop = true;
     currentVol.current.music = 0;
     if (musicGainRef.current) musicGainRef.current.gain.value = 0;
@@ -123,7 +138,7 @@ export default function AudioEngine() {
     if (wasPlaying || unlocked) {
       void el.play().catch(() => {});
     }
-  }, [zone, unlocked]);
+  }, [zone, musicOverride, unlocked]);
 
   // Fade loop: guarded so a single bad frame can never permanently kill the
   // rAF chain. Prefers Web Audio GainNode volume control (works on iOS);
@@ -171,7 +186,7 @@ export default function AudioEngine() {
 
   return (
     <>
-      <audio ref={musicRef} src={TRACKS[zone]} loop preload="auto" crossOrigin="anonymous" />
+      <audio ref={musicRef} src={trackSrcFor(currentTrackKeyRef.current)} loop preload="auto" crossOrigin="anonymous" />
       <audio ref={ambienceRef} src={AMBIENCE_LOOP} loop preload="auto" crossOrigin="anonymous" />
     </>
   );
