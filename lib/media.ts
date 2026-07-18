@@ -50,6 +50,40 @@ export const SFX_FILES: Record<string, string> = {
   bottleOpen: `${SFX_BASE}/9170bb36-d283-4845-b5e4-fae756fae643.mp3`,
   questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`,
   craftSuccess: `${SFX_BASE}/3a6a92e5-28f6-4014-8654-6bb5924ccd69.mp3`,
+  
+  // ========== PHASE 4 & 5: RESORT EXPANSION SFX ==========
+  // Beach Umbrella - Canvas air displacement sweep (120 Hz → 45 Hz)
+  umbrellaWhoof: `${SFX_BASE}/resort-umbrella-whoof.mp3`,
+  
+  // Picnic Basket - Wicker creaking and peg toggle closure
+  picnicLatch: `${SFX_BASE}/resort-picnic-latch.mp3`,
+  
+  // Beach Bag - Heavy canvas duck cloth dragging with item shifts
+  bagRustle: `${SFX_BASE}/resort-bag-rustle.mp3`,
+  
+  // Inflatable Raft - Air pump inflation with rope knot friction
+  raftInflate: `${SFX_BASE}/resort-raft-inflate.mp3`,
+  
+  // Coastal Salt Lamp - Hardwood sanding friction with mineral placement chink
+  lampActivate: `${SFX_BASE}/resort-lamp-activate.mp3`,
+  
+  // Salt Lamp - Base sanding friction
+  lampBaseSanding: `${SFX_BASE}/resort-lamp-base-sanding.mp3`,
+  
+  // Salt Lamp - Crystal placement chink
+  lampCrystalPlacement: `${SFX_BASE}/resort-lamp-crystal-placement.mp3`,
+  
+  // Salt Lamp - Firefly jar living pulse
+  lampFireflyHum: `${SFX_BASE}/resort-lamp-firefly-hum.mp3`,
+  
+  // Woven Sun Hat - Dried straw friction crunching layers
+  hatWeave: `${SFX_BASE}/resort-hat-straw-weave.mp3`,
+  
+  // Sun Hat - Soft leaf band placement brush
+  hatBandWrap: `${SFX_BASE}/resort-hat-band-wrap.mp3`,
+  
+  // Sun Hat - Light-metal buckle secure snap
+  hatBuckleClink: `${SFX_BASE}/resort-hat-buckle-clink.mp3`,
 };
 
 export const AMBIENCE_LOOP = `${SFX_BASE}/5e767b6a-1923-4961-9398-95e0e66349fa.mp3`;
