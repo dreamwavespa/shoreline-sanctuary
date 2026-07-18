@@ -111,6 +111,117 @@ function SnappyCard() {
   );
 }
 
+function UmbrellaCard() {
+  const { state, play } = useGame();
+  const [open, setOpen] = useState(true);
+
+  if (!state.umbrellaPlaced) return null;
+
+  const toggle = () => {
+    setOpen((o) => !o);
+    play("umbrellaWhoof");
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-sky-200 flex items-center gap-3 active:scale-[0.98] transition"
+    >
+      <div className="w-16 h-16 shrink-0 rounded-xl bg-sky-50 flex items-center justify-center text-4xl">
+        {open ? "⛱️" : "🎏"}
+      </div>
+      <div className="flex-1">
+        <p className="font-bold text-sky-900">The Beach Umbrella</p>
+        <p className="text-xs text-sky-700">
+          {open ? "Open and shading Snappy's favorite napping spot." : "Folded down for the evening. Tap to open it again."}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+function SeagullCard() {
+  const { state, tradeWithSeagull, shooSeagull } = useGame();
+  const [msg, setMsg] = useState<string | null>(null);
+  const milk = state.inventory["coconut-cream"] || 0;
+
+  if (!state.picnicBasketPlaced) return null;
+
+  const handleTrade = () => {
+    const result = tradeWithSeagull();
+    if (!result.ok) {
+      setMsg("SQUAWK! (You need Coconut Cream to trade.)");
+      window.setTimeout(() => setMsg((m) => (m ? null : m)), 1800);
+    } else if (result.snappyDefended) {
+      setMsg('Snappy: "Crisis averted. Back to my nap."');
+      window.setTimeout(() => setMsg((m) => (m ? null : m)), 2200);
+    }
+  };
+
+  const handleShoo = () => {
+    shooSeagull();
+  };
+
+  return (
+    <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-yellow-200">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-16 h-16 shrink-0 rounded-xl bg-yellow-50 flex items-center justify-center text-4xl">🕊️</div>
+        <div className="flex-1">
+          <p className="font-bold text-yellow-900">Winged Bandit (Seagull)</p>
+          <p className="text-xs text-yellow-700">
+            Eyeing your Picnic Basket — trades: {state.seagullTradeCount}
+          </p>
+        </div>
+      </div>
+      {msg && <p className="text-[11px] text-yellow-800 mb-2">{msg}</p>}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={milk < 1}
+          onClick={handleTrade}
+          className="flex-1 text-xs font-semibold px-3 py-1.5 rounded-full text-white disabled:bg-yellow-200 disabled:text-yellow-500 bg-yellow-600 active:bg-yellow-700"
+        >
+          🥥 Trade Coconut Milk ({milk})
+        </button>
+        <button
+          type="button"
+          onClick={handleShoo}
+          className="flex-1 text-xs font-semibold px-3 py-1.5 rounded-full text-white bg-slate-500 active:bg-slate-600"
+        >
+          👋 Shoo Away
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BeachBagCard() {
+  const { state, digBeachBag, hasEnough } = useGame();
+  const cost = [
+    { itemId: "dried-sea-oats", count: 3 },
+    { itemId: "washed-up-canvas", count: 1 },
+  ];
+  const canDig = hasEnough(cost);
+
+  if (state.hasBeachBag) return null;
+
+  return (
+    <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-lime-200">
+      <p className="font-bold text-lime-900 mb-1">A Mint-Green Strap in the Sand...</p>
+      <p className="text-xs text-lime-700 mb-2">Something's buried near the dunes. Gather sea oats and canvas to dig it out.</p>
+      <button
+        type="button"
+        disabled={!canDig}
+        onClick={digBeachBag}
+        className="w-full text-xs font-semibold px-3 py-2 rounded-full text-white disabled:bg-lime-200 disabled:text-lime-500 bg-lime-600 active:bg-lime-700"
+      >
+        {canDig ? "🖐️ Dig Up the Beach Bag" : "Need More Sea Oats & Canvas"}
+      </button>
+    </div>
+  );
+}
+
 export default function BeachScene() {
   const { collectItem } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
@@ -176,6 +287,9 @@ export default function BeachScene() {
         <EllyCard />
         <OllieCard />
         <SnappyCard />
+        <UmbrellaCard />
+        <SeagullCard />
+        <BeachBagCard />
       </div>
     </div>
   );
