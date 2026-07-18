@@ -4,7 +4,7 @@ import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface AudioSettings {
@@ -44,6 +44,13 @@ interface GameState {
   saltyStreak: number;
   saltyTotalCatches: number;
   foundConstellations: string[];
+  picnicBasketPlaced: boolean;
+  umbrellaPlaced: boolean;
+  hasBeachBag: boolean;
+  seagullTraded: boolean;
+  seagullTradeCount: number;
+  raftInflated: boolean;
+  sandbarsUnlocked: boolean;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -74,6 +81,13 @@ const DEFAULT_STATE: GameState = {
   saltyStreak: 0,
   saltyTotalCatches: 0,
   foundConstellations: [],
+  picnicBasketPlaced: false,
+  umbrellaPlaced: false,
+  hasBeachBag: false,
+  seagullTraded: false,
+  seagullTradeCount: 0,
+  raftInflated: false,
+  sandbarsUnlocked: false,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -85,7 +99,10 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   lighthouse: "lighthouse",
   reef: "underwater",
   ship: "beach",
+  sandbars: "underwater",
 };
+
+const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];
 
 interface Ctx {
   state: GameState;
@@ -116,6 +133,13 @@ interface Ctx {
   giftMarshmallow: () => boolean;
   throwBallToSalty: () => { thrown: boolean; caught?: boolean };
   addFoundConstellation: (id: string) => void;
+  digBeachBag: () => boolean;
+  tradeWithSeagull: () => { ok: boolean; snappyDefended?: boolean };
+  shooSeagull: () => void;
+  feedKelpToBirds: () => boolean;
+  splashBirds: () => void;
+  ignoreBirds: () => void;
+  reinflateRaft: () => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -213,8 +237,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!hasEnough(cost)) return false;
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
+      if (ITEMS[recipeId]) inv[recipeId] = (inv[recipeId] || 0) + 1;
       const next: GameState = { ...s, inventory: inv, crafted: [...s.crafted, recipeId] };
       if (recipeId === "rowboat-repair") next.rowboatRepaired = true;
+      if (recipeId === "beach-umbrella") next.umbrellaPlaced = true;
+      if (recipeId === "picnic-basket") next.picnicBasketPlaced = true;
+      if (recipeId === "inflatable-raft") {
+        next.raftInflated = true;
+        next.sandbarsUnlocked = true;
+      }
       return next;
     });
     play("craftSuccess");
@@ -399,6 +430,83 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => (s.foundConstellations.includes(id) ? s : { ...s, foundConstellations: [...s.foundConstellations, id] }));
   };
 
+  const digBeachBag = () => {
+    const cost = [
+      { itemId: "dried-sea-oats", count: 3 },
+      { itemId: "washed-up-canvas", count: 1 },
+    ];
+    if (stateRef.current.hasBeachBag) return false;
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      inv["beach-bag"] = (inv["beach-bag"] || 0) + 1;
+      return { ...s, inventory: inv, hasBeachBag: true };
+    });
+    play("bagRustle");
+    toast("You dig up the buried Beach Bag! 👜");
+    return true;
+  };
+
+  const tradeWithSeagull = () => {
+    if (!stateRef.current.picnicBasketPlaced) return { ok: false };
+    const cost = [{ itemId: "coconut-cream", count: 1 }];
+    if (!hasEnough(cost)) return { ok: false };
+    const snappyDefended = stateRef.current.snappyAwake && Math.random() < 0.35;
+    play("seagullSwoop");
+    if (snappyDefended) {
+      setState((s) => {
+        const inv = { ...s.inventory };
+        inv["glass-teal"] = (inv["glass-teal"] || 0) + 1;
+        return { ...s, inventory: inv, seagullTraded: true };
+      });
+      toast("Snappy startles the seagull — it drops a Polished Teal Sea Glass and flees! 🐢");
+      return { ok: true, snappyDefended: true };
+    }
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      const loot = SEAGULL_LOOT_TABLE[Math.floor(Math.random() * SEAGULL_LOOT_TABLE.length)];
+      inv[loot] = (inv[loot] || 0) + 1;
+      return { ...s, inventory: inv, seagullTraded: true, seagullTradeCount: s.seagullTradeCount + 1 };
+    });
+    toast('Cheeky Seagull: "Kerr-r-r! Excellent doing business, human!" 🕊️');
+    return { ok: true, snappyDefended: false };
+  };
+
+  const shooSeagull = () => {
+    play("plastic");
+    toast('Cheeky Seagull: "HRAAAK! Keep your fancy milk!" — it flies off.');
+  };
+
+  const feedKelpToBirds = () => {
+    const cost = [{ itemId: "food-seaweed-chips", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, cost);
+      inv["recycled-rubber"] = (inv["recycled-rubber"] || 0) + 1;
+      return { ...s, inventory: inv };
+    });
+    play("craftSuccess");
+    toast("The birds fly off to eat — raft integrity maintained! 🛟");
+    return true;
+  };
+
+  const splashBirds = () => {
+    play("plastic");
+    toast("A gentle splash sends the birds off to the sandbars.");
+  };
+
+  const ignoreBirds = () => {
+    setState((s) => ({ ...s, raftInflated: false }));
+    play("plastic");
+    toast("A gull tugs the valve... the raft sags flat! pffFSSSSSSSSssss...");
+  };
+
+  const reinflateRaft = () => {
+    setState((s) => ({ ...s, raftInflated: true }));
+    play("umbrellaWhoof");
+    toast("The raft is re-inflated and ready!");
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -444,6 +552,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       giftMarshmallow,
       throwBallToSalty,
       addFoundConstellation,
+      digBeachBag,
+      tradeWithSeagull,
+      shooSeagull,
+      feedKelpToBirds,
+      splashBirds,
+      ignoreBirds,
+      reinflateRaft,
     }),
     [state, screen, zone, lastToast]
   );
