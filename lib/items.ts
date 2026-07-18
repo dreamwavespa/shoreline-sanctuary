@@ -1,4 +1,4 @@
-export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special" | "food";
+export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special" | "food" | "decor";
 
 export interface ItemDef {
   id: string;
@@ -69,6 +69,27 @@ export const ITEMS: Record<string, ItemDef> = {
   "food-sea-rose-milk": { id: "food-sea-rose-milk", name: "Soothing Sea-Rose Milk", category: "food", icon: "🥛", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-seaweed-chips": { id: "food-seaweed-chips", name: "Crispy Seaweed Chips", category: "food", icon: "🍟", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-campfire-marshmallow": { id: "food-campfire-marshmallow", name: "Campfire Marshmallow", category: "food", icon: "🍡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+
+  "washed-up-canvas": { id: "washed-up-canvas", name: "Washed-Up Canvas", category: "raw", icon: "⛵", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "dried-sea-oats": { id: "dried-sea-oats", name: "Dried Sea Oats", category: "raw", icon: "🌾", isEmoji: true, rarity: "common", sfx: "driftwood" },
+  "shiny-soda-tab": { id: "shiny-soda-tab", name: "Shiny Soda Tab", category: "trash", icon: "🥫", isEmoji: true, rarity: "common", sfx: "plastic" },
+  "driftwood-oar": { id: "driftwood-oar", name: "Weathered Driftwood Oar", category: "raw", icon: "🛶", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "empty-glass-bottle": { id: "empty-glass-bottle", name: "Frosted Glass Bottle", category: "raw", icon: "🍾", isEmoji: true, rarity: "common", sfx: "seaGlass" },
+  "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
+  "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "salt-crystal-pink": { id: "salt-crystal-pink", name: "Raw Pink Salt Crystal", category: "raw", icon: "🧂", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "firefly-jar": { id: "firefly-jar", name: "Glowing Firefly Jar", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "pearl" },
+
+  "beach-umbrella": { id: "beach-umbrella", name: "Beach Umbrella", category: "decor", icon: "⛱️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "picnic-basket": { id: "picnic-basket", name: "Picnic Basket", category: "decor", icon: "🧺", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "beach-bag": { id: "beach-bag", name: "Beach Bag", category: "decor", icon: "👜", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "coastal-salt-lamp": { id: "coastal-salt-lamp", name: "Coastal Salt Lamp", category: "decor", icon: "🔮", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "woven-sun-hat": { id: "woven-sun-hat", name: "Woven Sun Hat", category: "decor", icon: "👒", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "inflatable-raft": { id: "inflatable-raft", name: "Inflatable Rubber Raft", category: "decor", icon: "🛟", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "bottle-sunset-shoreline": { id: "bottle-sunset-shoreline", name: "Sunset Shoreline Bottle", category: "decor", icon: "🌇", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "bottle-subaquatic-sandbar": { id: "bottle-subaquatic-sandbar", name: "Sub-Aquatic Sandbar Bottle", category: "decor", icon: "🫧", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "bottle-legendary-tidepool": { id: "bottle-legendary-tidepool", name: "Legendary Tide-Pool Glimmer", category: "decor", icon: "💎", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -106,6 +127,13 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "soothing-sea-salt", weight: 8 },
   { id: "beach-ball", weight: 4 },
   { id: "hemp-thread", weight: 6 },
+  { id: "washed-up-canvas", weight: 5 },
+  { id: "dried-sea-oats", weight: 7 },
+  { id: "shiny-soda-tab", weight: 6 },
+  { id: "driftwood-oar", weight: 3 },
+  { id: "empty-glass-bottle", weight: 5 },
+  { id: "sand-apricot", weight: 5 },
+  { id: "firefly-jar", weight: 2 },
 ];
 
 export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -126,6 +154,8 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "raw-driftwood-planks", weight: 4 },
   { id: "wild-beach-plum", weight: 4 },
   { id: "copper-wire", weight: 6 },
+  { id: "sand-pink", weight: 6 },
+  { id: "salt-crystal-pink", weight: 5 },
 ];
 
 export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -138,6 +168,17 @@ export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "glass-purple", weight: 6 },
   { id: "shell-abalone", weight: 5 },
   { id: "copper-wire", weight: 6 },
+  { id: "sand-teal", weight: 6 },
+];
+
+export const SANDBAR_SPAWN_POOL: { id: string; weight: number }[] = [
+  { id: "shell-sanddollar", weight: 8 },
+  { id: "glass-rainbow", weight: 5 },
+  { id: "pearl-amber", weight: 5 },
+  { id: "shiny-soda-tab", weight: 8 },
+  { id: "sand-apricot", weight: 8 },
+  { id: "sand-teal", weight: 6 },
+  { id: "star-sand", weight: 3 },
 ];
 
 function rollFrom(pool: { id: string; weight: number }[]): string {
@@ -160,4 +201,8 @@ export function rollCoveSpawn(): string {
 
 export function rollReefSpawn(): string {
   return rollFrom(REEF_SPAWN_POOL);
+}
+
+export function rollSandbarSpawn(): string {
+  return rollFrom(SANDBAR_SPAWN_POOL);
 }
