@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES, MUSIC } from "@/lib/media";
-import { KITCHEN_RECIPES, JEWELRY_RECIPES } from "@/lib/recipes";
+import { KITCHEN_RECIPES, JEWELRY_RECIPES, RESORT_RECIPES, INFLATABLE_RECIPES, MEDITATIVE_RECIPES, SAND_ART_RECIPES } from "@/lib/recipes";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -118,12 +118,54 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   );
 }
 
-type Tab = "crafting" | "kitchen" | "jewelry";
+function PlaceableRecipeCard({
+  title,
+  description,
+  cost,
+  recipeId,
+  onPlace,
+}: {
+  title: string;
+  description: string;
+  cost: { itemId: string; count: number }[];
+  recipeId: string;
+  onPlace: () => boolean;
+}) {
+  const { state, hasEnough } = useGame();
+  const canPlace = hasEnough(cost);
+  const alreadyPlaced = state.crafted.includes(recipeId);
+
+  return (
+    <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-cyan-200 mb-4">
+      <h2 className="text-lg font-bold text-cyan-900 mb-1">{title}</h2>
+      <p className="text-sm text-cyan-700 mb-3">{description}</p>
+      <CostRow cost={cost} />
+      <button
+        type="button"
+        disabled={!canPlace || alreadyPlaced}
+        onClick={onPlace}
+        className="w-full py-3 rounded-xl font-semibold text-white transition disabled:bg-cyan-200 disabled:text-cyan-500 bg-cyan-600 active:bg-cyan-700 shadow"
+      >
+        {alreadyPlaced ? "Already Placed ✓" : canPlace ? "Place Item" : "Need More Materials"}
+      </button>
+    </div>
+  );
+}
+
+type Tab = "crafting" | "kitchen" | "jewelry" | "resort" | "meditative";
 
 export default function Workshop() {
   const { state } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const {
+    placeUmbrella,
+    placePicnicBasket,
+    placeBeachBag,
+    placeRaft,
+    placeSaltLamp,
+    createSandArt,
+  } = useGame();
 
   useEffect(() => {
     const el = musicRef.current;
@@ -149,27 +191,41 @@ export default function Workshop() {
       </div>
 
       <div className="px-4 -mt-6 relative">
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
           <button
             type="button"
             onClick={() => setTab("crafting")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "crafting" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
+            className={`flex-shrink-0 py-2 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tab === "crafting" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
           >
             🔨 Crafting
           </button>
           <button
             type="button"
             onClick={() => setTab("kitchen")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "kitchen" ? "bg-orange-600 text-white" : "bg-white/80 text-orange-800"}`}
+            className={`flex-shrink-0 py-2 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tab === "kitchen" ? "bg-orange-600 text-white" : "bg-white/80 text-orange-800"}`}
           >
             🍲 Kitchen
           </button>
           <button
             type="button"
             onClick={() => setTab("jewelry")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "jewelry" ? "bg-purple-600 text-white" : "bg-white/80 text-purple-800"}`}
+            className={`flex-shrink-0 py-2 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tab === "jewelry" ? "bg-purple-600 text-white" : "bg-white/80 text-purple-800"}`}
           >
             💍 Jewelry
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("resort")}
+            className={`flex-shrink-0 py-2 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tab === "resort" ? "bg-cyan-600 text-white" : "bg-white/80 text-cyan-800"}`}
+          >
+            🏖️ Resort
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("meditative")}
+            className={`flex-shrink-0 py-2 px-3 rounded-full text-xs font-semibold whitespace-nowrap ${tab === "meditative" ? "bg-rose-600 text-white" : "bg-white/80 text-rose-800"}`}
+          >
+            ✨ Meditative
           </button>
         </div>
 
@@ -231,14 +287,90 @@ export default function Workshop() {
               <CookCard key={r.id} recipe={r} />
             ))}
           </>
-        ) : (
+        ) : tab === "jewelry" ? (
           <>
             <p className="text-xs text-purple-800/70 mb-3 text-center">The Jewelry Bench sparkles with wire, thread, and polished treasures.</p>
             {JEWELRY_RECIPES.map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
             ))}
           </>
-        )}
+        ) : tab === "resort" ? (
+          <>
+            <p className="text-xs text-cyan-800/70 mb-3 text-center">The Sea Glass Artisanal Workshop — craft functional tools and environmental decorations for your resort sanctuary.</p>
+
+            {/* Placeable Items */}
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-cyan-900 mb-3">🌊 Placeable Resort Items</h3>
+              {RESORT_RECIPES.map((r) => (
+                <PlaceableRecipeCard
+                  key={r.id}
+                  title={r.name}
+                  description={r.description}
+                  cost={r.cost}
+                  recipeId={r.id}
+                  onPlace={
+                    r.id === "beach-umbrella"
+                      ? placeUmbrella
+                      : r.id === "picnic-basket"
+                        ? placePicnicBasket
+                        : r.id === "beach-bag"
+                          ? placeBeachBag
+                          : () => false
+                  }
+                />
+              ))}
+            </div>
+
+            {/* Inflatable Raft */}
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-cyan-900 mb-3">⛵ Water Exploration</h3>
+              {INFLATABLE_RECIPES.map((r) => (
+                <PlaceableRecipeCard
+                  key={r.id}
+                  title={r.name}
+                  description={r.description}
+                  cost={r.cost}
+                  recipeId={r.id}
+                  onPlace={placeRaft}
+                />
+              ))}
+            </div>
+          </>
+        ) : tab === "meditative" ? (
+          <>
+            <p className="text-xs text-rose-800/70 mb-3 text-center">Create peaceful decorative items and sand art installations for your sanctuary.</p>
+
+            {/* Meditative Items */}
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-rose-900 mb-3">🔥 Ambient Decorations</h3>
+              {MEDITATIVE_RECIPES.map((r) => (
+                <PlaceableRecipeCard
+                  key={r.id}
+                  title={r.name}
+                  description={r.description}
+                  cost={r.cost}
+                  recipeId={r.id}
+                  onPlace={r.id === "salt-lamp" ? placeSaltLamp : () => false}
+                />
+              ))}
+            </div>
+
+            {/* Sand Art */}
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-rose-900 mb-3">🏖️ Sand Art Installations</h3>
+              {SAND_ART_RECIPES.map((r) => (
+                <PlaceableRecipeCard
+                  key={r.id}
+                  title={r.name}
+                  description={r.description}
+                  cost={r.cost}
+                  recipeId={r.id}
+                  onPlace={() => createSandArt(r.id)}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
