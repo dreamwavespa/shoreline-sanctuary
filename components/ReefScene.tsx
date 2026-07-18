@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
-import { SCENES, MUSIC } from "@/lib/media";
+import { SCENES } from "@/lib/media";
 
 interface Spot {
   key: string;
@@ -204,29 +204,27 @@ function ShipwreckCard() {
 }
 
 export default function ReefScene() {
-  const { state, collectItem } = useGame();
+  const { state, collectItem, setMusicOverride } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
-  const musicRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setSpots(randomSpots(6));
   }, []);
 
+  // AudioEngine owns the single music element; this screen only tells it
+  // which track to prefer while the Libby (lobster trap) sub-tab is active,
+  // and clears that preference on tab-away/unmount so the zone's default
+  // underwater track resumes. Never mount a second <audio> element here.
   useEffect(() => {
-    const el = musicRef.current;
-    if (!el) return;
     if (tab === "libby") {
-      el.volume = 0.5 * state.audio.master * state.audio.music * (state.audio.musicMuted ? 0 : 1);
-      void el.play().catch(() => {});
+      setMusicOverride("deepReefDescent");
     } else {
-      el.pause();
+      setMusicOverride(null);
     }
-    return () => {
-      el.pause();
-    };
-  }, [tab, state.audio.master, state.audio.music, state.audio.musicMuted]);
+    return () => setMusicOverride(null);
+  }, [tab, setMusicOverride]);
 
   if (!state.hasDivingGear) {
     return (
@@ -254,8 +252,6 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
-      <audio ref={musicRef} src={MUSIC.deepReefDescent} loop preload="none" />
-
       <div className="relative w-full h-[48%] min-h-[240px] overflow-hidden select-none">
         <Image src={SCENES.shipwreck} alt="Deep Reef shipwreck" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-blue-900/25" />
