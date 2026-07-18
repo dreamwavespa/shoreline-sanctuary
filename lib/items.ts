@@ -1,4 +1,4 @@
-export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special" | "food";
+export type ItemCategory = "shell" | "glass" | "pearl" | "raw" | "trash" | "special" | "food" | "resort";
 
 export interface ItemDef {
   id: string;
@@ -69,6 +69,24 @@ export const ITEMS: Record<string, ItemDef> = {
   "food-sea-rose-milk": { id: "food-sea-rose-milk", name: "Soothing Sea-Rose Milk", category: "food", icon: "🥛", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-seaweed-chips": { id: "food-seaweed-chips", name: "Crispy Seaweed Chips", category: "food", icon: "🍟", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-campfire-marshmallow": { id: "food-campfire-marshmallow", name: "Campfire Marshmallow", category: "food", icon: "🍡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  
+  // ========== PHASE 4 & 5: RESORT EXPANSION ITEMS ==========
+  "resort-umbrella": { id: "resort-umbrella", name: "Beach Umbrella", category: "resort", icon: "☂️", isEmoji: true, rarity: "uncommon", sfx: "umbrellaWhoof" },
+  "resort-picnic-basket": { id: "resort-picnic-basket", name: "Picnic Basket", category: "resort", icon: "🧺", isEmoji: true, rarity: "uncommon", sfx: "picnicLatch" },
+  "resort-beach-bag": { id: "resort-beach-bag", name: "Beach Bag", category: "resort", icon: "👜", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
+  "resort-inflatable-raft": { id: "resort-inflatable-raft", name: "Inflatable Rubber Raft", category: "resort", icon: "⛵", isEmoji: true, rarity: "rare", sfx: "raftInflate" },
+  "resort-salt-lamp": { id: "resort-salt-lamp", name: "Coastal Salt Lamp", category: "resort", icon: "🔥", isEmoji: true, rarity: "rare", sfx: "lampActivate" },
+  "resort-sun-hat": { id: "resort-sun-hat", name: "Woven Sun Hat", category: "resort", icon: "👒", isEmoji: true, rarity: "uncommon", sfx: "hatWeave" },
+
+  // ========== SAND ART RECIPE OUTPUTS ==========
+  "sand-art-sunset": { id: "sand-art-sunset", name: "Sunset Shoreline Sand Art", category: "resort", icon: "🏖️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "sand-art-sandbar": { id: "sand-art-sandbar", name: "Sub-Aquatic Sandbar Sand Art", category: "resort", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "sand-art-tide-pool": { id: "sand-art-tide-pool", name: "Legendary Tide-Pool Glimmer", category: "resort", icon: "✨", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+
+  // ========== SEAGULL TRADE ITEMS ==========
+  "seagull-lost-key": { id: "seagull-lost-key", name: "Lost Key", category: "special", icon: "🔑", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "seagull-shiny-soda-tab": { id: "seagull-shiny-soda-tab", name: "Shiny Soda Tab", category: "special", icon: "💍", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "seagull-rare-sea-glass": { id: "seagull-rare-sea-glass", name: "Rare Sea Glass", category: "glass", icon: "💎", isEmoji: true, rarity: "rare", sfx: "seaGlass" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
