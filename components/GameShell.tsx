@@ -10,6 +10,7 @@ import LighthouseScreen from "./LighthouseScreen";
 import ReefScene from "./ReefScene";
 import ShipScene from "./ShipScene";
 import SandbarsScene from "./SandbarsScene";
+import Cottage from "./Cottage";
 import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
 
@@ -20,9 +21,10 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "bottles", label: "Bottles", icon: "🍾" },
   { id: "cove", label: "Cove", icon: "🚣" },
   { id: "lighthouse", label: "Tower", icon: "🗼️" },
-  { id: "reef", label: "Reef", icon: "🐠" },
+  { id: "reef", label: "Reef", icon: "🎠" },
   { id: "ship", label: "Ship", icon: "⛵" },
   { id: "sandbars", label: "Sandbars", icon: "🛟" },
+  { id: "cottage", label: "Cottage", icon: "🏠" },
 ];
 
 export default function GameShell() {
@@ -89,6 +91,7 @@ export default function GameShell() {
         {screen === "reef" && <ReefScene />}
         {screen === "ship" && <ShipScene />}
         {screen === "sandbars" && <SandbarsScene />}
+        {screen === "cottage" && <Cottage />}
 
         {(lastToast || lockMsg) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">
@@ -100,7 +103,7 @@ export default function GameShell() {
       </main>
 
       <nav
-        className="grid grid-cols-9 bg-[#0b3d3a] border-t border-white/10"
+        className="grid grid-cols-10 bg-[#0b3d3a] border-t border-white/10"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {TABS.map((tab) => {

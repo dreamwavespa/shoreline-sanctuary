@@ -3,8 +3,9 @@ import React, { createContext, useContext, useEffect, useMemo, useRef, useState 
 import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
+import { VILLAGERS } from "./villagers";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface AudioSettings {
@@ -51,6 +52,7 @@ interface GameState {
   seagullTradeCount: number;
   raftInflated: boolean;
   sandbarsUnlocked: boolean;
+  villagerGiftCounts: Record<string, number>;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -88,6 +90,7 @@ const DEFAULT_STATE: GameState = {
   seagullTradeCount: 0,
   raftInflated: false,
   sandbarsUnlocked: false,
+  villagerGiftCounts: {},
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -100,6 +103,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   reef: "underwater",
   ship: "beach",
   sandbars: "underwater",
+  cottage: "beach",
 };
 
 const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];
@@ -140,6 +144,7 @@ interface Ctx {
   splashBirds: () => void;
   ignoreBirds: () => void;
   reinflateRaft: () => void;
+  giftVillager: (villagerId: string, itemId: string) => boolean;
   musicOverride: string | null;
   setMusicOverride: (key: string | null) => void;
 }
@@ -431,7 +436,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return { ...s, inventory: inv, saltyStreak: nextStreak, saltyTotalCatches: nextTotal };
     });
     play(caught ? "questComplete" : "plastic");
-    toast(caught ? "Salty catches it! 🦭" : "Salty misses — try again!");
+    toast(caught ? "Salty catches it! 🤭" : "Salty misses — try again!");
     return { thrown: true, caught };
   };
 
@@ -495,7 +500,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return { ...s, inventory: inv };
     });
     play("craftSuccess");
-    toast("The birds fly off to eat — raft integrity maintained! 🛟");
+    toast("The birds fly off to eat — raft integrity maintained! 🴟");
     return true;
   };
 
@@ -514,6 +519,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, raftInflated: true }));
     play("umbrellaWhoof");
     toast("The raft is re-inflated and ready!");
+  };
+
+  const giftVillager = (villagerId: string, itemId: string) => {
+    const villager = VILLAGERS[villagerId];
+    if (!villager) return false;
+    if (!hasEnough([{ itemId, count: 1 }])) return false;
+    setState((s) => {
+      const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
+      const villagerGiftCounts = {
+        ...s.villagerGiftCounts,
+        [villagerId]: (s.villagerGiftCounts[villagerId] || 0) + 1,
+      };
+      return { ...s, inventory: inv, villagerGiftCounts };
+    });
+    const def = ITEMS[itemId];
+    const loved = villager.gift.lovedGiftIds.includes(itemId);
+    play(loved ? def.sfx : "shell");
+    toast(
+      loved
+        ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨`
+        : `${villager.name} accepts the ${def.name} politely.`
+    );
+    return true;
   };
 
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
@@ -568,6 +596,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       splashBirds,
       ignoreBirds,
       reinflateRaft,
+      giftVillager,
       musicOverride,
       setMusicOverride,
     }),
