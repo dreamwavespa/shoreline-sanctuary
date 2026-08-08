@@ -13,6 +13,7 @@ import SandbarsScene from "./SandbarsScene";
 import Cottage from "./Cottage";
 import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
+import Notebook from "./Notebook";
 
 const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "beach", label: "Beach", icon: "🏖️" },
@@ -28,8 +29,12 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
 ];
 
 export default function GameShell() {
-  const { screen, setScreen, lastToast, state } = useGame();
+  const { screen, setScreen, lastToast, state, notebookOpen, setNotebookOpen } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const villagerMetCount = Object.values(state.villagerGiftCounts).filter((c) => c > 0).length;
+  const notebookDiscoveredCount = Object.keys(state.notebookDiscovered).length + villagerMetCount;
+  const hasNewNotebookEntry = notebookDiscoveredCount > state.notebookSeenCount;
   const [lockMsg, setLockMsg] = useState<string | null>(null);
 
   const isLocked = (id: Screen) => {
@@ -72,6 +77,17 @@ export default function GameShell() {
           <span className="text-xs bg-white/10 rounded-full px-3 py-1">🧺 {state.bucketsFilled}</span>
           <button
             type="button"
+            aria-label="Explorer's Notebook"
+            onClick={() => setNotebookOpen(true)}
+            className="relative w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-base"
+          >
+            📖
+            {hasNewNotebookEntry && (
+              <span className="absolute -top-0.5 -right-0.5 text-[10px]">⭐</span>
+            )}
+          </button>
+          <button
+            type="button"
             aria-label="Sound settings"
             onClick={() => setSettingsOpen(true)}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-base"
@@ -100,6 +116,7 @@ export default function GameShell() {
         )}
 
         {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+        {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       </main>
 
       <nav

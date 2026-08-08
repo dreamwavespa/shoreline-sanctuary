@@ -53,6 +53,8 @@ interface GameState {
   raftInflated: boolean;
   sandbarsUnlocked: boolean;
   villagerGiftCounts: Record<string, number>;
+  notebookDiscovered: Record<string, boolean>;
+  notebookSeenCount: number;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -91,6 +93,8 @@ const DEFAULT_STATE: GameState = {
   raftInflated: false,
   sandbarsUnlocked: false,
   villagerGiftCounts: {},
+  notebookDiscovered: {},
+  notebookSeenCount: 0,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -147,6 +151,9 @@ interface Ctx {
   giftVillager: (villagerId: string, itemId: string) => boolean;
   musicOverride: string | null;
   setMusicOverride: (key: string | null) => void;
+  notebookOpen: boolean;
+  setNotebookOpen: (v: boolean) => void;
+  markNotebookSeen: () => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -164,6 +171,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   // (this was the exact bug that caused Kitchen and the Lobster Trap to
   // double up on music).
   const [musicOverride, setMusicOverride] = useState<string | null>(null);
+  const [notebookOpen, setNotebookOpen] = useState(false);
   const audioCache = useRef<Record<string, HTMLAudioElement>>({});
   const loaded = useRef(false);
   const stateRef = useRef(state);
@@ -186,6 +194,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {}
   }, [state]);
+
+  // Sanctuary Explorer's Notebook: the first time the player ever holds an
+  // item, permanently log it as "discovered" — even if it's later spent,
+  // gifted, or crafted away. This runs once per inventory change and is a
+  // no-op once everything currently held has already been logged.
+  useEffect(() => {
+    setState((s) => {
+      let changed = false;
+      const notebookDiscovered = { ...s.notebookDiscovered };
+      for (const [itemId, count] of Object.entries(s.inventory)) {
+        if (count > 0 && !notebookDiscovered[itemId]) {
+          notebookDiscovered[itemId] = true;
+          changed = true;
+        }
+      }
+      return changed ? { ...s, notebookDiscovered } : s;
+    });
+  }, [state.inventory]);
 
   const play = (key: string) => {
     const src = SFX_FILES[key];
@@ -544,6 +570,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const markNotebookSeen = () => {
+    setState((s) => {
+      const villagerMet = Object.values(s.villagerGiftCounts).filter((c) => c > 0).length;
+      const total = Object.keys(s.notebookDiscovered).length + villagerMet;
+      return { ...s, notebookSeenCount: total };
+    });
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -599,8 +633,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       giftVillager,
       musicOverride,
       setMusicOverride,
+      notebookOpen,
+      setNotebookOpen,
+      markNotebookSeen,
     }),
-    [state, screen, zone, lastToast, musicOverride]
+    [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;
