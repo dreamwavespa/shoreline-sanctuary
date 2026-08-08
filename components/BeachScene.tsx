@@ -4,6 +4,8 @@ import Image from "next/image";
 import { ITEMS, rollSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import { VILLAGERS } from "@/lib/villagers";
+import VillagerCard from "./VillagerCard";
 
 interface Spot {
   key: string;
@@ -290,6 +292,22 @@ export default function BeachScene() {
         <UmbrellaCard />
         <SeagullCard />
         <BeachBagCard />
+
+        <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
+          Shoreline Residents & Eco-Allies
+        </p>
+        <VillagerCard villager={VILLAGERS.sandy} />
+        <VillagerCard villager={VILLAGERS.kai} />
+        <VillagerCard villager={VILLAGERS.sunny} />
+        <VillagerCard villager={VILLAGERS.penelope} />
+
+        <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
+          Traveling & Special Characters
+        </p>
+        <VillagerCard villager={VILLAGERS.shelldon} />
+        <VillagerCard villager={VILLAGERS.shelby} />
+        <VillagerCard villager={VILLAGERS.misty} />
+        <VillagerCard villager={VILLAGERS.angel} />
       </div>
     </div>
   );
