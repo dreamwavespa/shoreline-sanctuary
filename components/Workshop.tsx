@@ -5,6 +5,7 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
+import Notebook from "./Notebook";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -148,6 +149,7 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 export default function Workshop() {
   const { state, setMusicOverride } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
+  const [notebookOpen, setNotebookOpen] = useState(false);
 
   // AudioEngine owns the single music element; this screen only tells it
   // which track to prefer while the Kitchen sub-tab is active, and clears
@@ -189,6 +191,20 @@ export default function Workshop() {
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setNotebookOpen(true)}
+          className="w-full text-left rounded-2xl bg-white/90 p-4 mb-3 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"
+        >
+          <div className="w-14 h-14 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-3xl">📖</div>
+          <div className="flex-1">
+            <p className="font-bold text-amber-900">Explorer's Notebook</p>
+            <p className="text-xs text-amber-700">
+              A leather journal rests on the corner of the desk, next to the crafting bucket.
+            </p>
+          </div>
+        </button>
 
         {!state.workshopUnlocked ? (
           <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
@@ -277,6 +293,8 @@ export default function Workshop() {
           </>
         )}
       </div>
+
+      {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
     </div>
   );
 }

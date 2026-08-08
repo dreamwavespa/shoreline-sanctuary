@@ -2,12 +2,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
+import Notebook from "./Notebook";
 import { COTTAGE_ROOMS, COTTAGE_HARMONY_LAYERS, VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 
 export default function Cottage() {
   const { state } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
+  const [notebookOpen, setNotebookOpen] = useState(false);
 
   const bondedSisterCount = COTTAGE_ROOMS.filter(
     (r) => (state.villagerGiftCounts[r.ownerId] || 0) > 0
@@ -47,6 +49,22 @@ export default function Cottage() {
 
         <p className="text-xs text-indigo-100/80 leading-relaxed">{room.description}</p>
 
+        {room.id === "jewelry-parlor" && (
+          <button
+            type="button"
+            onClick={() => setNotebookOpen(true)}
+            className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"
+          >
+            <div className="w-14 h-14 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-3xl">📖</div>
+            <div className="flex-1">
+              <p className="font-bold text-amber-900">The Reading Stand</p>
+              <p className="text-xs text-amber-700">
+                A sunlit wooden stand near Melody's workbench, holding your Sanctuary Explorer's Notebook.
+              </p>
+            </div>
+          </button>
+        )}
+
         {sister && <VillagerCard villager={sister} />}
 
         <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-indigo-200">
@@ -75,6 +93,8 @@ export default function Cottage() {
           </div>
         </div>
       </div>
+
+      {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
     </div>
   );
 }
