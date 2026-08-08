@@ -70,8 +70,6 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       instrumentation: "Finger-picked acoustic guitar + high-frequency glass marimba",
       movementSfx: "Light swish-tink of sea glass beads",
     },
-    imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/75917f74d6a04134a2287da6b8cf2b41.webp",
   },
   marella: {
     id: "marella",
@@ -94,8 +92,6 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       instrumentation: "Ambient pad synths + pulsing moonlit harp",
       movementSfx: "Weightless whoosh-shhh",
     },
-    imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
   },
   coralie: {
     id: "coralie",
@@ -118,8 +114,6 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       instrumentation: "Warm wooden marimba + plucked acoustic bass",
       movementSfx: "Soft shhh-splash of leafy fronds",
     },
-    imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
   },
   kaiana: {
     id: "kaiana",
@@ -142,8 +136,6 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       instrumentation: "Solo cello + crystalline bell chimes",
       movementSfx: "Smooth glide-shimmer",
     },
-    imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
   },
 
   // ── Shoreline Residents & Eco-Allies ────────────────────────
@@ -318,8 +310,6 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       reactionVisual: "Shell Gold Sparkle",
       redirectTo: ["mina"],
     },
-    imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/32f8e61ee07f43b6bb27a7585e007d2c.webp",
   },
   shelby: {
     id: "shelby",
