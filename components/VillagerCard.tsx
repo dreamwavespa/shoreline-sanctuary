@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { VillagerDef } from "@/lib/villagers";
+import { ScheduleStatus } from "@/lib/schedule";
 
 const RING_BY_GROUP: Record<string, string> = {
   "sea-glass-sister": "ring-indigo-200",
@@ -32,9 +33,18 @@ const EMOJI_FALLBACK: Record<string, string> = {
   kaiana: "🧭",
 };
 
-export default function VillagerCard({ villager }: { villager: VillagerDef }) {
+export default function VillagerCard({
+  villager,
+  schedule,
+}: {
+  villager: VillagerDef;
+  /** For traveling/special villagers only — omit for always-available ones. */
+  schedule?: ScheduleStatus | null;
+}) {
   const { state, giftVillager } = useGame();
   const [expanded, setExpanded] = useState(false);
+  const scheduleKnown = schedule !== undefined && schedule !== null;
+  const isAway = scheduleKnown && !schedule!.available;
   const giftCount = state.villagerGiftCounts[villager.id] || 0;
 
   const availableGifts = villager.gift.lovedGiftIds
@@ -68,6 +78,11 @@ export default function VillagerCard({ villager }: { villager: VillagerDef }) {
             {giftCount > 0 && <span className="ml-1 text-rose-500">· 🎁 x{giftCount}</span>}
           </p>
           {villager.schedule && <p className="text-[11px] text-amber-500 italic">{villager.schedule}</p>}
+          {scheduleKnown && (
+            <p className={`text-[11px] font-semibold mt-0.5 ${isAway ? "text-slate-500" : "text-emerald-600"}`}>
+              {isAway ? `🌘 ${schedule!.awayLabel}` : `🟢 ${schedule!.presentLabel}`}
+            </p>
+          )}
         </div>
         <span className="text-lg text-amber-400">{expanded ? "▾" : "▸"}</span>
       </button>
@@ -77,6 +92,12 @@ export default function VillagerCard({ villager }: { villager: VillagerDef }) {
           <p className="text-xs text-amber-700">{villager.personality}</p>
           <p className="text-xs text-amber-700">{villager.gameplay}</p>
 
+          {isAway ? (
+            <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center">
+              <p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p>
+              <p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p>
+            </div>
+          ) : (
           <div>
             <p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>
             {availableGifts.length === 0 ? (
@@ -102,6 +123,7 @@ export default function VillagerCard({ villager }: { villager: VillagerDef }) {
               </div>
             )}
           </div>
+          )}
 
           <p className="text-[11px] text-amber-500 italic">
             Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}
