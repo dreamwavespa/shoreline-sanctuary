@@ -6,6 +6,7 @@ import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
+import { getScheduleStatus, ScheduleStatus } from "@/lib/schedule";
 
 interface Spot {
   key: string;
@@ -228,9 +229,17 @@ export default function BeachScene() {
   const { collectItem } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
+  // Computed client-side, post-mount, so server and first client render match
+  // (schedule depends on real wall-clock time/date).
+  const [travelerSchedule, setTravelerSchedule] = useState<Record<string, ScheduleStatus> | null>(null);
 
   useEffect(() => {
     setSpots(randomSpots(9));
+    setTravelerSchedule({
+      shelldon: getScheduleStatus("shelldon"),
+      shelby: getScheduleStatus("shelby"),
+      misty: getScheduleStatus("misty"),
+    });
   }, []);
 
   const handleTap = (spot: Spot) => {
@@ -304,9 +313,31 @@ export default function BeachScene() {
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
           Traveling & Special Characters
         </p>
-        <VillagerCard villager={VILLAGERS.shelldon} />
-        <VillagerCard villager={VILLAGERS.shelby} />
-        <VillagerCard villager={VILLAGERS.misty} />
+        {travelerSchedule && (
+          <div className="rounded-2xl bg-indigo-50 ring-1 ring-indigo-200 p-3">
+            <p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">
+              Today's Visitors
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {(["shelldon", "shelby", "misty"] as const).map((id) => (
+                <span
+                  key={id}
+                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
+                    travelerSchedule[id].available ? "bg-emerald-500 text-white" : "bg-white text-slate-400 ring-1 ring-slate-200"
+                  }`}
+                >
+                  {travelerSchedule[id].available ? "🟢" : "🌘"} {VILLAGERS[id].name}
+                </span>
+              ))}
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white">
+                🟢 Angel
+              </span>
+            </div>
+          </div>
+        )}
+        <VillagerCard villager={VILLAGERS.shelldon} schedule={travelerSchedule?.shelldon} />
+        <VillagerCard villager={VILLAGERS.shelby} schedule={travelerSchedule?.shelby} />
+        <VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} />
         <VillagerCard villager={VILLAGERS.angel} />
       </div>
     </div>
