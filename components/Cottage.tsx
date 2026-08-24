@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import Notebook from "./Notebook";
@@ -7,13 +7,26 @@ import { COTTAGE_ROOMS, COTTAGE_HARMONY_LAYERS, VILLAGERS } from "@/lib/villager
 import VillagerCard from "./VillagerCard";
 
 export default function Cottage() {
-  const { state } = useGame();
+  const { state, setMusicOverride } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
   const [notebookOpen, setNotebookOpen] = useState(false);
 
   const bondedSisterCount = COTTAGE_ROOMS.filter(
     (r) => (state.villagerGiftCounts[r.ownerId] || 0) > 0
   ).length;
+
+  // Cottage Harmony Engine: the score itself layers in as sisters are
+  // bonded, using the game's single-music-track engine (same override
+  // pattern as the Kitchen and Reef zones) so it never doubles up with
+  // the beach zone track.
+  useEffect(() => {
+    if (bondedSisterCount >= 1) {
+      setMusicOverride(`cottage${Math.min(4, bondedSisterCount)}`);
+    } else {
+      setMusicOverride(null);
+    }
+    return () => setMusicOverride(null);
+  }, [bondedSisterCount, setMusicOverride]);
   const currentLayer =
     [...COTTAGE_HARMONY_LAYERS].reverse().find((l) => l.sisterCount <= bondedSisterCount) || null;
 

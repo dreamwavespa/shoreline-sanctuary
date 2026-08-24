@@ -29,6 +29,15 @@ export const MUSIC = {
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
   kitchen: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f7f0c00c5c1d490e95569e0fcb2273d8.mp3",
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
+  // Cottage Harmony Engine — layers in as Sea Glass Sisters are bonded.
+  // cottage1: Melody alone (acoustic guitar + glass marimba)
+  // cottage2: +Coralie (adds wooden marimba + plucked bass)
+  // cottage3: +Marella (adds ambient pads + moonlit harp)
+  // cottage4: +Kaiana (full orchestral — solo cello + crystalline bells)
+  cottage1: "https://static.galaxy.ai/d9b033248bba41d7b99ae128b3b45075.mp3",
+  cottage2: "https://static.galaxy.ai/57d516ee0c4640f895fd1c4f1f3e95d4.mp3",
+  cottage3: "https://static.galaxy.ai/7e2d80cb08054a07828738e176e1bef4.mp3",
+  cottage4: "https://static.galaxy.ai/c89888e3778f4069908bc5fdd0ba34bc.mp3",
 };
 
 export const PWA_ICONS = {
