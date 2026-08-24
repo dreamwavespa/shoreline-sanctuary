@@ -4,6 +4,8 @@ import Image from "next/image";
 import { ITEMS, rollSandbarSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import { VILLAGERS } from "@/lib/villagers";
+import VillagerCard from "./VillagerCard";
 
 interface Spot {
   key: string;
@@ -162,8 +164,18 @@ export default function SandbarsScene() {
         })}
       </div>
 
-      <div className="px-4 pt-4">
+      <div className="px-4 pt-4 space-y-3">
         <RaftCard />
+
+        <p className="text-xs font-semibold text-teal-100/70 uppercase tracking-wide pt-2">
+          Underwater Village
+        </p>
+        <VillagerCard villager={VILLAGERS.coral} />
+        <VillagerCard villager={VILLAGERS.mina} />
+        <VillagerCard villager={VILLAGERS.bubbles} />
+        <VillagerCard villager={VILLAGERS.pearl} />
+        <VillagerCard villager={VILLAGERS.splash} />
+
         <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>
       </div>
     </div>
