@@ -127,6 +127,7 @@ interface Ctx {
   restoreShip: (cost: { itemId: string; count: number }[]) => boolean;
   hasEnough: (requires: { itemId: string; count: number }[]) => boolean;
   play: (key: string) => void;
+  playBottleSequence: () => void;
   setAudioSetting: <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => void;
   resetProgress: () => void;
   bucketCapacity: number;
@@ -226,6 +227,51 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       a.volume = 0.75 * stateRef.current.audio.master;
       void a.play().catch(() => {});
     } catch {}
+  };
+
+  const playBottleSequence = () => {
+    const keys = ["bottleGlass", "bottleCork", "bottleParchment"];
+
+    const playStep = (index: number) => {
+      if (index >= keys.length) return;
+
+      const key = keys[index];
+      const src = SFX_FILES[key];
+
+      if (!src) {
+        playStep(index + 1);
+        return;
+      }
+
+      try {
+        let a = audioCache.current[key];
+
+        if (!a) {
+          a = new Audio(src);
+          audioCache.current[key] = a;
+        }
+
+        a.pause();
+        a.currentTime = 0;
+        a.volume = 0.75 * stateRef.current.audio.master;
+
+        const handleEnded = () => {
+          a?.removeEventListener("ended", handleEnded);
+          playStep(index + 1);
+        };
+
+        a.addEventListener("ended", handleEnded);
+
+        void a.play().catch(() => {
+          a?.removeEventListener("ended", handleEnded);
+          playStep(index + 1);
+        });
+      } catch {
+        playStep(index + 1);
+      }
+    };
+
+    playStep(0);
   };
 
   const toast = (msg: string) => {
@@ -461,7 +507,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       return { ...s, inventory: inv, saltyStreak: nextStreak, saltyTotalCatches: nextTotal };
     });
-    play(caught ? "questComplete" : "plastic");
+    play(caught ? "questComplete" : "beachBall");
     toast(caught ? "Salty catches it! 🤭" : "Salty misses — try again!");
     return { thrown: true, caught };
   };
@@ -609,6 +655,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       restoreShip,
       hasEnough,
       play,
+      playBottleSequence,
       setAudioSetting,
       resetProgress,
       bucketCapacity: BUCKET_CAPACITY,

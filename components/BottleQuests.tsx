@@ -7,7 +7,7 @@ import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 
 export default function BottleQuests() {
-  const { state, claimQuest, hasEnough, play } = useGame();
+  const { state, claimQuest, hasEnough, playBottleSequence } = useGame();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const isReady = (q: QuestDef) => {
@@ -49,7 +49,7 @@ export default function BottleQuests() {
                 className="w-full text-left p-4 flex items-center justify-between"
                 onClick={() => {
                   setOpenId(isOpen ? null : q.id);
-                  if (!isOpen) play("bottleOpen");
+                  if (!isOpen) playBottleSequence();
                 }}
               >
                 <div>
