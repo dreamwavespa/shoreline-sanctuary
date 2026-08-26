@@ -391,7 +391,7 @@ export const COTTAGE_ROOMS: CottageRoomDef[] = [
       "Frosted peach/teal sea-glass windows, driftwood workbench, shell wind-chime wall, woven daybed.",
     station: "Jewelry & Decor Customization Workbench",
     imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
+      "https://galaxy-prod.tlcdn.com/gen/922c12b0d37c49ff93045d1f92125efe.png",
   },
   {
     id: "bioluminescent-grotto",
@@ -402,7 +402,7 @@ export const COTTAGE_ROOMS: CottageRoomDef[] = [
       "Indoor trickling stream, living pink/teal coral archway, stone seed nursery bench, seagrass hammock.",
     station: "Botanical Propagation Bench",
     imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
+      "https://galaxy-prod.tlcdn.com/gen/a4182601590d47b78212819c700c94ce.png",
   },
   {
     id: "celestial-observatory",
@@ -413,7 +413,7 @@ export const COTTAGE_ROOMS: CottageRoomDef[] = [
       "Indigo glass dome skylight, glowing tide orb pedestal, star-charm canopy bed, water-reflecting basin.",
     station: "Tide Orb & Event Altar",
     imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
+      "https://galaxy-prod.tlcdn.com/gen/14f65012810542d38ca3f3a43e146d65.png",
   },
   {
     id: "restoration-studio",
@@ -424,7 +424,7 @@ export const COTTAGE_ROOMS: CottageRoomDef[] = [
       "Dark oak beams with brass lanterns, heavy wood workbench, velvet display cabinets, glass skylight.",
     station: "Artifact Restoration Station",
     imageUrl:
-      "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f6163b15dbbe49128afbef19c60bdd30.webp",
+      "https://galaxy-prod.tlcdn.com/gen/284acd12747b437c87a18c402e6b30f9.png",
   },
 ];
 
