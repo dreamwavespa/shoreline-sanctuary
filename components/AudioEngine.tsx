@@ -133,8 +133,16 @@ export default function AudioEngine() {
     el.src = trackSrcFor(nextKey);
     el.loop = true;
     currentVol.current.music = 0;
-    if (musicGainRef.current) musicGainRef.current.gain.value = 0;
-    el.volume = 0;
+    if (musicGainRef.current) {
+      // When Web Audio is active, GainNode owns the fade. Keep the media
+      // element itself at full volume so the gain can actually bring the
+      // newly loaded track back up from silence.
+      musicGainRef.current.gain.value = 0;
+      el.volume = 1;
+    } else {
+      // Without Web Audio, the fade loop below directly controls .volume.
+      el.volume = 0;
+    }
     if (wasPlaying || unlocked) {
       void el.play().catch(() => {});
     }
