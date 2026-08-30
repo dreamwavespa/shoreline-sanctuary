@@ -27,6 +27,7 @@ export const MUSIC = {
   underwater: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2922b0a505d240a28037f7b469dd7d87.mp3",
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
   kitchen: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f7f0c00c5c1d490e95569e0fcb2273d8.mp3",
+  crafting: "/audio/Coastal%20Crafting%20Haven.mp3",
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
 
   // Cottage Harmony Engine — layers in as Sea Glass Sisters are bonded.
@@ -60,6 +61,8 @@ export const SFX_FILES: Record<string, string> = {
   beachBall: "/audio/Beach%20ball%20.wav",
   sodaTab: "/audio/Soda-tab.wav",
   wood: "/audio/Wood.wav",
+  salt: "/audio/Salt-shaker.wav",
+  coconut: "/audio/Coconut-falling.wav",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,
