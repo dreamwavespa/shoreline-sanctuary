@@ -120,6 +120,68 @@ export default function AudioEngine() {
     return () => window.removeEventListener("pointerdown", unlock);
   }, [unlocked]);
 
+  // Protect background audio only when an actual interaction audio element
+  // starts or finishes playing. The SFX in store.tsx are detached Audio()
+  // elements, so their media events can be observed in capture phase without
+  // modifying them or the bottle-sequence logic. This is intentionally much
+  // narrower than listening to every click/keydown, which caused regressions
+  // when navigating away from and back to the Beach.
+  useEffect(() => {
+    if (!unlocked) return;
+
+    const keepBackgroundAlive = () => {
+      const settings = settingsRef.current;
+      const ctx = audioCtxRef.current;
+      const music = musicRef.current;
+      const ambience = ambienceRef.current;
+
+      if (ctx?.state === "suspended") {
+        void ctx.resume().catch(() => {});
+      }
+
+      if (
+        music &&
+        music.paused &&
+        !settings.musicMuted &&
+        settings.master > 0 &&
+        settings.music > 0
+      ) {
+        void music.play().catch(() => {});
+      }
+
+      if (
+        ambience &&
+        ambience.paused &&
+        settings.master > 0 &&
+        settings.ambience > 0
+      ) {
+        void ambience.play().catch(() => {});
+      }
+    };
+
+    const handleSfxMediaEvent = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLMediaElement)) return;
+      if (target === musicRef.current || target === ambienceRef.current) return;
+
+      keepBackgroundAlive();
+
+      // Some mobile browsers pause the background a fraction after the SFX
+      // starts, so make one targeted follow-up check tied to this SFX event.
+      if (event.type === "play") {
+        window.setTimeout(keepBackgroundAlive, 150);
+      }
+    };
+
+    document.addEventListener("play", handleSfxMediaEvent, true);
+    document.addEventListener("ended", handleSfxMediaEvent, true);
+
+    return () => {
+      document.removeEventListener("play", handleSfxMediaEvent, true);
+      document.removeEventListener("ended", handleSfxMediaEvent, true);
+    };
+  }, [unlocked]);
+
   // Swap the music track's source whenever the effective track (zone, or an
   // active screen override) actually changes. An override always wins over
   // the zone default while it is set.
