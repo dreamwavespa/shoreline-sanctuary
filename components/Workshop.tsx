@@ -152,16 +152,17 @@ export default function Workshop() {
   const [notebookOpen, setNotebookOpen] = useState(false);
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
-  // kitchen track; every other Workshop tab uses Coastal Crafting Haven.
-  // Clear the override on unmount so the zone's default track resumes.
+  // kitchen track; every other Workshop tab — including Jewelry and Sand Art —
+  // uses Coastal Crafting Haven. Do not clear the override between tab changes,
+  // because rapidly swapping to the zone track and back can leave playback
+  // paused in some browsers. Clear it only when Workshop itself unmounts.
   useEffect(() => {
-    if (tab === "kitchen") {
-      setMusicOverride("kitchen");
-    } else {
-      setMusicOverride("crafting");
-    }
-    return () => setMusicOverride(null);
+    setMusicOverride(tab === "kitchen" ? "kitchen" : "crafting");
   }, [tab, setMusicOverride]);
+
+  useEffect(() => {
+    return () => setMusicOverride(null);
+  }, [setMusicOverride]);
 
   const TABS: { id: Tab; label: string; active: string; inactive: string }[] = [
     { id: "crafting", label: "🔨 Crafting", active: "bg-teal-600 text-white", inactive: "bg-white/80 text-teal-800" },
