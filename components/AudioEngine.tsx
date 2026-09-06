@@ -124,11 +124,11 @@ export default function AudioEngine() {
     };
   }, [unlocked]);
 
-  // Some browsers/mobile WebViews can pause the background media element
-  // when a short interaction sound starts. After each completed click or
-  // keyboard action, make sure the shared AudioContext and the two looping
-  // background tracks are still running. This does not restart the track;
-  // play() continues from the current position when the element was paused.
+  // Some browsers/mobile WebViews do not pause the background media until a
+  // short interaction sound has actually started. A single check at the end
+  // of the click can therefore happen too early. Re-check immediately and at
+  // a few short delays so pickup/cooking/petting/gifting sounds can never
+  // leave the looping music or ambience paused after they take audio focus.
   useEffect(() => {
     if (!unlocked) return;
 
@@ -150,11 +150,21 @@ export default function AudioEngine() {
       }
     };
 
-    window.addEventListener("click", keepBackgroundAlive);
-    window.addEventListener("keydown", keepBackgroundAlive);
+    const recoverAfterInteraction = () => {
+      keepBackgroundAlive();
+      window.setTimeout(keepBackgroundAlive, 50);
+      window.setTimeout(keepBackgroundAlive, 200);
+      window.setTimeout(keepBackgroundAlive, 600);
+      window.setTimeout(keepBackgroundAlive, 1200);
+    };
+
+    window.addEventListener("click", recoverAfterInteraction);
+    window.addEventListener("keydown", recoverAfterInteraction);
+    window.addEventListener("pointerup", recoverAfterInteraction);
     return () => {
-      window.removeEventListener("click", keepBackgroundAlive);
-      window.removeEventListener("keydown", keepBackgroundAlive);
+      window.removeEventListener("click", recoverAfterInteraction);
+      window.removeEventListener("keydown", recoverAfterInteraction);
+      window.removeEventListener("pointerup", recoverAfterInteraction);
     };
   }, [unlocked]);
 
