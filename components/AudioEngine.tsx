@@ -117,7 +117,45 @@ export default function AudioEngine() {
       ]).then(() => setUnlocked(true));
     };
     window.addEventListener("pointerdown", unlock, { once: true });
-    return () => window.removeEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, [unlocked]);
+
+  // Some browsers/mobile WebViews can pause the background media element
+  // when a short interaction sound starts. After each completed click or
+  // keyboard action, make sure the shared AudioContext and the two looping
+  // background tracks are still running. This does not restart the track;
+  // play() continues from the current position when the element was paused.
+  useEffect(() => {
+    if (!unlocked) return;
+
+    const keepBackgroundAlive = () => {
+      const ctx = audioCtxRef.current;
+      if (ctx?.state === "suspended") {
+        void ctx.resume().catch(() => {});
+      }
+
+      const settings = settingsRef.current;
+      const music = musicRef.current;
+      const ambience = ambienceRef.current;
+
+      if (music && music.paused && !settings.musicMuted && settings.master > 0 && settings.music > 0) {
+        void music.play().catch(() => {});
+      }
+      if (ambience && ambience.paused && settings.master > 0 && settings.ambience > 0) {
+        void ambience.play().catch(() => {});
+      }
+    };
+
+    window.addEventListener("click", keepBackgroundAlive);
+    window.addEventListener("keydown", keepBackgroundAlive);
+    return () => {
+      window.removeEventListener("click", keepBackgroundAlive);
+      window.removeEventListener("keydown", keepBackgroundAlive);
+    };
   }, [unlocked]);
 
   // Swap the music track's source whenever the effective track (zone, or an
