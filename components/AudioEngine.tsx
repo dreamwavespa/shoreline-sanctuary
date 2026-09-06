@@ -48,6 +48,7 @@ export default function AudioEngine() {
   const currentVol = useRef({ music: 0, ambience: 0 });
   const settingsRef = useRef(state.audio);
   const zoneRef = useRef(zone);
+  const swappingTrackRef = useRef(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const musicGainRef = useRef<GainNode | null>(null);
@@ -124,47 +125,64 @@ export default function AudioEngine() {
     };
   }, [unlocked]);
 
-  // Some browsers/mobile WebViews do not pause the background media until a
-  // short interaction sound has actually started. A single check at the end
-  // of the click can therefore happen too early. Re-check immediately and at
-  // a few short delays so pickup/cooking/petting/gifting sounds can never
-  // leave the looping music or ambience paused after they take audio focus.
+  // Recover from the actual failure instead of guessing from clicks. Some
+  // browsers pause a looping background media element when an interaction
+  // SFX begins. If that happens, the media element itself emits `pause`.
+  // Resume from the current position unless we are deliberately swapping
+  // tracks. This avoids the repeated click/pointer timers that could race
+  // with normal beach and bottle interactions.
   useEffect(() => {
     if (!unlocked) return;
 
-    const keepBackgroundAlive = () => {
+    const music = musicRef.current;
+    const ambience = ambienceRef.current;
+    if (!music || !ambience) return;
+
+    const resumeContext = () => {
       const ctx = audioCtxRef.current;
       if (ctx?.state === "suspended") {
         void ctx.resume().catch(() => {});
       }
+    };
 
+    const recoverMusic = () => {
+      if (swappingTrackRef.current) return;
       const settings = settingsRef.current;
-      const music = musicRef.current;
-      const ambience = ambienceRef.current;
-
-      if (music && music.paused && !settings.musicMuted && settings.master > 0 && settings.music > 0) {
-        void music.play().catch(() => {});
-      }
-      if (ambience && ambience.paused && settings.master > 0 && settings.ambience > 0) {
-        void ambience.play().catch(() => {});
+      if (!settings.musicMuted && settings.master > 0 && settings.music > 0) {
+        resumeContext();
+        window.setTimeout(() => {
+          if (music.paused && !swappingTrackRef.current) {
+            void music.play().catch(() => {});
+          }
+        }, 80);
       }
     };
 
-    const recoverAfterInteraction = () => {
-      keepBackgroundAlive();
-      window.setTimeout(keepBackgroundAlive, 50);
-      window.setTimeout(keepBackgroundAlive, 200);
-      window.setTimeout(keepBackgroundAlive, 600);
-      window.setTimeout(keepBackgroundAlive, 1200);
+    const recoverAmbience = () => {
+      const settings = settingsRef.current;
+      if (settings.master > 0 && settings.ambience > 0) {
+        resumeContext();
+        window.setTimeout(() => {
+          if (ambience.paused) {
+            void ambience.play().catch(() => {});
+          }
+        }, 80);
+      }
     };
 
-    window.addEventListener("click", recoverAfterInteraction);
-    window.addEventListener("keydown", recoverAfterInteraction);
-    window.addEventListener("pointerup", recoverAfterInteraction);
+    music.addEventListener("pause", recoverMusic);
+    ambience.addEventListener("pause", recoverAmbience);
+
+    const ctx = audioCtxRef.current;
+    const recoverContext = () => {
+      if (ctx?.state === "suspended") resumeContext();
+    };
+    ctx?.addEventListener("statechange", recoverContext);
+
     return () => {
-      window.removeEventListener("click", recoverAfterInteraction);
-      window.removeEventListener("keydown", recoverAfterInteraction);
-      window.removeEventListener("pointerup", recoverAfterInteraction);
+      music.removeEventListener("pause", recoverMusic);
+      ambience.removeEventListener("pause", recoverAmbience);
+      ctx?.removeEventListener("statechange", recoverContext);
     };
   }, [unlocked]);
 
@@ -177,6 +195,8 @@ export default function AudioEngine() {
     currentTrackKeyRef.current = nextKey;
     const el = musicRef.current;
     if (!el) return;
+
+    swappingTrackRef.current = true;
     const wasPlaying = !el.paused;
     el.src = trackSrcFor(nextKey);
     el.loop = true;
@@ -191,8 +211,15 @@ export default function AudioEngine() {
       // Without Web Audio, the fade loop below directly controls .volume.
       el.volume = 0;
     }
+
+    const finishSwap = () => {
+      swappingTrackRef.current = false;
+    };
+
     if (wasPlaying || unlocked) {
-      void el.play().catch(() => {});
+      void el.play().then(finishSwap).catch(finishSwap);
+    } else {
+      finishSwap();
     }
   }, [zone, musicOverride, unlocked]);
 
