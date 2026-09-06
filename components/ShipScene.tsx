@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
@@ -90,7 +90,12 @@ function PianoCard() {
 }
 
 export default function ShipScene() {
-  const { state } = useGame();
+  const { state, setMusicOverride } = useGame();
+
+  useEffect(() => {
+    if (state.gameCompleted) setMusicOverride("ship");
+    return () => setMusicOverride(null);
+  }, [state.gameCompleted, setMusicOverride]);
 
   if (!state.gameCompleted) {
     return (
