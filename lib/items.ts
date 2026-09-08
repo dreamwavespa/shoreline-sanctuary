@@ -17,7 +17,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "shell-scallop": { id: "shell-scallop", name: "Scallop Shell", category: "shell", icon: `${ICON_BASE}/e93500d7-8dea-48fa-ad4b-f8bd6439708f.png`, rarity: "common", sfx: "shell" },
   "shell-conch": { id: "shell-conch", name: "Conch Shell", category: "shell", icon: `${ICON_BASE}/43715411-ab07-442e-ae82-563d96c4cc45.png`, rarity: "uncommon", sfx: "shell" },
   "shell-murex": { id: "shell-murex", name: "Murex Shell", category: "shell", icon: `${ICON_BASE}/2cab5259-19a6-4b08-a175-a8a7a2646ceb.png`, rarity: "uncommon", sfx: "shell" },
-  "shell-sanddollar": { id: "shell-sanddollar", name: "Sand Dollar", category: "shell", icon: `${ICON_BASE}/12326b57-598d-4ff9-8ec7-407c080ebcf2.png`, rarity: "uncommon", sfx: "shell" },
+  "shell-sanddollar": { id: "shell-sanddollar", name: "Sand Dollar", category: "shell", icon: `${ICON_BASE}/12326b57-598d-4ff9-8ec7-407c080ebcf2.png`, rarity: "uncommon", sfx: "sandDollarCoin" },
   "shell-abalone": { id: "shell-abalone", name: "Abalone Shell", category: "shell", icon: `${ICON_BASE}/76cd3095-2306-4a8f-829e-1fbf9bb0a9c3.png`, rarity: "rare", sfx: "shell" },
   "shell-whelk": { id: "shell-whelk", name: "Whelk Shell", category: "shell", icon: `${ICON_BASE}/da1c27b7-a6e7-47de-aea3-ade498f4d32f.png`, rarity: "common", sfx: "shell" },
   "shell-cowrie": { id: "shell-cowrie", name: "Cowrie Shell", category: "shell", icon: `${ICON_BASE}/f876bd27-5332-4e32-b174-4ab56b519762.png`, rarity: "common", sfx: "shell" },
