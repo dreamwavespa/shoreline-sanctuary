@@ -74,7 +74,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "dried-sea-oats": { id: "dried-sea-oats", name: "Dried Sea Oats", category: "raw", icon: "🌾", isEmoji: true, rarity: "common", sfx: "driftwood" },
   "shiny-soda-tab": { id: "shiny-soda-tab", name: "Shiny Soda Tab", category: "trash", icon: "🥫", isEmoji: true, rarity: "common", sfx: "sodaTab" },
   "driftwood-oar": { id: "driftwood-oar", name: "Weathered Driftwood Oar", category: "raw", icon: "🛶", isEmoji: true, rarity: "uncommon", sfx: "wood" },
-  "empty-glass-bottle": { id: "empty-glass-bottle", name: "Frosted Glass Bottle", category: "raw", icon: "🍾", isEmoji: true, rarity: "common", sfx: "seaGlass" },
+  "empty-glass-bottle": { id: "empty-glass-bottle", name: "Frosted Glass Bottle", category: "raw", icon: "🍾", isEmoji: true, rarity: "common", sfx: "bottleGlass" },
   "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
