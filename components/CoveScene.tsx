@@ -79,7 +79,7 @@ function ChestCard() {
 }
 
 export default function CoveScene() {
-  const { state, collectItem } = useGame();
+  const { state, collectItem, setMusicOverride } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
@@ -87,6 +87,11 @@ export default function CoveScene() {
   useEffect(() => {
     setSpots(randomSpots(7));
   }, []);
+
+  useEffect(() => {
+    if (state.rowboatRepaired) setMusicOverride("cove");
+    return () => setMusicOverride(null);
+  }, [state.rowboatRepaired, setMusicOverride]);
 
   if (!state.rowboatRepaired) {
     return (
