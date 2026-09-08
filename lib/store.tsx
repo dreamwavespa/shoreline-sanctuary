@@ -218,6 +218,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const src = SFX_FILES[key];
     if (!src) return;
     try {
+      // Detached Audio() elements do not propagate their media events to
+      // document. Tell AudioEngine explicitly that an interaction sound is
+      // about to play so mobile Safari can keep the background track alive.
+      window.dispatchEvent(new Event("shoreline:audio-interaction"));
       let a = audioCache.current[key];
       if (!a) {
         a = new Audio(src);
@@ -225,7 +229,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       a.currentTime = 0;
       a.volume = 0.75 * stateRef.current.audio.master;
-      void a.play().catch(() => {});
+      void a.play()
+        .then(() => window.dispatchEvent(new Event("shoreline:audio-interaction")))
+        .catch(() => {});
     } catch {}
   };
 
@@ -244,6 +250,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
+        window.dispatchEvent(new Event("shoreline:audio-interaction"));
         let a = audioCache.current[key];
 
         if (!a) {
@@ -257,6 +264,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
         const handleEnded = () => {
           a?.removeEventListener("ended", handleEnded);
+          window.dispatchEvent(new Event("shoreline:audio-interaction"));
           playStep(index + 1);
         };
 
