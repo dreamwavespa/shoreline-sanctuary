@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { useEffect } from "react";
 import { QuestDef, QUESTS } from "@/lib/quests";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 
 export default function BottleQuests() {
-  const { state, claimQuest, hasEnough, playBottleSequence } = useGame();
+  const { state, claimQuest, hasEnough, playBottleSequence, setMusicOverride } = useGame();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const isReady = (q: QuestDef) => {
