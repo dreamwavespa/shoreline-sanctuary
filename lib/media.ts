@@ -28,6 +28,7 @@ export const MUSIC = {
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
   kitchen: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f7f0c00c5c1d490e95569e0fcb2273d8.mp3",
   crafting: "/audio/Coastal%20Crafting%20Haven.mp3",
+  cove: "/audio/Cove%20Treasure%20Hunt.mp3",
   ship: "/audio/Seals%20%26%20Keys.mp3",
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
 
