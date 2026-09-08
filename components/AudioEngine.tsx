@@ -120,12 +120,10 @@ export default function AudioEngine() {
     return () => window.removeEventListener("pointerdown", unlock);
   }, [unlocked]);
 
-  // Protect background audio only when an actual interaction audio element
-  // starts or finishes playing. The SFX in store.tsx are detached Audio()
-  // elements, so their media events can be observed in capture phase without
-  // modifying them or the bottle-sequence logic. This is intentionally much
-  // narrower than listening to every click/keydown, which caused regressions
-  // when navigating away from and back to the Beach.
+  // Keep background audio alive across interaction sounds. SFX are created as
+  // detached Audio() elements, so their media events do not propagate through
+  // document. store.tsx emits a custom event instead. Pointer/keyboard checks
+  // also cover Web Audio interactions such as the telescope and ship piano.
   useEffect(() => {
     if (!unlocked) return;
 
@@ -159,26 +157,23 @@ export default function AudioEngine() {
       }
     };
 
-    const handleSfxMediaEvent = (event: Event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLMediaElement)) return;
-      if (target === musicRef.current || target === ambienceRef.current) return;
-
+    const handleAudioInteraction = () => {
       keepBackgroundAlive();
-
-      // Some mobile browsers pause the background a fraction after the SFX
-      // starts, so make one targeted follow-up check tied to this SFX event.
-      if (event.type === "play") {
-        window.setTimeout(keepBackgroundAlive, 150);
-      }
+      // iOS may pause a background media element shortly after the foreground
+      // sound begins, so retry after the audio-policy decision has settled.
+      window.setTimeout(keepBackgroundAlive, 100);
+      window.setTimeout(keepBackgroundAlive, 350);
+      window.setTimeout(keepBackgroundAlive, 800);
     };
 
-    document.addEventListener("play", handleSfxMediaEvent, true);
-    document.addEventListener("ended", handleSfxMediaEvent, true);
+    window.addEventListener("shoreline:audio-interaction", handleAudioInteraction);
+    window.addEventListener("pointerup", handleAudioInteraction);
+    window.addEventListener("keyup", handleAudioInteraction);
 
     return () => {
-      document.removeEventListener("play", handleSfxMediaEvent, true);
-      document.removeEventListener("ended", handleSfxMediaEvent, true);
+      window.removeEventListener("shoreline:audio-interaction", handleAudioInteraction);
+      window.removeEventListener("pointerup", handleAudioInteraction);
+      window.removeEventListener("keyup", handleAudioInteraction);
     };
   }, [unlocked]);
 
@@ -224,7 +219,10 @@ export default function AudioEngine() {
         const master = clamp01(settings.master);
         const music = clamp01(settings.music);
         const ambience = clamp01(settings.ambience);
-        const musicTarget = settings.musicMuted ? 0 : music * master;
+        // Web Audio made the sliders work on iOS, but the old defaults now
+        // sound quieter than the original full-volume media playback. Restore
+        // that perceived level while preserving the user's slider controls.
+        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25);
         const ambienceTarget = ambience * master;
 
         const speed = 0.8; // volume units per second (~1.2s fade)
