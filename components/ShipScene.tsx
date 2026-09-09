@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import ListenToShell from "./ListenToShell";
 
 const NOTES: { label: string; freq: number }[] = [
   { label: "C", freq: 261.63 },
@@ -91,6 +92,13 @@ function PianoCard() {
 
 export default function ShipScene() {
   const { state, setMusicOverride } = useGame();
+  const [listenGameOpen, setListenGameOpen] = useState(false);
+  const listenButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeListenGame = () => {
+    setListenGameOpen(false);
+    window.setTimeout(() => listenButtonRef.current?.focus(), 0);
+  };
 
   useEffect(() => {
     if (state.gameCompleted) setMusicOverride("ship");
@@ -125,8 +133,23 @@ export default function ShipScene() {
           <p className="text-xs text-amber-800">Every friend of the sanctuary gathers here now.</p>
         </div>
         <SaltyCard />
+        <section aria-labelledby="listen-shell-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-100 p-4 shadow-md ring-1 ring-cyan-200">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-800">Community Ship Mini-Game</p>
+          <h2 id="listen-shell-game-heading" className="mt-1 font-serif text-lg font-bold text-blue-950">🐚 Listen to the Shell</h2>
+          <p className="mt-1 text-sm text-blue-800">Identify sounds carried from around the island, including waves, gulls, rain, whale song, and wind chimes.</p>
+          <button
+            ref={listenButtonRef}
+            type="button"
+            onClick={() => setListenGameOpen(true)}
+            className="mt-3 w-full rounded-xl bg-cyan-700 py-3 font-bold text-white shadow active:bg-cyan-800"
+          >
+            Play Listen to the Shell
+          </button>
+        </section>
         <PianoCard />
       </div>
+
+      {listenGameOpen && <ListenToShell onClose={closeListenGame} />}
     </div>
   );
 }
