@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
 import Notebook from "./Notebook";
+import WindChimeWorkshop from "./WindChimeWorkshop";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -317,6 +318,13 @@ export default function Workshop() {
   const { state, setMusicOverride } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
   const [notebookOpen, setNotebookOpen] = useState(false);
+  const [windChimeOpen, setWindChimeOpen] = useState(false);
+  const windChimeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeWindChime = () => {
+    setWindChimeOpen(false);
+    window.setTimeout(() => windChimeButtonRef.current?.focus(), 0);
+  };
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
   // kitchen track; every other Workshop tab — including Jewelry and Sand Art —
@@ -390,6 +398,20 @@ export default function Workshop() {
               recipeId="wind-chime"
             />
 
+            <section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Workshop Mini-Game</p>
+              <h2 id="wind-chime-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🎐 Wind Chime Workshop</h2>
+              <p className="mt-1 text-sm text-amber-800">Arrange shells and sea glass, hear every tone, and play your finished chime.</p>
+              <button
+                ref={windChimeButtonRef}
+                type="button"
+                onClick={() => setWindChimeOpen(true)}
+                className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+              >
+                Open Wind Chime Workshop
+              </button>
+            </section>
+
             {!state.rowboatRepaired && !state.bucketsFilled ? (
               <RecipeCard
                 title="Repair the Rowboat"
@@ -458,6 +480,7 @@ export default function Workshop() {
       </div>
 
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
+      {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
     </div>
   );
 }
