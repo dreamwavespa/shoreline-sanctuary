@@ -1,15 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import Notebook from "./Notebook";
 import { COTTAGE_ROOMS, COTTAGE_HARMONY_LAYERS, VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
+import SeaGlassSorting from "./SeaGlassSorting";
 
 export default function Cottage() {
   const { state, setMusicOverride } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
   const [notebookOpen, setNotebookOpen] = useState(false);
+  const [sortingOpen, setSortingOpen] = useState(false);
+  const sortingButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeSorting = () => {
+    setSortingOpen(false);
+    window.setTimeout(() => sortingButtonRef.current?.focus(), 0);
+  };
 
   const bondedSisterCount = COTTAGE_ROOMS.filter(
     (r) => (state.villagerGiftCounts[r.ownerId] || 0) > 0
@@ -64,6 +72,7 @@ export default function Cottage() {
 
         {room.id === "jewelry-parlor" && (
           <button
+            ref={sortingButtonRef}
             type="button"
             onClick={() => setNotebookOpen(true)}
             className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"
@@ -79,6 +88,19 @@ export default function Cottage() {
         )}
 
         {sister && <VillagerCard villager={sister} />}
+
+        <section aria-labelledby="cottage-games-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-indigo-100 p-4 shadow-md ring-1 ring-cyan-200">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Cottage Mini-Game</p>
+          <h2 id="cottage-games-heading" className="mt-1 font-serif text-lg font-bold text-indigo-950">💎 Sea Glass Sorting</h2>
+          <p className="mt-1 text-sm text-indigo-800">Sort pieces by color, size, or shape. Rare colors can become crafting treasures for Melody.</p>
+          <button
+            type="button"
+            onClick={() => setSortingOpen(true)}
+            className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+          >
+            Play Sea Glass Sorting
+          </button>
+        </section>
 
         <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-indigo-200">
           <p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">
@@ -108,6 +130,7 @@ export default function Cottage() {
       </div>
 
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
+      {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
     </div>
   );
 }
