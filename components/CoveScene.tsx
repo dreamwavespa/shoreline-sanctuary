@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import ShellMatch from "./ShellMatch";
 
 interface Spot {
   key: string;
@@ -83,6 +84,13 @@ export default function CoveScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
+  const [shellMatchOpen, setShellMatchOpen] = useState(false);
+  const shellMatchButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeShellMatch = () => {
+    setShellMatchOpen(false);
+    window.setTimeout(() => shellMatchButtonRef.current?.focus(), 0);
+  };
 
   useEffect(() => {
     setSpots(randomSpots(7));
@@ -149,9 +157,26 @@ export default function CoveScene() {
         </button>
       </div>
 
-      <div className="px-4 pt-4">{showChest ? <ChestCard /> : (
-        <p className="text-xs text-amber-700/80 text-center">Tap the sparkling treasures in the cove above to collect them.</p>
+      <div className="px-4 pt-4 space-y-4">{showChest ? <ChestCard /> : (
+        <>
+          <p className="text-xs text-amber-700/80 text-center">Tap the sparkling treasures in the cove above to collect them.</p>
+          <section aria-labelledby="cove-game-heading" className="rounded-2xl bg-gradient-to-br from-sky-50 to-amber-50 p-4 shadow-md ring-1 ring-sky-200">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-800">Cove Mini-Game</p>
+            <h2 id="cove-game-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">🐚 Shell Match</h2>
+            <p className="mt-1 text-sm text-sky-800">Turn over shell cards to find matching pairs. Higher levels introduce similar shapes and a rare shell.</p>
+            <button
+              ref={shellMatchButtonRef}
+              type="button"
+              onClick={() => setShellMatchOpen(true)}
+              className="mt-3 w-full rounded-xl bg-sky-800 py-3 font-bold text-white shadow active:bg-sky-900"
+            >
+              Play Shell Match
+            </button>
+          </section>
+        </>
       )}</div>
+
+      {shellMatchOpen && <ShellMatch onClose={closeShellMatch} />}
     </div>
   );
 }
