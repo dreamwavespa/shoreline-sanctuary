@@ -111,6 +111,10 @@ export default function SandbarsScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
   const sandcastleButtonRef = useRef<HTMLButtonElement>(null);
+  const earlierSandcastles = Math.max(
+    0,
+    (state.inventory["sandcastle-masterpiece"] || 0) - state.sandcastleGallery.length
+  );
 
   useEffect(() => {
     setSpots(randomSpots(6));
@@ -197,6 +201,57 @@ export default function SandbarsScene() {
         <VillagerCard villager={VILLAGERS.bubbles} />
         <VillagerCard villager={VILLAGERS.pearl} />
         <VillagerCard villager={VILLAGERS.splash} />
+
+        <section aria-labelledby="sandcastle-gallery-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-sky-100 p-4 shadow-md ring-1 ring-amber-200">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Saved Creations</p>
+          <h2 id="sandcastle-gallery-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🏰 Sandcastle Gallery</h2>
+          {state.sandcastleGallery.length === 0 && earlierSandcastles === 0 ? (
+            <p className="mt-2 text-sm text-amber-800">Your completed sandcastles will be displayed here.</p>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {Array.from({ length: earlierSandcastles }).map((_, index) => (
+                <div
+                  key={`earlier-${index}`}
+                  role="img"
+                  aria-label={`Earlier sandcastle keepsake ${index + 1}. This castle was made before detailed gallery designs were saved.`}
+                  className="rounded-2xl bg-sky-100 p-3 text-center ring-1 ring-sky-200"
+                >
+                  <div className="text-2xl" aria-hidden="true">🚩</div>
+                  <div className="text-5xl" aria-hidden="true">🏰</div>
+                  <div className="text-2xl" aria-hidden="true">🐚 💎 🌊</div>
+                  <p className="mt-2 text-xs font-bold text-teal-950">Earlier Sandcastle</p>
+                </div>
+              ))}
+              {state.sandcastleGallery.map((castle, index) => {
+                const featureNames = ["towers", "bridge", "moat", "shells", "glass", "flags"]
+                  .map((key) => castle.features[key]?.label)
+                  .filter(Boolean)
+                  .join(", ");
+                const giftNames = castle.waveGifts.map((gift) => gift.label).join(" and ");
+                return (
+                  <div
+                    key={castle.id}
+                    role="img"
+                    aria-label={`Saved sandcastle ${index + 1}: ${featureNames}. Wave gifts: ${giftNames}.`}
+                    className="rounded-2xl bg-sky-100 p-3 text-center ring-1 ring-sky-200"
+                  >
+                    <div className="text-2xl" aria-hidden="true">{castle.features.flags?.icon || "🚩"}</div>
+                    <div className="text-5xl" aria-hidden="true">{castle.features.towers?.icon || "🏰"}</div>
+                    <div className="flex justify-center gap-2 text-xl" aria-hidden="true">
+                      <span>{castle.features.shells?.icon}</span>
+                      <span>{castle.features.glass?.icon}</span>
+                      <span>{castle.features.bridge?.icon}</span>
+                    </div>
+                    <div className="mt-1 text-xl" aria-hidden="true">
+                      {castle.features.moat?.icon} {castle.waveGifts.map((gift) => gift.icon).join(" ")}
+                    </div>
+                    <p className="mt-2 text-xs font-bold text-teal-950">Sandcastle {earlierSandcastles + index + 1}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>
       </div>
