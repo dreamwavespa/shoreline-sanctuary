@@ -68,6 +68,7 @@ interface GameState {
   notebookDiscovered: Record<string, boolean>;
   notebookSeenCount: number;
   sandcastleGallery: SavedSandcastle[];
+  lookoutSightings: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -109,6 +110,7 @@ const DEFAULT_STATE: GameState = {
   notebookDiscovered: {},
   notebookSeenCount: 0,
   sandcastleGallery: [],
+  lookoutSightings: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -170,6 +172,7 @@ interface Ctx {
   setNotebookOpen: (v: boolean) => void;
   markNotebookSeen: () => void;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
+  addLookoutSighting: (id: string) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -661,6 +664,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const addLookoutSighting = (id: string) => {
+    setState((s) => s.lookoutSightings.includes(id)
+      ? s
+      : { ...s, lookoutSightings: [...s.lookoutSightings, id] }
+    );
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -721,6 +731,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setNotebookOpen,
       markNotebookSeen,
       saveSandcastle,
+      addLookoutSighting,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );
