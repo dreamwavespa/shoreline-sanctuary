@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import LighthouseLookout from "./LighthouseLookout";
 
 const SIGHTINGS = [
   { emoji: "⛵", text: "A distant sailboat, cutting a lazy line across the horizon." },
@@ -81,6 +82,8 @@ export default function LighthouseScreen() {
   const [sighting, setSighting] = useState<{ emoji: string; text: string } | null>(null);
   const [foundThisScan, setFoundThisScan] = useState<Constellation | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
+  const lookoutButtonRef = useRef<HTMLButtonElement>(null);
+  const [lookoutOpen, setLookoutOpen] = useState(false);
 
   const playBlip = (panValue: number, freq = 660, type: OscillatorType = "sine") => {
     try {
@@ -134,6 +137,10 @@ export default function LighthouseScreen() {
   }
 
   const foundCount = state.foundConstellations.length;
+  const closeLookout = () => {
+    setLookoutOpen(false);
+    window.setTimeout(() => lookoutButtonRef.current?.focus(), 0);
+  };
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
@@ -196,6 +203,21 @@ export default function LighthouseScreen() {
           )}
         </div>
 
+        <section aria-labelledby="lighthouse-lookout-heading" className="rounded-2xl bg-gradient-to-br from-indigo-950 to-sky-800 p-5 text-white shadow-md ring-1 ring-sky-300">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-200">Lighthouse Mini-Game</p>
+          <h2 id="lighthouse-lookout-heading" className="mt-1 font-serif text-lg font-bold">🔭 Lighthouse Lookout</h2>
+          <p className="mt-1 text-sm text-sky-100">Scan four directions during daylight or under the stars to find whales, dolphins, boats, unusual birds, distant islands, and shooting stars.</p>
+          <p className="mt-2 text-sm font-semibold text-amber-200">Lookout journal: {state.lookoutSightings.length}/8</p>
+          <button
+            ref={lookoutButtonRef}
+            type="button"
+            onClick={() => setLookoutOpen(true)}
+            className="mt-3 w-full rounded-xl bg-amber-500 py-3 font-bold text-indigo-950 shadow active:bg-amber-400"
+          >
+            Open Lighthouse Lookout
+          </button>
+        </section>
+
         <MarshmallowCard />
 
         <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
@@ -206,6 +228,7 @@ export default function LighthouseScreen() {
           </p>
         </div>
       </div>
+      {lookoutOpen && <LighthouseLookout onClose={closeLookout} />}
     </div>
   );
 }
