@@ -94,6 +94,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "mosaic-rainbow-fish": { id: "mosaic-rainbow-fish", name: "Rainbow Fish Mosaic", category: "decor", icon: "🐠", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "mosaic-seaglass-flower": { id: "mosaic-seaglass-flower", name: "Sea Glass Flower Mosaic", category: "decor", icon: "🌸", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "sandcastle-masterpiece": { id: "sandcastle-masterpiece", name: "Sandcastle Masterpiece Keepsake", category: "decor", icon: "🏰", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "picnic-packed-keepsake": { id: "picnic-packed-keepsake", name: "Perfectly Packed Picnic Keepsake", category: "special", icon: "🧺", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "moonstone": { id: "moonstone", name: "Moonstone", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "star-wish-bottle": { id: "star-wish-bottle", name: "Star Wish Bottle", category: "special", icon: "⭐", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "bioluminescent-shard": { id: "bioluminescent-shard", name: "Bioluminescent Shard", category: "special", icon: "✨", isEmoji: true, rarity: "rare", sfx: "seaGlass" },
