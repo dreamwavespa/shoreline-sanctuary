@@ -83,12 +83,13 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
   const { state, collectItem, play } = useGame();
   const [selections, setSelections] = useState<Record<string, CastleOption>>({});
   const [waveGifts, setWaveGifts] = useState<typeof WAVE_GIFTS>([]);
-  const [waveReady, setWaveReady] = useState(false);
   const [complete, setComplete] = useState(false);
   const [announcement, setAnnouncement] = useState("Choose one feature from each section to begin your sandcastle.");
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const selectedCount = Object.keys(selections).length;
+  const expectedWaveCount = selectedCount >= 4 ? 2 : selectedCount >= 2 ? 1 : 0;
+  const waveReady = waveGifts.length < expectedWaveCount;
   const castlesCreated = state.inventory["sandcastle-masterpiece"] || 0;
   const selectedSummary = useMemo(
     () => CATEGORIES.map((category) => selections[category.id]?.label).filter(Boolean).join(", "),
@@ -105,7 +106,7 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
   }, [onClose]);
 
   const chooseOption = (category: CastleCategory, option: CastleOption) => {
-    if (waveReady || complete) return;
+    if (complete) return;
     const isNewCategory = !selections[category.id];
     const nextSelections = { ...selections, [category.id]: option };
     const nextCount = Object.keys(nextSelections).length;
@@ -113,8 +114,7 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
     play("driftwood");
 
     if (isNewCategory && (nextCount === 2 || nextCount === 4)) {
-      setWaveReady(true);
-      setAnnouncement(`${option.label} added. A gentle wave is rolling in with a new decorating treasure. Welcome the wave when you are ready.`);
+      setAnnouncement(`${option.label} added. A gentle wave is rolling in with a new decorating treasure. You may welcome it now or keep choosing castle features.`);
     } else {
       setAnnouncement(`${option.label} added to the castle. ${CATEGORIES.length - nextCount} feature ${CATEGORIES.length - nextCount === 1 ? "section remains" : "sections remain"}.`);
     }
@@ -124,7 +124,6 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
     const gift = WAVE_GIFTS[waveGifts.length];
     if (!gift) return;
     setWaveGifts((gifts) => [...gifts, gift]);
-    setWaveReady(false);
     play("seaGlass");
     setAnnouncement(`The wave left a ${gift.label}. It has been added to your castle without disturbing anything.`);
   };
@@ -139,7 +138,6 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
   const startOver = () => {
     setSelections({});
     setWaveGifts([]);
-    setWaveReady(false);
     setComplete(false);
     setAnnouncement("New sandcastle started. Choose one feature from each section.");
   };
@@ -201,7 +199,7 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
 
             <div className="mt-5 space-y-4" aria-label="Sandcastle design choices">
               {CATEGORIES.map((category) => (
-                <fieldset key={category.id} disabled={waveReady} className="rounded-2xl bg-white/80 p-4 ring-1 ring-amber-200 disabled:opacity-60">
+                <fieldset key={category.id} className="rounded-2xl bg-white/80 p-4 ring-1 ring-amber-200">
                   <legend className="px-1 font-bold text-amber-950">{category.label}</legend>
                   <p className="text-sm text-amber-800">{category.prompt}</p>
                   <div className="mt-3 grid grid-cols-2 gap-2">
