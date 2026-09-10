@@ -6,17 +6,31 @@ import Notebook from "./Notebook";
 import { COTTAGE_ROOMS, COTTAGE_HARMONY_LAYERS, VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import SeaGlassSorting from "./SeaGlassSorting";
+import KaianaMosaicStudio from "./KaianaMosaicStudio";
+
+const COTTAGE_MOSAICS = [
+  { itemId: "mosaic-moonlit-tide", name: "Moonlit Tide", icon: "🌙" },
+  { itemId: "mosaic-rainbow-fish", name: "Rainbow Fish", icon: "🐠" },
+  { itemId: "mosaic-seaglass-flower", name: "Sea Glass Flower", icon: "🌸" },
+];
 
 export default function Cottage() {
   const { state, setMusicOverride } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
+  const [mosaicOpen, setMosaicOpen] = useState(false);
   const sortingButtonRef = useRef<HTMLButtonElement>(null);
+  const mosaicButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeSorting = () => {
     setSortingOpen(false);
     window.setTimeout(() => sortingButtonRef.current?.focus(), 0);
+  };
+
+  const closeMosaic = () => {
+    setMosaicOpen(false);
+    window.setTimeout(() => mosaicButtonRef.current?.focus(), 0);
   };
 
   const bondedSisterCount = COTTAGE_ROOMS.filter(
@@ -40,12 +54,28 @@ export default function Cottage() {
 
   const room = COTTAGE_ROOMS.find((r) => r.id === roomId) || COTTAGE_ROOMS[0];
   const sister = VILLAGERS[room.ownerId];
+  const completedMosaics = COTTAGE_MOSAICS.filter((mosaic) => (state.inventory[mosaic.itemId] || 0) > 0);
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#241a3d]">
       <div className="relative w-full h-[42%] min-h-[220px] overflow-hidden select-none">
         <Image src={room.imageUrl} alt={room.name} fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#241a3d]" />
+        {completedMosaics.length > 0 && (
+          <div className="absolute right-3 top-3 flex gap-2 rounded-xl bg-[#241a3d]/80 p-2 shadow-lg" aria-label="Completed mosaics displayed in the cottage">
+            {completedMosaics.map((mosaic) => (
+              <div
+                key={mosaic.itemId}
+                role="img"
+                aria-label={`${mosaic.name} mosaic, created ${state.inventory[mosaic.itemId]} ${state.inventory[mosaic.itemId] === 1 ? "time" : "times"}`}
+                className="flex h-14 w-12 items-center justify-center rounded-sm border-4 border-amber-500 bg-indigo-950 text-2xl shadow-inner"
+                title={`${mosaic.name} · ${state.inventory[mosaic.itemId]}`}
+              >
+                <span aria-hidden="true">{mosaic.icon}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="absolute bottom-3 left-3 right-3 bg-black/50 text-amber-50 rounded-xl px-3 py-2">
           <p className="font-serif text-sm font-bold">{room.name}</p>
           <p className="text-[11px] text-amber-100/80">{room.levelLabel} · {room.station}</p>
@@ -72,7 +102,6 @@ export default function Cottage() {
 
         {room.id === "jewelry-parlor" && (
           <button
-            ref={sortingButtonRef}
             type="button"
             onClick={() => setNotebookOpen(true)}
             className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"
@@ -94,6 +123,7 @@ export default function Cottage() {
           <h2 id="cottage-games-heading" className="mt-1 font-serif text-lg font-bold text-indigo-950">💎 Sea Glass Sorting</h2>
           <p className="mt-1 text-sm text-indigo-800">Sort pieces by color, size, or shape. Rare colors can become crafting treasures for Melody.</p>
           <button
+            ref={sortingButtonRef}
             type="button"
             onClick={() => setSortingOpen(true)}
             className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
@@ -101,6 +131,22 @@ export default function Cottage() {
             Play Sea Glass Sorting
           </button>
         </section>
+
+        {room.id === "restoration-studio" && (
+          <section aria-labelledby="mosaic-game-heading" className="rounded-2xl bg-gradient-to-br from-violet-50 to-cyan-100 p-4 shadow-md ring-1 ring-violet-200">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-violet-800">Kaiana's Mini-Game</p>
+            <h2 id="mosaic-game-heading" className="mt-1 font-serif text-lg font-bold text-indigo-950">🎨 Kaiana's Mosaic Studio</h2>
+            <p className="mt-1 text-sm text-indigo-800">Fit oddly shaped sea glass into three mosaic designs. Finished pieces become framed cottage decorations.</p>
+            <button
+              ref={mosaicButtonRef}
+              type="button"
+              onClick={() => setMosaicOpen(true)}
+              className="mt-3 w-full rounded-xl bg-violet-700 py-3 font-bold text-white shadow active:bg-violet-800"
+            >
+              Open Mosaic Studio
+            </button>
+          </section>
+        )}
 
         <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-indigo-200">
           <p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">
@@ -131,6 +177,7 @@ export default function Cottage() {
 
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
+      {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}
     </div>
   );
 }
