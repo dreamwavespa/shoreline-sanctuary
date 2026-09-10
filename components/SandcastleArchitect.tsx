@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useGame } from "@/lib/store";
+import { SandcastleFeature, useGame } from "@/lib/store";
 
 interface CastleOption {
   id: string;
@@ -80,12 +80,13 @@ const WAVE_GIFTS = [
 ];
 
 export default function SandcastleArchitect({ onClose }: { onClose: () => void }) {
-  const { state, collectItem, play } = useGame();
+  const { state, collectItem, play, saveSandcastle } = useGame();
   const [selections, setSelections] = useState<Record<string, CastleOption>>({});
   const [waveGifts, setWaveGifts] = useState<typeof WAVE_GIFTS>([]);
   const [complete, setComplete] = useState(false);
   const [announcement, setAnnouncement] = useState("Choose one feature from each section to begin your sandcastle.");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const savedRef = useRef(false);
 
   const selectedCount = Object.keys(selections).length;
   const expectedWaveCount = selectedCount >= 4 ? 2 : selectedCount >= 2 ? 1 : 0;
@@ -129,13 +130,23 @@ export default function SandcastleArchitect({ onClose }: { onClose: () => void }
   };
 
   const finishCastle = () => {
-    if (selectedCount !== CATEGORIES.length || waveGifts.length !== WAVE_GIFTS.length) return;
+    if (selectedCount !== CATEGORIES.length || waveGifts.length !== WAVE_GIFTS.length || savedRef.current) return;
+    const features: Record<string, SandcastleFeature> = {};
+    for (const [categoryId, option] of Object.entries(selections)) {
+      features[categoryId] = { label: option.label, icon: option.icon };
+    }
+    savedRef.current = true;
+    saveSandcastle({
+      features,
+      waveGifts: waveGifts.map((gift) => ({ label: gift.label, icon: gift.icon })),
+    });
     collectItem("sandcastle-masterpiece");
     setComplete(true);
     setAnnouncement(`Sandcastle complete. It includes ${selectedSummary}, plus ${waveGifts.map((gift) => gift.label).join(" and ")}. A sandcastle keepsake was added to your collection.`);
   };
 
   const startOver = () => {
+    savedRef.current = false;
     setSelections({});
     setWaveGifts([]);
     setComplete(false);
