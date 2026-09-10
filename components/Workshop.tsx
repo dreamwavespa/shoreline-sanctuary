@@ -7,6 +7,7 @@ import { SCENES } from "@/lib/media";
 import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
 import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
+import PicnicPacking from "./PicnicPacking";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -319,11 +320,18 @@ export default function Workshop() {
   const [tab, setTab] = useState<Tab>("crafting");
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [windChimeOpen, setWindChimeOpen] = useState(false);
+  const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
+  const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeWindChime = () => {
     setWindChimeOpen(false);
     window.setTimeout(() => windChimeButtonRef.current?.focus(), 0);
+  };
+
+  const closePicnicPacking = () => {
+    setPicnicPackingOpen(false);
+    window.setTimeout(() => picnicPackingButtonRef.current?.focus(), 0);
   };
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
@@ -450,6 +458,19 @@ export default function Workshop() {
         ) : tab === "kitchen" ? (
           <>
             <p className="text-xs text-orange-800/70 mb-3 text-center">The Hearth Stove crackles warmly — cook up cozy treats for your sanctuary friends.</p>
+            <section aria-labelledby="picnic-packing-heading" className="rounded-2xl bg-gradient-to-br from-rose-50 to-amber-100 p-4 mb-4 shadow-md ring-1 ring-rose-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-800">Kitchen Mini-Game</p>
+              <h2 id="picnic-packing-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🧺 Picnic Packing</h2>
+              <p className="mt-1 text-sm text-amber-800">Fit food, a blanket, dishes, flowers, drinks, and treats into the picnic basket without squishing anything.</p>
+              <button
+                ref={picnicPackingButtonRef}
+                type="button"
+                onClick={() => setPicnicPackingOpen(true)}
+                className="mt-3 w-full rounded-xl bg-rose-700 py-3 font-bold text-white shadow active:bg-rose-800"
+              >
+                Pack a Picnic Basket
+              </button>
+            </section>
             {KITCHEN_RECIPES.map((r) => (
               <CookCard key={r.id} recipe={r} />
             ))}
@@ -481,6 +502,7 @@ export default function Workshop() {
 
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
+      {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
     </div>
   );
 }
