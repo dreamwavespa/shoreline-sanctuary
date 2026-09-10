@@ -11,6 +11,7 @@ const ANCHOR_EMOJI: Record<string, string> = {
   penelope: "🦢",
   sunny: "⭐",
   melody: "💍",
+  marella: "🌙",
 };
 
 function isDiscovered(
@@ -20,6 +21,7 @@ function isDiscovered(
   kind: string
 ) {
   if (kind === "item") return !!state.notebookDiscovered[entryId];
+  if (kind === "sighting") return state.lookoutSightings.includes(entryId);
   return (state.villagerGiftCounts[entryId] || 0) > 0;
 }
 
@@ -63,16 +65,18 @@ function SectionPage({ section }: { section: NotebookSection }) {
             entry.kind
           );
 
-          const label =
-            entry.kind === "item"
-              ? ITEMS[entry.id]?.name || entry.id
-              : VILLAGERS[entry.id]?.name || entry.id;
+          const label = entry.kind === "item"
+            ? ITEMS[entry.id]?.name || entry.id
+            : entry.kind === "villager"
+              ? VILLAGERS[entry.id]?.name || entry.id
+              : entry.name || entry.id;
 
-          const icon =
-            entry.kind === "item"
-              ? ITEMS[entry.id]?.isEmoji
-                ? ITEMS[entry.id]?.icon
-                : null
+          const icon = entry.kind === "item"
+            ? ITEMS[entry.id]?.isEmoji
+              ? ITEMS[entry.id]?.icon
+              : null
+            : entry.kind === "sighting"
+              ? entry.icon || "🔭"
               : null;
 
           return (
