@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ITEMS, rollSandbarSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
+import SandcastleArchitect from "./SandcastleArchitect";
 
 interface Spot {
   key: string;
@@ -108,6 +109,8 @@ export default function SandbarsScene() {
   const { state, collectItem } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
+  const [sandcastleOpen, setSandcastleOpen] = useState(false);
+  const sandcastleButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSpots(randomSpots(6));
@@ -133,6 +136,11 @@ export default function SandbarsScene() {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1)] : cur));
     }, 220);
+  };
+
+  const closeSandcastle = () => {
+    setSandcastleOpen(false);
+    window.setTimeout(() => sandcastleButtonRef.current?.focus(), 0);
   };
 
   return (
@@ -167,6 +175,20 @@ export default function SandbarsScene() {
       <div className="px-4 pt-4 space-y-3">
         <RaftCard />
 
+        <section aria-labelledby="sandcastle-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-200">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Sandbar Mini-Game</p>
+          <h2 id="sandcastle-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🏖️ Sandcastle Architect</h2>
+          <p className="mt-1 text-sm text-amber-800">Choose towers, bridges, moats, shells, sea glass, and flags. Gentle waves bring new decorations without damaging your creation.</p>
+          <button
+            ref={sandcastleButtonRef}
+            type="button"
+            onClick={() => setSandcastleOpen(true)}
+            className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+          >
+            Build a Sandcastle
+          </button>
+        </section>
+
         <p className="text-xs font-semibold text-teal-100/70 uppercase tracking-wide pt-2">
           Underwater Village
         </p>
@@ -178,6 +200,7 @@ export default function SandbarsScene() {
 
         <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>
       </div>
+      {sandcastleOpen && <SandcastleArchitect onClose={closeSandcastle} />}
     </div>
   );
 }
