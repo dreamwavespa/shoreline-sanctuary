@@ -20,6 +20,8 @@ export const SCENES = {
   lobsterTrap: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/5e4097ab50cd4607832ed48e13bed7c6.webp",
   sealPontoon: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/908ffd5526974e38b77dfc1fdc4c4032.webp",
   roseBowl: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/9121aeb40725481fa0e3b50a1d82be14.webp",
+  maeveGlass: "/images/maeve-glass-lighthouse-keeper.jpeg",
+  maevesKettle: "/images/maeves-antique-copper-kettle.jpeg",
 };
 
 export const MUSIC = {

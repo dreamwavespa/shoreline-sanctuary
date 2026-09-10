@@ -8,6 +8,14 @@ import { VILLAGERS } from "./villagers";
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
+export interface WeatherForecast {
+  id: "calm" | "low-tide" | "fog" | "wind" | "ship" | "storm";
+  icon: string;
+  title: string;
+  message: string;
+  effect: string;
+}
+
 export interface AudioSettings {
   master: number;
   music: number;
@@ -69,6 +77,11 @@ interface GameState {
   notebookSeenCount: number;
   sandcastleGallery: SavedSandcastle[];
   lookoutSightings: string[];
+  kettleRecovered: boolean;
+  weatherStationUnlocked: boolean;
+  currentForecast: WeatherForecast | null;
+  stormCleanupAvailable: boolean;
+  stormCleanupCompletions: number;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -111,6 +124,11 @@ const DEFAULT_STATE: GameState = {
   notebookSeenCount: 0,
   sandcastleGallery: [],
   lookoutSightings: [],
+  kettleRecovered: false,
+  weatherStationUnlocked: false,
+  currentForecast: null,
+  stormCleanupAvailable: false,
+  stormCleanupCompletions: 0,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -173,6 +191,9 @@ interface Ctx {
   markNotebookSeen: () => void;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
   addLookoutSighting: (id: string) => void;
+  recoverMaevesKettle: () => boolean;
+  checkWeather: () => WeatherForecast;
+  completeStormCleanup: () => boolean;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -387,12 +408,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const inv = { ...s.inventory };
       for (const r of quest.requires) inv[r.itemId] = (inv[r.itemId] || 0) - r.count;
       if (quest.rewardItemId) inv[quest.rewardItemId] = (inv[quest.rewardItemId] || 0) + (quest.rewardCount || 1);
+      const keeperKettleComplete = quest.id === "keeperkettle";
       return {
         ...s,
         inventory: inv,
         questProgress: { ...s.questProgress, [quest.id]: true },
         workshopUnlocked: quest.unlocksWorkshop ? true : s.workshopUnlocked,
         gameCompleted: quest.id === "grandreunion" ? true : s.gameCompleted,
+        weatherStationUnlocked: keeperKettleComplete ? true : s.weatherStationUnlocked,
+        currentForecast: keeperKettleComplete
+          ? {
+              id: "storm",
+              icon: "🌦️",
+              title: "Clearing after the gale",
+              message: "The worst has passed, but the strand below the lighthouse is littered with storm debris.",
+              effect: "Storm Cleanup is available at the Weather Station.",
+            }
+          : s.currentForecast,
+        stormCleanupAvailable: keeperKettleComplete ? true : s.stormCleanupAvailable,
       };
     });
     play("questComplete");
@@ -671,6 +704,97 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const recoverMaevesKettle = () => {
+    if (stateRef.current.kettleRecovered || stateRef.current.questProgress.keeperkettle) return false;
+    setState((s) => ({
+      ...s,
+      kettleRecovered: true,
+      inventory: {
+        ...s.inventory,
+        "antique-copper-kettle": (s.inventory["antique-copper-kettle"] || 0) + 1,
+      },
+    }));
+    play("questComplete");
+    toast("Maeve's copper kettle recovered! 🫖");
+    return true;
+  };
+
+  const checkWeather = () => {
+    const forecasts: WeatherForecast[] = [
+      {
+        id: "calm",
+        icon: "☀️",
+        title: "Calm water and high cloud",
+        message: "The bay will stay gentle through evening. Good wandering weather, if you keep one eye on the tide.",
+        effect: "A peaceful day for exploring every shoreline.",
+      },
+      {
+        id: "low-tide",
+        icon: "🪸",
+        title: "An unusually low tide",
+        message: "The moon is pulling the water far from the rocks. The cove and sandbars may reveal uncommon finds.",
+        effect: "A good time to search the cove and sandbars.",
+      },
+      {
+        id: "fog",
+        icon: "🌫️",
+        title: "Fog before evening",
+        message: "A silver bank is gathering beyond the reef. Trust your ears and the lighthouse bell after sunset.",
+        effect: "Listen carefully near the reef and lighthouse.",
+      },
+      {
+        id: "wind",
+        icon: "💨",
+        title: "Northeast wind",
+        message: "Marshmallow's ears are turned inland. Driftwood and bottles will ride the tide toward shore.",
+        effect: "The wind may carry interesting salvage to the beach.",
+      },
+      {
+        id: "ship",
+        icon: "⛵",
+        title: "A ship on the afternoon tide",
+        message: "Maeve has the vessel's name in her ledger. Its sails should appear beyond the point before supper.",
+        effect: "Watch the horizon for visiting traders.",
+      },
+      {
+        id: "storm",
+        icon: "⛈️",
+        title: "A quick coastal squall",
+        message: "Tie down anything light. It will blow hard, pass quickly, and leave work along the strand.",
+        effect: "Storm Cleanup is now available.",
+      },
+    ];
+    // Storms are possible, but deliberately uncommon: one storm entry in a
+    // weighted set of eight outcomes.
+    const weighted = [...forecasts.slice(0, 5), forecasts[0], forecasts[1], forecasts[5]];
+    const forecast = weighted[Math.floor(Math.random() * weighted.length)];
+    setState((s) => ({
+      ...s,
+      currentForecast: forecast,
+      stormCleanupAvailable: forecast.id === "storm" ? true : s.stormCleanupAvailable,
+    }));
+    play(forecast.id === "storm" ? "plastic" : "shell");
+    return forecast;
+  };
+
+  const completeStormCleanup = () => {
+    if (!stateRef.current.stormCleanupAvailable) return false;
+    setState((s) => ({
+      ...s,
+      stormCleanupAvailable: false,
+      stormCleanupCompletions: s.stormCleanupCompletions + 1,
+      inventory: {
+        ...s.inventory,
+        "raw-driftwood-planks": (s.inventory["raw-driftwood-planks"] || 0) + 1,
+        "glass-blue": (s.inventory["glass-blue"] || 0) + 1,
+        "shiny-soda-tab": (s.inventory["shiny-soda-tab"] || 0) + 2,
+      },
+    }));
+    play("questComplete");
+    toast("The shoreline is safe and tidy again! ✨");
+    return true;
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -732,6 +856,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       markNotebookSeen,
       saveSandcastle,
       addLookoutSighting,
+      recoverMaevesKettle,
+      checkWeather,
+      completeStormCleanup,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

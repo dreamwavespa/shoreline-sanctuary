@@ -39,7 +39,7 @@ export default function GameShell() {
 
   const isLocked = (id: Screen) => {
     if (id === "cove") return !state.rowboatRepaired;
-    if (id === "lighthouse") return !state.chestOpened;
+    if (id === "lighthouse") return !state.chestOpened && !state.weatherStationUnlocked;
     if (id === "reef") return !state.hasDivingGear;
     if (id === "ship") return !state.gameCompleted;
     if (id === "sandbars") return !state.sandbarsUnlocked;
@@ -48,7 +48,7 @@ export default function GameShell() {
 
   const lockMessage = (id: Screen) => {
     if (id === "cove") return "Fill your bucket, then repair the rowboat in the Workshop first!";
-    if (id === "lighthouse") return "Open the treasure chest on the Hidden Beach first!";
+    if (id === "lighthouse") return "Return Maeve's kettle or open the treasure chest on the Hidden Beach to reveal the lighthouse trail!";
     if (id === "reef") return "Open the treasure chest on the Hidden Beach to get your Diving Gear first!";
     if (id === "ship") return "Restore the shipwreck and complete The Grand Reunion to unlock the Community Ship!";
     if (id === "sandbars") return "Craft the Inflatable Rubber Raft in the Workshop's Décor tab first!";

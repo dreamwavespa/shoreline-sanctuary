@@ -79,6 +79,37 @@ function ChestCard() {
   );
 }
 
+function MaevesKettleCard() {
+  const { state, recoverMaevesKettle } = useGame();
+  const questDone = !!state.questProgress.keeperkettle;
+
+  if (questDone) return null;
+
+  if (state.kettleRecovered) {
+    return (
+      <div className="rounded-2xl bg-emerald-50 p-4 shadow-md ring-1 ring-emerald-300">
+        <p className="font-bold text-emerald-950">🫖 Maeve&apos;s kettle is safe</p>
+        <p className="mt-1 text-sm text-emerald-800">Take it to The Keeper&apos;s Kettle on the Bottles tab to return it to her.</p>
+      </div>
+    );
+  }
+
+  return (
+    <section aria-labelledby="kettle-heading" className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-amber-300">
+      <div className="relative h-40 w-full">
+        <Image src={SCENES.maevesKettle} alt="Maeve's weathered copper kettle caught among rocks and seaweed" fill unoptimized className="object-cover" />
+      </div>
+      <div className="p-4">
+        <h2 id="kettle-heading" className="font-serif text-lg font-bold text-amber-950">A copper glint in the kelp</h2>
+        <p className="mt-1 text-sm text-amber-800">Something heavy is caught along the southwest drift line. Its dented spout gives a faint whistle as the water retreats.</p>
+        <button type="button" onClick={recoverMaevesKettle} className="mt-3 w-full rounded-xl bg-amber-700 py-3 font-bold text-white shadow active:bg-amber-800">
+          Free the Copper Kettle
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export default function CoveScene() {
   const { state, collectItem, setMusicOverride } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
@@ -160,6 +191,7 @@ export default function CoveScene() {
       <div className="px-4 pt-4 space-y-4">{showChest ? <ChestCard /> : (
         <>
           <p className="text-xs text-amber-700/80 text-center">Tap the sparkling treasures in the cove above to collect them.</p>
+          <MaevesKettleCard />
           <section aria-labelledby="cove-game-heading" className="rounded-2xl bg-gradient-to-br from-sky-50 to-amber-50 p-4 shadow-md ring-1 ring-sky-200">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-800">Cove Mini-Game</p>
             <h2 id="cove-game-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">🐚 Shell Match</h2>

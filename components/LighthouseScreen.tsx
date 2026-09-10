@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import LighthouseLookout from "./LighthouseLookout";
+import WeatherStation from "./WeatherStation";
 
 const SIGHTINGS = [
   { emoji: "⛵", text: "A distant sailboat, cutting a lazy line across the horizon." },
@@ -122,14 +123,14 @@ export default function LighthouseScreen() {
     }
   };
 
-  if (!state.chestOpened) {
+  if (!state.chestOpened && !state.weatherStationUnlocked) {
     return (
       <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#fbf3e3] flex items-center justify-center">
         <div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm">
           <p className="text-3xl mb-2">🗺️</p>
           <p className="font-semibold text-amber-900 mb-1">The cliff path is still overgrown</p>
           <p className="text-sm text-amber-700">
-            Open the locked chest on the Hidden Beach to find the map and compass that reveal the way up to the lighthouse.
+            Return Maeve&apos;s missing kettle or open the locked chest on the Hidden Beach to reveal the way up to the lighthouse.
           </p>
         </div>
       </div>
@@ -150,6 +151,8 @@ export default function LighthouseScreen() {
       </div>
 
       <div className="px-4 -mt-6 relative space-y-4">
+        <WeatherStation />
+
         <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200">
           <h2 className="text-lg font-bold text-amber-900 mb-1">Star-Gazing Binoculars</h2>
           <p className="text-sm text-amber-700 mb-1">
@@ -220,13 +223,15 @@ export default function LighthouseScreen() {
 
         <MarshmallowCard />
 
-        <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
-          <p className="text-3xl mb-1">🤿</p>
-          <p className="font-semibold text-amber-900 mb-1">Diving Gear Equipped</p>
-          <p className="text-sm text-amber-700">
-            The Deep Reef and the sunken shipwreck await below the waves — head to the Reef tab.
-          </p>
-        </div>
+        {state.hasDivingGear && (
+          <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
+            <p className="text-3xl mb-1">🤿</p>
+            <p className="font-semibold text-amber-900 mb-1">Diving Gear Equipped</p>
+            <p className="text-sm text-amber-700">
+              The Deep Reef and the sunken shipwreck await below the waves — head to the Reef tab.
+            </p>
+          </div>
+        )}
       </div>
       {lookoutOpen && <LighthouseLookout onClose={closeLookout} />}
     </div>

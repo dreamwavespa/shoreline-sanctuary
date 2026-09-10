@@ -69,6 +69,15 @@ export const QUESTS: QuestDef[] = [
     phase: 2,
   },
   {
+    id: "keeperkettle",
+    title: "The Keeper's Kettle",
+    from: "Maeve Glass, Lighthouse Keeper",
+    letter: "To whoever walks the strand after a blow: the gale took my heavy copper tea kettle straight off the rocks. Hammered base, dent on the spout, and a low whistle when it boils. The ebb tide runs southwest toward the outer cove. Fish it out of the kelp and bring it up the lighthouse trail. There is fresh tea, a warm stove, and the run of my weather instruments in it for you. P.S. If it is dented further, do not try hammering it yourself. You will ruin the pitch. — Maeve Glass",
+    requires: [{ itemId: "antique-copper-kettle", count: 1 }],
+    rewardLabel: "Access to Maeve's Weather Station and Storm Cleanup",
+    phase: 2,
+  },
+  {
     id: "stargazer",
     title: "The Star-Gazer",
     from: "A distant observatory watcher",

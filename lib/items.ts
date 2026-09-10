@@ -47,6 +47,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "trophy-map": { id: "trophy-map", name: "Old Nautical Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-compass": { id: "trophy-compass", name: "Brass Compass", category: "special", icon: "🧭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-diving-gear": { id: "trophy-diving-gear", name: "Diving Gear", category: "special", icon: "🤿", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "antique-copper-kettle": { id: "antique-copper-kettle", name: "Maeve's Antique Copper Kettle", category: "special", icon: "🫖", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-nautilus": { id: "trophy-nautilus", name: "Golden Nautilus Shell", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "trophy-brass-dial": { id: "trophy-brass-dial", name: "Weathered Brass Dial", category: "special", icon: "🕰️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "trophy-ship-bell": { id: "trophy-ship-bell", name: "Old Ship Bell", category: "special", icon: "🔔", isEmoji: true, rarity: "rare", sfx: "questComplete" },
