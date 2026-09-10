@@ -19,6 +19,18 @@ const NET_CUT_TARGET = 8;
 const TRAP_PRY_TARGET = 6;
 const ELLY_COOLDOWN_MS = 15000;
 
+export interface SandcastleFeature {
+  label: string;
+  icon: string;
+}
+
+export interface SavedSandcastle {
+  id: string;
+  createdAt: number;
+  features: Record<string, SandcastleFeature>;
+  waveGifts: SandcastleFeature[];
+}
+
 interface GameState {
   inventory: Record<string, number>;
   bucketCount: number;
@@ -55,6 +67,7 @@ interface GameState {
   villagerGiftCounts: Record<string, number>;
   notebookDiscovered: Record<string, boolean>;
   notebookSeenCount: number;
+  sandcastleGallery: SavedSandcastle[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -95,6 +108,7 @@ const DEFAULT_STATE: GameState = {
   villagerGiftCounts: {},
   notebookDiscovered: {},
   notebookSeenCount: 0,
+  sandcastleGallery: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -155,6 +169,7 @@ interface Ctx {
   notebookOpen: boolean;
   setNotebookOpen: (v: boolean) => void;
   markNotebookSeen: () => void;
+  saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -632,6 +647,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const saveSandcastle = (castle: Omit<SavedSandcastle, "id" | "createdAt">) => {
+    setState((s) => ({
+      ...s,
+      sandcastleGallery: [
+        ...s.sandcastleGallery,
+        {
+          ...castle,
+          id: `${Date.now()}-${Math.random()}`,
+          createdAt: Date.now(),
+        },
+      ].slice(-12),
+    }));
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -691,6 +720,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       notebookOpen,
       setNotebookOpen,
       markNotebookSeen,
+      saveSandcastle,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );
