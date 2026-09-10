@@ -6,6 +6,7 @@ import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import ArtifactRestoration from "./ArtifactRestoration";
 import LibbyReefRescue from "./LibbyReefRescue";
+import ShipwreckSalvage from "./ShipwreckSalvage";
 
 interface Spot {
   key: string;
@@ -214,6 +215,8 @@ export default function ReefScene() {
   const artifactButtonRef = useRef<HTMLButtonElement>(null);
   const [reefRescueOpen, setReefRescueOpen] = useState(false);
   const reefRescueButtonRef = useRef<HTMLButtonElement>(null);
+  const [salvageOpen, setSalvageOpen] = useState(false);
+  const salvageButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeArtifactGame = () => {
     setArtifactGameOpen(false);
@@ -223,6 +226,11 @@ export default function ReefScene() {
   const closeReefRescue = () => {
     setReefRescueOpen(false);
     window.setTimeout(() => reefRescueButtonRef.current?.focus(), 0);
+  };
+
+  const closeSalvage = () => {
+    setSalvageOpen(false);
+    window.setTimeout(() => salvageButtonRef.current?.focus(), 0);
   };
 
   useEffect(() => {
@@ -331,6 +339,19 @@ export default function ReefScene() {
                 Open Artifact Restoration
               </button>
             </section>
+            <section aria-labelledby="salvage-game-heading" className="rounded-2xl bg-gradient-to-br from-sky-50 to-amber-50 p-4 shadow-md ring-1 ring-sky-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-800">Shipwreck Mini-Game</p>
+              <h2 id="salvage-game-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⚓ Shipwreck Salvage</h2>
+              <p className="mt-1 text-sm text-sky-800">Search for requested objects among the reef clutter. Every correct find joins the museum collection.</p>
+              <button
+                ref={salvageButtonRef}
+                type="button"
+                onClick={() => setSalvageOpen(true)}
+                className="mt-3 w-full rounded-xl bg-sky-800 py-3 font-bold text-white shadow active:bg-sky-900"
+              >
+                Begin Shipwreck Salvage
+              </button>
+            </section>
           </div>
         ) : (
           <div className="space-y-4">
@@ -357,6 +378,7 @@ export default function ReefScene() {
 
       {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}
       {reefRescueOpen && <LibbyReefRescue onClose={closeReefRescue} />}
+      {salvageOpen && <ShipwreckSalvage onClose={closeSalvage} />}
     </div>
   );
 }
