@@ -5,6 +5,7 @@ import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import ArtifactRestoration from "./ArtifactRestoration";
+import LibbyReefRescue from "./LibbyReefRescue";
 
 interface Spot {
   key: string;
@@ -211,10 +212,17 @@ export default function ReefScene() {
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
   const [artifactGameOpen, setArtifactGameOpen] = useState(false);
   const artifactButtonRef = useRef<HTMLButtonElement>(null);
+  const [reefRescueOpen, setReefRescueOpen] = useState(false);
+  const reefRescueButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeArtifactGame = () => {
     setArtifactGameOpen(false);
     window.setTimeout(() => artifactButtonRef.current?.focus(), 0);
+  };
+
+  const closeReefRescue = () => {
+    setReefRescueOpen(false);
+    window.setTimeout(() => reefRescueButtonRef.current?.focus(), 0);
   };
 
   useEffect(() => {
@@ -324,11 +332,31 @@ export default function ReefScene() {
               </button>
             </section>
           </div>
-        ) : <LibbyCard />}
+        ) : (
+          <div className="space-y-4">
+            <LibbyCard />
+            {state.libbyRescued && (
+              <section aria-labelledby="reef-rescue-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-100 p-4 shadow-md ring-1 ring-cyan-200">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-800">Reef Mini-Game</p>
+                <h2 id="reef-rescue-game-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🦞 Libby’s Reef Rescue</h2>
+                <p className="mt-1 text-sm text-teal-800">Remove fishing line, plastic rings, and other debris without disturbing coral or sea life.</p>
+                <button
+                  ref={reefRescueButtonRef}
+                  type="button"
+                  onClick={() => setReefRescueOpen(true)}
+                  className="mt-3 w-full rounded-xl bg-cyan-700 py-3 font-bold text-white shadow active:bg-cyan-800"
+                >
+                  Begin Libby’s Reef Rescue
+                </button>
+              </section>
+            )}
+          </div>
+        )}
         <p className="text-xs text-teal-200/70 text-center mt-4">Tap the glinting debris above to collect restoration materials.</p>
       </div>
 
       {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}
+      {reefRescueOpen && <LibbyReefRescue onClose={closeReefRescue} />}
     </div>
   );
 }
