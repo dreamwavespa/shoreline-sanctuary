@@ -118,6 +118,9 @@ export const ITEMS: Record<string, ItemDef> = {
   "blueprint-wind-chime": { id: "blueprint-wind-chime", name: "Frosted Glass Wind Chime Blueprint", category: "special", icon: "📋", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "pattern-pastel-wave": { id: "pattern-pastel-wave", name: "Pastel Wave Shell Paint Pattern", category: "special", icon: "📋", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "display-mariners-compass": { id: "display-mariners-compass", name: "Restored Mariner's Compass Display Item", category: "special", icon: "🧭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "museum-painted-vase": { id: "museum-painted-vase", name: "Restored Painted Harbor Vase", category: "special", icon: "🏺", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "museum-harbor-sign": { id: "museum-harbor-sign", name: "Restored Old Harbor Sign", category: "special", icon: "🪧", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "museum-captains-map": { id: "museum-captains-map", name: "Restored Captain's Island Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
