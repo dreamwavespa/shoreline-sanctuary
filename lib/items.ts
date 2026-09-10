@@ -121,6 +121,12 @@ export const ITEMS: Record<string, ItemDef> = {
   "museum-painted-vase": { id: "museum-painted-vase", name: "Restored Painted Harbor Vase", category: "special", icon: "🏺", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "museum-harbor-sign": { id: "museum-harbor-sign", name: "Restored Old Harbor Sign", category: "special", icon: "🪧", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "museum-captains-map": { id: "museum-captains-map", name: "Restored Captain's Island Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-brass-key": { id: "salvage-brass-key", name: "Captain's Brass Key", category: "special", icon: "🔑", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-porcelain-cup": { id: "salvage-porcelain-cup", name: "Blue Porcelain Teacup", category: "special", icon: "☕", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-spyglass": { id: "salvage-spyglass", name: "Captain's Spyglass", category: "special", icon: "🔭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-ship-lantern": { id: "salvage-ship-lantern", name: "Cabin Oil Lantern", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-dolphin-carving": { id: "salvage-dolphin-carving", name: "Carved Dolphin Figure", category: "special", icon: "🐬", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "salvage-silver-spoon": { id: "salvage-silver-spoon", name: "Engraved Silver Spoon", category: "special", icon: "🥄", isEmoji: true, rarity: "rare", sfx: "questComplete" },
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
