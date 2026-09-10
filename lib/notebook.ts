@@ -9,13 +9,15 @@
 //                 the first time the player gifts that villager (reusing
 //                 lib/store.tsx's existing villagerGiftCounts tracking).
 
-export type NotebookEntryKind = "item" | "villager";
+export type NotebookEntryKind = "item" | "villager" | "sighting";
 
 export interface NotebookEntry {
   id: string;
   kind: NotebookEntryKind;
   /** Handwritten-log flavor text shown in the right-hand column. */
   note: string;
+  name?: string;
+  icon?: string;
 }
 
 export interface NotebookSection {
@@ -83,6 +85,22 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
       { id: "glass-white", kind: "item", note: "Frosted sea glass swatch — Melody's favorite." },
       { id: "glass-teal", kind: "item", note: "Deep ocean teal, polished smooth by the surf." },
       { id: "glass-rainbow", kind: "item", note: "Neon-bright — said to hold the light of falling stars." },
+    ],
+  },
+  {
+    id: "lighthouse-lookout",
+    title: "Lighthouse Lookout",
+    anchorVillagerId: "marella",
+    completionReward: "Master Lookout Journal Page",
+    entries: [
+      { id: "lookout-humpback-pod", kind: "sighting", name: "Humpback Whale Pod", icon: "🐋", note: "Three humpbacks surfaced beyond the western cove in a cloud of silver mist." },
+      { id: "lookout-sunlit-sailboat", kind: "sighting", name: "Sunlit Sailboat", icon: "⛵", note: "A small white sailboat crossed the horizon beneath a bright teal sail." },
+      { id: "lookout-dolphin-family", kind: "sighting", name: "Dolphin Family", icon: "🐬", note: "A family leapt beside the eastern reef, with the smallest dolphin close behind." },
+      { id: "lookout-roseate-spoonbills", kind: "sighting", name: "Roseate Spoonbills", icon: "🦩", note: "Four unusual pink spoonbills circled high above the island." },
+      { id: "lookout-distant-island", kind: "sighting", name: "Distant Moonlit Island", icon: "🏝️", note: "A tiny island appeared beyond the western cove, outlined in moonlight." },
+      { id: "lookout-lantern-boat", kind: "sighting", name: "Lantern Fishing Boat", icon: "🚤", note: "Three warm lanterns bobbed across the dark horizon and reflected in the water." },
+      { id: "lookout-moonlit-whale", kind: "sighting", name: "Moonlit Whale", icon: "🐳", note: "A lone whale lifted its silver-lit tail beside the eastern reef." },
+      { id: "lookout-shooting-stars", kind: "sighting", name: "Shooting Star Pair", icon: "🌠", note: "Two stars crossed above the lighthouse, one gold and one blue." },
     ],
   },
   {
