@@ -7,7 +7,7 @@ import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import { getScheduleStatus, ScheduleStatus } from "@/lib/schedule";
-import PicnicPacking from "./PicnicPacking";
+import SnappyCurrentRide from "./SnappyCurrentRide";
 
 interface Spot {
   key: string;
@@ -233,8 +233,8 @@ export default function BeachScene() {
   // Computed client-side, post-mount, so server and first client render match
   // (schedule depends on real wall-clock time/date).
   const [travelerSchedule, setTravelerSchedule] = useState<Record<string, ScheduleStatus> | null>(null);
-  const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
-  const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
+  const [currentRideOpen, setCurrentRideOpen] = useState(false);
+  const currentRideButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSpots(randomSpots(9));
@@ -260,9 +260,9 @@ export default function BeachScene() {
     }, 220);
   };
 
-  const closePicnicPacking = () => {
-    setPicnicPackingOpen(false);
-    window.setTimeout(() => picnicPackingButtonRef.current?.focus(), 0);
+  const closeCurrentRide = () => {
+    setCurrentRideOpen(false);
+    window.setTimeout(() => currentRideButtonRef.current?.focus(), 0);
   };
 
   return (
@@ -302,24 +302,23 @@ export default function BeachScene() {
       </div>
 
       <div className="px-4 py-4 space-y-3 bg-[#fbf3e3] pb-8">
-        <section aria-labelledby="picnic-packing-heading" className="rounded-2xl bg-gradient-to-br from-rose-50 to-amber-100 p-4 shadow-md ring-1 ring-rose-200">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-800">Beach Mini-Game</p>
-          <h2 id="picnic-packing-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🧺 Picnic Packing</h2>
-          <p className="mt-1 text-sm text-amber-800">Fit food, a blanket, dishes, flowers, drinks, and treats into the picnic basket without squishing anything.</p>
-          <button
-            ref={picnicPackingButtonRef}
-            type="button"
-            onClick={() => setPicnicPackingOpen(true)}
-            className="mt-3 w-full rounded-xl bg-rose-700 py-3 font-bold text-white shadow active:bg-rose-800"
-          >
-            Pack a Picnic Basket
-          </button>
-        </section>
-
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide">Sanctuary Residents</p>
         <EllyCard />
         <OllieCard />
         <SnappyCard />
+        <section aria-labelledby="current-ride-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-emerald-100 p-4 shadow-md ring-1 ring-cyan-200">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Snappy's Beach Mini-Game</p>
+          <h2 id="current-ride-heading" className="mt-1 font-serif text-lg font-bold text-emerald-950">🐢 Snappy’s Current Ride</h2>
+          <p className="mt-1 text-sm text-emerald-800">Guide Snappy through gentle currents, collect bubbles, and avoid seaweed, rocks, and floating debris. Every choice is untimed.</p>
+          <button
+            ref={currentRideButtonRef}
+            type="button"
+            onClick={() => setCurrentRideOpen(true)}
+            className="mt-3 w-full rounded-xl bg-emerald-700 py-3 font-bold text-white shadow active:bg-emerald-800"
+          >
+            Ride the Current
+          </button>
+        </section>
         <UmbrellaCard />
         <SeagullCard />
         <BeachBagCard />
@@ -362,7 +361,7 @@ export default function BeachScene() {
         <VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} />
         <VillagerCard villager={VILLAGERS.angel} />
       </div>
-      {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
+      {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
     </div>
   );
 }
