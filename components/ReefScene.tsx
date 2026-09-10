@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import ArtifactRestoration from "./ArtifactRestoration";
 
 interface Spot {
   key: string;
@@ -208,6 +209,13 @@ export default function ReefScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
+  const [artifactGameOpen, setArtifactGameOpen] = useState(false);
+  const artifactButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeArtifactGame = () => {
+    setArtifactGameOpen(false);
+    window.setTimeout(() => artifactButtonRef.current?.focus(), 0);
+  };
 
   useEffect(() => {
     setSpots(randomSpots(6));
@@ -299,9 +307,28 @@ export default function ReefScene() {
             🦞 Libby
           </button>
         </div>
-        {tab === "dive" ? <GhostNetCard /> : tab === "restore" ? <ShipwreckCard /> : <LibbyCard />}
+        {tab === "dive" ? <GhostNetCard /> : tab === "restore" ? (
+          <div className="space-y-4">
+            <ShipwreckCard />
+            <section aria-labelledby="artifact-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-50 p-4 shadow-md ring-1 ring-amber-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Shipwreck Museum Mini-Game</p>
+              <h2 id="artifact-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🏺 Artifact Restoration</h2>
+              <p className="mt-1 text-sm text-amber-800">Reassemble pottery, a weathered harbor sign, and the captain’s map for the museum collection.</p>
+              <button
+                ref={artifactButtonRef}
+                type="button"
+                onClick={() => setArtifactGameOpen(true)}
+                className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+              >
+                Open Artifact Restoration
+              </button>
+            </section>
+          </div>
+        ) : <LibbyCard />}
         <p className="text-xs text-teal-200/70 text-center mt-4">Tap the glinting debris above to collect restoration materials.</p>
       </div>
+
+      {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}
     </div>
   );
 }
