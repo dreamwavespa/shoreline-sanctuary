@@ -13,14 +13,15 @@ interface IslandSound {
   location: string;
   hint: string;
   icon: string;
+  file: string;
 }
 
 const ISLAND_SOUNDS: IslandSound[] = [
-  { id: "waves", name: "Rolling Waves", location: "the main beach", hint: "A broad rushing sound rises, softens, and rises again.", icon: "🌊" },
-  { id: "gulls", name: "Calling Gulls", location: "the picnic shore", hint: "Two high calls glide above the water.", icon: "🕊️" },
-  { id: "rain", name: "Gentle Rain", location: "the cottage windows", hint: "Many light droplets patter close together.", icon: "🌧️" },
-  { id: "whale", name: "Whale Song", location: "the deep reef", hint: "A low voice bends slowly through the water.", icon: "🐋" },
-  { id: "chimes", name: "Wind Chimes", location: "the craft workshop", hint: "Bright notes ring one after another in the breeze.", icon: "🎐" },
+  { id: "waves", name: "Rolling Waves", location: "the main beach", hint: "A broad rushing sound rises, softens, and rises again.", icon: "🌊", file: "/audio/listen-to-shell/waves.mp3" },
+  { id: "gulls", name: "Calling Gulls", location: "the picnic shore", hint: "A clear seabird call carries above the water.", icon: "🕊️", file: "/audio/listen-to-shell/gulls.mp3" },
+  { id: "rain", name: "Gentle Rain", location: "the cottage windows", hint: "Many light droplets patter close together.", icon: "🌧️", file: "/audio/listen-to-shell/rain.mp3" },
+  { id: "whale", name: "Whale Song", location: "the deep reef", hint: "A low voice bends slowly through the water.", icon: "🐋", file: "/audio/listen-to-shell/whale.mp3" },
+  { id: "chimes", name: "Wind Chimes", location: "the craft workshop", hint: "Bright notes ring one after another in the breeze.", icon: "🎐", file: "/audio/listen-to-shell/chimes.mp3" },
 ];
 
 const DIFFICULTIES: Record<Difficulty, { name: string; soundIds: IslandSoundId[]; rounds: number }> = {
@@ -41,8 +42,7 @@ export default function ListenToShell({ onClose }: { onClose: () => void }) {
   const [rewardItemId, setRewardItemId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("Explore the practice sounds or choose a listening level.");
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const activeNodesRef = useRef<AudioScheduledSourceNode[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timersRef = useRef<number[]>([]);
   const originalMusicMutedRef = useRef(state.audio.musicMuted);
   const difficultyConfig = DIFFICULTIES[difficulty];
@@ -59,113 +59,25 @@ export default function ListenToShell({ onClose }: { onClose: () => void }) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       timersRef.current.forEach((timer) => window.clearTimeout(timer));
-      activeNodesRef.current.forEach((node) => {
-        try { node.stop(); } catch {}
-      });
-      audioContextRef.current?.close().catch(() => {});
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
       setAudioSetting("musicMuted", originalMusicMutedRef.current);
     };
   }, []);
 
-  const getAudioContext = () => {
-    if (!audioContextRef.current) {
-      const Context = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      audioContextRef.current = new Context();
-    }
-    const context = audioContextRef.current;
-    if (context.state === "suspended") context.resume().catch(() => {});
-    return context;
-  };
-
-  const trackNode = (node: AudioScheduledSourceNode) => {
-    activeNodesRef.current.push(node);
-    node.addEventListener("ended", () => {
-      activeNodesRef.current = activeNodesRef.current.filter((activeNode) => activeNode !== node);
-    });
-  };
-
-  const makeNoise = (context: AudioContext, duration: number) => {
-    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let index = 0; index < data.length; index += 1) data[index] = Math.random() * 2 - 1;
-    const source = context.createBufferSource();
-    source.buffer = buffer;
-    trackNode(source);
-    return source;
-  };
-
-  const outputGain = (context: AudioContext, level = 0.22) => {
-    const gain = context.createGain();
-    gain.gain.value = Math.max(0.0001, state.audio.master * level);
-    gain.connect(context.destination);
-    return gain;
-  };
-
   const playIslandSound = (sound: IslandSound, announce = true) => {
-    const context = getAudioContext();
-    const now = context.currentTime;
+    const audio = audioRef.current || new Audio();
+    audio.pause();
+    audio.currentTime = 0;
+    audio.src = sound.file;
+    audio.volume = state.audio.master;
+    audioRef.current = audio;
+    audio.play().catch(() => {
+      setAnnouncement("The sound could not start. Press Replay Mystery Sound to try again.");
+    });
     if (announce) setAnnouncement(`Playing ${sound.name} practice sound. It belongs to ${sound.location}.`);
-
-    if (sound.id === "waves") {
-      const noise = makeNoise(context, 3);
-      const filter = context.createBiquadFilter();
-      const gain = outputGain(context, 0.3);
-      filter.type = "lowpass";
-      filter.frequency.value = 720;
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(Math.max(0.0001, state.audio.master * 0.28), now + 0.7);
-      gain.gain.linearRampToValueAtTime(0.04, now + 1.45);
-      gain.gain.linearRampToValueAtTime(Math.max(0.0001, state.audio.master * 0.22), now + 2.15);
-      gain.gain.linearRampToValueAtTime(0.0001, now + 3);
-      noise.connect(filter).connect(gain);
-      noise.start(now);
-      noise.stop(now + 3);
-      return;
-    }
-
-    if (sound.id === "rain") {
-      const noise = makeNoise(context, 2.7);
-      const filter = context.createBiquadFilter();
-      const gain = outputGain(context, 0.18);
-      filter.type = "highpass";
-      filter.frequency.value = 2300;
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.linearRampToValueAtTime(Math.max(0.0001, state.audio.master * 0.16), now + 0.15);
-      gain.gain.setValueAtTime(Math.max(0.0001, state.audio.master * 0.16), now + 2.4);
-      gain.gain.linearRampToValueAtTime(0.0001, now + 2.7);
-      noise.connect(filter).connect(gain);
-      noise.start(now);
-      noise.stop(now + 2.7);
-      return;
-    }
-
-    const makeTone = (frequency: number, startOffset: number, duration: number, endFrequency?: number, type: OscillatorType = "sine") => {
-      const oscillator = context.createOscillator();
-      const gain = outputGain(context, 0.18);
-      const start = now + startOffset;
-      oscillator.type = type;
-      oscillator.frequency.setValueAtTime(frequency, start);
-      if (endFrequency) oscillator.frequency.exponentialRampToValueAtTime(endFrequency, start + duration);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, state.audio.master * 0.17), start + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-      oscillator.connect(gain);
-      trackNode(oscillator);
-      oscillator.start(start);
-      oscillator.stop(start + duration + 0.03);
-    };
-
-    if (sound.id === "gulls") {
-      makeTone(900, 0, 0.65, 1500);
-      makeTone(1450, 0.65, 0.7, 760);
-      makeTone(980, 1.55, 0.55, 1600);
-      makeTone(1500, 2.1, 0.7, 820);
-    } else if (sound.id === "whale") {
-      makeTone(180, 0, 2.2, 330);
-      makeTone(310, 2.05, 1.4, 145);
-    } else {
-      [783.99, 987.77, 659.25, 880].forEach((frequency, index) => makeTone(frequency, index * 0.38, 1.35, undefined, "triangle"));
-    }
   };
 
   const chooseTarget = (soundIds: IslandSoundId[], previous?: IslandSoundId) => {
@@ -174,7 +86,6 @@ export default function ListenToShell({ onClose }: { onClose: () => void }) {
   };
 
   const beginRound = () => {
-    getAudioContext();
     const nextTarget = chooseTarget(difficultyConfig.soundIds);
     const nextSound = ISLAND_SOUNDS.find((item) => item.id === nextTarget) || ISLAND_SOUNDS[0];
     setRoundIndex(0);
@@ -185,10 +96,7 @@ export default function ListenToShell({ onClose }: { onClose: () => void }) {
     setAnswerLocked(false);
     setPlaying(true);
     setAnnouncement(`Round 1 of ${difficultyConfig.rounds}. Listen carefully, then choose where this sound came from.${hintsEnabled ? ` Hint: ${nextSound.hint}` : ""}`);
-    const timer = window.setTimeout(() => {
-      playIslandSound(nextSound, false);
-    }, 350);
-    timersRef.current.push(timer);
+    playIslandSound(nextSound, false);
   };
 
   const answer = (sound: IslandSound) => {
