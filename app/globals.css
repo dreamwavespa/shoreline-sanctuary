@@ -43,3 +43,85 @@
 .animate-fade-in-out {
   animation: fadeInOut 2.2s ease-in-out;
 }
+
+/* Maeve's Weather Station — all motion is decorative and disabled when the
+   player asks the operating system to reduce animation. */
+@keyframes weatherSunGlow {
+  0%, 100% { box-shadow: 0 0 18px 8px rgba(253, 224, 71, 0.55); transform: scale(1); }
+  50% { box-shadow: 0 0 32px 15px rgba(254, 240, 138, 0.8); transform: scale(1.06); }
+}
+@keyframes weatherCloudDrift {
+  from { transform: translateX(-130px); }
+  to { transform: translateX(calc(100vw + 150px)); }
+}
+@keyframes weatherPalmSway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(9deg); }
+}
+@keyframes weatherRainFall {
+  from { transform: translateY(-35px) rotate(12deg); opacity: 0; }
+  15% { opacity: 0.85; }
+  to { transform: translateY(190px) rotate(12deg); opacity: 0.2; }
+}
+@keyframes weatherSnowFall {
+  from { transform: translate3d(-8px, -30px, 0) rotate(0deg); opacity: 0; }
+  15% { opacity: 0.95; }
+  to { transform: translate3d(18px, 185px, 0) rotate(260deg); opacity: 0.35; }
+}
+@keyframes weatherLightning {
+  0%, 86%, 100% { opacity: 0; }
+  88%, 92% { opacity: 0.9; }
+}
+@keyframes weatherFogDrift {
+  0%, 100% { transform: translateX(-12%); opacity: 0.35; }
+  50% { transform: translateX(12%); opacity: 0.65; }
+}
+@keyframes weatherShipSail {
+  from { transform: translateX(-70px) rotate(-2deg); }
+  to { transform: translateX(calc(100vw + 70px)) rotate(2deg); }
+}
+@keyframes weatherFrostShimmer {
+  0%, 100% { opacity: 0.45; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.5); }
+}
+@keyframes weatherBreath {
+  from { transform: translate(0, 10px) scale(0.6); opacity: 0; }
+  35% { opacity: 0.5; }
+  to { transform: translate(35px, -25px) scale(1.7); opacity: 0; }
+}
+@keyframes weatherWave {
+  0%, 100% { transform: translateX(-8%) scaleX(1.1); }
+  50% { transform: translateX(8%) scaleX(1.2); }
+}
+
+.weather-sun { position: absolute; right: 9%; top: 15px; width: 58px; height: 58px; border-radius: 9999px; background: #fde047; animation: weatherSunGlow 3s ease-in-out infinite; }
+.weather-cold-sun { background: #f8fafc; box-shadow: 0 0 24px 10px rgba(224, 242, 254, 0.85); }
+.weather-cloud { position: absolute; z-index: 2; width: 92px; height: 28px; border-radius: 9999px; background: rgba(255,255,255,0.88); animation: weatherCloudDrift 17s linear infinite; }
+.weather-cloud span { position: absolute; bottom: 7px; border-radius: 9999px; background: inherit; }
+.weather-cloud span:nth-child(1) { left: 12px; width: 34px; height: 34px; }
+.weather-cloud span:nth-child(2) { left: 38px; width: 42px; height: 46px; }
+.weather-cloud span:nth-child(3) { right: 4px; width: 28px; height: 30px; }
+.weather-cloud-one { top: 35px; left: -120px; }
+.weather-cloud-two { top: 72px; left: -160px; animation-delay: -8s; animation-duration: 22s; transform: scale(0.72); opacity: 0.75; }
+.weather-cloud-fast { animation-duration: 6s; }
+.weather-palm { position: absolute; z-index: 3; left: 8%; bottom: 23px; width: 80px; height: 115px; transform-origin: 45% 100%; }
+.weather-palm-crown { position: absolute; bottom: -5px; font-size: 94px; line-height: 1; transform-origin: 45% 100%; animation: weatherPalmSway 1.2s ease-in-out infinite; }
+.weather-raindrop { position: absolute; top: -20px; width: 3px; height: 18px; border-radius: 9999px; background: rgba(186,230,253,0.9); animation: weatherRainFall 1.15s linear infinite; }
+.weather-lightning { position: absolute; right: 20%; top: 22px; color: #fef08a; font-size: 72px; line-height: 1; text-shadow: 0 0 18px white; animation: weatherLightning 5s linear infinite; }
+.weather-snowflake { position: absolute; top: -25px; color: white; font-size: 18px; text-shadow: 0 0 6px #bae6fd; animation: weatherSnowFall 4.5s linear infinite; }
+.weather-fog { position: absolute; z-index: 4; left: -15%; width: 130%; height: 34px; border-radius: 9999px; background: rgba(255,255,255,0.62); filter: blur(8px); animation: weatherFogDrift 7s ease-in-out infinite; }
+.weather-fog-one { top: 35px; }
+.weather-fog-two { top: 76px; animation-delay: -2s; }
+.weather-fog-three { top: 112px; animation-delay: -4s; }
+.weather-ship { position: absolute; z-index: 3; bottom: 22px; left: -70px; font-size: 42px; animation: weatherShipSail 13s linear infinite; }
+.weather-frost { position: absolute; z-index: 5; color: white; font-size: 24px; letter-spacing: 10px; text-shadow: 0 0 8px #e0f2fe; animation: weatherFrostShimmer 2.4s ease-in-out infinite; }
+.weather-frost-left { left: 5px; top: 5px; transform: rotate(-18deg); }
+.weather-frost-right { right: 2px; bottom: 34px; transform: rotate(16deg); }
+.weather-breath { position: absolute; z-index: 2; left: 20%; bottom: 42px; width: 35px; height: 18px; border-radius: 9999px; background: rgba(255,255,255,0.55); filter: blur(6px); animation: weatherBreath 4s ease-out infinite; }
+.weather-breath-two { left: 48%; animation-delay: -2s; }
+.weather-wave { position: absolute; left: -10%; top: 3px; width: 120%; height: 10px; border-top: 3px solid rgba(255,255,255,0.65); border-radius: 50%; animation: weatherWave 3s ease-in-out infinite; }
+.weather-wave-two { top: 16px; animation-delay: -1.5s; opacity: 0.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-scene *, .weather-scene *::before, .weather-scene *::after { animation: none !important; }
+}

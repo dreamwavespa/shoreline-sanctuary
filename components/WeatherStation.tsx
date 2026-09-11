@@ -3,8 +3,68 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { SCENES } from "@/lib/media";
-import { useGame } from "@/lib/store";
+import { useGame, WeatherForecast } from "@/lib/store";
 import StormCleanup from "./StormCleanup";
+
+const WEATHER_PARTICLES = Array.from({ length: 12 }, (_, index) => index);
+
+function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
+  const isRain = weather.id === "storm";
+  const isSnow = weather.id === "snow";
+  const isCold = weather.id === "cold";
+  const showSun = weather.id === "calm" || weather.id === "low-tide" || weather.id === "ship" || isCold;
+  const showClouds = !isCold && weather.id !== "low-tide";
+
+  const skyClass = isRain
+    ? "from-slate-800 via-slate-600 to-slate-400"
+    : isSnow || isCold
+      ? "from-sky-300 via-blue-100 to-slate-50"
+      : weather.id === "fog"
+        ? "from-slate-400 via-slate-300 to-slate-200"
+        : "from-sky-500 via-cyan-300 to-amber-100";
+
+  return (
+    <div aria-hidden="true" className={`weather-scene relative mt-3 h-40 overflow-hidden rounded-2xl bg-gradient-to-b ${skyClass} ring-1 ring-white/30`}>
+      {showSun && <div className={`weather-sun ${isCold ? "weather-cold-sun" : ""}`} />}
+
+      {showClouds && (
+        <>
+          <div className={`weather-cloud weather-cloud-one ${weather.id === "wind" ? "weather-cloud-fast" : ""}`}><span /><span /><span /></div>
+          <div className={`weather-cloud weather-cloud-two ${weather.id === "wind" ? "weather-cloud-fast" : ""}`}><span /><span /><span /></div>
+        </>
+      )}
+
+      {weather.id === "wind" && (
+        <div className="weather-palm">
+          <div className="weather-palm-crown">🌴</div>
+        </div>
+      )}
+
+      {isRain && (
+        <div className="absolute inset-0">
+          {WEATHER_PARTICLES.map((index) => <span key={index} className="weather-raindrop" style={{ left: `${5 + index * 8}%`, animationDelay: `${(index % 5) * -0.23}s` }} />)}
+          <span className="weather-lightning">ϟ</span>
+        </div>
+      )}
+
+      {isSnow && (
+        <div className="absolute inset-0">
+          {WEATHER_PARTICLES.map((index) => <span key={index} className="weather-snowflake" style={{ left: `${4 + index * 8}%`, animationDelay: `${(index % 6) * -0.7}s` }}>{index % 3 === 0 ? "✦" : "❄"}</span>)}
+        </div>
+      )}
+
+      {weather.id === "fog" && <><span className="weather-fog weather-fog-one" /><span className="weather-fog weather-fog-two" /><span className="weather-fog weather-fog-three" /></>}
+      {weather.id === "ship" && <span className="weather-ship">⛵</span>}
+      {isCold && <><span className="weather-frost weather-frost-left">❄ ✦ ❄</span><span className="weather-frost weather-frost-right">✦ ❄ ✦</span><span className="weather-breath weather-breath-one" /><span className="weather-breath weather-breath-two" /></>}
+
+      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-cyan-500/70 to-blue-800/90">
+        <span className="weather-wave weather-wave-one" />
+        <span className="weather-wave weather-wave-two" />
+      </div>
+      {weather.id === "low-tide" && <div className="absolute inset-x-0 bottom-0 h-7 bg-amber-200"><span className="absolute left-1/4 top-1 text-white">✦</span><span className="absolute right-1/3 top-3 text-white">✦</span></div>}
+    </div>
+  );
+}
 
 export default function WeatherStation() {
   const { state, checkWeather } = useGame();
@@ -50,6 +110,7 @@ export default function WeatherStation() {
                 {state.currentForecast ? (
                   <div className="mt-2" role="status" aria-live="polite">
                     <h3 className="font-serif text-lg font-bold"><span aria-hidden="true">{state.currentForecast.icon}</span> {state.currentForecast.title}</h3>
+                    <AnimatedForecast weather={state.currentForecast} />
                     <p className="mt-1 text-sm leading-relaxed text-sky-50">{state.currentForecast.message}</p>
                     <p className="mt-2 text-xs font-semibold text-amber-200">{state.currentForecast.effect}</p>
                   </div>

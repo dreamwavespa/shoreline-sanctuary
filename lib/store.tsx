@@ -10,7 +10,7 @@ export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lig
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface WeatherForecast {
-  id: "calm" | "low-tide" | "fog" | "wind" | "ship" | "storm";
+  id: "calm" | "low-tide" | "fog" | "wind" | "ship" | "storm" | "snow" | "cold";
   icon: string;
   title: string;
   message: string;
@@ -831,9 +831,29 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         effect: "Storm Cleanup is now available.",
       },
     ];
+    const month = new Date().getUTCMonth();
+    const isWinter = month === 11 || month <= 1;
+    const winterForecasts: WeatherForecast[] = isWinter
+      ? [
+          {
+            id: "snow",
+            icon: "❄️",
+            title: "A soft coastal snowfall",
+            message: "Small flakes are beginning to turn in the lighthouse beam. The paths should stay passable, but the stones may be slick.",
+            effect: "Snowflakes are drifting across the weather station.",
+          },
+          {
+            id: "cold",
+            icon: "🧊",
+            title: "A bright and bitter cold",
+            message: "The sky is clear, but frost is silvering every rail. Maeve recommends mittens and something warm from the kitchen.",
+            effect: "Frost sparkles along the lighthouse windows.",
+          },
+        ]
+      : [];
     // Storms are possible, but deliberately uncommon: one storm entry in a
     // weighted set of eight outcomes.
-    const weighted = [...forecasts.slice(0, 5), forecasts[0], forecasts[1], forecasts[5]];
+    const weighted = [...forecasts.slice(0, 5), forecasts[0], forecasts[1], forecasts[5], ...winterForecasts];
     const forecast = weighted[Math.floor(Math.random() * weighted.length)];
     setState((s) => ({
       ...s,
