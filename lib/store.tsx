@@ -4,8 +4,9 @@ import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
+import { SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface WeatherForecast {
@@ -84,6 +85,8 @@ interface GameState {
   stormCleanupCompletions: number;
   tidePoolDiscoveries: string[];
   tidePoolSearchesCompleted: number;
+  sandDollars: number;
+  seaweedDiscoveryPurchases: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -133,6 +136,8 @@ const DEFAULT_STATE: GameState = {
   stormCleanupCompletions: 0,
   tidePoolDiscoveries: [],
   tidePoolSearchesCompleted: 0,
+  sandDollars: 8,
+  seaweedDiscoveryPurchases: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -146,6 +151,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   ship: "beach",
   sandbars: "underwater",
   cottage: "beach",
+  shop: "beach",
 };
 
 const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];
@@ -164,7 +170,7 @@ interface Ctx {
   cutNet: () => void;
   restoreShip: (cost: { itemId: string; count: number }[]) => boolean;
   hasEnough: (requires: { itemId: string; count: number }[]) => boolean;
-  play: (key: string) => void;
+  play: (key: string, volume?: number) => void;
   playBottleSequence: () => void;
   setAudioSetting: <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => void;
   resetProgress: () => void;
@@ -200,6 +206,8 @@ interface Ctx {
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
+  buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
+  sellToSeaweed: (itemId: string) => boolean;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -259,7 +267,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, [state.inventory]);
 
-  const play = (key: string) => {
+  const play = (key: string, volume = 0.75) => {
     const src = SFX_FILES[key];
     if (!src) return;
     try {
@@ -273,7 +281,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         audioCache.current[key] = a;
       }
       a.currentTime = 0;
-      a.volume = 0.75 * stateRef.current.audio.master;
+      a.volume = volume * stateRef.current.audio.master;
       void a.play()
         .then(() => window.dispatchEvent(new Event("shoreline:audio-interaction")))
         .catch(() => {});
@@ -821,6 +829,41 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const buyFromSeaweed = (itemId: string, discoveryDate?: string) => {
+    const regular = SHOP_STOCK.find((item) => item.itemId === itemId);
+    const discovery = SEAWEED_DISCOVERIES.find((item) => item.itemId === itemId);
+    const listing = regular || discovery;
+    if (!listing || !ITEMS[itemId]) return false;
+    if (discoveryDate && stateRef.current.seaweedDiscoveryPurchases.includes(discoveryDate)) return false;
+    if (stateRef.current.sandDollars < listing.price) return false;
+
+    setState((s) => ({
+      ...s,
+      sandDollars: s.sandDollars - listing.price,
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+      seaweedDiscoveryPurchases: discoveryDate
+        ? [...s.seaweedDiscoveryPurchases, discoveryDate]
+        : s.seaweedDiscoveryPurchases,
+    }));
+    play("sandDollarCoin");
+    toast(`Purchased ${ITEMS[itemId].name}!`);
+    return true;
+  };
+
+  const sellToSeaweed = (itemId: string) => {
+    const price = SELL_PRICES[itemId];
+    if (!price || (stateRef.current.inventory[itemId] || 0) < 1) return false;
+
+    setState((s) => ({
+      ...s,
+      sandDollars: s.sandDollars + price,
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) - 1 },
+    }));
+    play("sandDollarCoin");
+    toast(`Seaweed paid ${price} Sand Dollar${price === 1 ? "" : "s"}.`);
+    return true;
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -887,6 +930,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,
+      buyFromSeaweed,
+      sellToSeaweed,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

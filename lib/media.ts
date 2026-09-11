@@ -23,6 +23,10 @@ export const SCENES = {
   maeveGlass: "/images/maeve-glass-lighthouse-keeper.jpeg",
   maevesKettle: "/images/maeves-antique-copper-kettle.jpeg",
   tidePool: "/images/tide-pool-search.webp",
+  seaweedShopExterior: "/images/seaweed-and-salt-exterior.jpeg",
+  seaweedShopInterior: "/images/seaweed-and-salt-interior.jpeg",
+  seaweedShopCounter: "/images/seaweed-and-salt-counter.jpeg",
+  seaweedPortrait: "/images/seaweed-the-otter.jpeg",
 };
 
 export const MUSIC = {
@@ -35,6 +39,7 @@ export const MUSIC = {
   bottles: "/audio/Message%20in%20a%20Bottle.mp3",
   ship: "/audio/Seals%20%26%20Keys.mp3",
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
+  market: "/audio/Shoreline%20Artisan%20Market.mp3",
 
   // Cottage Harmony Engine — layers in as Sea Glass Sisters are bonded.
   // cottage1: Melody alone (acoustic guitar + glass marimba)
@@ -85,6 +90,8 @@ export const SFX_FILES: Record<string, string> = {
   // Notebook page-turn sound
   notebookPage: "/audio/Notebook%20page.wav",
   sparkle: "/audio/Sparkle%20the%20Fish.mp3",
+  shopDoor: "/audio/Seaweed%20Shop%20Door.mp3",
+  seaweedDiscovery: "/audio/Seaweed%20Discovery.mp3",
 
   // Quest and crafting sounds
   questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`,

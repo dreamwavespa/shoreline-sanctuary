@@ -5,7 +5,7 @@ import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 
 export default function BucketPanel() {
-  const { state, bucketCapacity } = useGame();
+  const { state, bucketCapacity, setScreen } = useGame();
   const pct = Math.min(100, Math.round((state.bucketCount / bucketCapacity) * 100));
   const tier = pct <= 25 ? "Empty" : pct <= 75 ? "Half-Full" : "Full to the Brim!";
 
@@ -34,6 +34,18 @@ export default function BucketPanel() {
           {state.bucketCount}/{bucketCapacity} this trip &middot; {state.bucketsFilled} buckets filled overall
         </div>
       </div>
+
+      <section className="mb-4 rounded-2xl border border-teal-300 bg-teal-50 p-4 shadow-sm" aria-labelledby="trade-heading">
+        <h2 id="trade-heading" className="font-serif text-lg font-bold text-teal-950">Trade Your Finds</h2>
+        <p className="mt-1 text-sm text-teal-800">Take eligible shoreline goods to Seaweed &amp; Salt and exchange them for Sand Dollars.</p>
+        <button
+          type="button"
+          onClick={() => setScreen("shop")}
+          className="mt-3 min-h-12 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white shadow active:bg-teal-800"
+        >
+          Visit Seaweed &amp; Salt · 🪙 {state.sandDollars}
+        </button>
+      </section>
 
       <h2 className="text-lg font-semibold text-amber-900 mb-2">Collection</h2>
       {entries.length === 0 && (
