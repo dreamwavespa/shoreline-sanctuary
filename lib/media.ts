@@ -75,7 +75,7 @@ export const SFX_FILES: Record<string, string> = {
   salt: "/audio/Salt-shaker.wav",
   coconut: "/audio/Coconut-falling.wav",
   sandDollarCoin: "/audio/Sand%20Dollar%20Coin.mp3",
-  stone: "/audio/Stone.MP3",
+  stone: "/audio/freesound_community-stone-dropping-6843.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,
