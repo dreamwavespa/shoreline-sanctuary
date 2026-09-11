@@ -362,7 +362,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       };
     });
     if (!opts?.silent) {
-      play(def.sfx);
+      play(def.sfx, def.sfx === "stone" ? 1 : undefined);
       toast(`+1 ${def.name}`);
     }
   };
