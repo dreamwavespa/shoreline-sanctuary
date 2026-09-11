@@ -6,7 +6,7 @@ import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
 import { SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
 
-export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop";
+export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
 
 export interface WeatherForecast {
@@ -152,6 +152,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   sandbars: "underwater",
   cottage: "beach",
   shop: "beach",
+  grove: "beach",
 };
 
 const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];

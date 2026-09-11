@@ -27,6 +27,8 @@ export const SCENES = {
   seaweedShopInterior: "/images/seaweed-and-salt-interior.jpeg",
   seaweedShopCounter: "/images/seaweed-and-salt-counter.jpeg",
   seaweedPortrait: "/images/seaweed-the-otter.jpeg",
+  coconutGrove: "/images/coconut-grove.jpeg",
+  coconutGroveRecipes: "/images/coconut-grove-recipe-cards.jpeg",
 };
 
 export const MUSIC = {
@@ -40,6 +42,7 @@ export const MUSIC = {
   ship: "/audio/Seals%20%26%20Keys.mp3",
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
   market: "/audio/Shoreline%20Artisan%20Market.mp3",
+  grove: "/audio/Coconut%20Grove%20-%20Coastal%20Breeze.mp3",
 
   // Cottage Harmony Engine — layers in as Sea Glass Sisters are bonded.
   // cottage1: Melody alone (acoustic guitar + glass marimba)
@@ -76,6 +79,16 @@ export const SFX_FILES: Record<string, string> = {
   coconut: "/audio/Coconut-falling.wav",
   sandDollarCoin: "/audio/Sand%20Dollar%20Coin.mp3",
   stone: "/audio/freesound_community-stone-dropping-6843.mp3",
+  groveTrail: "/audio/walking-in-the-sand-on-the-beach.mp3",
+  groveLeafRustle: "/audio/grove-leaf-rustle.mp3",
+  grovePalmFall: "/audio/grove-palm-fall.mp3",
+  groveCoconutImpact: "/audio/grove-coconut-impact.mp3",
+  groveBerryPick: "/audio/grove-berry-pick.mp3",
+  groveBasketFill: "/audio/grove-basket-fill.mp3",
+  groveHerbSnip: "/audio/grove-herb-snip.mp3",
+  groveRootPull: "/audio/grove-root-pull.mp3",
+  groveSignTap: "/audio/grove-sign-tap.mp3",
+  groveItemPickup: "/audio/grove-item-pickup.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,

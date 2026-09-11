@@ -15,6 +15,7 @@ import AudioEngine from "./AudioEngine";
 import SettingsModal from "./SettingsModal";
 import Notebook from "./Notebook";
 import SeaweedSaltShop from "./SeaweedSaltShop";
+import CoconutGrove from "./CoconutGrove";
 
 const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "beach", label: "Beach", icon: "🏖️" },
@@ -110,6 +111,7 @@ export default function GameShell() {
         {screen === "sandbars" && <SandbarsScene />}
         {screen === "cottage" && <Cottage />}
         {screen === "shop" && <SeaweedSaltShop />}
+        {screen === "grove" && <CoconutGrove />}
 
         {(lastToast || lockMsg) && (
           <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">

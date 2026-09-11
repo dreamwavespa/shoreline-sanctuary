@@ -311,6 +311,23 @@ export default function BeachScene() {
 
       <div className="px-4 py-4 space-y-3 bg-[#fbf3e3] pb-8">
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide">Places Along the Shore</p>
+        <section aria-labelledby="coconut-grove-heading" className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-emerald-300">
+          <div className="relative h-40 w-full">
+            <Image src={SCENES.coconutGrove} alt="A sandy trail into a sunlit coconut grove" fill unoptimized sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent" />
+            <h2 id="coconut-grove-heading" className="absolute bottom-3 left-4 font-serif text-xl font-bold text-white">🌴 Coconut Grove</h2>
+          </div>
+          <div className="p-4">
+            <p className="text-sm text-emerald-900">Follow the sandy path behind the palms to gather coconuts, berries, herbs, roots, and seasonal crops.</p>
+            <button
+              type="button"
+              onClick={() => setScreen("grove")}
+              className="mt-3 min-h-12 w-full rounded-xl bg-emerald-700 py-3 font-bold text-white shadow active:bg-emerald-800"
+            >
+              Follow the Path into the Grove
+            </button>
+          </div>
+        </section>
         <section aria-labelledby="seaweed-shop-heading" className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-amber-300">
           <div className="relative h-40 w-full">
             <Image src={SCENES.seaweedShopExterior} alt="Seaweed and Salt shop beside the beach" fill unoptimized sizes="100vw" className="object-cover" />
