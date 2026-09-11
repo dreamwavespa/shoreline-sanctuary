@@ -1,7 +1,7 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useGame } from "@/lib/store";
+import { MARSHMALLOW_TREAT_COOLDOWN_MS, useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import LighthouseLookout from "./LighthouseLookout";
 import WeatherStation from "./WeatherStation";
@@ -36,6 +36,18 @@ function MarshmallowCard() {
   const { state, scratchMarshmallow, giftMarshmallow } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
   const [purr, setPurr] = useState(false);
+  const [now, setNow] = useState<number | null>(null);
+  const remainingMs = now === null
+    ? 0
+    : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
+  const remainingMinutes = Math.ceil(remainingMs / 60_000);
+  const treatReady = now !== null && remainingMs === 0;
+
+  useEffect(() => {
+    setNow(Date.now());
+    const timer = window.setInterval(() => setNow(Date.now()), 15_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const handleScratch = () => {
     scratchMarshmallow();
@@ -66,12 +78,28 @@ function MarshmallowCard() {
         </button>
         <button
           type="button"
-          disabled={treats < 1 || state.marshmallowGifted}
+          disabled={treats < 1 || !treatReady}
           onClick={giftMarshmallow}
           className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm"
         >
-          {state.marshmallowGifted ? "Gifted ✓" : `🍡 Gift Marshmallow (${treats})`}
+          {now === null
+            ? "Checking Treat Time…"
+            : !treatReady
+            ? `Full · Ready in about ${remainingMinutes} min`
+            : treats < 1
+              ? "No Marshmallow Treats"
+              : `🍡 Give Treat (${treats})`}
         </button>
+      </div>
+      <div className="mt-3 text-center text-xs text-rose-700">
+        {state.marshmallowGifted && <p>First marshmallow gift remembered ✓</p>}
+        <p role="status" aria-live="polite">
+          {now === null
+            ? "Checking when Marshmallow will be ready."
+            : treatReady
+            ? "Marshmallow is ready for another treat."
+            : `Marshmallow is full. Another treat in about ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`}
+        </p>
       </div>
     </div>
   );

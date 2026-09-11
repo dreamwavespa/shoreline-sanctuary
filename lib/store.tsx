@@ -27,6 +27,7 @@ export interface AudioSettings {
 const NET_CUT_TARGET = 8;
 const TRAP_PRY_TARGET = 6;
 const ELLY_COOLDOWN_MS = 15000;
+export const MARSHMALLOW_TREAT_COOLDOWN_MS = 30 * 60 * 1000;
 
 export interface SandcastleFeature {
   label: string;
@@ -63,6 +64,7 @@ interface GameState {
   libbyRescued: boolean;
   marshmallowScratchCount: number;
   marshmallowGifted: boolean;
+  marshmallowLastGiftAt: number;
   saltyStreak: number;
   saltyTotalCatches: number;
   foundConstellations: string[];
@@ -114,6 +116,7 @@ const DEFAULT_STATE: GameState = {
   libbyRescued: false,
   marshmallowScratchCount: 0,
   marshmallowGifted: false,
+  marshmallowLastGiftAt: 0,
   saltyStreak: 0,
   saltyTotalCatches: 0,
   foundConstellations: [],
@@ -557,10 +560,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const giftMarshmallow = () => {
     const cost = [{ itemId: "food-campfire-marshmallow", count: 1 }];
+    const now = Date.now();
+    if (now - stateRef.current.marshmallowLastGiftAt < MARSHMALLOW_TREAT_COOLDOWN_MS) return false;
     if (!hasEnough(cost)) return false;
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
-      return { ...s, inventory: inv, marshmallowGifted: true };
+      return { ...s, inventory: inv, marshmallowGifted: true, marshmallowLastGiftAt: now };
     });
     play("craftSuccess");
     toast("Marshmallow the cat curls up happily by the hearth 🔥");
