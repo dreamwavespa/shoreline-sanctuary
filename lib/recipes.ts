@@ -61,6 +61,17 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     ],
     outputItemId: "food-campfire-marshmallow",
   },
+  {
+    id: "sea-lettuce-wrap",
+    name: "Sea Lettuce Garden Wrap",
+    description: "Fresh tide-pool sea lettuce folded with coconut cream and a pinch of soothing sea salt.",
+    cost: [
+      { itemId: "sea-lettuce", count: 1 },
+      { itemId: "coconut-cream", count: 1 },
+      { itemId: "soothing-sea-salt", count: 1 },
+    ],
+    outputItemId: "food-sea-lettuce-wrap",
+  },
 ];
 
 export interface CraftRecipe {

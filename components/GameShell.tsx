@@ -33,7 +33,7 @@ export default function GameShell() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const villagerMetCount = Object.values(state.villagerGiftCounts).filter((c) => c > 0).length;
-  const notebookDiscoveredCount = Object.keys(state.notebookDiscovered).length + villagerMetCount;
+  const notebookDiscoveredCount = Object.keys(state.notebookDiscovered).length + villagerMetCount + state.lookoutSightings.length + state.tidePoolDiscoveries.length;
   const hasNewNotebookEntry = notebookDiscoveredCount > state.notebookSeenCount;
   const [lockMsg, setLockMsg] = useState<string | null>(null);
 

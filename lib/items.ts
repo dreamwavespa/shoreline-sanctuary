@@ -70,6 +70,9 @@ export const ITEMS: Record<string, ItemDef> = {
   "food-sea-rose-milk": { id: "food-sea-rose-milk", name: "Soothing Sea-Rose Milk", category: "food", icon: "🥛", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-seaweed-chips": { id: "food-seaweed-chips", name: "Crispy Seaweed Chips", category: "food", icon: "🍟", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-campfire-marshmallow": { id: "food-campfire-marshmallow", name: "Campfire Marshmallow", category: "food", icon: "🍡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "sea-lettuce": { id: "sea-lettuce", name: "Fresh Sea Lettuce", category: "raw", icon: "🥬", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "food-sea-lettuce-wrap": { id: "food-sea-lettuce-wrap", name: "Sea Lettuce Garden Wrap", category: "food", icon: "🌯", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "tide-pool-keepsake": { id: "tide-pool-keepsake", name: "Tide-Pool Field Notes", category: "special", icon: "📘", isEmoji: true, rarity: "rare", sfx: "questComplete" },
 
   "washed-up-canvas": { id: "washed-up-canvas", name: "Washed-Up Canvas", category: "raw", icon: "⛵", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
   "dried-sea-oats": { id: "dried-sea-oats", name: "Dried Sea Oats", category: "raw", icon: "🌾", isEmoji: true, rarity: "common", sfx: "driftwood" },

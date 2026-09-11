@@ -82,6 +82,8 @@ interface GameState {
   currentForecast: WeatherForecast | null;
   stormCleanupAvailable: boolean;
   stormCleanupCompletions: number;
+  tidePoolDiscoveries: string[];
+  tidePoolSearchesCompleted: number;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -129,6 +131,8 @@ const DEFAULT_STATE: GameState = {
   currentForecast: null,
   stormCleanupAvailable: false,
   stormCleanupCompletions: 0,
+  tidePoolDiscoveries: [],
+  tidePoolSearchesCompleted: 0,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -191,6 +195,8 @@ interface Ctx {
   markNotebookSeen: () => void;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
   addLookoutSighting: (id: string) => void;
+  addTidePoolDiscovery: (id: string) => void;
+  completeTidePoolSearch: () => void;
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
@@ -678,7 +684,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const markNotebookSeen = () => {
     setState((s) => {
       const villagerMet = Object.values(s.villagerGiftCounts).filter((c) => c > 0).length;
-      const total = Object.keys(s.notebookDiscovered).length + villagerMet;
+      const total = Object.keys(s.notebookDiscovered).length + villagerMet + s.lookoutSightings.length + s.tidePoolDiscoveries.length;
       return { ...s, notebookSeenCount: total };
     });
   };
@@ -702,6 +708,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ? s
       : { ...s, lookoutSightings: [...s.lookoutSightings, id] }
     );
+  };
+
+  const addTidePoolDiscovery = (id: string) => {
+    setState((s) => s.tidePoolDiscoveries.includes(id)
+      ? s
+      : { ...s, tidePoolDiscoveries: [...s.tidePoolDiscoveries, id] }
+    );
+  };
+
+  const completeTidePoolSearch = () => {
+    setState((s) => ({
+      ...s,
+      tidePoolSearchesCompleted: s.tidePoolSearchesCompleted + 1,
+      inventory: {
+        ...s.inventory,
+        "tide-pool-keepsake": (s.inventory["tide-pool-keepsake"] || 0) + 1,
+      },
+    }));
+    play("questComplete");
+    toast("Tide-pool field notes complete! 🌊");
   };
 
   const recoverMaevesKettle = () => {
@@ -856,6 +882,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       markNotebookSeen,
       saveSandcastle,
       addLookoutSighting,
+      addTidePoolDiscovery,
+      completeTidePoolSearch,
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,

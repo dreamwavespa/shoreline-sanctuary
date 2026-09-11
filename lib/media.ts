@@ -22,6 +22,7 @@ export const SCENES = {
   roseBowl: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/9121aeb40725481fa0e3b50a1d82be14.webp",
   maeveGlass: "/images/maeve-glass-lighthouse-keeper.jpeg",
   maevesKettle: "/images/maeves-antique-copper-kettle.jpeg",
+  tidePool: "/images/tide-pool-search.webp",
 };
 
 export const MUSIC = {
@@ -83,6 +84,7 @@ export const SFX_FILES: Record<string, string> = {
 
   // Notebook page-turn sound
   notebookPage: "/audio/Notebook%20page.wav",
+  sparkle: "/audio/Sparkle%20the%20Fish.mp3",
 
   // Quest and crafting sounds
   questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`,

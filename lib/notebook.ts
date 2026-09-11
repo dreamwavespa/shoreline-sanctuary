@@ -9,7 +9,7 @@
 //                 the first time the player gifts that villager (reusing
 //                 lib/store.tsx's existing villagerGiftCounts tracking).
 
-export type NotebookEntryKind = "item" | "villager" | "sighting";
+export type NotebookEntryKind = "item" | "villager" | "sighting" | "tidepool";
 
 export interface NotebookEntry {
   id: string;
@@ -64,6 +64,13 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
       { id: "shelby", kind: "villager", note: "Shelby the Crab Captain — arrives with the trading ship." },
       { id: "misty", kind: "villager", note: "Misty the Moon Jellyfish — only seen on full moon nights." },
       { id: "angel", kind: "villager", note: "Angel the Angelfish — returns Star Wish Bottles from the sea." },
+      { id: "rainbow-starfish", kind: "tidepool", name: "Rainbow the Starfish", icon: "🌈", note: "A multicolored sea star resting safely beneath the clear water." },
+      { id: "pip-urchin", kind: "tidepool", name: "Pip the Sea Urchin", icon: "🟣", note: "A small purple-blue urchin tucked carefully between two rocks." },
+      { id: "sparkle-fish", kind: "tidepool", name: "Sparkle the Fish", icon: "🐟", note: "Her silver scales flash like a tiny rainbow when sunlight reaches the pool." },
+      { id: "barnaby-hermit-crab", kind: "tidepool", name: "Barnaby the Hermit Crab", icon: "🦀", note: "The cozy shell-seeker from the message bottle, now exploring the tide pool." },
+      { id: "pearl-clam", kind: "tidepool", name: "Pearl-Bearing Clam", icon: "🦪", note: "A patient clam holding a softly luminous pearl." },
+      { id: "sea-anemones", kind: "tidepool", name: "Sea Anemone Garden", icon: "🪸", note: "Pink and coral anemones waving gently in the moving water." },
+      { id: "sea-lettuce-patch", kind: "tidepool", name: "Sea Lettuce Patch", icon: "🥬", note: "Bright green edible leaves growing where the clean water flows." },
     ],
   },
   {

@@ -8,6 +8,7 @@ import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import { getScheduleStatus, ScheduleStatus } from "@/lib/schedule";
 import SnappyCurrentRide from "./SnappyCurrentRide";
+import TidePoolSearch from "./TidePoolSearch";
 
 interface Spot {
   key: string;
@@ -235,6 +236,8 @@ export default function BeachScene() {
   const [travelerSchedule, setTravelerSchedule] = useState<Record<string, ScheduleStatus> | null>(null);
   const [currentRideOpen, setCurrentRideOpen] = useState(false);
   const currentRideButtonRef = useRef<HTMLButtonElement>(null);
+  const [tidePoolOpen, setTidePoolOpen] = useState(false);
+  const tidePoolButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSpots(randomSpots(9));
@@ -263,6 +266,11 @@ export default function BeachScene() {
   const closeCurrentRide = () => {
     setCurrentRideOpen(false);
     window.setTimeout(() => currentRideButtonRef.current?.focus(), 0);
+  };
+
+  const closeTidePool = () => {
+    setTidePoolOpen(false);
+    window.setTimeout(() => tidePoolButtonRef.current?.focus(), 0);
   };
 
   return (
@@ -306,6 +314,24 @@ export default function BeachScene() {
         <EllyCard />
         <OllieCard />
         <SnappyCard />
+        <section aria-labelledby="tide-pool-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-100 shadow-md ring-1 ring-cyan-300">
+          <div className="relative h-40 w-full">
+            <Image src={SCENES.tidePool} alt="A clear turquoise tide pool among coastal rocks" fill unoptimized sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-teal-950/75 via-transparent to-transparent" />
+            <h2 id="tide-pool-heading" className="absolute bottom-3 left-4 font-serif text-xl font-bold text-white">🌊 Tide-Pool Search</h2>
+          </div>
+          <div className="p-4">
+            <p className="text-sm text-teal-900">Explore seven rocky pockets at your own pace. Meet Rainbow, Pip, Sparkle, and Barnaby, and look for sea lettuce, anemones, and a pearl-bearing clam.</p>
+            <button
+              ref={tidePoolButtonRef}
+              type="button"
+              onClick={() => setTidePoolOpen(true)}
+              className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+            >
+              Search the Tide Pool
+            </button>
+          </div>
+        </section>
         <section aria-labelledby="current-ride-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-emerald-100 p-4 shadow-md ring-1 ring-cyan-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Snappy's Beach Mini-Game</p>
           <h2 id="current-ride-heading" className="mt-1 font-serif text-lg font-bold text-emerald-950">🐢 Snappy’s Current Ride</h2>
@@ -362,6 +388,7 @@ export default function BeachScene() {
         <VillagerCard villager={VILLAGERS.angel} />
       </div>
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
+      {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
     </div>
   );
 }
