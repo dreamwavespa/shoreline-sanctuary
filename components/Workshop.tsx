@@ -100,6 +100,62 @@ function RecipeCard({
   );
 }
 
+type FoodVisualDef =
+  | { kind: "scene"; scene: keyof typeof SCENES; alt: string }
+  | { kind: "grove"; position: string; alt: string }
+  | { kind: "illustration"; main: string; detail: string; gradient: string; alt: string };
+
+const FOOD_VISUALS: Record<string, FoodVisualDef> = {
+  "golden-pumpkin-bisque": { kind: "grove", position: "0% 36%", alt: "Golden pumpkin bisque served in a coconut bowl with lemongrass" },
+  "sea-rose-pumpkin-tart": { kind: "grove", position: "33.33% 36%", alt: "Golden pumpkin tart topped with pink sea roses and dark coastal berries" },
+  "island-spiced-gingerbread": { kind: "grove", position: "66.66% 36%", alt: "Island spiced gingerbread cookies shaped like a shell, coral branch, and starfish" },
+  "coastal-spiced-cocoa": { kind: "grove", position: "100% 36%", alt: "Frothy coastal spiced cocoa in a blue ceramic mug topped with fresh mint" },
+  "dry-sugar-berries": { kind: "illustration", main: "🍇", detail: "☀️", gradient: "from-violet-200 via-rose-100 to-amber-100", alt: "A bowl of sun-dried purple sugar berries" },
+  "coconut-cream": { kind: "illustration", main: "🥥", detail: "🥄", gradient: "from-cyan-100 via-white to-amber-100", alt: "Rich white coconut cream served in a polished coconut shell with a spoon" },
+  "beach-plum-jelly": { kind: "scene", scene: "beachPlumJelly", alt: "A finished jar of glossy purple Beach Plum Jelly" },
+  "sea-rose-milk": { kind: "scene", scene: "roseBowl", alt: "A finished bowl of soothing Sea-Rose Milk decorated with pink petals" },
+  "seaweed-chips": { kind: "illustration", main: "🥬", detail: "🧂", gradient: "from-emerald-200 via-lime-100 to-amber-100", alt: "A ceramic bowl filled with crisp green seaweed chips and a pinch of sea salt" },
+  "campfire-marshmallow": { kind: "illustration", main: "🍡", detail: "🔥", gradient: "from-orange-200 via-rose-100 to-indigo-100", alt: "A golden campfire marshmallow toasted on a skewer above glowing coals" },
+  "sea-lettuce-wrap": { kind: "illustration", main: "🌯", detail: "🥬", gradient: "from-teal-200 via-emerald-100 to-amber-100", alt: "A finished sea lettuce garden wrap on a coastal ceramic plate" },
+};
+
+function FoodVisual({ recipeId }: { recipeId: string }) {
+  const visual = FOOD_VISUALS[recipeId];
+  if (!visual) return null;
+
+  if (visual.kind === "scene") {
+    return (
+      <div className="relative mt-4 h-44 overflow-hidden rounded-2xl bg-amber-100 shadow-inner ring-1 ring-amber-200" role="img" aria-label={visual.alt}>
+        <Image src={SCENES[visual.scene]} alt="" fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+      </div>
+    );
+  }
+
+  if (visual.kind === "grove") {
+    return (
+      <div
+        role="img"
+        aria-label={visual.alt}
+        className="mt-4 h-44 rounded-2xl bg-[#f5ead0] bg-no-repeat shadow-inner ring-1 ring-amber-200"
+        style={{
+          backgroundImage: `url(${SCENES.coconutGroveRecipes})`,
+          backgroundPosition: visual.position,
+          backgroundSize: "400% auto",
+        }}
+      />
+    );
+  }
+
+  return (
+    <div role="img" aria-label={visual.alt} className={`relative mt-4 flex h-44 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${visual.gradient} shadow-inner ring-1 ring-amber-200`}>
+      <span aria-hidden="true" className="absolute bottom-5 h-8 w-40 rounded-[50%] bg-white/75 shadow-md ring-1 ring-amber-200" />
+      <span aria-hidden="true" className="relative z-10 text-7xl drop-shadow-lg">{visual.main}</span>
+      <span aria-hidden="true" className="absolute right-[25%] top-6 rotate-12 text-3xl drop-shadow">{visual.detail}</span>
+      <span aria-hidden="true" className="absolute left-5 top-4 text-xl opacity-60">✨</span>
+    </div>
+  );
+}
+
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const { state, cook, hasEnough } = useGame();
   const canCook = hasEnough(recipe.cost);
@@ -125,6 +181,8 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       </div>
 
       <p className="mt-3 text-sm leading-relaxed text-amber-900">{recipe.description}</p>
+
+      <FoodVisual recipeId={recipe.id} />
 
       <h3 className="mt-4 text-xs font-bold uppercase tracking-wide text-amber-800">Ingredients</h3>
       <ul className="mt-2 space-y-2">
