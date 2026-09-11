@@ -57,7 +57,7 @@ function ChestCard() {
       <div className="flex gap-3 mb-4 flex-wrap">
         {CHEST_COST.map((c) => {
           const def = ITEMS[c.itemId];
-          const have = state.inventory[c.itemId] || 0;
+          const have = c.itemId === "shell-sanddollar" ? state.sandDollars : state.inventory[c.itemId] || 0;
           const ok = have >= c.count;
           return (
             <div key={c.itemId} className={`flex flex-col items-center rounded-xl p-2 ring-1 ${ok ? "ring-emerald-300 bg-emerald-50" : "ring-red-200 bg-red-50"}`}>

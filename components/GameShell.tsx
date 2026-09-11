@@ -77,6 +77,7 @@ export default function GameShell() {
         <span className="font-serif text-lg tracking-wide">Shoreline Sanctuary</span>
         <div className="flex items-center gap-2">
           <span className="text-xs bg-white/10 rounded-full px-3 py-1">🧺 {state.bucketsFilled}</span>
+          <span className="text-xs bg-white/10 rounded-full px-3 py-1" aria-label={`${state.sandDollars} Sand Dollars`}>🪙 {state.sandDollars}</span>
           <button
             type="button"
             aria-label="Explorer's Notebook"

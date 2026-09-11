@@ -240,7 +240,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        setState({ ...DEFAULT_STATE, ...parsed, audio: { ...DEFAULT_STATE.audio, ...(parsed.audio || {}) } });
+        const inventory = { ...(parsed.inventory || {}) };
+        // Sand Dollars used to exist twice: as a collected shell in the
+        // bucket and as separate shop currency. Migrate every loose Sand
+        // Dollar into the shared wallet, then remove the duplicate stack.
+        const collectedSandDollars = Math.max(0, Number(inventory["shell-sanddollar"]) || 0);
+        delete inventory["shell-sanddollar"];
+        const sandDollars = Math.max(0, Number(parsed.sandDollars ?? DEFAULT_STATE.sandDollars) || 0) + collectedSandDollars;
+        setState({
+          ...DEFAULT_STATE,
+          ...parsed,
+          inventory,
+          sandDollars,
+          notebookDiscovered: collectedSandDollars > 0
+            ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
+            : { ...(parsed.notebookDiscovered || {}) },
+          audio: { ...DEFAULT_STATE.audio, ...(parsed.audio || {}) },
+        });
       }
     } catch {}
     loaded.current = true;
@@ -348,6 +364,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const def = ITEMS[itemId];
     if (!def) return;
     setState((s) => {
+      const isSandDollar = itemId === "shell-sanddollar";
       const nextCount = (s.inventory[itemId] || 0) + 1;
       const nextBucket = s.bucketCount + 1;
       const totalCollected = s.totalCollected + 1;
@@ -359,7 +376,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       return {
         ...s,
-        inventory: { ...s.inventory, [itemId]: nextCount },
+        inventory: isSandDollar ? s.inventory : { ...s.inventory, [itemId]: nextCount },
+        sandDollars: isSandDollar ? s.sandDollars + 1 : s.sandDollars,
+        notebookDiscovered: isSandDollar
+          ? { ...s.notebookDiscovered, "shell-sanddollar": true }
+          : s.notebookDiscovered,
         bucketCount,
         bucketsFilled,
         totalCollected,
@@ -376,7 +397,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const hasEnough = (requires: { itemId: string; count: number }[]) => {
-    return requires.every((r) => (stateRef.current.inventory[r.itemId] || 0) >= r.count);
+    return requires.every((r) =>
+      r.itemId === "shell-sanddollar"
+        ? stateRef.current.sandDollars >= r.count
+        : (stateRef.current.inventory[r.itemId] || 0) >= r.count
+    );
   };
 
   const deductCost = (inv: Record<string, number>, cost: { itemId: string; count: number }[]) => {
@@ -455,11 +480,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (state.chestOpened) return false;
     if (!hasEnough(cost)) return false;
     setState((s) => {
-      const inv = deductCost({ ...s.inventory }, cost);
+      const sandDollarCost = cost.find((item) => item.itemId === "shell-sanddollar")?.count || 0;
+      const inventoryCost = cost.filter((item) => item.itemId !== "shell-sanddollar");
+      const inv = deductCost({ ...s.inventory }, inventoryCost);
       inv["trophy-map"] = (inv["trophy-map"] || 0) + 1;
       inv["trophy-compass"] = (inv["trophy-compass"] || 0) + 1;
       inv["trophy-diving-gear"] = (inv["trophy-diving-gear"] || 0) + 1;
-      return { ...s, inventory: inv, chestOpened: true, hasDivingGear: true };
+      return { ...s, inventory: inv, sandDollars: s.sandDollars - sandDollarCost, chestOpened: true, hasDivingGear: true };
     });
     play("questComplete");
     toast("Chest opened!");
