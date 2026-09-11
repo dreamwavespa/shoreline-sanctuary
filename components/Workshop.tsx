@@ -104,22 +104,54 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const { state, cook, hasEnough } = useGame();
   const canCook = hasEnough(recipe.cost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
+  const output = ITEMS[recipe.outputItemId];
+  const headingId = `recipe-${recipe.id}`;
 
   return (
-    <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-orange-200 mb-4">
-      <h2 className="text-lg font-bold text-orange-900 mb-1">{recipe.name}</h2>
-      <p className="text-sm text-orange-700 mb-3">{recipe.description}</p>
-      <CostRow cost={recipe.cost} />
+    <article
+      aria-labelledby={headingId}
+      className="relative mb-5 overflow-hidden rounded-2xl border-2 border-amber-300 bg-[#fff9e8] p-5 shadow-md"
+    >
+      <div aria-hidden="true" className="absolute left-0 right-0 top-0 h-2 bg-gradient-to-r from-teal-500 via-rose-300 to-amber-400" />
+      <div className="flex items-start gap-3 pt-1">
+        <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-3xl shadow-sm ring-1 ring-amber-200">
+          {output?.isEmoji ? output.icon : "🍽️"}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-teal-700">Recipe Card</p>
+          <h2 id={headingId} className="font-serif text-xl font-bold leading-tight text-amber-950">{recipe.name}</h2>
+          <p className="mt-1 text-xs font-semibold text-amber-700">{recipe.station} · {recipe.season}</p>
+        </div>
+      </div>
+
+      <p className="mt-3 text-sm leading-relaxed text-amber-900">{recipe.description}</p>
+
+      <h3 className="mt-4 text-xs font-bold uppercase tracking-wide text-amber-800">Ingredients</h3>
+      <ul className="mt-2 space-y-2">
+        {recipe.cost.map((ingredient) => {
+          const def = ITEMS[ingredient.itemId];
+          const have = state.inventory[ingredient.itemId] || 0;
+          const enough = have >= ingredient.count;
+          return (
+            <li key={ingredient.itemId} className={`flex items-center gap-3 rounded-xl px-3 py-2 ring-1 ${enough ? "bg-emerald-50 text-emerald-950 ring-emerald-200" : "bg-rose-50 text-rose-950 ring-rose-200"}`}>
+              <span aria-hidden="true" className="text-xl">{def.isEmoji ? def.icon : "•"}</span>
+              <span className="flex-1 text-sm font-medium">{def.name}</span>
+              <span className="text-xs font-bold" aria-label={`${have} available, ${ingredient.count} needed`}>{have}/{ingredient.count}</span>
+            </li>
+          );
+        })}
+      </ul>
+
       <button
         type="button"
         disabled={!canCook}
         onClick={() => cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1)}
-        className="w-full py-3 rounded-xl font-semibold text-white transition disabled:bg-orange-200 disabled:text-orange-500 bg-orange-600 active:bg-orange-700 shadow"
+        className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
-        {canCook ? "🍳 Cook" : "Need More Ingredients"}
+        {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
       </button>
-      {madeCount > 0 && <p className="text-[11px] text-orange-700/70 mt-2 text-center">In pantry: {madeCount}</p>}
-    </div>
+      <p className="mt-2 text-center text-xs font-medium text-amber-700">In pantry: {madeCount}</p>
+    </article>
   );
 }
 

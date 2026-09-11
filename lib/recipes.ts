@@ -6,6 +6,8 @@ export interface CookRecipe {
   outputItemId: string;
   outputCount?: number;
   sceneImage?: string;
+  station: string;
+  season: "Year-round" | "Autumn" | "Winter";
 }
 
 export const KITCHEN_RECIPES: CookRecipe[] = [
@@ -15,6 +17,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Golden pumpkin simmered with coconut, seaweed, and lemongrass. Warms the tail on breezy autumn evenings.",
     cost: [{ itemId: "golden-island-pumpkin", count: 1 }, { itemId: "coconut", count: 1 }, { itemId: "seaweed-fronds", count: 2 }, { itemId: "wild-lemongrass", count: 1 }],
     outputItemId: "food-golden-pumpkin-bisque",
+    station: "Hearth Stockpot",
+    season: "Autumn",
   },
   {
     id: "sea-rose-pumpkin-tart",
@@ -22,6 +26,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Sweet squash, cane, berries, and candied sea-rose petals baked into an autumn centerpiece.",
     cost: [{ itemId: "miniature-sugar-squash", count: 1 }, { itemId: "sea-rose-petal", count: 2 }, { itemId: "sweet-island-cane", count: 1 }, { itemId: "coastal-brambleberry", count: 2 }],
     outputItemId: "food-sea-rose-pumpkin-tart",
+    station: "Baking Oven",
+    season: "Autumn",
   },
   {
     id: "island-spiced-gingerbread",
@@ -29,6 +35,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Coastal shapes fragrant with fresh ginger, winter spice bark, sweet cane, and berry sugar.",
     cost: [{ itemId: "dune-ginger", count: 2 }, { itemId: "winter-spice-bark", count: 1 }, { itemId: "sweet-island-cane", count: 2 }, { itemId: "dried-sugar-berries", count: 1 }],
     outputItemId: "food-island-spiced-gingerbread",
+    station: "Baking Oven",
+    season: "Winter",
   },
   {
     id: "coastal-spiced-cocoa",
@@ -36,6 +44,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Frothy coconut milk steeped with winter bark, beach mint, and dried sugar berries.",
     cost: [{ itemId: "coconut", count: 1 }, { itemId: "winter-spice-bark", count: 1 }, { itemId: "coastal-beach-mint", count: 1 }, { itemId: "dried-sugar-berries", count: 1 }],
     outputItemId: "food-coastal-spiced-cocoa",
+    station: "Prep Counter & Teapot",
+    season: "Winter",
   },
   {
     id: "dry-sugar-berries",
@@ -43,6 +53,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Dry coastal brambleberries beside the warm oven for winter baking and drinks.",
     cost: [{ itemId: "coastal-brambleberry", count: 2 }],
     outputItemId: "dried-sugar-berries",
+    station: "Warm Drying Rack",
+    season: "Year-round",
   },
   {
     id: "coconut-cream",
@@ -50,6 +62,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     description: "Crack and settle a coconut in the Cool Pantry to separate its rich cream.",
     cost: [{ itemId: "coconut", count: 1 }],
     outputItemId: "coconut-cream",
+    station: "Cool Pantry",
+    season: "Year-round",
   },
   {
     id: "beach-plum-jelly",
@@ -62,6 +76,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     ],
     outputItemId: "food-beach-plum-jelly",
     sceneImage: "beachPlumJelly",
+    station: "Hearth Stove",
+    season: "Year-round",
   },
   {
     id: "sea-rose-milk",
@@ -74,6 +90,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     ],
     outputItemId: "food-sea-rose-milk",
     sceneImage: "roseBowl",
+    station: "Prep Counter & Teapot",
+    season: "Year-round",
   },
   {
     id: "seaweed-chips",
@@ -84,6 +102,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
       { itemId: "soothing-sea-salt", count: 1 },
     ],
     outputItemId: "food-seaweed-chips",
+    station: "Heated Stone Slab",
+    season: "Year-round",
   },
   {
     id: "campfire-marshmallow",
@@ -95,6 +115,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
       { itemId: "luminous-sea-goo", count: 1 },
     ],
     outputItemId: "food-campfire-marshmallow",
+    station: "Campfire Pit",
+    season: "Year-round",
   },
   {
     id: "sea-lettuce-wrap",
@@ -106,6 +128,8 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
       { itemId: "soothing-sea-salt", count: 1 },
     ],
     outputItemId: "food-sea-lettuce-wrap",
+    station: "Prep Counter",
+    season: "Year-round",
   },
 ];
 
