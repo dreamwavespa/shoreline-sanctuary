@@ -21,7 +21,7 @@ const DISCOVERIES: Discovery[] = [
   { id: "barnaby-hermit-crab", name: "Barnaby the Hermit Crab", icon: "🦀", description: "Barnaby scuttles out from behind a stone, carefully carrying his spiral shell.", sound: "shell" },
   { id: "pearl-clam", name: "A Clam with a Pearl", icon: "🦪", description: "A clam opens slowly and offers a loose silver pearl resting beside its shell.", sound: "pearl", reward: "pearl-silver" },
   { id: "sea-anemones", name: "Sea Anemone Garden", icon: "🪸", description: "A garden of pink and coral anemones waves softly with the tide.", sound: "shell" },
-  { id: "sea-lettuce-patch", name: "Fresh Sea Lettuce", icon: "🥬", description: "Clean green sea lettuce grows along the rock. You gather only a few loose leaves for the kitchen.", sound: "driftwood", reward: "sea-lettuce" },
+  { id: "sea-lettuce-patch", name: "Fresh Sea Lettuce", icon: "🥬", description: "Clean green sea lettuce grows along the rock. You gather only a few loose leaves for the kitchen.", sound: "seaweedCollect", reward: "sea-lettuce" },
 ];
 
 const AREAS = [

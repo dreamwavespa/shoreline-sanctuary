@@ -42,11 +42,12 @@ function CostRow({ cost }: { cost: { itemId: string; count: number }[] }) {
         return (
           <div key={c.itemId} className={`flex flex-col items-center rounded-xl p-2 ring-1 ${ok ? "ring-emerald-300 bg-emerald-50" : "ring-red-200 bg-red-50"}`}>
             {def.isEmoji ? (
-              <span className="text-2xl">{def.icon}</span>
+              <span className="text-2xl" aria-hidden="true">{def.icon}</span>
             ) : (
-              <Image src={def.icon} alt={def.name} width={32} height={32} unoptimized className="object-contain" />
+              <Image src={def.icon} alt="" width={32} height={32} unoptimized className="object-contain" />
             )}
-            <span className="text-[10px] mt-1 text-amber-800">{have}/{c.count}</span>
+            <span className="text-[10px] mt-1 text-amber-800" aria-hidden="true">{have}/{c.count}</span>
+            <span className="sr-only">{def.name}: {have} of {c.count} available.</span>
           </div>
         );
       })}
@@ -62,6 +63,7 @@ function RecipeCard({
   locked,
   lockedMessage,
   accent = "amber",
+  repeatable = false,
 }: {
   title: string;
   description: string;
@@ -70,10 +72,19 @@ function RecipeCard({
   locked?: boolean;
   lockedMessage?: string;
   accent?: string;
+  repeatable?: boolean;
 }) {
   const { state, craft, hasEnough } = useGame();
+  const [announcement, setAnnouncement] = useState("");
   const canCraft = hasEnough(cost);
   const alreadyCrafted = state.crafted.includes(recipeId);
+
+  const handleCraft = () => {
+    if (!craft(recipeId, cost)) return;
+    const craftedItem = ITEMS[recipeId];
+    const nextCount = craftedItem ? (state.inventory[recipeId] || 0) + 1 : 1;
+    setAnnouncement(craftedItem ? `${craftedItem.name} crafted. ${nextCount} now in inventory.` : `${title} crafted.`);
+  };
 
   if (locked) {
     return (
@@ -90,12 +101,13 @@ function RecipeCard({
       <CostRow cost={cost} />
       <button
         type="button"
-        disabled={!canCraft || alreadyCrafted}
-        onClick={() => craft(recipeId, cost)}
+        disabled={!canCraft || (alreadyCrafted && !repeatable)}
+        onClick={handleCraft}
         className="w-full py-3 rounded-xl font-semibold text-white transition disabled:bg-amber-200 disabled:text-amber-500 bg-teal-600 active:bg-teal-700 shadow"
       >
-        {alreadyCrafted ? "Already Crafted ✓" : canCraft ? "Craft" : "Need More Materials"}
+        {alreadyCrafted && !repeatable ? "Already Crafted ✓" : canCraft ? (alreadyCrafted ? "Craft Again" : "Craft") : "Need More Materials"}
       </button>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
     </div>
   );
 }
@@ -496,6 +508,14 @@ export default function Workshop() {
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
               cost={WIND_CHIME_COST}
               recipeId="wind-chime"
+            />
+
+            <RecipeCard
+              title="Kelp Resin"
+              description="Press fresh reef kelp with soothing sea salt into a useful natural resin. This recipe can be crafted whenever you have enough ingredients."
+              cost={[{ itemId: "kelp", count: 2 }, { itemId: "soothing-sea-salt", count: 1 }]}
+              recipeId="kelp-resin"
+              repeatable
             />
 
             <section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">

@@ -61,12 +61,13 @@ function EllyCard() {
 }
 
 function OllieCard() {
-  const { collectItem } = useGame();
+  const { collectItem, play } = useGame();
   const [squirt, setSquirt] = useState(false);
 
   const handleTap = () => {
     setSquirt(true);
     collectItem("seaweed-fronds", { silent: true });
+    play("seaweedCollect");
     window.setTimeout(() => setSquirt(false), 500);
   };
 

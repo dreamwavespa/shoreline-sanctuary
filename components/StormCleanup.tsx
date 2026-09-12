@@ -10,6 +10,7 @@ const DEBRIS = [
   { id: "crate", icon: "📦", label: "Secure the loose supply crate" },
   { id: "bottle", icon: "🍾", label: "Collect the glass bottle from the sand" },
   { id: "seaweed", icon: "🌿", label: "Clear seaweed from the lighthouse steps" },
+  { id: "balloon", icon: "🎈", label: "Catch the floating balloon before it reaches the water" },
 ];
 
 export default function StormCleanup({ onClose }: { onClose: () => void }) {
@@ -26,7 +27,7 @@ export default function StormCleanup({ onClose }: { onClose: () => void }) {
     if (cleared.includes(id) || finished) return;
     const next = [...cleared, id];
     setCleared(next);
-    play(id === "ring" ? "plastic" : id === "bottle" ? "bottleGlass" : "driftwood");
+    play(id === "ring" || id === "balloon" ? "plastic" : id === "bottle" ? "bottleGlass" : id === "seaweed" ? "seaweedCollect" : "driftwood");
     if (next.length === DEBRIS.length) {
       completeStormCleanup();
       setFinished(true);
@@ -60,7 +61,7 @@ export default function StormCleanup({ onClose }: { onClose: () => void }) {
         {!finished ? (
           <>
             <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              The gale has passed. Clear all six hazards at your own pace so the lighthouse path and tide pools are safe again.
+              The gale has passed. Clear all seven hazards at your own pace so the lighthouse path and tide pools are safe again.
             </p>
             <p className="mt-2 font-semibold text-teal-800" role="status" aria-live="polite">
               {cleared.length} of {DEBRIS.length} cleanup jobs complete.
@@ -88,7 +89,7 @@ export default function StormCleanup({ onClose }: { onClose: () => void }) {
             <p className="text-4xl" aria-hidden="true">✨</p>
             <h3 className="mt-2 font-serif text-xl font-bold text-teal-950">The shoreline is safe again</h3>
             <p className="mt-2 text-sm text-teal-800">
-              Maeve gives an approving nod. You recovered one weathered plank, one piece of blue sea glass, and two shiny soda tabs.
+              Maeve gives an approving nod. You recovered one Rescue Balloon, one weathered plank, one piece of blue sea glass, and two shiny soda tabs.
             </p>
             <button type="button" onClick={onClose} className="mt-5 w-full rounded-xl bg-teal-700 py-3 font-bold text-white active:bg-teal-800">
               Return to Maeve

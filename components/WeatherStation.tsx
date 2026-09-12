@@ -67,14 +67,22 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 }
 
 export default function WeatherStation() {
-  const { state, checkWeather } = useGame();
+  const { state, checkWeather, collectRainGaugeWater } = useGame();
   const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const cleanupButtonRef = useRef<HTMLButtonElement>(null);
   const keeperQuestDone = !!state.questProgress.keeperkettle;
+  const rainGaugeVialsReady = Math.max(0, state.stormCleanupCompletions - state.rainGaugeVialsClaimed);
 
   const closeCleanup = () => {
     setCleanupOpen(false);
     window.setTimeout(() => cleanupButtonRef.current?.focus(), 0);
+  };
+
+  const fillWaterVial = () => {
+    if (collectRainGaugeWater()) {
+      setAnnouncement("Pure Water Vial filled and added to your inventory.");
+    }
   };
 
   return (
@@ -138,9 +146,26 @@ export default function WeatherStation() {
               )}
 
               {state.stormCleanupCompletions > 0 && !state.stormCleanupAvailable && (
-                <p className="mt-3 text-center text-xs font-semibold text-teal-700">
-                  Storm cleanups completed: {state.stormCleanupCompletions}
-                </p>
+                <div className="mt-4 rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
+                  <p className="font-bold text-sky-950">💧 Maeve&apos;s Rain Gauge</p>
+                  <p className="mt-1 text-sm text-sky-800">
+                    {rainGaugeVialsReady > 0
+                      ? `The cleaned gauge holds enough clear rainwater for ${rainGaugeVialsReady} ${rainGaugeVialsReady === 1 ? "vial" : "vials"}.`
+                      : "The rain gauge is empty. It will refill after the next Storm Cleanup."}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={rainGaugeVialsReady < 1}
+                    onClick={fillWaterVial}
+                    className="mt-3 w-full rounded-xl bg-sky-700 py-3 font-bold text-white shadow active:bg-sky-800 disabled:bg-sky-200 disabled:text-sky-500"
+                  >
+                    {rainGaugeVialsReady > 0 ? `Fill Pure Water Vial (${rainGaugeVialsReady} ready)` : "Rain Gauge Empty"}
+                  </button>
+                  <p className="mt-3 text-center text-xs font-semibold text-teal-700">
+                    Storm cleanups completed: {state.stormCleanupCompletions}
+                  </p>
+                  <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+                </div>
               )}
             </>
           )}

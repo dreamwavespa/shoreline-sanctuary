@@ -87,6 +87,7 @@ interface GameState {
   currentForecast: WeatherForecast | null;
   stormCleanupAvailable: boolean;
   stormCleanupCompletions: number;
+  rainGaugeVialsClaimed: number;
   tidePoolDiscoveries: string[];
   tidePoolSearchesCompleted: number;
   sandDollars: number;
@@ -141,6 +142,7 @@ const DEFAULT_STATE: GameState = {
   currentForecast: null,
   stormCleanupAvailable: false,
   stormCleanupCompletions: 0,
+  rainGaugeVialsClaimed: 0,
   tidePoolDiscoveries: [],
   tidePoolSearchesCompleted: 0,
   sandDollars: 8,
@@ -215,6 +217,7 @@ interface Ctx {
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
+  collectRainGaugeWater: () => boolean;
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
 }
@@ -419,7 +422,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
       if (ITEMS[recipeId]) inv[recipeId] = (inv[recipeId] || 0) + 1;
-      const next: GameState = { ...s, inventory: inv, crafted: [...s.crafted, recipeId] };
+      const next: GameState = {
+        ...s,
+        inventory: inv,
+        crafted: s.crafted.includes(recipeId) ? s.crafted : [...s.crafted, recipeId],
+      };
       if (recipeId === "rowboat-repair") next.rowboatRepaired = true;
       if (recipeId === "beach-umbrella") next.umbrellaPlaced = true;
       if (recipeId === "picnic-basket") next.picnicBasketPlaced = true;
@@ -429,8 +436,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     });
-    play("craftSuccess");
-    toast("Crafted!");
+    const craftedItem = ITEMS[recipeId];
+    play(craftedItem?.sfx || "craftSuccess");
+    toast(craftedItem ? `Crafted ${craftedItem.name}!` : "Crafted!");
     return true;
   };
 
@@ -477,7 +485,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         stormCleanupAvailable: keeperKettleComplete ? true : s.stormCleanupAvailable,
       };
     });
-    play("questComplete");
+    play(quest.id === "sunnyshellpalette" ? "paintPigment" : "questComplete");
     toast("Quest complete!");
     return true;
   };
@@ -904,10 +912,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         "raw-driftwood-planks": (s.inventory["raw-driftwood-planks"] || 0) + 1,
         "glass-blue": (s.inventory["glass-blue"] || 0) + 1,
         "shiny-soda-tab": (s.inventory["shiny-soda-tab"] || 0) + 2,
+        "rescue-balloon": (s.inventory["rescue-balloon"] || 0) + 1,
       },
     }));
     play("questComplete");
     toast("The shoreline is safe and tidy again! ✨");
+    return true;
+  };
+
+  const collectRainGaugeWater = () => {
+    if (stateRef.current.rainGaugeVialsClaimed >= stateRef.current.stormCleanupCompletions) return false;
+    setState((s) => ({
+      ...s,
+      rainGaugeVialsClaimed: s.rainGaugeVialsClaimed + 1,
+      inventory: {
+        ...s.inventory,
+        "pure-water": (s.inventory["pure-water"] || 0) + 1,
+      },
+    }));
+    play("liquidBottle");
+    toast("Collected 1 Pure Water Vial from Maeve's rain gauge!");
     return true;
   };
 
@@ -1013,6 +1037,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,
+      collectRainGaugeWater,
       buyFromSeaweed,
       sellToSeaweed,
     }),
