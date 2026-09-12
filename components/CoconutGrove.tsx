@@ -6,7 +6,7 @@ import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { useGame } from "@/lib/store";
 
-type NodeId = "palms" | "berries" | "herbs" | "roots" | "seasonal";
+type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
 const STORAGE_KEY = "shoreline-coconut-grove-harvests";
@@ -14,14 +14,18 @@ const BASE_COOLDOWN: Record<NodeId, number> = {
   palms: 30 * 60_000,
   berries: 20 * 60_000,
   herbs: 25 * 60_000,
+  coastal: 25 * 60_000,
+  fruit: 30 * 60_000,
   roots: 35 * 60_000,
   seasonal: 24 * 60 * 60_000,
 };
 
 const NODES: { id: NodeId; icon: string; title: string; instruction: string }[] = [
   { id: "palms", icon: "🥥", title: "Coconut Palms", instruction: "Shake a palm, then gather what falls into the sand." },
-  { id: "berries", icon: "🫐", title: "Berry Bramble", instruction: "Pick four ripe berries and settle the bundle into the wicker basket." },
-  { id: "herbs", icon: "🌿", title: "Botanical Herb Thicket", instruction: "Snip fragrant lemongrass or beach mint beside the mossy log." },
+  { id: "berries", icon: "🫐", title: "Berry Bramble", instruction: "Pick a bundle of coastal berries, strawberries, blueberries, or raspberries." },
+  { id: "herbs", icon: "🌿", title: "Botanical Herb Thicket", instruction: "Snip fragrant lemongrass, beach mint, or rosemary beside the mossy log." },
+  { id: "coastal", icon: "🫛", title: "Coastal Edibles Patch", instruction: "Gather sea peas with tender sea parsley or flowering sea lavender." },
+  { id: "fruit", icon: "🍍", title: "Tropical Fruit Garden", instruction: "Harvest pineapple, bananas, grapes from the vine, or lemons from the tree." },
   { id: "roots", icon: "🫚", title: "Sandy Root Patch", instruction: "Pull a fresh root from the soft, dark island soil." },
   { id: "seasonal", icon: "🎃", title: "Seasonal Garden", instruction: "Harvest the crop growing in the stone-ringed garden." },
 ];
@@ -95,8 +99,11 @@ export default function CoconutGrove() {
       const companionBerry = postStorm && Math.random() < 0.3
         ? "wild-dewdrop-currant"
         : choose([
-            { value: "coastal-brambleberry", weight: 75 },
-            { value: "wild-beach-plum", weight: 25 },
+            { value: "coastal-brambleberry", weight: 25 },
+            { value: "wild-beach-plum", weight: 15 },
+            { value: "strawberry", weight: 20 },
+            { value: "blueberry", weight: 20 },
+            { value: "raspberry", weight: 20 },
           ]);
       rewards.push({ itemId: "sea-berry", count: 1 });
       rewards.push({ itemId: companionBerry, count: companionBerry === "wild-beach-plum" ? 1 : 3 });
@@ -105,9 +112,32 @@ export default function CoconutGrove() {
     } else if (id === "herbs") {
       const itemId = postStorm && Math.random() < 0.45
         ? "rain-lily-blossom"
-        : choose([{ value: "wild-lemongrass", weight: 50 }, { value: "coastal-beach-mint", weight: 40 }]);
+        : choose([
+            { value: "wild-lemongrass", weight: 35 },
+            { value: "coastal-beach-mint", weight: 35 },
+            { value: "rosemary", weight: 30 },
+          ]);
       rewards.push({ itemId, count: itemId === "rain-lily-blossom" ? 1 : 2 });
       play("groveHerbSnip");
+    } else if (id === "coastal") {
+      const companionPlant = choose([
+        { value: "sea-parsley", weight: 60 },
+        { value: "sea-lavender", weight: 40 },
+      ]);
+      rewards.push({ itemId: "sea-peas", count: 2 });
+      rewards.push({ itemId: companionPlant, count: companionPlant === "sea-lavender" ? 1 : 2 });
+      play("groveHerbSnip");
+      window.setTimeout(() => play("groveBasketFill"), 380);
+    } else if (id === "fruit") {
+      const itemId = choose([
+        { value: "pineapple", weight: 20 },
+        { value: "banana", weight: 30 },
+        { value: "grapes", weight: 30 },
+        { value: "lemon", weight: 20 },
+      ]);
+      rewards.push({ itemId, count: itemId === "grapes" || itemId === "banana" ? 2 : 1 });
+      play(itemId === "grapes" ? "groveBerryPick" : "groveItemPickup");
+      window.setTimeout(() => play("groveBasketFill"), 380);
     } else if (id === "roots") {
       const itemId = postStorm && Math.random() < 0.35
         ? "storm-fiddlehead"
@@ -142,12 +172,12 @@ export default function CoconutGrove() {
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
       <div className="relative h-[42%] min-h-[260px] w-full overflow-hidden">
-        <Image src={SCENES.coconutGrove} alt="A sun-dappled coconut grove with berry brambles, herbs, sandy root beds, flowers, and a path back to the beach" fill priority unoptimized sizes="100vw" className="object-cover" />
+        <Image src={SCENES.coconutGrove} alt="A sun-dappled coconut grove with palms, berry brambles, coastal herbs, tropical fruit, sandy root beds, flowers, and a path back to the beach" fill priority unoptimized sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/75 via-transparent to-black/10" />
         <div className="absolute bottom-4 left-4 right-4 text-white drop-shadow">
           <p className="text-xs font-bold uppercase tracking-widest text-lime-100">Beach Sub-Area</p>
           <h1 className="font-serif text-3xl font-bold">Coconut Grove</h1>
-          <p className="mt-1 text-sm">Golden light, rustling palms, and useful island botanicals.</p>
+          <p className="mt-1 text-sm">Golden light, rustling palms, coastal greens, berries, herbs, and tropical fruit.</p>
         </div>
       </div>
 
@@ -169,7 +199,7 @@ export default function CoconutGrove() {
                   <p className="mt-1 text-sm text-emerald-800">{node.instruction}</p>
                   <p className="mt-2 text-xs font-semibold text-emerald-700">{unavailable ? "Growing until autumn" : waitLabel(node.id)}</p>
                   <button type="button" disabled={waiting || unavailable} onClick={() => harvest(node.id)} className="mt-3 min-h-12 w-full rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white shadow disabled:bg-emerald-200 disabled:text-emerald-600 active:bg-emerald-800">
-                    {node.id === "palms" ? "Shake Palm and Gather" : node.id === "berries" ? "Pick Berry Bundle" : node.id === "herbs" ? "Snip Fresh Herbs" : node.id === "roots" ? "Pull a Root Crop" : "Harvest Seasonal Crop"}
+                    {node.id === "palms" ? "Shake Palm and Gather" : node.id === "berries" ? "Pick Berry Bundle" : node.id === "herbs" ? "Snip Fresh Herbs" : node.id === "coastal" ? "Gather Coastal Edibles" : node.id === "fruit" ? "Harvest Tropical Fruit" : node.id === "roots" ? "Pull a Root Crop" : "Harvest Seasonal Crop"}
                   </button>
                 </div>
               );
