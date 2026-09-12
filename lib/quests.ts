@@ -181,7 +181,7 @@ export const QUESTS: QuestDef[] = [
     requires: [{ itemId: "shell-scallop", count: 4 }],
     rewardItemId: "pattern-pastel-wave",
     rewardCount: 1,
-    rewardLabel: "Pastel Wave Shell Paint Pattern",
+    rewardLabel: "Pastel Wave Shell Paint Pattern & Paint Pigment",
     phase: 1,
   },
   {

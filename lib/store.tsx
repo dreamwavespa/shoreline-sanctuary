@@ -4,7 +4,7 @@ import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
-import { SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
+import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -52,6 +52,8 @@ interface GameState {
   audio: AudioSettings;
   rowboatRepaired: boolean;
   chestOpened: boolean;
+  chestDailyClaimDate: string;
+  chestDailyRewardItemId: string | null;
   hasDivingGear: boolean;
   netProgress: number;
   ghostNetCut: boolean;
@@ -104,6 +106,8 @@ const DEFAULT_STATE: GameState = {
   audio: { master: 0.9, music: 0.8, ambience: 0.7, musicMuted: false },
   rowboatRepaired: false,
   chestOpened: false,
+  chestDailyClaimDate: "",
+  chestDailyRewardItemId: null,
   hasDivingGear: false,
   netProgress: 0,
   ghostNetCut: false,
@@ -171,6 +175,7 @@ interface Ctx {
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
+  searchChest: () => string | null;
   cutNet: () => void;
   restoreShip: (cost: { itemId: string; count: number }[]) => boolean;
   hasEnough: (requires: { itemId: string; count: number }[]) => boolean;
@@ -451,6 +456,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const inv = { ...s.inventory };
       for (const r of quest.requires) inv[r.itemId] = (inv[r.itemId] || 0) - r.count;
       if (quest.rewardItemId) inv[quest.rewardItemId] = (inv[quest.rewardItemId] || 0) + (quest.rewardCount || 1);
+      if (quest.id === "sunnyshellpalette") inv["paint-pigment"] = (inv["paint-pigment"] || 0) + 1;
       const keeperKettleComplete = quest.id === "keeperkettle";
       return {
         ...s,
@@ -488,9 +494,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       inv["trophy-diving-gear"] = (inv["trophy-diving-gear"] || 0) + 1;
       return { ...s, inventory: inv, sandDollars: s.sandDollars - sandDollarCost, chestOpened: true, hasDivingGear: true };
     });
-    play("questComplete");
+    play("chestOpen", 0.95);
+    window.setTimeout(() => play("questComplete", 0.7), 900);
     toast("Chest opened!");
     return true;
+  };
+
+  const searchChest = () => {
+    const today = getShopDateKey();
+    if (!stateRef.current.chestOpened || stateRef.current.chestDailyClaimDate === today) return null;
+    const dailyTreasures = ["trophy-map", "salvage-spyglass", "magnifying-glass"];
+    const itemId = dailyTreasures[Math.floor(Math.random() * dailyTreasures.length)];
+    setState((s) => ({
+      ...s,
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+      chestDailyClaimDate: today,
+      chestDailyRewardItemId: itemId,
+    }));
+    play("chestOpen", 0.95);
+    window.setTimeout(() => play(ITEMS[itemId].sfx, 0.7), 900);
+    toast(`Daily chest treasure: ${ITEMS[itemId].name}!`);
+    return itemId;
   };
 
   const cutNet = () => {
@@ -703,8 +727,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const villager = VILLAGERS[villagerId];
     if (!villager) return false;
     if (!hasEnough([{ itemId, count: 1 }])) return false;
+    const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
+      if (starWishReturned) inv["carnelian"] = (inv["carnelian"] || 0) + 1;
       const villagerGiftCounts = {
         ...s.villagerGiftCounts,
         [villagerId]: (s.villagerGiftCounts[villagerId] || 0) + 1,
@@ -714,8 +740,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const def = ITEMS[itemId];
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     play(loved ? def.sfx : "shell");
+    if (starWishReturned) window.setTimeout(() => play("pearl", 0.75), 600);
     toast(
-      loved
+      starWishReturned
+        ? "Angel carries your Star Wish out to sea and returns with a glowing Deep-Sea Carnelian!"
+        : loved
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨`
         : `${villager.name} accepts the ${def.name} politely.`
     );
@@ -944,6 +973,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       cook,
       claimQuest,
       openChest,
+      searchChest,
       cutNet,
       restoreShip,
       hasEnough,

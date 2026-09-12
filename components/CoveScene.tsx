@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import { getShopDateKey } from "@/lib/shop";
 import ShellMatch from "./ShellMatch";
 
 interface Spot {
@@ -32,18 +33,40 @@ const CHEST_COST = [
 ];
 
 function ChestCard() {
-  const { state, openChest, hasEnough } = useGame();
+  const { state, openChest, searchChest, hasEnough } = useGame();
+  const [todayKey, setTodayKey] = useState("");
   const canOpen = hasEnough(CHEST_COST);
+  const claimedToday = !!todayKey && state.chestDailyClaimDate === todayKey;
+  const dailyFind = state.chestDailyRewardItemId ? ITEMS[state.chestDailyRewardItemId] : null;
+
+  useEffect(() => {
+    setTodayKey(getShopDateKey());
+  }, []);
 
   if (state.chestOpened) {
     return (
       <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
-        <p className="text-3xl mb-1">🔝️</p>
+        <p className="text-3xl mb-1">🧰</p>
         <p className="font-semibold text-amber-900 mb-1">The chest lies open</p>
         <p className="text-sm text-amber-700">
           Inside you found an Old Nautical Map 🗺️, a Brass Compass 🧭, and a full set of Diving Gear 🤿.
           The map and compass point toward a winding path up into the cliffs.
         </p>
+        <div className="mt-4 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
+          <p className="font-semibold text-amber-900">Daily Chest Treasure</p>
+          <p className="mt-1 text-sm text-amber-700">Search once each day for an Old Nautical Map, Captain&apos;s Spyglass, or Brass Magnifying Glass.</p>
+          {claimedToday && dailyFind && (
+            <p role="status" className="mt-2 text-sm font-semibold text-emerald-800">Today&apos;s find: {dailyFind.icon} {dailyFind.name}</p>
+          )}
+          <button
+            type="button"
+            disabled={!todayKey || claimedToday}
+            onClick={searchChest}
+            className="mt-3 min-h-12 w-full rounded-xl bg-amber-700 px-4 py-3 font-bold text-white shadow disabled:bg-amber-200 disabled:text-amber-600 active:bg-amber-800"
+          >
+            {claimedToday ? "Treasure Collected Today" : "Search the Chest"}
+          </button>
+        </div>
       </div>
     );
   }

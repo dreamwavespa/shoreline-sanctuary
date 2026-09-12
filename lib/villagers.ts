@@ -221,7 +221,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Helps players plant and cultivate underwater botanical gardens, trading rare glowing flora.",
     location: "Underwater Village",
     gift: {
-      lovedGiftIds: ["coral-bulb", "fertilizer", "bioluminescent-shard"],
+      lovedGiftIds: ["coral-bulb", "sea-berry", "fertilizer", "bioluminescent-shard"],
       reactionSfx: "Water Sprinkles, Leaf Particles",
       reactionVisual: "Water Sprinkles",
       redirectTo: ["mina", "splash"],

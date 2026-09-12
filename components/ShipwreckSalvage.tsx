@@ -33,6 +33,9 @@ const MUSEUM_FINDS: MuseumFind[] = [
   { itemId: "salvage-ship-lantern", name: "Cabin Oil Lantern", icon: "🏮", description: "A small copper lantern with one unbroken glass pane." },
   { itemId: "salvage-dolphin-carving", name: "Carved Dolphin Figure", icon: "🐬", description: "A cheerful wooden dolphin once fixed to a cabin shelf." },
   { itemId: "salvage-silver-spoon", name: "Engraved Silver Spoon", icon: "🥄", description: "A dining spoon engraved with a tiny anchor." },
+  { itemId: "ribbon", name: "Sea-Silk Ribbon", icon: "🎀", description: "A preserved length of shimmering silk ribbon from the ship’s old cargo." },
+  { itemId: "locket", name: "Antique Locket", icon: "📿", description: "A salt-worn locket recovered from a small drawer in the captain’s quarters." },
+  { itemId: "tarnished-compass", name: "Tarnished Compass", icon: "🧭", description: "A weathered brass compass waiting for Kaiana’s careful restoration." },
 ];
 
 const DISTRACTORS = [
@@ -58,8 +61,13 @@ function shuffled<T>(items: readonly T[]) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
-function createDive(level: SalvageLevel) {
-  const requested = shuffled(MUSEUM_FINDS).slice(0, level.requestedCount);
+function createDive(level: SalvageLevel, levelIndex: number) {
+  const guaranteedItemId = levelIndex === 1 ? "ribbon" : levelIndex === 2 ? "locket" : null;
+  const guaranteedFind = MUSEUM_FINDS.find((item) => item.itemId === guaranteedItemId);
+  const otherFinds = MUSEUM_FINDS.filter((item) => item.itemId !== guaranteedItemId);
+  const requested = guaranteedFind
+    ? [guaranteedFind, ...shuffled(otherFinds).slice(0, level.requestedCount - 1)]
+    : shuffled(MUSEUM_FINDS).slice(0, level.requestedCount);
   const targets: SceneObject[] = requested.map((item) => ({
     id: `find-${item.itemId}`,
     name: item.name,
@@ -105,7 +113,7 @@ export default function ShipwreckSalvage({ onClose }: { onClose: () => void }) {
 
   const startDive = (nextLevelIndex = levelIndex) => {
     const nextLevel = LEVELS[nextLevelIndex];
-    const dive = createDive(nextLevel);
+    const dive = createDive(nextLevel, nextLevelIndex);
     setLevelIndex(nextLevelIndex);
     setRequested(dive.requested);
     setObjects(dive.objects);

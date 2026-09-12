@@ -11,13 +11,13 @@ interface Discovery {
   icon: string;
   description: string;
   sound: string;
-  reward?: "sea-lettuce" | "pearl-silver";
+  reward?: "sea-lettuce" | "pearl-silver" | "glitter";
 }
 
 const DISCOVERIES: Discovery[] = [
   { id: "rainbow-starfish", name: "Rainbow the Starfish", icon: "🌈", description: "Rainbow rests beneath the clear water, each arm glowing a different color.", sound: "seaGlass" },
   { id: "pip-urchin", name: "Pip the Sea Urchin", icon: "🟣", description: "Pip peeks from a narrow rock hollow, his purple-blue spines moving gently.", sound: "shell" },
-  { id: "sparkle-fish", name: "Sparkle the Fish", icon: "🐟", description: "Sparkle swims into a sunbeam. Her silver scales flash with a tiny rainbow shimmer.", sound: "sparkle" },
+  { id: "sparkle-fish", name: "Sparkle the Fish", icon: "🐟", description: "Sparkle swims into a sunbeam. Her silver scales flash with a tiny rainbow shimmer.", sound: "sparkle", reward: "glitter" },
   { id: "barnaby-hermit-crab", name: "Barnaby the Hermit Crab", icon: "🦀", description: "Barnaby scuttles out from behind a stone, carefully carrying his spiral shell.", sound: "shell" },
   { id: "pearl-clam", name: "A Clam with a Pearl", icon: "🦪", description: "A clam opens slowly and offers a loose silver pearl resting beside its shell.", sound: "pearl", reward: "pearl-silver" },
   { id: "sea-anemones", name: "Sea Anemone Garden", icon: "🪸", description: "A garden of pink and coral anemones waves softly with the tide.", sound: "shell" },
@@ -95,10 +95,17 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
     } else if (discovery.reward === "pearl-silver") {
       collectItem("pearl-silver", { silent: true });
       rewardMessage = " The clam's loose silver pearl was added to your collection.";
+    } else if (discovery.reward === "glitter") {
+      collectItem("glitter", { silent: true });
+      rewardMessage = " Sparkle leaves a pinch of harmless Sea Glitter, which was added to your collection.";
     } else if (discovery.id === "barnaby-hermit-crab") {
       rewardMessage = barnabyHelped
         ? " Barnaby proudly shows you the roomy whelk shell you found for him."
         : " Barnaby reminds you that his shell request is waiting on the Bottles tab.";
+    }
+    if (areaId === "shell") {
+      collectItem("iridescent-shell", { silent: true });
+      rewardMessage += " An Iridescent Shell was tucked inside the Shell Hollow and has been added to your collection.";
     }
     setLastResult({ discovery, message: `${discovery.description}${rewardMessage}` });
 

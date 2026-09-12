@@ -214,24 +214,26 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
 }
 
 type SandArtRecipe = (typeof SAND_ART_RECIPES)[number];
-type SandColor = "apricot" | "pink" | "teal";
+type SandColor = "apricot" | "pink" | "teal" | "white";
 
 const SAND_COLORS: Record<SandColor, { fill: string; name: string }> = {
   apricot: { fill: "#f2a45f", name: "apricot" },
   pink: { fill: "#e86f9f", name: "pink" },
   teal: { fill: "#159b9a", name: "teal" },
+  white: { fill: "#f8fafc", name: "snow-white" },
 };
 
 const SAND_ART_LAYERS: Record<string, SandColor[]> = {
   "sunset-shoreline": ["apricot", "pink", "apricot", "pink"],
   "subaquatic-sandbar": ["teal", "apricot", "teal", "teal"],
   "legendary-tidepool": ["pink", "teal", "pink", "teal"],
+  "star-wish": ["teal", "white", "pink", "white"],
 };
 
 function BottleVisual({ recipe, filledLayers, size = "large" }: { recipe: SandArtRecipe; filledLayers: number; size?: "large" | "small" }) {
   const layers = SAND_ART_LAYERS[recipe.id] || [];
   const shownLayers = layers.slice(0, filledLayers);
-  const hasPearlDust = recipe.cost.some((item) => item.itemId === "pearl-silver");
+  const hasSparkles = recipe.cost.some((item) => item.itemId === "pearl-silver" || item.itemId === "firefly-jar");
   const layerDescription = shownLayers.length
     ? `${shownLayers.map((color) => SAND_COLORS[color].name).join(", ")} sand from bottom to top`
     : "empty";
@@ -269,7 +271,7 @@ function BottleVisual({ recipe, filledLayers, size = "large" }: { recipe: SandAr
               />
             );
           })}
-          {hasPearlDust && filledLayers > 0 && (
+          {hasSparkles && filledLayers > 0 && (
             <g fill="#fffbea" opacity="0.95">
               <circle cx="54" cy="221" r="2.2" />
               <circle cx="94" cy="198" r="1.8" />
@@ -341,7 +343,7 @@ function SandArtStudio() {
       <h2 id="sand-art-heading" className="sr-only">Sand Art Station</h2>
       <p className="text-sm text-pink-800 mb-3 text-center">Choose a design, then watch its colors fill the bottle one layer at a time.</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4" role="group" aria-label="Choose a sand art design">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4" role="group" aria-label="Choose a sand art design">
         {SAND_ART_RECIPES.map((recipe) => {
           const selected = recipe.id === selectedRecipe.id;
           return (

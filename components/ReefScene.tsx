@@ -28,6 +28,15 @@ function randomSpots(n: number): Spot[] {
   return spots;
 }
 
+function initialReefSpots(): Spot[] {
+  return [
+    { key: `coral-bulb-${Date.now()}`, itemId: "coral-bulb", x: 22, y: 72 },
+    { key: `fertilizer-${Date.now()}`, itemId: "fertilizer", x: 78, y: 68 },
+    { key: `kelp-${Date.now()}`, itemId: "kelp", x: 48, y: 78 },
+    ...randomSpots(3),
+  ];
+}
+
 const RESTORE_COST = [
   { itemId: "raw-driftwood-arch", count: 5 },
   { itemId: "raw-driftwood-planks", count: 3 },
@@ -234,7 +243,7 @@ export default function ReefScene() {
   };
 
   useEffect(() => {
-    setSpots(randomSpots(6));
+    setSpots(initialReefSpots());
   }, []);
 
   // AudioEngine owns the single music element; this screen only tells it
@@ -293,7 +302,11 @@ export default function ReefScene() {
               }`}
               style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 50, height: 50 }}
             >
-              <Image src={def.icon} alt={def.name} width={34} height={34} unoptimized className="object-contain drop-shadow" />
+              {def.isEmoji ? (
+                <span aria-hidden="true" className="text-3xl drop-shadow">{def.icon}</span>
+              ) : (
+                <Image src={def.icon} alt="" width={34} height={34} unoptimized className="object-contain drop-shadow" />
+              )}
             </button>
           );
         })}
@@ -373,7 +386,7 @@ export default function ReefScene() {
             )}
           </div>
         )}
-        <p className="text-xs text-teal-200/70 text-center mt-4">Tap the glinting debris above to collect restoration materials.</p>
+        <p className="text-xs text-teal-200/70 text-center mt-4">Collect the labeled reef finds above. Coral Bulbs grow beside the living coral, Kelp sways in the current, and Sea Fertilizer gathers in the nutrient-rich sand.</p>
       </div>
 
       {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}

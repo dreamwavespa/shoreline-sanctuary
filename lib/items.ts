@@ -100,6 +100,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
+  "sand-snow-white": { id: "sand-snow-white", name: "Snow-White Sand", category: "raw", icon: "⚪", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "salt-crystal-pink": { id: "salt-crystal-pink", name: "Raw Pink Salt Crystal", category: "raw", icon: "🧂", isEmoji: true, rarity: "uncommon", sfx: "salt" },
   "firefly-jar": { id: "firefly-jar", name: "Glowing Firefly Jar", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "pearl" },
 
@@ -136,6 +137,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "rare-soil": { id: "rare-soil", name: "Rare Enriched Soil", category: "raw", icon: "🟤", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
   "ship-chart": { id: "ship-chart", name: "Weathered Ship Chart", category: "special", icon: "🗺️", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "spyglass-lens": { id: "spyglass-lens", name: "Spyglass Lens", category: "special", icon: "🔍", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
+  "magnifying-glass": { id: "magnifying-glass", name: "Brass Magnifying Glass", category: "special", icon: "🔎", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "paint-pigment": { id: "paint-pigment", name: "Paint Pigment", category: "decor", icon: "🎨", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "glitter": { id: "glitter", name: "Sea Glitter", category: "decor", icon: "✨", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "rescue-balloon": { id: "rescue-balloon", name: "Rescue Balloon", category: "trash", icon: "🎈", isEmoji: true, rarity: "common", sfx: "plastic" },
@@ -198,6 +200,7 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "driftwood-oar", weight: 3 },
   { id: "empty-glass-bottle", weight: 5 },
   { id: "sand-apricot", weight: 5 },
+  { id: "sand-snow-white", weight: 6 },
   { id: "firefly-jar", weight: 2 },
 ];
 
@@ -234,6 +237,9 @@ export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "shell-abalone", weight: 5 },
   { id: "copper-wire", weight: 6 },
   { id: "sand-teal", weight: 6 },
+  { id: "coral-bulb", weight: 10 },
+  { id: "fertilizer", weight: 10 },
+  { id: "kelp", weight: 12 },
 ];
 
 export const SANDBAR_SPAWN_POOL: { id: string; weight: number }[] = [
@@ -243,6 +249,7 @@ export const SANDBAR_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "shiny-soda-tab", weight: 8 },
   { id: "sand-apricot", weight: 8 },
   { id: "sand-teal", weight: 6 },
+  { id: "sand-snow-white", weight: 10 },
   { id: "star-sand", weight: 3 },
 ];
 

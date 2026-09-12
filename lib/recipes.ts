@@ -262,4 +262,17 @@ export const SAND_ART_RECIPES: SandArtRecipe[] = [
     ],
     outputItemId: "bottle-legendary-tidepool",
   },
+  {
+    id: "star-wish",
+    name: "Star Wish Bottle",
+    description: "Pink, teal, and snow-white sand cradle a captured firefly glow inside a frosted bottle, ready to carry a gentle wish out to sea.",
+    cost: [
+      { itemId: "sand-pink", count: 1 },
+      { itemId: "sand-teal", count: 1 },
+      { itemId: "sand-snow-white", count: 1 },
+      { itemId: "firefly-jar", count: 1 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "star-wish-bottle",
+  },
 ];

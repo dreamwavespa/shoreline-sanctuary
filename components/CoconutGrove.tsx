@@ -92,10 +92,14 @@ export default function CoconutGrove() {
       window.setTimeout(() => play("grovePalmFall"), 180);
       window.setTimeout(() => play("groveCoconutImpact"), 420);
     } else if (id === "berries") {
-      const itemId = postStorm && Math.random() < 0.3
+      const companionBerry = postStorm && Math.random() < 0.3
         ? "wild-dewdrop-currant"
-        : choose([{ value: "coastal-brambleberry", weight: 80 }, { value: "wild-beach-plum", weight: 20 }]);
-      rewards.push({ itemId, count: itemId === "wild-beach-plum" ? 2 : 4 });
+        : choose([
+            { value: "coastal-brambleberry", weight: 75 },
+            { value: "wild-beach-plum", weight: 25 },
+          ]);
+      rewards.push({ itemId: "sea-berry", count: 1 });
+      rewards.push({ itemId: companionBerry, count: companionBerry === "wild-beach-plum" ? 1 : 3 });
       play("groveBerryPick");
       window.setTimeout(() => play("groveBasketFill"), 380);
     } else if (id === "herbs") {

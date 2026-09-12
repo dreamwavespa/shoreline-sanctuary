@@ -106,6 +106,7 @@ export const SFX_FILES: Record<string, string> = {
   sparkle: "/audio/Sparkle%20the%20Fish.mp3",
   shopDoor: "/audio/Seaweed%20Shop%20Door.mp3",
   seaweedDiscovery: "/audio/Seaweed%20Discovery.mp3",
+  chestOpen: "/audio/Chest%20Opening.mp3",
 
   // Quest and crafting sounds
   questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`,
