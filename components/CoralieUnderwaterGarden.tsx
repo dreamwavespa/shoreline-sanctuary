@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useGame } from "@/lib/store";
 
 interface GardenOption {
@@ -25,6 +26,15 @@ const GARDEN_BEDS: GardenBed[] = [
   { id: "cottage-path", name: "Cottage Path", description: "The path leading from Coralie's grotto toward the Sea Glass Cottage." },
   { id: "island-planter", name: "Island Planter", description: "A raised planter for flora Coralie has brought down from the island." },
 ];
+
+const GARDEN_BED_POSITIONS: Record<string, { left: string; top: string }> = {
+  "moon-pool": { left: "29%", top: "39%" },
+  "pearl-patch": { left: "54%", top: "52%" },
+  "tide-bed": { left: "80%", top: "49%" },
+  "grotto-wall": { left: "58%", top: "23%" },
+  "cottage-path": { left: "39%", top: "69%" },
+  "island-planter": { left: "73%", top: "74%" },
+};
 
 const GARDEN_OPTIONS: GardenOption[] = [
   { id: "eelgrass", name: "Eelgrass", icon: "🌿", kind: "plant", description: "Long emerald blades that ripple softly with the current.", discoveryIds: ["kelp"], discoveryLabel: "Discover kelp or a similar underwater green" },
@@ -74,7 +84,44 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
         </div>
         <div aria-live="polite" className="sr-only">{announcement}</div>
 
-        <section aria-labelledby="garden-preview-heading" className="mb-5 rounded-3xl bg-gradient-to-b from-cyan-900/80 to-emerald-950/90 p-4 shadow-xl ring-1 ring-cyan-300/20"><h2 id="garden-preview-heading" className="font-serif text-xl font-bold text-cyan-50">Garden View</h2><p className="mb-4 mt-1 text-sm text-cyan-100/80">Six little spaces curve around Coralie's glowing grotto. Select one to edit it.</p><div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{GARDEN_BEDS.map((bed) => { const option = GARDEN_OPTIONS.find((item) => item.id === placements[bed.id]); const selected = bed.id === selectedBedId; return <button key={bed.id} type="button" onClick={() => { setSelectedBedId(bed.id); setAnnouncement(`${bed.name} selected. ${option ? `${option.name} is placed here.` : "This space is empty."}`); }} aria-pressed={selected} aria-label={`${bed.name}. ${option ? `${option.name} placed here.` : "Empty garden space."}${selected ? " Selected." : ""}`} className={`min-h-28 rounded-2xl p-3 text-left shadow-md ${selected ? "bg-emerald-100 text-emerald-950 ring-4 ring-amber-300" : "bg-white/10 text-white ring-1 ring-white/20"}`}><span aria-hidden="true" className="block text-3xl">{option?.icon || "🫧"}</span><span className="mt-2 block text-sm font-bold">{bed.name}</span><span className="mt-1 block text-xs opacity-80">{option?.name || "Empty"}</span></button>; })}</div></section>
+        <section aria-labelledby="garden-preview-heading" className="mb-5 overflow-hidden rounded-3xl bg-gradient-to-b from-cyan-900/80 to-emerald-950/90 shadow-xl ring-1 ring-cyan-300/20">
+          <div className="p-4">
+            <h2 id="garden-preview-heading" className="font-serif text-xl font-bold text-cyan-50">Garden View</h2>
+            <p className="mt-1 text-sm text-cyan-100/80">Select one of the six named spaces in the scene to plant or decorate it.</p>
+          </div>
+          <div className="relative aspect-[3/2] w-full overflow-hidden bg-cyan-950">
+            <Image src="/images/Coralie-garden.PNG" alt="Coralie's colorful underwater garden, with a moon pool, pearl patch, tide bed, grotto wall, cottage path, and island planter" fill priority unoptimized className="object-cover" />
+            {GARDEN_BEDS.map((bed) => {
+              const option = GARDEN_OPTIONS.find((item) => item.id === placements[bed.id]);
+              const selected = bed.id === selectedBedId;
+              const position = GARDEN_BED_POSITIONS[bed.id];
+              return (
+                <button
+                  key={bed.id}
+                  type="button"
+                  onClick={() => { setSelectedBedId(bed.id); setAnnouncement(`${bed.name} selected. ${option ? `${option.name} is placed here.` : "This space is empty."}`); }}
+                  aria-pressed={selected}
+                  aria-label={`${bed.name}. ${option ? `${option.name} placed here.` : "Empty garden space."}${selected ? " Selected." : ""}`}
+                  className={`absolute flex h-[12%] w-[18%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition focus:outline-none focus:ring-4 focus:ring-white ${selected ? "bg-amber-300/35 ring-4 ring-amber-300" : "bg-cyan-300/0 hover:bg-cyan-200/20"}`}
+                  style={position}
+                >
+                  {option && (
+                    <span aria-hidden="true" className="flex min-h-8 min-w-8 items-center justify-center rounded-full bg-emerald-950/90 text-xl shadow-lg ring-2 ring-white sm:min-h-12 sm:min-w-12 sm:text-3xl" title={`${option.name} in ${bed.name}`}>
+                      {option.icon}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3">
+            {GARDEN_BEDS.map((bed) => {
+              const option = GARDEN_OPTIONS.find((item) => item.id === placements[bed.id]);
+              const selected = bed.id === selectedBedId;
+              return <button key={bed.id} type="button" onClick={() => { setSelectedBedId(bed.id); setAnnouncement(`${bed.name} selected. ${option ? `${option.name} is placed here.` : "This space is empty."}`); }} aria-pressed={selected} className={`rounded-xl px-3 py-2 text-left text-sm ${selected ? "bg-amber-200 font-bold text-emerald-950 ring-2 ring-amber-400" : "bg-white/10 text-white ring-1 ring-white/20"}`}><span aria-hidden="true">{option?.icon || "🫧"} </span>{bed.name}<span className="block text-xs font-normal opacity-80">{option?.name || "Empty"}</span></button>;
+            })}
+          </div>
+        </section>
 
         <section aria-labelledby="selected-bed-heading" className="mb-5 rounded-2xl bg-white/95 p-4 text-slate-900 shadow-lg"><p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Selected Garden Space</p><h2 id="selected-bed-heading" className="mt-1 font-serif text-xl font-bold text-emerald-950">{selectedBed.name}</h2><p className="mt-1 text-sm text-slate-700">{selectedBed.description}</p>{placements[selectedBedId] && <button type="button" onClick={clearSelectedBed} className="mt-3 rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-slate-800">Clear {selectedBed.name}</button>}</section>
 
