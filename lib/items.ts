@@ -325,8 +325,9 @@ export function rollCoveSpawn(): string {
   return rollFrom(withOrangePearl(COVE_SPAWN_POOL, 5));
 }
 
-export function rollReefSpawn(): string {
-  return rollFrom(withOrangePearl(REEF_SPAWN_POOL, 5));
+export function rollReefSpawn(iridescentFlakesUnlocked = false): string {
+  const pool = withOrangePearl(REEF_SPAWN_POOL, 5);
+  return rollFrom(iridescentFlakesUnlocked ? [...pool, { id: "shell-flake-blue", weight: 4 }] : pool);
 }
 
 export function rollSandbarSpawn(): string {

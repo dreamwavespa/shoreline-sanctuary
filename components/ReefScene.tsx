@@ -15,12 +15,12 @@ interface Spot {
   y: number;
 }
 
-function randomSpots(n: number): Spot[] {
+function randomSpots(n: number, iridescentFlakesUnlocked = false): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
-      itemId: rollReefSpawn(),
+      itemId: rollReefSpawn(iridescentFlakesUnlocked),
       x: 8 + Math.random() * 84,
       y: 38 + Math.random() * 50,
     });
@@ -28,12 +28,12 @@ function randomSpots(n: number): Spot[] {
   return spots;
 }
 
-function initialReefSpots(): Spot[] {
+function initialReefSpots(iridescentFlakesUnlocked = false): Spot[] {
   return [
     { key: `coral-bulb-${Date.now()}`, itemId: "coral-bulb", x: 22, y: 72 },
     { key: `fertilizer-${Date.now()}`, itemId: "fertilizer", x: 78, y: 68 },
     { key: `kelp-${Date.now()}`, itemId: "kelp", x: 48, y: 78 },
-    ...randomSpots(3),
+    ...randomSpots(3, iridescentFlakesUnlocked),
   ];
 }
 
@@ -121,6 +121,9 @@ function LibbyCard() {
       {LIBBY_TRADES.map((t, i) => (
         <TradeRow key={i} trade={t} />
       ))}
+      <p className="mt-3 rounded-xl bg-cyan-50 p-3 text-sm text-cyan-800 ring-1 ring-cyan-200">
+        Since Libby&apos;s rescue, rare Iridescent Blue Shell Flakes can appear among the Reef finds above. Trade them to Libby for the Nautilus Flakes used in the Tidal Pearl Choker.
+      </p>
     </div>
   );
 }
@@ -243,8 +246,8 @@ export default function ReefScene() {
   };
 
   useEffect(() => {
-    setSpots(initialReefSpots());
-  }, []);
+    setSpots(initialReefSpots(state.libbyRescued));
+  }, [state.libbyRescued]);
 
   // AudioEngine owns the single music element; this screen only tells it
   // which track to prefer while the Libby (lobster trap) sub-tab is active,
@@ -279,7 +282,7 @@ export default function ReefScene() {
     collectItem(spot.itemId);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
-      setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1)] : cur));
+      setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1, state.libbyRescued)] : cur));
     }, 220);
   };
 
