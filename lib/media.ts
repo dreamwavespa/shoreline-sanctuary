@@ -34,6 +34,7 @@ export const SCENES = {
   hiddenGroveNursery: "/images/hidden-grove-nursery.png",
   jewelryCounter: "/images/jewelry-counter.jpeg",
   booSandArt: "/images/boo-sand-art.jpeg",
+  booSandArtTools: "/images/boo-sand-art-tools.jpeg",
 };
 
 export const MUSIC = {

@@ -33,6 +33,11 @@ const FISH_GROTTO_COST = [
   { itemId: "glass-purple", count: 1 },
 ];
 
+const BOO_TOOL_SET_COST = [
+  { itemId: "trash-plastic", count: 3 },
+  { itemId: "shiny-soda-tab", count: 2 },
+];
+
 function CostRow({ cost }: { cost: { itemId: string; count: number }[] }) {
   const { state } = useGame();
   return (
@@ -603,6 +608,17 @@ export default function Workshop() {
               repeatable
             />
 
+            {state.sandbarsUnlocked && (
+              <RecipeCard
+                title="Boo's Sand Art Tool Set"
+                description="Turn cleaned plastic debris and aluminum soda tabs into a scoop, small shovel, fine sieve, and bottle funnel for Boo's Sandbar studio. Bring the finished set to Boo."
+                cost={BOO_TOOL_SET_COST}
+                recipeId="boo-sand-art-tool-set"
+                imageSrc={SCENES.booSandArtTools}
+                imageAlt={ITEMS["boo-sand-art-tool-set"].artDescription}
+              />
+            )}
+
             <section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Workshop Mini-Game</p>
               <h2 id="wind-chime-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🎐 Wind Chime Workshop</h2>
@@ -721,7 +737,8 @@ export default function Workshop() {
               <div className="p-4">
                 <p className="text-sm text-orange-50">Build five layers in any order, add an optional shoreline treasure, name the bottle, and save it for display or sell it to Seaweed.</p>
                 {!state.sandbarsUnlocked && <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm font-semibold text-orange-100">Unlock the Shifting Sandbars and meet Boo before opening the custom studio.</p>}
-                <button ref={customSandArtButtonRef} type="button" disabled={!state.sandbarsUnlocked} onClick={() => setCustomSandArtOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-orange-400 px-4 py-3 font-bold text-slate-950 shadow active:bg-orange-300 disabled:bg-slate-600 disabled:text-slate-300">Open Custom Bottle Studio</button>
+                {state.sandbarsUnlocked && !state.booToolSetDelivered && <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm font-semibold text-orange-100">Craft Boo&apos;s Sand Art Tool Set in the Crafting tab, then deliver it at his Sandbar home.</p>}
+                <button ref={customSandArtButtonRef} type="button" disabled={!state.sandbarsUnlocked || !state.booToolSetDelivered} onClick={() => setCustomSandArtOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-orange-400 px-4 py-3 font-bold text-slate-950 shadow active:bg-orange-300 disabled:bg-slate-600 disabled:text-slate-300">{state.booToolSetDelivered ? "Open Custom Bottle Studio" : "Boo's Tools Needed"}</button>
               </div>
             </section>
             <h2 className="mb-3 font-serif text-lg font-bold text-pink-950">Kaiana&apos;s Signature Designs</h2>

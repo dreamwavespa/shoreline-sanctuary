@@ -130,6 +130,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "sand-snow-white": { id: "sand-snow-white", name: "Snow-White Sand", category: "raw", icon: "⚪", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-pumpkin-orange": { id: "sand-pumpkin-orange", name: "Pumpkin Orange Sand", category: "raw", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "driftwood" },
   "sand-candy-corn-swirl": { id: "sand-candy-corn-swirl", name: "Candy Corn Swirl Sand", category: "raw", icon: "🍬", isEmoji: true, rarity: "rare", sfx: "shell" },
+  "boo-sand-art-tool-set": { id: "boo-sand-art-tool-set", name: "Boo's Sand Art Tool Set", category: "special", icon: "/images/boo-sand-art-tools.jpeg", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Boo's handmade sand art tools: an orange striped scoop, two pale green bone-handled shovels and sieves, and a small funnel, arranged against driftwood on the sand." },
   "salt-crystal-pink": { id: "salt-crystal-pink", name: "Raw Pink Salt Crystal", category: "raw", icon: "🧂", isEmoji: true, rarity: "uncommon", sfx: "salt" },
   "firefly-jar": { id: "firefly-jar", name: "Glowing Firefly Jar", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "sea-water": { id: "sea-water", name: "Jar of Sea Water", category: "raw", icon: "💧", isEmoji: true, rarity: "common", sfx: "liquidBottle" },

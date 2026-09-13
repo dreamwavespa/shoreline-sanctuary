@@ -124,6 +124,7 @@ interface GameState {
   customJewelry: CustomJewelryPiece[];
   customSandBottles: CustomSandBottle[];
   booSandClaimDate: string;
+  booToolSetDelivered: boolean;
   honeybellStage: number;
   beeWaxClaimDate: string;
   beeLastVisitAt: number;
@@ -192,6 +193,7 @@ const DEFAULT_STATE: GameState = {
   customJewelry: [],
   customSandBottles: [],
   booSandClaimDate: "",
+  booToolSetDelivered: false,
   honeybellStage: 0,
   beeWaxClaimDate: "",
   beeLastVisitAt: 0,
@@ -297,6 +299,7 @@ interface Ctx {
   toggleCustomJewelryFavorite: (pieceId: string) => void;
   sellCustomJewelry: (pieceId: string) => boolean;
   claimBooSand: (itemId: string) => boolean;
+  deliverBooToolSet: () => boolean;
   createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string) => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
@@ -351,6 +354,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           sandDollars,
           rainBarrelLevel,
           groveNurseryAvailable: parsed.groveNurseryAvailable ?? parsed.currentForecast?.id === "storm",
+          booToolSetDelivered: parsed.booToolSetDelivered ?? (Array.isArray(parsed.customSandBottles) && parsed.customSandBottles.length > 0),
           notebookDiscovered: collectedSandDollars > 0
             ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
             : { ...(parsed.notebookDiscovered || {}) },
@@ -1274,7 +1278,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const claimBooSand = (itemId: string) => {
     const today = localDateKey();
-    if (!stateRef.current.sandbarsUnlocked || !isBooOctober() || stateRef.current.booSandClaimDate === today || !(BOO_SAND_IDS as readonly string[]).includes(itemId)) return false;
+    if (!stateRef.current.sandbarsUnlocked || !stateRef.current.booToolSetDelivered || !isBooOctober() || stateRef.current.booSandClaimDate === today || !(BOO_SAND_IDS as readonly string[]).includes(itemId)) return false;
     setState((s) => ({
       ...s,
       booSandClaimDate: today,
@@ -1282,6 +1286,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
     play(ITEMS[itemId].sfx);
     toast(`Boo shared 3 scoops of ${ITEMS[itemId].name}!`);
+    return true;
+  };
+
+  const deliverBooToolSet = () => {
+    if (!stateRef.current.sandbarsUnlocked || stateRef.current.booToolSetDelivered || (stateRef.current.inventory["boo-sand-art-tool-set"] || 0) < 1) return false;
+    setState((s) => ({
+      ...s,
+      booToolSetDelivered: true,
+      inventory: { ...s.inventory, "boo-sand-art-tool-set": Math.max(0, (s.inventory["boo-sand-art-tool-set"] || 0) - 1) },
+    }));
+    play("craftSuccess");
+    toast("Boo clicks his new tools together. His Custom Bottle Studio is open!");
     return true;
   };
 
@@ -1404,6 +1420,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       toggleCustomJewelryFavorite,
       sellCustomJewelry,
       claimBooSand,
+      deliverBooToolSet,
       createCustomSandBottle,
       toggleCustomSandBottleFavorite,
       sellCustomSandBottle,
