@@ -8,6 +8,7 @@ export interface ItemDef {
   isEmoji?: boolean;
   rarity: "common" | "uncommon" | "rare";
   sfx: string;
+  glows?: boolean;
 }
 
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
@@ -140,6 +141,17 @@ export const ITEMS: Record<string, ItemDef> = {
   "tarnished-compass": { id: "tarnished-compass", name: "Tarnished Compass", category: "special", icon: "🧭", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "locket": { id: "locket", name: "Antique Locket", category: "special", icon: "📿", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
   "carnelian": { id: "carnelian", name: "Deep-Sea Carnelian", category: "special", icon: "🔺", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "moonstone-moon": { id: "moonstone-moon", name: "Glowing Moonstone Moon", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "carnelian-heart": { id: "carnelian-heart", name: "Carnelian Heart", category: "special", icon: "🧡", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "blueprint-beach-hut": { id: "blueprint-beach-hut", name: "Beach Hut Blueprints", category: "special", icon: "📐", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "blueprint-library": { id: "blueprint-library", name: "Library Blueprints", category: "special", icon: "📚", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "map-underwater-crystal-cave": { id: "map-underwater-crystal-cave", name: "Underwater Crystal Cave Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "pearl-rainbow": { id: "pearl-rainbow", name: "Rainbow Pearl", category: "pearl", icon: "🌈", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "pearl-gold": { id: "pearl-gold", name: "Gold Pearl", category: "pearl", icon: "🟡", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "pearl-glow-dark": { id: "pearl-glow-dark", name: "Glow-in-the-Dark Pearl", category: "pearl", icon: "⚪", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "glass-aquamarine-glow": { id: "glass-aquamarine-glow", name: "Glowing Aquamarine Sea Glass", category: "glass", icon: "💎", isEmoji: true, rarity: "rare", sfx: "seaGlass", glows: true },
+  "gold-world-globe": { id: "gold-world-globe", name: "Gold World Globe", category: "special", icon: "🌐", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "bag-old-coins": { id: "bag-old-coins", name: "Bag of Old Coins", category: "special", icon: "💰", isEmoji: true, rarity: "rare", sfx: "sandDollarCoin" },
   "moss-agate": { id: "moss-agate", name: "Moss Agate Cluster", category: "special", icon: "🟢", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
   "coral-bulb": { id: "coral-bulb", name: "Coral Bulb", category: "raw", icon: "🪸", isEmoji: true, rarity: "common", sfx: "driftwood" },
   "sea-berry": { id: "sea-berry", name: "Sea Berry", category: "food", icon: "🫐", isEmoji: true, rarity: "common", sfx: "shell" },

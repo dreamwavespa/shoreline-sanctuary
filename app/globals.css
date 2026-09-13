@@ -192,3 +192,14 @@
   .rain-barrel-ripple,
   .rain-barrel-sparkle { animation: none; }
 }
+
+@keyframes chestTreasureGlow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgb(186 230 253 / 0.7)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 14px rgb(103 232 249 / 1)); transform: scale(1.08); }
+}
+
+.chest-treasure-glow { animation: chestTreasureGlow 2.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chest-treasure-glow { animation: none; filter: drop-shadow(0 0 9px rgb(103 232 249 / 0.9)); }
+}

@@ -165,6 +165,22 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
 };
 
 const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];
+const DAILY_CHEST_TREASURES = [
+  "trophy-map",
+  "salvage-spyglass",
+  "magnifying-glass",
+  "moonstone-moon",
+  "carnelian-heart",
+  "blueprint-beach-hut",
+  "blueprint-library",
+  "map-underwater-crystal-cave",
+  "pearl-rainbow",
+  "pearl-gold",
+  "pearl-glow-dark",
+  "glass-aquamarine-glow",
+  "gold-world-globe",
+  "bag-old-coins",
+];
 
 interface Ctx {
   state: GameState;
@@ -516,8 +532,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const searchChest = () => {
     const today = getShopDateKey();
     if (!stateRef.current.chestOpened || stateRef.current.chestDailyClaimDate === today) return null;
-    const dailyTreasures = ["trophy-map", "salvage-spyglass", "magnifying-glass"];
-    const itemId = dailyTreasures[Math.floor(Math.random() * dailyTreasures.length)];
+    const undiscoveredTreasures = DAILY_CHEST_TREASURES.filter(
+      (treasureId) => !stateRef.current.notebookDiscovered[treasureId]
+    );
+    const treasurePool = undiscoveredTreasures.length ? undiscoveredTreasures : DAILY_CHEST_TREASURES;
+    const itemId = treasurePool[Math.floor(Math.random() * treasurePool.length)];
     setState((s) => ({
       ...s,
       inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },

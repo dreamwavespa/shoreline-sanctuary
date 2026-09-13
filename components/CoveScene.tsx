@@ -32,6 +32,20 @@ const CHEST_COST = [
   { itemId: "pearl-blue", count: 2 },
 ];
 
+const CHEST_TREASURE_NOTES: Record<string, string> = {
+  "moonstone-moon": "A crescent-shaped moonstone that gives off a soft silver glow.",
+  "carnelian-heart": "A warm orange-red gemstone polished into a tiny heart.",
+  "blueprint-beach-hut": "Plans for a cozy beach hut—a clue for a future sanctuary expansion.",
+  "blueprint-library": "Detailed plans for a quiet island library—a future expansion waiting to be built.",
+  "map-underwater-crystal-cave": "A water-worn map marking the entrance to a future underwater crystal cave.",
+  "pearl-rainbow": "A rare pearl whose colors shift like a rainbow in sunlight.",
+  "pearl-gold": "A lustrous pearl with a rich golden sheen.",
+  "pearl-glow-dark": "A pale pearl that glows softly after the surrounding light fades.",
+  "glass-aquamarine-glow": "Aquamarine sea glass with a mysterious light shining from within.",
+  "gold-world-globe": "A tiny old-world globe etched in gold, with islands picked out along its surface.",
+  "bag-old-coins": "A weathered pouch filled with old coins from distant ports.",
+};
+
 function ChestCard() {
   const { state, openChest, searchChest, hasEnough } = useGame();
   const [todayKey, setTodayKey] = useState("");
@@ -54,9 +68,18 @@ function ChestCard() {
         </p>
         <div className="mt-4 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
           <p className="font-semibold text-amber-900">Daily Chest Treasure</p>
-          <p className="mt-1 text-sm text-amber-700">Search once each day for an Old Nautical Map, Captain&apos;s Spyglass, or Brass Magnifying Glass.</p>
+          <p className="mt-1 text-sm text-amber-700">Search once each day for glowing gems, rare pearls, old-world curios, or plans pointing toward future sanctuary expansions.</p>
           {claimedToday && dailyFind && (
-            <p role="status" className="mt-2 text-sm font-semibold text-emerald-800">Today&apos;s find: {dailyFind.icon} {dailyFind.name}</p>
+            <div role="status" className="mt-3 rounded-xl bg-emerald-50 p-3 text-emerald-900 ring-1 ring-emerald-200">
+              <span
+                aria-hidden="true"
+                className={`inline-block text-4xl ${dailyFind.glows ? "chest-treasure-glow" : ""}`}
+              >
+                {dailyFind.icon}
+              </span>
+              <p className="mt-1 text-sm font-bold">Today&apos;s find: {dailyFind.name}</p>
+              {CHEST_TREASURE_NOTES[dailyFind.id] && <p className="mt-1 text-sm">{CHEST_TREASURE_NOTES[dailyFind.id]}</p>}
+            </div>
           )}
           <button
             type="button"

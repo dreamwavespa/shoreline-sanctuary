@@ -59,9 +59,9 @@ export default function BucketPanel() {
             <div key={id} className="flex flex-col items-center bg-white/80 rounded-xl p-2 shadow-sm ring-1 ring-amber-100">
               <div className="w-10 h-10 flex items-center justify-center">
                 {def.isEmoji ? (
-                  <span className="text-2xl">{def.icon}</span>
+                  <span className={`text-2xl ${def.glows ? "chest-treasure-glow" : ""}`}>{def.icon}</span>
                 ) : (
-                  <Image src={def.icon} alt={def.name} width={40} height={40} unoptimized className="object-contain" />
+                  <Image src={def.icon} alt={def.name} width={40} height={40} unoptimized className={`object-contain ${def.glows ? "chest-treasure-glow" : ""}`} />
                 )}
               </div>
               <span className="text-[10px] text-amber-800 text-center mt-1 leading-tight">{def.name}</span>
