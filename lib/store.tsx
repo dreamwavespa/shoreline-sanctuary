@@ -7,6 +7,7 @@ import { VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
+import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -49,6 +50,16 @@ export interface CustomJewelryPiece {
   kind: JewelryKind;
   name: string;
   materials: string[];
+  value: number;
+  favorite: boolean;
+  createdAt: number;
+}
+
+export interface CustomSandBottle {
+  id: string;
+  name: string;
+  layers: string[];
+  accentId: string | null;
   value: number;
   favorite: boolean;
   createdAt: number;
@@ -111,6 +122,8 @@ interface GameState {
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
   customJewelry: CustomJewelryPiece[];
+  customSandBottles: CustomSandBottle[];
+  booSandClaimDate: string;
   honeybellStage: number;
   beeWaxClaimDate: string;
   beeLastVisitAt: number;
@@ -177,6 +190,8 @@ const DEFAULT_STATE: GameState = {
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
   customJewelry: [],
+  customSandBottles: [],
+  booSandClaimDate: "",
   honeybellStage: 0,
   beeWaxClaimDate: "",
   beeLastVisitAt: 0,
@@ -281,6 +296,10 @@ interface Ctx {
   createCustomJewelry: (kind: JewelryKind, materials: string[], name?: string) => { ok: boolean; piece?: CustomJewelryPiece };
   toggleCustomJewelryFavorite: (pieceId: string) => void;
   sellCustomJewelry: (pieceId: string) => boolean;
+  claimBooSand: (itemId: string) => boolean;
+  createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string) => { ok: boolean; bottle?: CustomSandBottle };
+  toggleCustomSandBottleFavorite: (bottleId: string) => void;
+  sellCustomSandBottle: (bottleId: string) => boolean;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -1253,6 +1272,57 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const claimBooSand = (itemId: string) => {
+    const today = localDateKey();
+    if (!stateRef.current.sandbarsUnlocked || !isBooOctober() || stateRef.current.booSandClaimDate === today || !(BOO_SAND_IDS as readonly string[]).includes(itemId)) return false;
+    setState((s) => ({
+      ...s,
+      booSandClaimDate: today,
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 3 },
+    }));
+    play(ITEMS[itemId].sfx);
+    toast(`Boo shared 3 scoops of ${ITEMS[itemId].name}!`);
+    return true;
+  };
+
+  const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string) => {
+    if (layers.length !== 5 || layers.some((id) => !(CUSTOM_SAND_IDS as readonly string[]).includes(id)) || (accentId && !(CUSTOM_SAND_ACCENT_IDS as readonly string[]).includes(accentId))) return { ok: false };
+    const costs: Record<string, number> = { "empty-glass-bottle": 1 };
+    for (const layer of layers) costs[layer] = (costs[layer] || 0) + 1;
+    if (accentId) costs[accentId] = (costs[accentId] || 0) + 1;
+    if (Object.entries(costs).some(([itemId, count]) => (stateRef.current.inventory[itemId] || 0) < count)) return { ok: false };
+    const bottle: CustomSandBottle = {
+      id: `sand-bottle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: requestedName?.trim().slice(0, 50) || defaultSandBottleName(layers),
+      layers: [...layers],
+      accentId,
+      value: calculateSandBottleValue(layers, accentId),
+      favorite: false,
+      createdAt: Date.now(),
+    };
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      for (const [itemId, count] of Object.entries(costs)) inventory[itemId] = Math.max(0, (inventory[itemId] || 0) - count);
+      return { ...s, inventory, customSandBottles: [...s.customSandBottles, bottle] };
+    });
+    play("craftSuccess");
+    toast(`${bottle.name} completed!`);
+    return { ok: true, bottle };
+  };
+
+  const toggleCustomSandBottleFavorite = (bottleId: string) => {
+    setState((s) => ({ ...s, customSandBottles: s.customSandBottles.map((bottle) => bottle.id === bottleId ? { ...bottle, favorite: !bottle.favorite } : bottle) }));
+  };
+
+  const sellCustomSandBottle = (bottleId: string) => {
+    const bottle = stateRef.current.customSandBottles.find((candidate) => candidate.id === bottleId);
+    if (!bottle || bottle.favorite) return false;
+    setState((s) => ({ ...s, customSandBottles: s.customSandBottles.filter((candidate) => candidate.id !== bottleId), sandDollars: s.sandDollars + bottle.value }));
+    play("sandDollarCoin");
+    toast(`Seaweed paid ${bottle.value} Sand Dollars for ${bottle.name}.`);
+    return true;
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -1333,6 +1403,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       createCustomJewelry,
       toggleCustomJewelryFavorite,
       sellCustomJewelry,
+      claimBooSand,
+      createCustomSandBottle,
+      toggleCustomSandBottleFavorite,
+      sellCustomSandBottle,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

@@ -7,6 +7,7 @@ import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import SandcastleArchitect from "./SandcastleArchitect";
+import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 
 interface Spot {
   key: string;
@@ -106,15 +107,23 @@ function RaftCard() {
 }
 
 export default function SandbarsScene() {
-  const { state, collectItem } = useGame();
+  const { state, collectItem, claimBooSand } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
+  const [booMessage, setBooMessage] = useState("");
   const sandcastleButtonRef = useRef<HTMLButtonElement>(null);
   const earlierSandcastles = Math.max(
     0,
     (state.inventory["sandcastle-masterpiece"] || 0) - state.sandcastleGallery.length
   );
+  const booColorsAvailable = isBooOctober();
+  const booClaimedToday = state.booSandClaimDate === localDateKey();
+
+  const chooseBooSand = (itemId: string) => {
+    if (!claimBooSand(itemId)) return;
+    setBooMessage(`Boo pours three scoops of ${ITEMS[itemId].name} into a travel pouch for you.`);
+  };
 
   useEffect(() => {
     setSpots(randomSpots(6));
@@ -178,6 +187,29 @@ export default function SandbarsScene() {
 
       <div className="px-4 pt-4 space-y-3">
         <RaftCard />
+
+        <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
+          <div className="relative h-44">
+            <Image src={SCENES.booSandArt} alt="Boo, a white ghost crab wearing an orange-and-black hat, beside colorful sand bottles at his moonlit Sandbar stall" fill unoptimized sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/15 to-transparent" />
+            <div className="absolute bottom-3 left-4 right-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-orange-200">Sandbar Resident</p>
+              <h2 id="boo-sand-heading" className="font-serif text-xl font-bold">👻 Boo the Ghost Crab</h2>
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="text-sm text-orange-50">Boo helps Kaiana with custom sand art and saves his rarest colors for October.</p>
+            <p role="status" aria-live="polite" className="mt-2 text-sm font-semibold text-orange-200">
+              {booMessage || (booColorsAvailable
+                ? booClaimedToday ? "Today’s rare sand bundle has already been collected. Boo will prepare another tomorrow." : "Choose one October color. Boo will share three scoops today."
+                : "Pumpkin Orange and Candy Corn Swirl sand return October 1. Sand already in your collection can still be used year-round.")}
+            </p>
+            {booColorsAvailable && !booClaimedToday && <div className="mt-3 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => chooseBooSand("sand-pumpkin-orange")} className="min-h-14 rounded-xl bg-orange-600 px-3 py-3 text-sm font-bold text-white active:bg-orange-700">🎃 Choose Pumpkin Orange</button>
+              <button type="button" onClick={() => chooseBooSand("sand-candy-corn-swirl")} className="min-h-14 rounded-xl bg-amber-100 px-3 py-3 text-sm font-bold text-slate-950 active:bg-amber-200">🍬 Choose Candy Corn Swirl</button>
+            </div>}
+          </div>
+        </section>
 
         <section aria-labelledby="sandcastle-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Sandbar Mini-Game</p>

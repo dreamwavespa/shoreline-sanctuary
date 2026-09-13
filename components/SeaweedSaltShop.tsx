@@ -27,7 +27,7 @@ function ItemIcon({ itemId }: { itemId: string }) {
 }
 
 export default function SeaweedSaltShop() {
-  const { state, setScreen, setMusicOverride, play, buyFromSeaweed, sellToSeaweed, sellCustomJewelry, toggleCustomJewelryFavorite } = useGame();
+  const { state, setScreen, setMusicOverride, play, buyFromSeaweed, sellToSeaweed, sellCustomJewelry, toggleCustomJewelryFavorite, sellCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
   const [section, setSection] = useState<ShopSection>("buy");
   const [discoveryRevealed, setDiscoveryRevealed] = useState(false);
   const [talkIndex, setTalkIndex] = useState(0);
@@ -162,7 +162,7 @@ export default function SeaweedSaltShop() {
           <section aria-labelledby="shop-sell-heading">
             <h2 id="shop-sell-heading" className="font-serif text-2xl font-bold">Sell to Seaweed</h2>
             <p className="mt-1 text-sm text-stone-700">Seaweed buys one item at a time, including bottled Rose Milk, extra workshop décor, wind chimes, and sand-art bottles, so you always know what remains in your collection.</p>
-            {sellable.length === 0 && state.customJewelry.length === 0 ? (
+            {sellable.length === 0 && state.customJewelry.length === 0 && state.customSandBottles.length === 0 ? (
               <div className="mt-3 rounded-2xl border border-dashed border-stone-400 bg-white/70 p-5 text-center">
                 <p className="font-bold">Nothing ready to trade yet.</p>
                 <p className="mt-1 text-sm text-stone-600">Search the beach, tide pool, or cove for shoreline goods.</p>
@@ -213,6 +213,31 @@ export default function SeaweedSaltShop() {
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <button type="button" onClick={() => toggleCustomJewelryFavorite(piece.id)} aria-pressed={piece.favorite} className="min-h-11 rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{piece.favorite ? "Unfavorite" : "Favorite"}</button>
                             <button type="button" disabled={piece.favorite} onClick={() => sellCustomJewelry(piece.id)} aria-label={piece.favorite ? `${piece.name} is favorited and protected from sale.` : `Sell ${piece.name} for ${piece.value} Sand Dollars.`} className="min-h-11 rounded-xl bg-purple-700 px-3 py-2 text-sm font-bold text-white disabled:bg-purple-200 disabled:text-purple-600">Sell · 🪙 {piece.value}</button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {state.customSandBottles.length > 0 && (
+                  <section aria-labelledby="custom-sand-sales-heading" className="rounded-2xl border border-orange-300 bg-orange-50 p-4">
+                    <h3 id="custom-sand-sales-heading" className="font-serif text-xl font-bold text-orange-950">Kaiana &amp; Boo&apos;s Custom Bottles</h3>
+                    <p className="mt-1 text-sm text-orange-800">Seaweed values the colors, pattern, and optional treasure in each bottle. Favorites are protected from sale.</p>
+                    <div className="mt-3 space-y-3">
+                      {state.customSandBottles.map((bottle) => (
+                        <article key={bottle.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-orange-200">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h4 className="font-bold text-orange-950">{bottle.name}</h4>
+                              <p className="text-xs text-orange-700">Five layers{bottle.accentId ? ` · ${ITEMS[bottle.accentId]?.name} accent` : " · no accent"}</p>
+                            </div>
+                            <span className="text-2xl" aria-hidden="true">{bottle.favorite ? "⭐" : "🏺"}</span>
+                          </div>
+                          <p className="mt-2 text-sm text-stone-700">{bottle.layers.map((itemId) => ITEMS[itemId]?.name).join(", ")}</p>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <button type="button" onClick={() => toggleCustomSandBottleFavorite(bottle.id)} aria-pressed={bottle.favorite} className="min-h-11 rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{bottle.favorite ? "Unfavorite" : "Favorite"}</button>
+                            <button type="button" disabled={bottle.favorite} onClick={() => sellCustomSandBottle(bottle.id)} aria-label={bottle.favorite ? `${bottle.name} is favorited and protected from sale.` : `Sell ${bottle.name} for ${bottle.value} Sand Dollars.`} className="min-h-11 rounded-xl bg-orange-700 px-3 py-2 text-sm font-bold text-white disabled:bg-orange-200 disabled:text-orange-700">Sell · 🪙 {bottle.value}</button>
                           </div>
                         </article>
                       ))}

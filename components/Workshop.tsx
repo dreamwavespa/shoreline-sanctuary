@@ -9,6 +9,7 @@ import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
 import PicnicPacking from "./PicnicPacking";
 import JewelryCounter from "./JewelryCounter";
+import CustomSandArtStudio from "./CustomSandArtStudio";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -495,9 +496,11 @@ export default function Workshop() {
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
   const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
+  const [customSandArtOpen, setCustomSandArtOpen] = useState(false);
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
   const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
   const jewelryCounterButtonRef = useRef<HTMLButtonElement>(null);
+  const customSandArtButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeWindChime = () => {
     setWindChimeOpen(false);
@@ -512,6 +515,11 @@ export default function Workshop() {
   const closeJewelryCounter = () => {
     setJewelryCounterOpen(false);
     window.setTimeout(() => jewelryCounterButtonRef.current?.focus(), 0);
+  };
+
+  const closeCustomSandArt = () => {
+    setCustomSandArtOpen(false);
+    window.setTimeout(() => customSandArtButtonRef.current?.focus(), 0);
   };
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
@@ -700,7 +708,25 @@ export default function Workshop() {
             />
           </>
         ) : (
-          <SandArtStudio />
+          <>
+            <section aria-labelledby="custom-sand-art-heading" className="mb-4 overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
+              <div className="relative h-40">
+                <Image src={SCENES.booSandArt} alt="Boo the ghost crab at his moonlit Sandbar stall with colorful sand art bottles" fill unoptimized sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <div className="absolute bottom-3 left-4 right-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-orange-200">Kaiana &amp; Boo&apos;s Creative Activity</p>
+                  <h2 id="custom-sand-art-heading" className="font-serif text-xl font-bold">🏺 Custom Sand Art Bottles</h2>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-sm text-orange-50">Build five layers in any order, add an optional shoreline treasure, name the bottle, and save it for display or sell it to Seaweed.</p>
+                {!state.sandbarsUnlocked && <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm font-semibold text-orange-100">Unlock the Shifting Sandbars and meet Boo before opening the custom studio.</p>}
+                <button ref={customSandArtButtonRef} type="button" disabled={!state.sandbarsUnlocked} onClick={() => setCustomSandArtOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-orange-400 px-4 py-3 font-bold text-slate-950 shadow active:bg-orange-300 disabled:bg-slate-600 disabled:text-slate-300">Open Custom Bottle Studio</button>
+              </div>
+            </section>
+            <h2 className="mb-3 font-serif text-lg font-bold text-pink-950">Kaiana&apos;s Signature Designs</h2>
+            <SandArtStudio />
+          </>
         )}
       </div>
 
@@ -708,6 +734,7 @@ export default function Workshop() {
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
       {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
+      {customSandArtOpen && <CustomSandArtStudio onClose={closeCustomSandArt} />}
     </div>
   );
 }

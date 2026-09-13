@@ -128,6 +128,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
   "sand-snow-white": { id: "sand-snow-white", name: "Snow-White Sand", category: "raw", icon: "⚪", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "sand-pumpkin-orange": { id: "sand-pumpkin-orange", name: "Pumpkin Orange Sand", category: "raw", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "driftwood" },
+  "sand-candy-corn-swirl": { id: "sand-candy-corn-swirl", name: "Candy Corn Swirl Sand", category: "raw", icon: "🍬", isEmoji: true, rarity: "rare", sfx: "shell" },
   "salt-crystal-pink": { id: "salt-crystal-pink", name: "Raw Pink Salt Crystal", category: "raw", icon: "🧂", isEmoji: true, rarity: "uncommon", sfx: "salt" },
   "firefly-jar": { id: "firefly-jar", name: "Glowing Firefly Jar", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "sea-water": { id: "sea-water", name: "Jar of Sea Water", category: "raw", icon: "💧", isEmoji: true, rarity: "common", sfx: "liquidBottle" },

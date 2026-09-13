@@ -33,6 +33,7 @@ export const SCENES = {
   coconutGroveRecipes: "/images/coconut-grove-recipe-cards.jpeg",
   hiddenGroveNursery: "/images/hidden-grove-nursery.png",
   jewelryCounter: "/images/jewelry-counter.jpeg",
+  booSandArt: "/images/boo-sand-art.jpeg",
 };
 
 export const MUSIC = {
