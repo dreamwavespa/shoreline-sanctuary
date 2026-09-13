@@ -5,6 +5,7 @@ import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
+import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -92,6 +93,7 @@ interface GameState {
   tidePoolSearchesCompleted: number;
   sandDollars: number;
   seaweedDiscoveryPurchases: string[];
+  foundBottleMessages: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -147,6 +149,7 @@ const DEFAULT_STATE: GameState = {
   tidePoolSearchesCompleted: 0,
   sandDollars: 8,
   seaweedDiscoveryPurchases: [],
+  foundBottleMessages: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -164,7 +167,7 @@ const SCREEN_ZONE: Record<Screen, Zone> = {
   grove: "beach",
 };
 
-const SEAGULL_LOOT_TABLE = ["empty-glass-bottle", "shiny-soda-tab", "glass-purple"];
+const SEAGULL_LOOT_TABLE = ["sealed-frosted-bottle", "shiny-soda-tab", "glass-purple"];
 const DAILY_CHEST_TREASURES = [
   "trophy-map",
   "salvage-spyglass",
@@ -237,6 +240,7 @@ interface Ctx {
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
+  inspectFoundBottle: () => { messageId: string; bonusItemId: string | null } | null;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -972,6 +976,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     toast("Collected 1 Jar of Sea Water at the ocean's edge!");
   };
 
+  const inspectFoundBottle = () => {
+    if ((stateRef.current.inventory["sealed-frosted-bottle"] || 0) < 1) return null;
+    const unreadMessages = FOUND_BOTTLE_MESSAGES.filter(
+      (message) => !stateRef.current.foundBottleMessages.includes(message.id)
+    );
+    const messagePool = unreadMessages.length ? unreadMessages : FOUND_BOTTLE_MESSAGES;
+    const message = messagePool[Math.floor(Math.random() * messagePool.length)];
+    const bonusItemId = Math.random() < 0.35
+      ? FOUND_BOTTLE_BONUSES[Math.floor(Math.random() * FOUND_BOTTLE_BONUSES.length)]
+      : null;
+
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      inventory["sealed-frosted-bottle"] = Math.max(0, (inventory["sealed-frosted-bottle"] || 0) - 1);
+      inventory["empty-glass-bottle"] = (inventory["empty-glass-bottle"] || 0) + 1;
+      if (bonusItemId) inventory[bonusItemId] = (inventory[bonusItemId] || 0) + 1;
+      return {
+        ...s,
+        inventory,
+        foundBottleMessages: s.foundBottleMessages.includes(message.id)
+          ? s.foundBottleMessages
+          : [...s.foundBottleMessages, message.id],
+      };
+    });
+    playBottleSequence();
+    toast(bonusItemId ? `A message and ${ITEMS[bonusItemId].name} were inside!` : "A message was tucked inside the bottle!");
+    return { messageId: message.id, bonusItemId };
+  };
+
   const buyFromSeaweed = (itemId: string, discoveryDate?: string) => {
     const regular = SHOP_STOCK.find((item) => item.itemId === itemId);
     const discovery = SEAWEED_DISCOVERIES.find((item) => item.itemId === itemId);
@@ -1078,6 +1111,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       buyFromSeaweed,
       sellToSeaweed,
       collectSeaWater,
+      inspectFoundBottle,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

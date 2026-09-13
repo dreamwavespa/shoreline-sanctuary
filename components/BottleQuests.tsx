@@ -5,10 +5,18 @@ import { QuestDef, QUESTS } from "@/lib/quests";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
+import { FOUND_BOTTLE_MESSAGES } from "@/lib/bottleFinds";
 
 export default function BottleQuests() {
-  const { state, claimQuest, hasEnough, playBottleSequence, setMusicOverride } = useGame();
+  const { state, claimQuest, hasEnough, inspectFoundBottle, playBottleSequence, setMusicOverride } = useGame();
   const [openId, setOpenId] = useState<string | null>(null);
+  const [latestFind, setLatestFind] = useState<{ messageId: string; bonusItemId: string | null } | null>(null);
+  const sealedBottleCount = state.inventory["sealed-frosted-bottle"] || 0;
+  const emptyBottleCount = state.inventory["empty-glass-bottle"] || 0;
+  const latestMessage = latestFind
+    ? FOUND_BOTTLE_MESSAGES.find((message) => message.id === latestFind.messageId)
+    : null;
+  const journalMessages = FOUND_BOTTLE_MESSAGES.filter((message) => state.foundBottleMessages.includes(message.id));
 
   useEffect(() => {
     setMusicOverride("bottles");
@@ -36,6 +44,58 @@ export default function BottleQuests() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
       </div>
       <div className="px-4 -mt-4 relative space-y-3">
+        <section aria-labelledby="found-bottles-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-5 shadow-md ring-1 ring-cyan-300">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Found Along the Tide Line</p>
+          <h2 id="found-bottles-heading" className="mt-1 font-serif text-xl font-bold text-amber-950">🍾 Sealed Frosted Bottles</h2>
+          <p className="mt-1 text-sm text-amber-800">
+            Check each sealed bottle for a note and an occasional tucked-away treasure. After opening, the empty bottle can be used for sand art.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm">
+            <div className="rounded-xl bg-white/80 p-3 ring-1 ring-cyan-200">
+              <p className="font-bold text-teal-900">{sealedBottleCount}</p>
+              <p className="text-xs text-teal-700">Sealed to check</p>
+            </div>
+            <div className="rounded-xl bg-white/80 p-3 ring-1 ring-amber-200">
+              <p className="font-bold text-amber-900">{emptyBottleCount}</p>
+              <p className="text-xs text-amber-700">Empty for crafting</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled={sealedBottleCount < 1}
+            onClick={() => {
+              const result = inspectFoundBottle();
+              if (result) setLatestFind(result);
+            }}
+            className="mt-3 min-h-12 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white shadow active:bg-teal-800 disabled:bg-teal-200 disabled:text-teal-600"
+          >
+            {sealedBottleCount > 0 ? "Open a Sealed Bottle" : "No Sealed Bottles to Check"}
+          </button>
+
+          {latestMessage && (
+            <div role="status" aria-live="polite" className="mt-4 rounded-xl bg-white p-4 text-left shadow-inner ring-1 ring-amber-200">
+              <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Message Inside</p>
+              <p className="mt-2 font-serif text-lg leading-relaxed text-slate-800">“{latestMessage.text}”</p>
+              {latestFind?.bonusItemId && (
+                <p className="mt-3 font-bold text-emerald-800">
+                  Bonus find: {ITEMS[latestFind.bonusItemId].icon} {ITEMS[latestFind.bonusItemId].name}
+                </p>
+              )}
+              <p className="mt-2 text-xs text-teal-700">The checked bottle is now available for sand-art crafting.</p>
+            </div>
+          )}
+
+          {journalMessages.length > 0 && (
+            <details className="mt-4 rounded-xl bg-white/75 p-3 ring-1 ring-cyan-200">
+              <summary className="cursor-pointer font-bold text-teal-900">
+                Bottle Message Journal ({journalMessages.length}/{FOUND_BOTTLE_MESSAGES.length})
+              </summary>
+              <ol className="mt-3 space-y-3 pl-5 text-sm text-slate-700">
+                {journalMessages.map((message) => <li key={message.id}>{message.text}</li>)}
+              </ol>
+            </details>
+          )}
+        </section>
         {state.gameCompleted && (
           <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-teal-100 p-5 shadow-md ring-1 ring-amber-300 text-center mb-2">
             <p className="text-3xl mb-1">🎉</p>
