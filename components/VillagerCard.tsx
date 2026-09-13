@@ -5,6 +5,7 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { VillagerDef } from "@/lib/villagers";
 import { ScheduleStatus } from "@/lib/schedule";
+import { getTravelingMerchantStock } from "@/lib/travelingMerchants";
 
 const RING_BY_GROUP: Record<string, string> = {
   "sea-glass-sister": "ring-indigo-200",
@@ -41,11 +42,14 @@ export default function VillagerCard({
   /** For traveling/special villagers only — omit for always-available ones. */
   schedule?: ScheduleStatus | null;
 }) {
-  const { state, giftVillager } = useGame();
+  const { state, giftVillager, buyFromTraveler } = useGame();
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
   const giftCount = state.villagerGiftCounts[villager.id] || 0;
+  const merchantId: "shelldon" | "shelby" | null =
+    villager.id === "shelldon" || villager.id === "shelby" ? villager.id : null;
+  const merchantStock = merchantId ? getTravelingMerchantStock(merchantId) : [];
 
   const availableGifts = villager.gift.lovedGiftIds
     .map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] }))
@@ -91,6 +95,46 @@ export default function VillagerCard({
         <div className="px-4 pb-4 border-t border-amber-100 pt-3 space-y-3">
           <p className="text-xs text-amber-700">{villager.personality}</p>
           <p className="text-xs text-amber-700">{villager.gameplay}</p>
+
+          {merchantId && !isAway && (
+            <section aria-label={`${villager.name}'s current stock`} className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-amber-950">Current Traveling Stock</h3>
+                <span className="text-xs font-semibold text-amber-800">🪙 {state.sandDollars}</span>
+              </div>
+              <p className="mb-3 text-xs text-amber-700">
+                {villager.id === "shelldon" ? "This selection changes each Shelldon Sunday." : "Shelby unloads one rare expansion blueprint each time the Trading Ship docks."}
+              </p>
+              <div className="space-y-2">
+                {merchantStock.map((listing) => {
+                  const item = ITEMS[listing.itemId];
+                  if (!item) return null;
+                  const owned = listing.kind === "blueprint" && state.blueprints.includes(listing.itemId);
+                  const count = state.inventory[listing.itemId] || 0;
+                  return (
+                    <div key={listing.itemId} className="rounded-xl bg-white p-3 ring-1 ring-amber-100">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xl" aria-hidden="true">{item.isEmoji ? item.icon : "🎁"}</span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-amber-950">{item.name}</p>
+                          <p className="mt-0.5 text-[11px] text-amber-700">{listing.note}</p>
+                          {listing.kind !== "blueprint" && count > 0 && <p className="mt-1 text-[11px] font-semibold text-emerald-700">In inventory: {count}</p>}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={owned || state.sandDollars < listing.price}
+                        onClick={() => buyFromTraveler(merchantId, listing.itemId)}
+                        className="mt-2 min-h-11 w-full rounded-lg bg-amber-700 px-3 py-2 text-xs font-bold text-white active:bg-amber-800 disabled:bg-amber-100 disabled:text-amber-500"
+                      >
+                        {owned ? "Owned · Blueprint Collection" : `Buy for ${listing.price} Sand Dollars`}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {isAway ? (
             <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center">

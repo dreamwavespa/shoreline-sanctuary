@@ -8,6 +8,8 @@ import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
 import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
+import { getScheduleStatus } from "./schedule";
+import { getTravelingMerchantStock } from "./travelingMerchants";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -67,6 +69,7 @@ export interface CustomSandBottle {
 
 interface GameState {
   inventory: Record<string, number>;
+  blueprints: string[];
   bucketCount: number;
   bucketsFilled: number;
   crafted: string[];
@@ -136,6 +139,7 @@ const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
   inventory: {},
+  blueprints: [],
   bucketCount: 0,
   bucketsFilled: 0,
   crafted: [],
@@ -292,6 +296,7 @@ interface Ctx {
   advanceHoneybell: () => { ok: boolean; stage: number };
   visitGroveBees: () => { ok: boolean; wax: boolean; honey: boolean; minutesLeft?: number };
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
+  buyFromTraveler: (villagerId: "shelldon" | "shelby", itemId: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
   inspectFoundBottle: () => { messageId: string; bonusItemId: string | null } | null;
@@ -332,6 +337,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw);
         const inventory = { ...(parsed.inventory || {}) };
+        const blueprints = Array.isArray(parsed.blueprints) ? [...parsed.blueprints] : [];
+        // Blueprint plans now have their own protected collection instead of
+        // appearing among consumable bucket items.
+        for (const [itemId, count] of Object.entries(inventory)) {
+          if (itemId.startsWith("blueprint-") && Number(count) > 0) {
+            if (!blueprints.includes(itemId)) blueprints.push(itemId);
+            delete inventory[itemId];
+          }
+        }
         const crafted = Array.isArray(parsed.crafted) ? parsed.crafted : [];
         // Earlier versions marked the Tidal Pearl Choker as crafted without
         // creating an inventory item. Restore it once so existing players can
@@ -351,6 +365,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           ...DEFAULT_STATE,
           ...parsed,
           inventory,
+          blueprints,
           sandDollars,
           rainBarrelLevel,
           groveNurseryAvailable: parsed.groveNurseryAvailable ?? parsed.currentForecast?.id === "storm",
@@ -1209,6 +1224,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const buyFromTraveler = (villagerId: "shelldon" | "shelby", itemId: string) => {
+    if (!getScheduleStatus(villagerId).available) return false;
+    const listing = getTravelingMerchantStock(villagerId).find((candidate) => candidate.itemId === itemId);
+    const item = ITEMS[itemId];
+    if (!listing || !item || stateRef.current.sandDollars < listing.price) return false;
+    if (listing.kind === "blueprint" && stateRef.current.blueprints.includes(itemId)) return false;
+
+    setState((s) => ({
+      ...s,
+      sandDollars: s.sandDollars - listing.price,
+      blueprints: listing.kind === "blueprint" ? [...s.blueprints, itemId] : s.blueprints,
+      inventory: listing.kind === "blueprint"
+        ? s.inventory
+        : { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+      notebookDiscovered: { ...s.notebookDiscovered, [itemId]: true },
+    }));
+    play("sandDollarCoin");
+    toast(listing.kind === "blueprint" ? `${item.name} added to your Blueprint Collection!` : `Purchased ${item.name} from ${VILLAGERS[villagerId].name}!`);
+    return true;
+  };
+
   const sellToSeaweed = (itemId: string) => {
     const price = SELL_PRICES[itemId];
     if (!price || (stateRef.current.inventory[itemId] || 0) < 1) return false;
@@ -1413,6 +1449,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       advanceHoneybell,
       visitGroveBees,
       buyFromSeaweed,
+      buyFromTraveler,
       sellToSeaweed,
       collectSeaWater,
       inspectFoundBottle,

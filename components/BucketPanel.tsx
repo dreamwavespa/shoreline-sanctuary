@@ -12,6 +12,7 @@ export default function BucketPanel() {
   const entries = Object.entries(state.inventory)
     .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1]);
+  const blueprints = state.blueprints.map((id) => ITEMS[id]).filter(Boolean);
 
   return (
     <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#fbf3e3]">
@@ -45,6 +46,24 @@ export default function BucketPanel() {
         >
           Visit Seaweed &amp; Salt · 🪙 {state.sandDollars}
         </button>
+      </section>
+
+      <section className="mb-4 rounded-2xl border border-indigo-300 bg-indigo-50 p-4 shadow-sm" aria-labelledby="blueprints-heading">
+        <h2 id="blueprints-heading" className="font-serif text-lg font-bold text-indigo-950">Blueprint Collection</h2>
+        <p className="mt-1 text-sm text-indigo-800">Expansion plans are protected here until their new sanctuary areas are ready to build.</p>
+        {blueprints.length === 0 ? (
+          <p className="mt-3 text-sm text-indigo-700/80">No blueprints collected yet. Watch for Shelby’s Trading Ship.</p>
+        ) : (
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {blueprints.map((item) => (
+              <div key={item.id} className="rounded-xl bg-white p-3 text-center shadow-sm ring-1 ring-indigo-100">
+                <span className="text-2xl" aria-hidden="true">{item.isEmoji ? item.icon : "📐"}</span>
+                <p className="mt-1 text-xs font-bold text-indigo-950">{item.name}</p>
+                <p className="mt-1 text-[10px] text-indigo-700">Saved for a future expansion</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <h2 className="text-lg font-semibold text-amber-900 mb-2">Collection</h2>
