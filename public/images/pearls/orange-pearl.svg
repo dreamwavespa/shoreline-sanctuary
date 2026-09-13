@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Orange pearl">
+  <defs>
+    <radialGradient id="orange" cx="35%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#fff4dc"/>
+      <stop offset=".24" stop-color="#fdba74"/>
+      <stop offset=".68" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#9a3412"/>
+    </radialGradient>
+  </defs>
+  <circle cx="64" cy="66" r="48" fill="#7c2d12" opacity=".25"/>
+  <circle cx="64" cy="60" r="48" fill="url(#orange)" stroke="#ea580c" stroke-width="3"/>
+  <ellipse cx="47" cy="40" rx="15" ry="10" fill="#fff" opacity=".76" transform="rotate(-28 47 40)"/>
+  <circle cx="84" cy="83" r="7" fill="#7c2d12" opacity=".2"/>
+</svg>

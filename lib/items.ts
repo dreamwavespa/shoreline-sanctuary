@@ -38,6 +38,9 @@ export const ITEMS: Record<string, ItemDef> = {
   "pearl-green": { id: "pearl-green", name: "Green Pearl", category: "pearl", icon: `${ICON_BASE}/7d9cd5d1-d5e6-40eb-b483-e3c49d6db93d.png`, rarity: "rare", sfx: "pearl" },
   "pearl-amber": { id: "pearl-amber", name: "Amber Pearl", category: "pearl", icon: `${ICON_BASE}/da3aff0c-ec75-41e1-a20f-c4f495ef888f.png`, rarity: "rare", sfx: "pearl" },
   "pearl-blue": { id: "pearl-blue", name: "Blue Pearl", category: "pearl", icon: `${ICON_BASE}/d799fd60-32fa-4c8c-a8ec-a2f60ab6c392.png`, rarity: "rare", sfx: "pearl" },
+  "pearl-yellow": { id: "pearl-yellow", name: "Yellow Pearl", category: "pearl", icon: "/images/pearls/yellow-pearl.svg", rarity: "rare", sfx: "pearl" },
+  "pearl-purple": { id: "pearl-purple", name: "Purple Pearl", category: "pearl", icon: "/images/pearls/purple-pearl.svg", rarity: "rare", sfx: "pearl" },
+  "pearl-orange": { id: "pearl-orange", name: "Orange Pearl", category: "pearl", icon: "/images/pearls/orange-pearl.svg", rarity: "rare", sfx: "pearl" },
   "raw-driftwood-arch": { id: "raw-driftwood-arch", name: "Driftwood", category: "raw", icon: `${ICON_BASE}/0f39c941-3590-4858-9c41-36498d6a0a6c.png`, rarity: "common", sfx: "wood" },
   "raw-driftwood-planks": { id: "raw-driftwood-planks", name: "Weathered Plank", category: "raw", icon: `${ICON_BASE}/eb0500d4-6d90-40d7-9de5-97e94423a255.png`, rarity: "uncommon", sfx: "wood" },
   "raw-barnacle-wood": { id: "raw-barnacle-wood", name: "Barnacled Wood", category: "raw", icon: `${ICON_BASE}/2831f0ac-862c-4fb8-8036-0a7a74df36f6.png`, rarity: "uncommon", sfx: "wood" },
@@ -217,6 +220,8 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "pearl-silver", weight: 1 },
   { id: "pearl-pink", weight: 1 },
   { id: "pearl-blue", weight: 1 },
+  { id: "pearl-yellow", weight: 1 },
+  { id: "pearl-purple", weight: 1 },
   { id: "wild-beach-plum", weight: 7 },
   { id: "sea-rose-petal", weight: 6 },
   { id: "seaweed-fronds", weight: 8 },
@@ -248,6 +253,8 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "pearl-green", weight: 5 },
   { id: "pearl-amber", weight: 5 },
   { id: "pearl-blue", weight: 6 },
+  { id: "pearl-yellow", weight: 5 },
+  { id: "pearl-purple", weight: 5 },
   { id: "raw-driftwood-planks", weight: 4 },
   { id: "wild-beach-plum", weight: 4 },
   { id: "copper-wire", weight: 6 },
@@ -261,6 +268,8 @@ export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "raw-barnacle-wood", weight: 10 },
   { id: "pearl-green", weight: 6 },
   { id: "pearl-amber", weight: 6 },
+  { id: "pearl-yellow", weight: 4 },
+  { id: "pearl-purple", weight: 6 },
   { id: "glass-rainbow", weight: 4 },
   { id: "glass-purple", weight: 6 },
   { id: "shell-abalone", weight: 5 },
@@ -275,6 +284,8 @@ export const SANDBAR_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "shell-sanddollar", weight: 8 },
   { id: "glass-rainbow", weight: 5 },
   { id: "pearl-amber", weight: 5 },
+  { id: "pearl-yellow", weight: 5 },
+  { id: "pearl-purple", weight: 4 },
   { id: "shiny-soda-tab", weight: 8 },
   { id: "sand-apricot", weight: 8 },
   { id: "sand-teal", weight: 6 },
@@ -293,17 +304,26 @@ function rollFrom(pool: { id: string; weight: number }[]): string {
 }
 
 export function rollSpawn(): string {
-  return rollFrom(BEACH_SPAWN_POOL);
+  return rollFrom(withOrangePearl(BEACH_SPAWN_POOL, 1));
 }
 
 export function rollCoveSpawn(): string {
-  return rollFrom(COVE_SPAWN_POOL);
+  return rollFrom(withOrangePearl(COVE_SPAWN_POOL, 5));
 }
 
 export function rollReefSpawn(): string {
-  return rollFrom(REEF_SPAWN_POOL);
+  return rollFrom(withOrangePearl(REEF_SPAWN_POOL, 5));
 }
 
 export function rollSandbarSpawn(): string {
-  return rollFrom(SANDBAR_SPAWN_POOL);
+  return rollFrom(withOrangePearl(SANDBAR_SPAWN_POOL, 5));
+}
+
+/** Orange Pearls permanently enter circulation on October 1, 2026. */
+export function isOrangePearlUnlocked(now = new Date()): boolean {
+  return now.getFullYear() > 2026 || (now.getFullYear() === 2026 && now.getMonth() >= 9);
+}
+
+function withOrangePearl(pool: { id: string; weight: number }[], weight: number) {
+  return isOrangePearlUnlocked() ? [...pool, { id: "pearl-orange", weight }] : pool;
 }
