@@ -266,3 +266,44 @@
   .nursery-water-drops,
   .nursery-seed-glow { animation: none; }
 }
+
+@keyframes roseMilkFill {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes roseMilkPourSway {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  28% { transform: rotate(-2deg) scale(1.015); }
+  72% { transform: rotate(2deg) scale(1.025); }
+}
+
+@keyframes roseMilkSeal {
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  35% { transform: translateY(5px) scale(0.985); filter: brightness(1.08); }
+  70% { transform: translateY(-4px) scale(1.035); filter: brightness(1.18); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
+}
+
+@keyframes roseMilkSparkle {
+  0% { opacity: 0; transform: scale(0.5) rotate(-12deg); }
+  45% { opacity: 1; transform: scale(1.15) rotate(8deg); }
+  100% { opacity: 0; transform: scale(1.45) rotate(18deg); }
+}
+
+.rose-milk-bottle-base { filter: saturate(0.55) opacity(0.62); }
+.rose-milk-bottle-fill { clip-path: inset(100% 0 0 0); }
+.rose-milk-bottle-sparkles { opacity: 0; text-shadow: 0 0 12px white; }
+.rose-milk-bottle--filling .rose-milk-bottle-base { animation: roseMilkPourSway 1.25s ease-in-out both; }
+.rose-milk-bottle--filling .rose-milk-bottle-fill { animation: roseMilkFill 1.25s ease-out both; }
+.rose-milk-bottle--sealed .rose-milk-bottle-base,
+.rose-milk-bottle--sealed .rose-milk-bottle-fill { clip-path: inset(0); animation: roseMilkSeal 700ms ease-out both; filter: none; }
+.rose-milk-bottle--sealed .rose-milk-bottle-sparkles { animation: roseMilkSparkle 700ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rose-milk-bottle--filling .rose-milk-bottle-base,
+  .rose-milk-bottle--filling .rose-milk-bottle-fill,
+  .rose-milk-bottle--sealed .rose-milk-bottle-base,
+  .rose-milk-bottle--sealed .rose-milk-bottle-fill,
+  .rose-milk-bottle--sealed .rose-milk-bottle-sparkles { animation-duration: 0.01ms; }
+}

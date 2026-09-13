@@ -97,6 +97,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "star-sand": { id: "star-sand", name: "Sparkling Star-Sand", category: "special", icon: "🌠", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "food-beach-plum-jelly": { id: "food-beach-plum-jelly", name: "Beach Plum Jelly", category: "food", icon: "🫙", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-sea-rose-milk": { id: "food-sea-rose-milk", name: "Soothing Sea-Rose Milk", category: "food", icon: "🥛", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "bottled-rose-milk": { id: "bottled-rose-milk", name: "Old-Fashioned Bottled Rose Milk", category: "food", icon: "/images/rose-milk-bottle.jpeg", rarity: "rare", sfx: "roseMilkBottle" },
   "food-seaweed-chips": { id: "food-seaweed-chips", name: "Crispy Seaweed Chips", category: "food", icon: "🍟", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-campfire-marshmallow": { id: "food-campfire-marshmallow", name: "Campfire Marshmallow", category: "food", icon: "🍡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "sea-lettuce": { id: "sea-lettuce", name: "Fresh Sea Lettuce", category: "raw", icon: "🥬", isEmoji: true, rarity: "uncommon", sfx: "seaweedCollect" },

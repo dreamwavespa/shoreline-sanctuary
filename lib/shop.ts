@@ -44,6 +44,7 @@ export const SELL_PRICES: Record<string, number> = {
   "food-beach-plum-jelly": 3,
   "food-seaweed-chips": 2,
   "food-sea-lettuce-wrap": 4,
+  "bottled-rose-milk": 7,
   "beach-umbrella": 8,
   "picnic-basket": 8,
   "coastal-salt-lamp": 10,

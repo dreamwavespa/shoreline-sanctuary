@@ -169,6 +169,63 @@ function FoodVisual({ recipeId }: { recipeId: string }) {
   );
 }
 
+function RoseMilkBottling() {
+  const { state, bottleRoseMilk } = useGame();
+  const [phase, setPhase] = useState<"idle" | "filling" | "sealed">("idle");
+  const [announcement, setAnnouncement] = useState("");
+  const timers = useRef<number[]>([]);
+  const looseMilk = state.inventory["food-sea-rose-milk"] || 0;
+  const bottledMilk = state.inventory["bottled-rose-milk"] || 0;
+
+  useEffect(() => () => timers.current.forEach((timer) => window.clearTimeout(timer)), []);
+
+  const handleBottle = () => {
+    if (phase !== "idle" || !bottleRoseMilk()) {
+      setAnnouncement("Cook a serving of Soothing Sea-Rose Milk before filling a bottle.");
+      return;
+    }
+    setPhase("filling");
+    setAnnouncement("Pouring one serving of Sea-Rose Milk into the old-fashioned bottle.");
+    timers.current.push(window.setTimeout(() => setPhase("sealed"), 1250));
+    timers.current.push(window.setTimeout(() => {
+      setPhase("idle");
+      setAnnouncement("Bottled Rose Milk is sealed and ready to sell to Seaweed for 7 Sand Dollars.");
+    }, 2350));
+  };
+
+  return (
+    <section aria-labelledby="rose-milk-bottling-heading" className="mt-4 rounded-2xl bg-rose-50 p-4 text-center ring-1 ring-rose-200">
+      <h3 id="rose-milk-bottling-heading" className="font-serif text-lg font-bold text-rose-950">Bottle It for Seaweed</h3>
+      <p id="rose-milk-bottling-help" className="mt-1 text-sm text-rose-800">
+        Activate the illustrated milk bottle to package one pantry serving. Seaweed pays 7 Sand Dollars for each sealed bottle.
+      </p>
+      <button
+        type="button"
+        onClick={handleBottle}
+        disabled={looseMilk < 1 || phase !== "idle"}
+        aria-describedby="rose-milk-bottling-help rose-milk-bottling-counts"
+        aria-label={`Bottle one serving of Soothing Sea-Rose Milk for Seaweed. ${looseMilk} unbottled serving${looseMilk === 1 ? "" : "s"} available.`}
+        className={`rose-milk-bottle-button rose-milk-bottle--${phase} mx-auto mt-3 block w-full max-w-sm overflow-hidden rounded-2xl bg-[#fffdf5] shadow-md ring-2 ring-rose-300 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal-600 disabled:cursor-not-allowed disabled:opacity-55`}
+      >
+        <span className="relative block aspect-[16/9] overflow-hidden" aria-hidden="true">
+          <Image src={SCENES.roseMilkBottle} alt="" fill unoptimized sizes="(max-width: 640px) 100vw, 384px" className="rose-milk-bottle-base object-cover" />
+          <span className="rose-milk-bottle-fill absolute inset-0">
+            <Image src={SCENES.roseMilkBottle} alt="" fill unoptimized sizes="(max-width: 640px) 100vw, 384px" className="object-cover" />
+          </span>
+          <span className="rose-milk-bottle-sparkles absolute inset-0 flex items-center justify-center text-4xl">✨</span>
+        </span>
+        <span className="block bg-rose-700 px-4 py-3 font-bold text-white">
+          {phase === "filling" ? "Pouring Rose Milk…" : phase === "sealed" ? "Bottle Sealed!" : looseMilk > 0 ? "Bottle One for Seaweed" : "Cook Rose Milk First"}
+        </span>
+      </button>
+      <p id="rose-milk-bottling-counts" className="mt-3 text-xs font-semibold text-rose-800">
+        Pantry servings: {looseMilk} · Sealed bottles ready to sell: {bottledMilk}
+      </p>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</div>
+    </section>
+  );
+}
+
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const { state, cook, hasEnough } = useGame();
   const canCook = hasEnough(recipe.cost);
@@ -222,6 +279,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
       </button>
       <p className="mt-2 text-center text-xs font-medium text-amber-700">In pantry: {madeCount}</p>
+      {recipe.id === "sea-rose-milk" && <RoseMilkBottling />}
     </article>
   );
 }

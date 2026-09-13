@@ -213,6 +213,7 @@ interface Ctx {
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
+  bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
   searchChest: () => string | null;
@@ -501,6 +502,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("craftSuccess");
     const def = ITEMS[outputItemId];
     toast(def ? `Cooked ${def.name}!` : "Cooked!");
+    return true;
+  };
+
+  const bottleRoseMilk = () => {
+    if ((stateRef.current.inventory["food-sea-rose-milk"] || 0) < 1) return false;
+    setState((s) => {
+      if ((s.inventory["food-sea-rose-milk"] || 0) < 1) return s;
+      const inventory = { ...s.inventory };
+      inventory["food-sea-rose-milk"] = Math.max(0, (inventory["food-sea-rose-milk"] || 0) - 1);
+      inventory["bottled-rose-milk"] = (inventory["bottled-rose-milk"] || 0) + 1;
+      return { ...s, inventory };
+    });
+    play("roseMilkPour", 0.8);
+    window.setTimeout(() => play("roseMilkBottle", 0.85), 1250);
+    toast("Rose Milk bottled for Seaweed!");
     return true;
   };
 
@@ -1165,6 +1181,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       emptyBucket,
       craft,
       cook,
+      bottleRoseMilk,
       claimQuest,
       openChest,
       searchChest,
