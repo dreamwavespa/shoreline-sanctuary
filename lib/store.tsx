@@ -133,6 +133,11 @@ interface GameState {
   beeLastVisitAt: number;
   beeHoneyMisses: number;
   beeVisits: number;
+  coralCultivations: number;
+  minaBakes: number;
+  bubblesDeliveryDate: string;
+  pearlRewardsClaimed: number;
+  splashTrades: number;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -203,6 +208,11 @@ const DEFAULT_STATE: GameState = {
   beeLastVisitAt: 0,
   beeHoneyMisses: 0,
   beeVisits: 0,
+  coralCultivations: 0,
+  minaBakes: 0,
+  bubblesDeliveryDate: "",
+  pearlRewardsClaimed: 0,
+  splashTrades: 0,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -236,6 +246,16 @@ const DAILY_CHEST_TREASURES = [
   "glass-aquamarine-glow",
   "gold-world-globe",
   "bag-old-coins",
+];
+
+const BUBBLES_BONUSES = ["ribbon", "glass-teal", "shiny-soda-tab", "sea-berry"];
+const PEARL_FRIENDSHIP_REWARDS = ["pearl-white", "pearl-pink", "mother-of-pearl", "pearl-silver", "pearl-rainbow"];
+const SPLASH_TRADE_REWARDS = ["hemp-thread", "copper-wire", "driftwood-oar"];
+const SPLASH_STORIES = [
+  "Splash once followed a silver school of fish that glittered like a second moon beneath the water.",
+  "A tiny fishing boat rang its bell every evening, and the seals learned to clap along with it.",
+  "Splash swears the oldest reef fish knows every hidden current between the Sandbars and the lighthouse.",
+  "During one calm sunrise, the sea was so still that Splash mistook the clouds below him for another ocean.",
 ];
 
 interface Ctx {
@@ -297,6 +317,11 @@ interface Ctx {
   visitGroveBees: () => { ok: boolean; wax: boolean; honey: boolean; minutesLeft?: number };
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   buyFromTraveler: (villagerId: "shelldon" | "shelby", itemId: string) => boolean;
+  cultivateWithCoral: () => string | null;
+  bakeWithMina: () => boolean;
+  claimBubblesDelivery: () => { bottleItemId: string; bonusItemId: string } | null;
+  claimPearlsFriendshipGift: () => string | null;
+  tradeWithSplash: () => { rewardItemId: string; story: string } | null;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
   inspectFoundBottle: () => { messageId: string; bonusItemId: string | null } | null;
@@ -1245,6 +1270,83 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const cultivateWithCoral = () => {
+    const cost = [{ itemId: "coral-bulb", count: 1 }, { itemId: "fertilizer", count: 1 }];
+    if (!hasEnough(cost)) return null;
+    const nextCultivation = stateRef.current.coralCultivations + 1;
+    const rewardItemId = nextCultivation % 3 === 0 ? "bioluminescent-shard" : "sea-berry";
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, cost);
+      inventory[rewardItemId] = (inventory[rewardItemId] || 0) + 1;
+      return { ...s, inventory, coralCultivations: s.coralCultivations + 1 };
+    });
+    play(rewardItemId === "bioluminescent-shard" ? "seaGlass" : "groveBerryPick");
+    toast(`Coral cultivated a ${ITEMS[rewardItemId].name}!`);
+    return rewardItemId;
+  };
+
+  const bakeWithMina = () => {
+    const cost = [{ itemId: "kelp", count: 1 }, { itemId: "sea-berry", count: 1 }];
+    if (!hasEnough(cost)) return false;
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, cost);
+      inventory["food-kelp-cookie"] = (inventory["food-kelp-cookie"] || 0) + 2;
+      return { ...s, inventory, minaBakes: s.minaBakes + 1 };
+    });
+    play("craftSuccess");
+    toast("Mina baked 2 Warm Kelp Cookies!");
+    return true;
+  };
+
+  const claimBubblesDelivery = () => {
+    const today = localDateKey();
+    if ((stateRef.current.villagerGiftCounts.bubbles || 0) < 1 || stateRef.current.bubblesDeliveryDate === today) return null;
+    const bottleItemId = "sealed-frosted-bottle";
+    const bonusItemId = BUBBLES_BONUSES[Math.floor(Math.random() * BUBBLES_BONUSES.length)];
+    setState((s) => ({
+      ...s,
+      bubblesDeliveryDate: today,
+      inventory: {
+        ...s.inventory,
+        [bottleItemId]: (s.inventory[bottleItemId] || 0) + 1,
+        [bonusItemId]: (s.inventory[bonusItemId] || 0) + 1,
+      },
+    }));
+    play("oceanWaterSplash");
+    toast(`Bubbles delivered a Frosted Bottle and ${ITEMS[bonusItemId].name}!`);
+    return { bottleItemId, bonusItemId };
+  };
+
+  const claimPearlsFriendshipGift = () => {
+    const earnedRewards = Math.floor((stateRef.current.villagerGiftCounts.pearl || 0) / 3);
+    if (stateRef.current.pearlRewardsClaimed >= earnedRewards) return null;
+    const rewardItemId = PEARL_FRIENDSHIP_REWARDS[stateRef.current.pearlRewardsClaimed % PEARL_FRIENDSHIP_REWARDS.length];
+    setState((s) => ({
+      ...s,
+      pearlRewardsClaimed: s.pearlRewardsClaimed + 1,
+      inventory: { ...s.inventory, [rewardItemId]: (s.inventory[rewardItemId] || 0) + 1 },
+    }));
+    play("pearl");
+    toast(`Pearl formed a ${ITEMS[rewardItemId].name} for you!`);
+    return rewardItemId;
+  };
+
+  const tradeWithSplash = () => {
+    const cost = [{ itemId: "fresh-reef-fish", count: 1 }];
+    if (!hasEnough(cost)) return null;
+    const tradeNumber = stateRef.current.splashTrades;
+    const rewardItemId = SPLASH_TRADE_REWARDS[tradeNumber % SPLASH_TRADE_REWARDS.length];
+    const story = SPLASH_STORIES[tradeNumber % SPLASH_STORIES.length];
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, cost);
+      inventory[rewardItemId] = (inventory[rewardItemId] || 0) + 1;
+      return { ...s, inventory, splashTrades: s.splashTrades + 1 };
+    });
+    play("craftSuccess");
+    toast(`Splash traded you ${ITEMS[rewardItemId].name}!`);
+    return { rewardItemId, story };
+  };
+
   const sellToSeaweed = (itemId: string) => {
     const price = SELL_PRICES[itemId];
     if (!price || (stateRef.current.inventory[itemId] || 0) < 1) return false;
@@ -1450,6 +1552,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       visitGroveBees,
       buyFromSeaweed,
       buyFromTraveler,
+      cultivateWithCoral,
+      bakeWithMina,
+      claimBubblesDelivery,
+      claimPearlsFriendshipGift,
+      tradeWithSplash,
       sellToSeaweed,
       collectSeaWater,
       inspectFoundBottle,
