@@ -6,6 +6,7 @@ import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
+import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -40,6 +41,16 @@ export interface SavedSandcastle {
   createdAt: number;
   features: Record<string, SandcastleFeature>;
   waveGifts: SandcastleFeature[];
+}
+
+export interface CustomJewelryPiece {
+  id: string;
+  kind: JewelryKind;
+  name: string;
+  materials: string[];
+  value: number;
+  favorite: boolean;
+  createdAt: number;
 }
 
 interface GameState {
@@ -97,6 +108,7 @@ interface GameState {
   sandDollars: number;
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
+  customJewelry: CustomJewelryPiece[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -156,6 +168,7 @@ const DEFAULT_STATE: GameState = {
   sandDollars: 8,
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
+  customJewelry: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -248,6 +261,9 @@ interface Ctx {
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
   inspectFoundBottle: () => { messageId: string; bonusItemId: string | null } | null;
+  createCustomJewelry: (kind: JewelryKind, materials: string[], name?: string) => { ok: boolean; piece?: CustomJewelryPiece };
+  toggleCustomJewelryFavorite: (pieceId: string) => void;
+  sellCustomJewelry: (pieceId: string) => boolean;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -1040,6 +1056,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const discovery = SEAWEED_DISCOVERIES.find((item) => item.itemId === itemId);
     const listing = regular || discovery;
     if (!listing || !ITEMS[itemId]) return false;
+    if (itemId === "copper-wire" && (!stateRef.current.rowboatRepaired || !stateRef.current.hasDivingGear)) return false;
     if (discoveryDate && stateRef.current.seaweedDiscoveryPurchases.includes(discoveryDate)) return false;
     if (stateRef.current.sandDollars < listing.price) return false;
 
@@ -1067,6 +1084,59 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
     play("sandDollarCoin");
     toast(`Seaweed paid ${price} Sand Dollar${price === 1 ? "" : "s"}.`);
+    return true;
+  };
+
+  const createCustomJewelry = (kind: JewelryKind, materials: string[], requestedName?: string) => {
+    const details = JEWELRY_KIND_DETAILS[kind];
+    if (!details || materials.length !== details.slots || materials.some((id) => !(JEWELRY_MATERIAL_IDS as readonly string[]).includes(id))) {
+      return { ok: false };
+    }
+
+    const costCounts: Record<string, number> = { [details.foundationId]: 1 };
+    for (const material of materials) costCounts[material] = (costCounts[material] || 0) + 1;
+    if (Object.entries(costCounts).some(([itemId, count]) => (stateRef.current.inventory[itemId] || 0) < count)) {
+      return { ok: false };
+    }
+
+    const cleanName = requestedName?.trim().slice(0, 50) || defaultJewelryName(kind, materials);
+    const piece: CustomJewelryPiece = {
+      id: `jewelry-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      kind,
+      name: cleanName,
+      materials: [...materials],
+      value: calculateJewelryValue(kind, materials),
+      favorite: false,
+      createdAt: Date.now(),
+    };
+
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      for (const [itemId, count] of Object.entries(costCounts)) inventory[itemId] = Math.max(0, (inventory[itemId] || 0) - count);
+      return { ...s, inventory, customJewelry: [...s.customJewelry, piece] };
+    });
+    play("craftSuccess");
+    toast(`${piece.name} completed!`);
+    return { ok: true, piece };
+  };
+
+  const toggleCustomJewelryFavorite = (pieceId: string) => {
+    setState((s) => ({
+      ...s,
+      customJewelry: s.customJewelry.map((piece) => piece.id === pieceId ? { ...piece, favorite: !piece.favorite } : piece),
+    }));
+  };
+
+  const sellCustomJewelry = (pieceId: string) => {
+    const piece = stateRef.current.customJewelry.find((candidate) => candidate.id === pieceId);
+    if (!piece || piece.favorite) return false;
+    setState((s) => ({
+      ...s,
+      customJewelry: s.customJewelry.filter((candidate) => candidate.id !== pieceId),
+      sandDollars: s.sandDollars + piece.value,
+    }));
+    play("sandDollarCoin");
+    toast(`Seaweed paid ${piece.value} Sand Dollars for ${piece.name}.`);
     return true;
   };
 
@@ -1143,6 +1213,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       sellToSeaweed,
       collectSeaWater,
       inspectFoundBottle,
+      createCustomJewelry,
+      toggleCustomJewelryFavorite,
+      sellCustomJewelry,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

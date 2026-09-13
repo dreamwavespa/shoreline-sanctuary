@@ -8,6 +8,7 @@ import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_
 import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
 import PicnicPacking from "./PicnicPacking";
+import JewelryCounter from "./JewelryCounter";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -426,8 +427,10 @@ export default function Workshop() {
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
+  const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
   const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
+  const jewelryCounterButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeWindChime = () => {
     setWindChimeOpen(false);
@@ -437,6 +440,11 @@ export default function Workshop() {
   const closePicnicPacking = () => {
     setPicnicPackingOpen(false);
     window.setTimeout(() => picnicPackingButtonRef.current?.focus(), 0);
+  };
+
+  const closeJewelryCounter = () => {
+    setJewelryCounterOpen(false);
+    window.setTimeout(() => jewelryCounterButtonRef.current?.focus(), 0);
   };
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
@@ -592,6 +600,21 @@ export default function Workshop() {
         ) : tab === "jewelry" ? (
           <>
             <p className="text-xs text-purple-800/70 mb-3 text-center">The Jewelry Bench sparkles with wire, thread, and polished treasures.</p>
+            <section aria-labelledby="custom-jewelry-heading" className="mb-4 overflow-hidden rounded-2xl bg-purple-950 text-white shadow-md ring-1 ring-purple-300">
+              <div className="relative h-36">
+                <Image src={SCENES.jewelryCounter} alt="Pearls, sea glass, shells, stones, wire, and tools arranged at the coastal Jewelry Counter" fill unoptimized sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-950 via-purple-950/25 to-transparent" />
+                <div className="absolute bottom-3 left-4 right-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-pink-200">Melody&apos;s Creative Activity</p>
+                  <h2 id="custom-jewelry-heading" className="font-serif text-xl font-bold">💎 Custom Jewelry Counter</h2>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-sm text-purple-50">Create one-of-a-kind necklaces, bracelets, and earrings from your collected pearls, shells, stones, and sea glass.</p>
+                <button ref={jewelryCounterButtonRef} type="button" onClick={() => setJewelryCounterOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-pink-200 px-4 py-3 font-bold text-purple-950 shadow active:bg-pink-100">Open Jewelry Counter</button>
+              </div>
+            </section>
+            <h2 className="mb-3 font-serif text-lg font-bold text-purple-950">Melody&apos;s Signature Designs</h2>
             {JEWELRY_RECIPES.map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
             ))}
@@ -617,6 +640,7 @@ export default function Workshop() {
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
+      {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
     </div>
   );
 }

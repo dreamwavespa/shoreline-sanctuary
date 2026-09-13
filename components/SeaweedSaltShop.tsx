@@ -27,7 +27,7 @@ function ItemIcon({ itemId }: { itemId: string }) {
 }
 
 export default function SeaweedSaltShop() {
-  const { state, setScreen, setMusicOverride, play, buyFromSeaweed, sellToSeaweed } = useGame();
+  const { state, setScreen, setMusicOverride, play, buyFromSeaweed, sellToSeaweed, sellCustomJewelry, toggleCustomJewelryFavorite } = useGame();
   const [section, setSection] = useState<ShopSection>("buy");
   const [discoveryRevealed, setDiscoveryRevealed] = useState(false);
   const [talkIndex, setTalkIndex] = useState(0);
@@ -35,6 +35,8 @@ export default function SeaweedSaltShop() {
   const discovery = useMemo(() => getTodaysDiscovery(), []);
   const dateKey = useMemo(() => getShopDateKey(), []);
   const discoveryPurchased = state.seaweedDiscoveryPurchases.includes(dateKey);
+  const copperWireStockUnlocked = state.rowboatRepaired && state.hasDivingGear;
+  const visibleShopStock = SHOP_STOCK.filter((listing) => listing.itemId !== "copper-wire" || copperWireStockUnlocked);
 
   const sellable = Object.entries(state.inventory)
     .filter(([itemId, count]) => count > 0 && SELL_PRICES[itemId])
@@ -125,7 +127,7 @@ export default function SeaweedSaltShop() {
             <h2 id="shop-buy-heading" className="font-serif text-2xl font-bold">Goods on the Shelves</h2>
             <p className="mt-1 text-sm text-stone-700">Pantry favorites, useful materials, and carefully cleaned salvage.</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {SHOP_STOCK.map((listing) => {
+              {visibleShopStock.map((listing) => {
                 const item = ITEMS[listing.itemId];
                 const canAfford = state.sandDollars >= listing.price;
                 return (
@@ -148,6 +150,11 @@ export default function SeaweedSaltShop() {
                 );
               })}
             </div>
+            {!copperWireStockUnlocked && (
+              <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 ring-1 ring-amber-200">
+                Seaweed will begin stocking Weathered Copper Wire after you unlock both the Hidden Cove and the Reef.
+              </p>
+            )}
           </section>
         )}
 
@@ -155,15 +162,17 @@ export default function SeaweedSaltShop() {
           <section aria-labelledby="shop-sell-heading">
             <h2 id="shop-sell-heading" className="font-serif text-2xl font-bold">Sell to Seaweed</h2>
             <p className="mt-1 text-sm text-stone-700">Seaweed buys one item at a time, including extra workshop décor, wind chimes, and sand-art bottles, so you always know what remains in your collection.</p>
-            {sellable.length === 0 ? (
+            {sellable.length === 0 && state.customJewelry.length === 0 ? (
               <div className="mt-3 rounded-2xl border border-dashed border-stone-400 bg-white/70 p-5 text-center">
                 <p className="font-bold">Nothing ready to trade yet.</p>
                 <p className="mt-1 text-sm text-stone-600">Search the beach, tide pool, or cove for shoreline goods.</p>
                 <button type="button" onClick={() => setScreen("bucket")} className="mt-3 min-h-11 rounded-xl bg-stone-800 px-4 py-2 font-bold text-white">View Collection</button>
               </div>
             ) : (
-              <div className="mt-3 space-y-2">
-                {sellable.map(([itemId, count]) => {
+              <div className="mt-3 space-y-5">
+                {sellable.length > 0 && <div className="space-y-2">
+                  <h3 className="font-bold text-stone-800">Shoreline Goods and Workshop Crafts</h3>
+                  {sellable.map(([itemId, count]) => {
                   const item = ITEMS[itemId];
                   const price = SELL_PRICES[itemId];
                   return (
@@ -184,6 +193,32 @@ export default function SeaweedSaltShop() {
                     </div>
                   );
                 })}
+                </div>}
+
+                {state.customJewelry.length > 0 && (
+                  <section aria-labelledby="custom-jewelry-sales-heading" className="rounded-2xl border border-purple-300 bg-purple-50 p-4">
+                    <h3 id="custom-jewelry-sales-heading" className="font-serif text-xl font-bold text-purple-950">Melody&apos;s Custom Jewelry</h3>
+                    <p className="mt-1 text-sm text-purple-800">Seaweed values each one-of-a-kind piece by its type, materials, and pattern. Favorites are protected from sale.</p>
+                    <div className="mt-3 space-y-3">
+                      {state.customJewelry.map((piece) => (
+                        <article key={piece.id} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-purple-200">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h4 className="font-bold text-purple-950">{piece.name}</h4>
+                              <p className="text-xs capitalize text-purple-700">{piece.kind} · {piece.materials.length} design pieces</p>
+                            </div>
+                            <span className="text-2xl" aria-hidden="true">{piece.favorite ? "⭐" : piece.kind === "necklace" ? "📿" : piece.kind === "bracelet" ? "⭕" : "✨"}</span>
+                          </div>
+                          <p className="mt-2 text-sm text-stone-700">{piece.materials.map((itemId) => ITEMS[itemId]?.name).join(", ")}</p>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <button type="button" onClick={() => toggleCustomJewelryFavorite(piece.id)} aria-pressed={piece.favorite} className="min-h-11 rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{piece.favorite ? "Unfavorite" : "Favorite"}</button>
+                            <button type="button" disabled={piece.favorite} onClick={() => sellCustomJewelry(piece.id)} aria-label={piece.favorite ? `${piece.name} is favorited and protected from sale.` : `Sell ${piece.name} for ${piece.value} Sand Dollars.`} className="min-h-11 rounded-xl bg-purple-700 px-3 py-2 text-sm font-bold text-white disabled:bg-purple-200 disabled:text-purple-600">Sell · 🪙 {piece.value}</button>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             )}
           </section>

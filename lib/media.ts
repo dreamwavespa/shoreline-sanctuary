@@ -30,6 +30,7 @@ export const SCENES = {
   coconutGrove: "/images/coconut-grove.jpeg",
   coconutGroveRecipes: "/images/coconut-grove-recipe-cards.jpeg",
   hiddenGroveNursery: "/images/hidden-grove-nursery.png",
+  jewelryCounter: "/images/jewelry-counter.jpeg",
 };
 
 export const MUSIC = {
@@ -93,6 +94,7 @@ export const SFX_FILES: Record<string, string> = {
   nurseryDig: "/audio/nursery-dig.mp3",
   nurseryPlant: "/audio/nursery-plant.mp3",
   nurseryWater: "/audio/nursery-water.mp3",
+  jewelryMaterials: "/audio/jewelry-materials.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,

@@ -126,6 +126,26 @@
   .weather-scene *, .weather-scene *::before, .weather-scene *::after { animation: none !important; }
 }
 
+@keyframes jewelryPieceSet {
+  0% { opacity: 0.35; transform: scale(0.55) rotate(-12deg); }
+  70% { opacity: 1; transform: scale(1.1) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes jewelryFinishSparkle {
+  0%, 100% { box-shadow: 0 0 0 rgb(216 180 254 / 0); }
+  50% { box-shadow: 0 0 28px 8px rgb(216 180 254 / 0.7); }
+}
+
+.jewelry-design-slot:has(img),
+.jewelry-design-slot:has(span.text-2xl) { animation: jewelryPieceSet 420ms ease-out both; }
+.jewelry-complete-sparkle { animation: jewelryFinishSparkle 1.8s ease-in-out 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jewelry-design-slot,
+  .jewelry-complete-sparkle { animation: none; }
+}
+
 @keyframes shorelineBucketFill {
   0% { height: 4%; }
   72% { height: 88%; }

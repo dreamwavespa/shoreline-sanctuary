@@ -15,6 +15,7 @@ export const SHOP_STOCK: ShopStockItem[] = [
   { itemId: "soothing-sea-salt", price: 3, note: "Useful in the kitchen and workshop." },
   { itemId: "glass-blue", price: 6, note: "A polished cobalt piece from deeper water." },
   { itemId: "shell-abalone", price: 7, note: "An iridescent shell for crafting or gifting." },
+  { itemId: "copper-wire", price: 5, note: "Weathered wire cleaned and coiled for custom earrings and pendants." },
   { itemId: "tarnished-compass", price: 10, note: "A small brass compass awaiting restoration." },
 ];
 
