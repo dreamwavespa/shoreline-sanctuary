@@ -229,7 +229,7 @@ function BeachBagCard() {
 }
 
 export default function BeachScene() {
-  const { collectItem, setScreen } = useGame();
+  const { state, collectItem, collectSeaWater, setScreen } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
@@ -239,6 +239,8 @@ export default function BeachScene() {
   const currentRideButtonRef = useRef<HTMLButtonElement>(null);
   const [tidePoolOpen, setTidePoolOpen] = useState(false);
   const tidePoolButtonRef = useRef<HTMLButtonElement>(null);
+  const [isCollectingWater, setIsCollectingWater] = useState(false);
+  const waterAnimationTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSpots(randomSpots(9));
@@ -248,6 +250,22 @@ export default function BeachScene() {
       misty: getScheduleStatus("misty"),
     });
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (waterAnimationTimerRef.current !== null) window.clearTimeout(waterAnimationTimerRef.current);
+    };
+  }, []);
+
+  const handleCollectSeaWater = () => {
+    if (isCollectingWater) return;
+    setIsCollectingWater(true);
+    collectSeaWater();
+    waterAnimationTimerRef.current = window.setTimeout(() => {
+      setIsCollectingWater(false);
+      waterAnimationTimerRef.current = null;
+    }, 1100);
+  };
 
   const handleTap = (spot: Spot) => {
     if (poppingKeys[spot.key]) return;
@@ -311,6 +329,32 @@ export default function BeachScene() {
       </div>
 
       <div className="px-4 py-4 space-y-3 bg-[#fbf3e3] pb-8">
+        <section aria-labelledby="ocean-water-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-100 p-4 shadow-md ring-1 ring-cyan-300">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-800">Ocean’s Edge</p>
+          <h2 id="ocean-water-heading" className="mt-1 font-serif text-lg font-bold text-blue-950">💧 Collect Sea Water</h2>
+          <p className="mt-1 text-sm text-blue-800">Fill a small crafting jar with clear water from the gentle shoreline.</p>
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleCollectSeaWater}
+              disabled={isCollectingWater}
+              aria-busy={isCollectingWater}
+              aria-label={`Collect one jar of sea water with the beach bucket. You have ${state.inventory["sea-water"] || 0}.`}
+              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-cyan-700 shadow ring-4 ring-white active:bg-cyan-800 disabled:cursor-wait"
+            >
+              <span className={`water-bucket-visual ${isCollectingWater ? "is-filling" : ""}`} aria-hidden="true">
+                <span className="water-bucket-handle" />
+                <span className="water-bucket-shell"><span className="water-bucket-fill" /></span>
+                <span className="water-bucket-drop water-bucket-drop-one">●</span>
+                <span className="water-bucket-drop water-bucket-drop-two">●</span>
+                <span className="water-bucket-drop water-bucket-drop-three">●</span>
+              </span>
+            </button>
+            <p className="text-sm font-semibold text-blue-900" aria-live="polite">
+              {isCollectingWater ? "Filling the bucket…" : `Sea water collected: ${state.inventory["sea-water"] || 0}`}
+            </p>
+          </div>
+        </section>
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide">Places Along the Shore</p>
         <section aria-labelledby="coconut-grove-heading" className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-emerald-300">
           <div className="relative h-40 w-full">

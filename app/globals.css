@@ -125,3 +125,43 @@
 @media (prefers-reduced-motion: reduce) {
   .weather-scene *, .weather-scene *::before, .weather-scene *::after { animation: none !important; }
 }
+
+@keyframes shorelineBucketFill {
+  0% { height: 4%; }
+  72% { height: 88%; }
+  100% { height: 76%; }
+}
+
+@keyframes shorelineBucketBob {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  35% { transform: rotate(-7deg) translateY(2px); }
+  70% { transform: rotate(3deg) translateY(-2px); }
+}
+
+@keyframes shorelineWaterDrop {
+  0% { opacity: 0; transform: translateY(12px) scale(0.35); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+}
+
+.water-bucket-visual { position: relative; display: inline-block; width: 3.75rem; height: 3.75rem; filter: drop-shadow(0 3px 2px rgb(8 47 73 / 0.28)); transform-origin: 50% 80%; }
+.water-bucket-handle { position: absolute; top: 0.1rem; left: 0.65rem; width: 2.45rem; height: 2.1rem; border: 0.25rem solid #fef3c7; border-bottom: 0; border-radius: 50% 50% 0 0; }
+.water-bucket-shell { position: absolute; bottom: 0.1rem; left: 0.4rem; width: 2.95rem; height: 2.45rem; overflow: hidden; background: linear-gradient(90deg, #f59e0b, #fde68a 48%, #f59e0b); clip-path: polygon(4% 0, 96% 0, 82% 100%, 18% 100%); }
+.water-bucket-shell::after { position: absolute; inset: 0; content: ""; border-top: 0.28rem solid #fef3c7; box-shadow: inset 0 0 0 0.18rem rgb(146 64 14 / 0.35); }
+.water-bucket-fill { position: absolute; right: 0; bottom: 0; left: 0; height: 5%; background: linear-gradient(#67e8f9, #0284c7); }
+.water-bucket-fill::before { position: absolute; top: -0.18rem; left: -8%; width: 116%; height: 0.4rem; content: ""; border-radius: 50%; background: #cffafe; }
+.water-bucket-drop { position: absolute; z-index: 2; color: #a5f3fc; font-size: 0.65rem; line-height: 1; opacity: 0; }
+.water-bucket-drop-one { top: 0.75rem; left: 0.25rem; }
+.water-bucket-drop-two { top: 0.35rem; right: 0.3rem; }
+.water-bucket-drop-three { top: 1rem; right: -0.05rem; }
+.water-bucket-visual.is-filling { animation: shorelineBucketBob 1.05s ease-in-out both; }
+.water-bucket-visual.is-filling .water-bucket-fill { animation: shorelineBucketFill 0.9s ease-out both; }
+.water-bucket-visual.is-filling .water-bucket-drop { animation: shorelineWaterDrop 0.65s ease-out 0.42s both; }
+.water-bucket-visual.is-filling .water-bucket-drop-two { animation-delay: 0.52s; }
+.water-bucket-visual.is-filling .water-bucket-drop-three { animation-delay: 0.62s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .water-bucket-visual.is-filling,
+  .water-bucket-visual.is-filling .water-bucket-fill,
+  .water-bucket-visual.is-filling .water-bucket-drop { animation-duration: 0.01ms; animation-delay: 0ms; }
+}

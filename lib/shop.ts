@@ -48,10 +48,13 @@ export const SELL_PRICES: Record<string, number> = {
   "coastal-salt-lamp": 10,
   "woven-sun-hat": 9,
   "wind-chime": 10,
+  "beach-bag": 6,
+  "shoreline-snow-globe": 12,
   "bottle-sunset-shoreline": 5,
   "bottle-subaquatic-sandbar": 6,
   "bottle-legendary-tidepool": 9,
   "star-wish-bottle": 10,
+  "beach-bottle": 8,
 };
 
 export const SEAWEED_DISCOVERIES: SeaweedDiscovery[] = [

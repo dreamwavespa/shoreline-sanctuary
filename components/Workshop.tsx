@@ -240,6 +240,7 @@ const SAND_ART_LAYERS: Record<string, SandColor[]> = {
   "subaquatic-sandbar": ["teal", "apricot", "teal", "teal"],
   "legendary-tidepool": ["pink", "teal", "pink", "teal"],
   "star-wish": ["teal", "white", "pink", "white"],
+  "beach-bottle": ["white", "white", "pink", "white"],
 };
 
 function BottleVisual({ recipe, filledLayers, size = "large" }: { recipe: SandArtRecipe; filledLayers: number; size?: "large" | "small" }) {

@@ -167,6 +167,15 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
 
 export const DECOR_RECIPES: CraftRecipe[] = [
   {
+    id: "beach-bag",
+    name: "The Beach Bag",
+    description: "Washed-up canvas cut into sturdy strips and stitched with hemp thread. Make extra bags to sell to Seaweed.",
+    cost: [
+      { itemId: "washed-up-canvas", count: 2 },
+      { itemId: "hemp-thread", count: 1 },
+    ],
+  },
+  {
     id: "beach-umbrella",
     name: "The Beach Umbrella",
     description: "Crafted from driftwood poles and washed-up canvas sails. Provides interactive shade for Snappy and local beach crabs.",
@@ -204,6 +213,17 @@ export const DECOR_RECIPES: CraftRecipe[] = [
       { itemId: "dried-sea-oats", count: 6 },
       { itemId: "sea-rose-petal", count: 2 },
       { itemId: "shiny-soda-tab", count: 1 },
+    ],
+  },
+  {
+    id: "shoreline-snow-globe",
+    name: "Shoreline Snow Globe",
+    description: "A tiny coastal scene sealed beneath clear sea glass, with sea glitter swirling through collected ocean water.",
+    cost: [
+      { itemId: "raw-driftwood-planks", count: 1 },
+      { itemId: "glass-white", count: 2 },
+      { itemId: "glitter", count: 1 },
+      { itemId: "sea-water", count: 1 },
     ],
   },
 ];
@@ -274,5 +294,18 @@ export const SAND_ART_RECIPES: SandArtRecipe[] = [
       { itemId: "empty-glass-bottle", count: 1 },
     ],
     outputItemId: "star-wish-bottle",
+  },
+  {
+    id: "beach-bottle",
+    name: "Beach in a Bottle",
+    description: "Snow-white sand, a small shell, and sea-rose petals resting beneath a shimmer of collected ocean water.",
+    cost: [
+      { itemId: "sand-snow-white", count: 2 },
+      { itemId: "shell-scallop", count: 1 },
+      { itemId: "sea-rose-petal", count: 2 },
+      { itemId: "sea-water", count: 1 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "beach-bottle",
   },
 ];

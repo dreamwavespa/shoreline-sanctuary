@@ -220,6 +220,7 @@ interface Ctx {
   collectRainGaugeWater: () => boolean;
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
+  collectSeaWater: () => void;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -430,6 +431,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (recipeId === "rowboat-repair") next.rowboatRepaired = true;
       if (recipeId === "beach-umbrella") next.umbrellaPlaced = true;
       if (recipeId === "picnic-basket") next.picnicBasketPlaced = true;
+      if (recipeId === "beach-bag") next.hasBeachBag = true;
       if (recipeId === "inflatable-raft") {
         next.raftInflated = true;
         next.sandbarsUnlocked = true;
@@ -935,6 +937,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const collectSeaWater = () => {
+    setState((s) => ({
+      ...s,
+      inventory: {
+        ...s.inventory,
+        "sea-water": (s.inventory["sea-water"] || 0) + 1,
+      },
+    }));
+    play("oceanWaterSplash", 0.85);
+    toast("Collected 1 Jar of Sea Water at the ocean's edge!");
+  };
+
   const buyFromSeaweed = (itemId: string, discoveryDate?: string) => {
     const regular = SHOP_STOCK.find((item) => item.itemId === itemId);
     const discovery = SEAWEED_DISCOVERIES.find((item) => item.itemId === itemId);
@@ -1040,6 +1054,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       collectRainGaugeWater,
       buyFromSeaweed,
       sellToSeaweed,
+      collectSeaWater,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );

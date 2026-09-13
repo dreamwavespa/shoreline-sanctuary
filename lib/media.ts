@@ -108,6 +108,7 @@ export const SFX_FILES: Record<string, string> = {
   seaweedDiscovery: "/audio/Seaweed%20Discovery.mp3",
   chestOpen: "/audio/Chest%20Opening.mp3",
   liquidBottle: "/audio/Liquid%20Bottle.mp3",
+  oceanWaterSplash: "/audio/Ocean%20Water%20Splash.mp3",
   seaweedCollect: "/audio/Seaweed%20Collect.mp3",
   paintPigment: "/audio/Paint%20Pigment.mp3",
 
