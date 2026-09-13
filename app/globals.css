@@ -203,3 +203,46 @@
 @media (prefers-reduced-motion: reduce) {
   .chest-treasure-glow { animation: none; filter: drop-shadow(0 0 9px rgb(103 232 249 / 0.9)); }
 }
+
+@keyframes nurserySoilSettle {
+  0% { opacity: 0.45; filter: brightness(1.35); }
+  55% { opacity: 1; filter: brightness(0.95); }
+  100% { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes nurserySproutRise {
+  from { opacity: 0; transform: translateY(18px) scale(0.35); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes nurseryWaterTilt {
+  0%, 100% { transform: rotate(0deg); }
+  30%, 72% { transform: rotate(-24deg); }
+}
+
+@keyframes nurseryDropFall {
+  from { opacity: 0; transform: translate(0, -4px) rotate(35deg); }
+  30% { opacity: 1; }
+  to { opacity: 0; transform: translate(-28px, 35px) rotate(35deg); }
+}
+
+@keyframes nurserySeedGlow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgb(103 232 249 / 0.75)); transform: scale(0.9); }
+  50% { filter: drop-shadow(0 0 20px rgb(34 211 238 / 1)); transform: scale(1.14); }
+}
+
+.nursery-pot-fill { transform-origin: center bottom; transition: transform 500ms ease-out; }
+.nursery-pot-fill.is-mixed { animation: nurserySoilSettle 850ms ease-out both; }
+.nursery-sprout { animation: nurserySproutRise 850ms ease-out both; filter: drop-shadow(0 3px 2px rgb(6 78 59 / 0.6)); }
+.nursery-watering { transform-origin: 80% 75%; animation: nurseryWaterTilt 1.6s ease-in-out both; filter: drop-shadow(0 3px 3px rgb(8 47 73 / 0.55)); }
+.nursery-water-drops { position: absolute; left: -1.1rem; top: 2.55rem; color: #bae6fd; letter-spacing: 0.2rem; transform: rotate(35deg); animation: nurseryDropFall 0.75s linear 0.45s infinite; text-shadow: 0 0 5px white; }
+.nursery-seed-glow { animation: nurserySeedGlow 1.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nursery-pot-fill { transition: none; }
+  .nursery-pot-fill.is-mixed,
+  .nursery-sprout,
+  .nursery-watering,
+  .nursery-water-drops,
+  .nursery-seed-glow { animation: none; }
+}

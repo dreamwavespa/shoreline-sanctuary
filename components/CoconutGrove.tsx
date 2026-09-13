@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { useGame } from "@/lib/store";
+import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal";
 type HarvestTimes = Partial<Record<NodeId, number>>;
@@ -45,6 +46,8 @@ export default function CoconutGrove() {
   const [harvestedAt, setHarvestedAt] = useState<HarvestTimes>({});
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
+  const [nurseryOpen, setNurseryOpen] = useState(false);
+  const nurseryButtonRef = useRef<HTMLButtonElement>(null);
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
   const season = month >= 8 && month <= 10 ? "autumn" : month === 11 || month <= 1 ? "winter" : "growing";
@@ -169,6 +172,11 @@ export default function CoconutGrove() {
     setScreen("beach");
   };
 
+  const closeNursery = () => {
+    setNurseryOpen(false);
+    window.setTimeout(() => nurseryButtonRef.current?.focus(), 0);
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
       <div className="relative h-[42%] min-h-[260px] w-full overflow-hidden">
@@ -186,6 +194,31 @@ export default function CoconutGrove() {
           <p className="rounded-xl bg-sky-100 p-3 text-sm font-semibold text-sky-950 ring-1 ring-sky-300">🌦️ Post-storm growth is active: rare plants may appear and every grove patch regrows twice as fast.</p>
         )}
         <p role="status" aria-live="polite" className="rounded-xl bg-white/90 p-3 text-sm font-medium text-emerald-950 shadow-sm ring-1 ring-emerald-200">{message}</p>
+
+        <section aria-labelledby="nursery-launch-heading" className="rounded-2xl bg-gradient-to-br from-emerald-900 to-teal-800 p-5 text-white shadow-md ring-1 ring-emerald-700">
+          <div className="flex items-center gap-4">
+            <button
+              ref={nurseryButtonRef}
+              type="button"
+              disabled={!state.groveNurseryAvailable}
+              onClick={() => setNurseryOpen(true)}
+              aria-label={state.groveNurseryAvailable ? "Open Hidden Grove Nursery" : "Hidden Grove Nursery unavailable until the next storm"}
+              className="group flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-lime-100 text-emerald-800 shadow-lg ring-4 ring-lime-300 transition active:scale-95 disabled:bg-emerald-700 disabled:text-emerald-300 disabled:ring-emerald-600"
+            >
+              <WateringCanIcon className="h-14 w-14 transition-transform group-enabled:hover:-rotate-6" />
+            </button>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-lime-200">Storm-Grown Activity</p>
+              <h2 id="nursery-launch-heading" className="font-serif text-xl font-bold">Hidden Grove Nursery</h2>
+              <p className="mt-1 text-sm text-emerald-50">
+                {state.groveNurseryAvailable
+                  ? "Rain has carried rare materials into the grove. Select the watering can to begin."
+                  : "The nursery is resting. A new coastal storm will uncover more materials."}
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 text-center text-xs font-semibold text-lime-100">Nursery rounds completed: {state.groveNurseryCompletions}</p>
+        </section>
 
         <section aria-labelledby="harvest-heading">
           <h2 id="harvest-heading" className="mb-2 font-serif text-xl font-bold text-emerald-950">Foraging Patches</h2>
@@ -217,6 +250,7 @@ export default function CoconutGrove() {
 
         <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
       </div>
+      {nurseryOpen && <HiddenGroveNursery onClose={closeNursery} />}
     </div>
   );
 }

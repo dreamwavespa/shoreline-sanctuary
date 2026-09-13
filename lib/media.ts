@@ -29,6 +29,7 @@ export const SCENES = {
   seaweedPortrait: "/images/seaweed-the-otter.jpeg",
   coconutGrove: "/images/coconut-grove.jpeg",
   coconutGroveRecipes: "/images/coconut-grove-recipe-cards.jpeg",
+  hiddenGroveNursery: "/images/hidden-grove-nursery.png",
 };
 
 export const MUSIC = {
@@ -89,6 +90,9 @@ export const SFX_FILES: Record<string, string> = {
   groveRootPull: "/audio/grove-root-pull.mp3",
   groveSignTap: "/audio/grove-sign-tap.mp3",
   groveItemPickup: "/audio/grove-item-pickup.mp3",
+  nurseryDig: "/audio/nursery-dig.mp3",
+  nurseryPlant: "/audio/nursery-plant.mp3",
+  nurseryWater: "/audio/nursery-water.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,

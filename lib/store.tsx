@@ -89,6 +89,9 @@ interface GameState {
   stormCleanupAvailable: boolean;
   stormCleanupCompletions: number;
   rainBarrelLevel: number;
+  groveNurseryAvailable: boolean;
+  groveNurseryCompletions: number;
+  groveNurserySeedMisses: number;
   tidePoolDiscoveries: string[];
   tidePoolSearchesCompleted: number;
   sandDollars: number;
@@ -145,6 +148,9 @@ const DEFAULT_STATE: GameState = {
   stormCleanupAvailable: false,
   stormCleanupCompletions: 0,
   rainBarrelLevel: 0,
+  groveNurseryAvailable: false,
+  groveNurseryCompletions: 0,
+  groveNurserySeedMisses: 0,
   tidePoolDiscoveries: [],
   tidePoolSearchesCompleted: 0,
   sandDollars: 8,
@@ -237,6 +243,7 @@ interface Ctx {
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
   collectRainBarrelWater: () => boolean;
+  completeGroveNursery: () => { ok: boolean; foundSeed: boolean };
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
@@ -284,6 +291,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           inventory,
           sandDollars,
           rainBarrelLevel,
+          groveNurseryAvailable: parsed.groveNurseryAvailable ?? parsed.currentForecast?.id === "storm",
           notebookDiscovered: collectedSandDollars > 0
             ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
             : { ...(parsed.notebookDiscovered || {}) },
@@ -508,6 +516,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             }
           : s.currentForecast,
         stormCleanupAvailable: keeperKettleComplete ? true : s.stormCleanupAvailable,
+        groveNurseryAvailable: keeperKettleComplete ? true : s.groveNurseryAvailable,
       };
     });
     play(quest.id === "sunnyshellpalette" ? "paintPigment" : "questComplete");
@@ -924,6 +933,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ...s,
       currentForecast: forecast,
       stormCleanupAvailable: forecast.id === "storm" ? true : s.stormCleanupAvailable,
+      groveNurseryAvailable: forecast.id === "storm" ? true : s.groveNurseryAvailable,
     }));
     play(forecast.id === "storm" ? "plastic" : "shell");
     return forecast;
@@ -962,6 +972,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("liquidBottle");
     toast("Collected 3 Pure Water Vials from Maeve's rain barrel!");
     return true;
+  };
+
+  const completeGroveNursery = () => {
+    if (!stateRef.current.groveNurseryAvailable) return { ok: false, foundSeed: false };
+
+    const foundSeed = stateRef.current.groveNurserySeedMisses >= 2 || Math.random() < 0.35;
+    setState((s) => ({
+      ...s,
+      groveNurseryAvailable: false,
+      groveNurseryCompletions: s.groveNurseryCompletions + 1,
+      groveNurserySeedMisses: foundSeed ? 0 : s.groveNurserySeedMisses + 1,
+      inventory: {
+        ...s.inventory,
+        "rare-soil": (s.inventory["rare-soil"] || 0) + 1,
+        ...(foundSeed ? { "deep-sea-seed": (s.inventory["deep-sea-seed"] || 0) + 1 } : {}),
+      },
+    }));
+    play(foundSeed ? "sparkle" : "questComplete");
+    toast(foundSeed ? "Rare Enriched Soil and a Deep-Sea Seed found!" : "Rare Enriched Soil prepared!");
+    return { ok: true, foundSeed };
   };
 
   const collectSeaWater = () => {
@@ -1108,6 +1138,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       checkWeather,
       completeStormCleanup,
       collectRainBarrelWater,
+      completeGroveNursery,
       buyFromSeaweed,
       sellToSeaweed,
       collectSeaWater,
