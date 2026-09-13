@@ -67,21 +67,22 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 }
 
 export default function WeatherStation() {
-  const { state, checkWeather, collectRainGaugeWater } = useGame();
+  const { state, checkWeather, collectRainBarrelWater } = useGame();
   const [cleanupOpen, setCleanupOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const cleanupButtonRef = useRef<HTMLButtonElement>(null);
   const keeperQuestDone = !!state.questProgress.keeperkettle;
-  const rainGaugeVialsReady = Math.max(0, state.stormCleanupCompletions - state.rainGaugeVialsClaimed);
+  const rainBarrelFull = state.rainBarrelLevel >= 3;
+  const rainBarrelPercent = Math.min(100, (state.rainBarrelLevel / 3) * 100);
 
   const closeCleanup = () => {
     setCleanupOpen(false);
     window.setTimeout(() => cleanupButtonRef.current?.focus(), 0);
   };
 
-  const fillWaterVial = () => {
-    if (collectRainGaugeWater()) {
-      setAnnouncement("Pure Water Vial filled and added to your inventory.");
+  const collectStoredRainwater = () => {
+    if (collectRainBarrelWater()) {
+      setAnnouncement("Three Pure Water Vials filled and added to your inventory. The rain barrel is empty again.");
     }
   };
 
@@ -145,28 +146,46 @@ export default function WeatherStation() {
                 </div>
               )}
 
-              {state.stormCleanupCompletions > 0 && !state.stormCleanupAvailable && (
-                <div className="mt-4 rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
-                  <p className="font-bold text-sky-950">💧 Maeve&apos;s Rain Gauge</p>
-                  <p className="mt-1 text-sm text-sky-800">
-                    {rainGaugeVialsReady > 0
-                      ? `The cleaned gauge holds enough clear rainwater for ${rainGaugeVialsReady} ${rainGaugeVialsReady === 1 ? "vial" : "vials"}.`
-                      : "The rain gauge is empty. It will refill after the next Storm Cleanup."}
-                  </p>
-                  <button
-                    type="button"
-                    disabled={rainGaugeVialsReady < 1}
-                    onClick={fillWaterVial}
-                    className="mt-3 w-full rounded-xl bg-sky-700 py-3 font-bold text-white shadow active:bg-sky-800 disabled:bg-sky-200 disabled:text-sky-500"
+              <div className="mt-4 rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
+                <p className="font-bold text-sky-950">🌧️ Maeve&apos;s Rain Barrel</p>
+                <p className="mt-1 text-sm text-sky-800">
+                  The rain gauge measures each storm while the barrel stores the fresh water. Every completed Storm Cleanup adds one level.
+                </p>
+                <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-center">
+                  <div
+                    className={`rain-barrel ${rainBarrelFull ? "is-full" : ""}`}
+                    role="img"
+                    aria-label={`Rain barrel ${state.rainBarrelLevel} of 3 levels full.`}
                   >
-                    {rainGaugeVialsReady > 0 ? `Fill Pure Water Vial (${rainGaugeVialsReady} ready)` : "Rain Gauge Empty"}
-                  </button>
-                  <p className="mt-3 text-center text-xs font-semibold text-teal-700">
-                    Storm cleanups completed: {state.stormCleanupCompletions}
-                  </p>
-                  <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+                    <div className="rain-barrel-water" style={{ height: `${rainBarrelPercent}%` }} aria-hidden="true">
+                      <span className="rain-barrel-ripple" />
+                    </div>
+                    <span className="rain-barrel-band rain-barrel-band-top" aria-hidden="true" />
+                    <span className="rain-barrel-band rain-barrel-band-bottom" aria-hidden="true" />
+                    {rainBarrelFull && <span className="rain-barrel-sparkle" aria-hidden="true">✦</span>}
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="font-bold text-sky-950">Barrel level: {state.rainBarrelLevel} of 3 storms</p>
+                    <p className="mt-1 text-sm text-sky-800">
+                      {rainBarrelFull
+                        ? "The barrel is full. Three Pure Water Vials are ready."
+                        : `${3 - state.rainBarrelLevel} more ${3 - state.rainBarrelLevel === 1 ? "storm cleanup" : "storm cleanups"} needed.`}
+                    </p>
+                  </div>
                 </div>
-              )}
+                <button
+                  type="button"
+                  disabled={!rainBarrelFull}
+                  onClick={collectStoredRainwater}
+                  className="mt-4 w-full rounded-xl bg-sky-700 py-3 font-bold text-white shadow active:bg-sky-800 disabled:bg-sky-200 disabled:text-sky-500"
+                >
+                  {rainBarrelFull ? "Collect 3 Pure Water Vials" : `Rain Barrel ${state.rainBarrelLevel}/3 Full`}
+                </button>
+                <p className="mt-3 text-center text-xs font-semibold text-teal-700">
+                  Storm cleanups completed: {state.stormCleanupCompletions}
+                </p>
+                <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+              </div>
             </>
           )}
         </div>

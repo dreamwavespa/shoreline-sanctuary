@@ -87,7 +87,7 @@ interface GameState {
   currentForecast: WeatherForecast | null;
   stormCleanupAvailable: boolean;
   stormCleanupCompletions: number;
-  rainGaugeVialsClaimed: number;
+  rainBarrelLevel: number;
   tidePoolDiscoveries: string[];
   tidePoolSearchesCompleted: number;
   sandDollars: number;
@@ -142,7 +142,7 @@ const DEFAULT_STATE: GameState = {
   currentForecast: null,
   stormCleanupAvailable: false,
   stormCleanupCompletions: 0,
-  rainGaugeVialsClaimed: 0,
+  rainBarrelLevel: 0,
   tidePoolDiscoveries: [],
   tidePoolSearchesCompleted: 0,
   sandDollars: 8,
@@ -217,7 +217,7 @@ interface Ctx {
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
-  collectRainGaugeWater: () => boolean;
+  collectRainBarrelWater: () => boolean;
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
@@ -256,11 +256,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         const collectedSandDollars = Math.max(0, Number(inventory["shell-sanddollar"]) || 0);
         delete inventory["shell-sanddollar"];
         const sandDollars = Math.max(0, Number(parsed.sandDollars ?? DEFAULT_STATE.sandDollars) || 0) + collectedSandDollars;
+        const legacyUnclaimedRain = Math.max(0, (Number(parsed.stormCleanupCompletions) || 0) - (Number(parsed.rainGaugeVialsClaimed) || 0));
+        const rainBarrelLevel = Math.min(3, Math.max(0, Number(parsed.rainBarrelLevel ?? legacyUnclaimedRain) || 0));
         setState({
           ...DEFAULT_STATE,
           ...parsed,
           inventory,
           sandDollars,
+          rainBarrelLevel,
           notebookDiscovered: collectedSandDollars > 0
             ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
             : { ...(parsed.notebookDiscovered || {}) },
@@ -909,6 +912,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ...s,
       stormCleanupAvailable: false,
       stormCleanupCompletions: s.stormCleanupCompletions + 1,
+      rainBarrelLevel: Math.min(3, s.rainBarrelLevel + 1),
       inventory: {
         ...s.inventory,
         "raw-driftwood-planks": (s.inventory["raw-driftwood-planks"] || 0) + 1,
@@ -922,18 +926,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const collectRainGaugeWater = () => {
-    if (stateRef.current.rainGaugeVialsClaimed >= stateRef.current.stormCleanupCompletions) return false;
+  const collectRainBarrelWater = () => {
+    if (stateRef.current.rainBarrelLevel < 3) return false;
     setState((s) => ({
       ...s,
-      rainGaugeVialsClaimed: s.rainGaugeVialsClaimed + 1,
+      rainBarrelLevel: 0,
       inventory: {
         ...s.inventory,
-        "pure-water": (s.inventory["pure-water"] || 0) + 1,
+        "pure-water": (s.inventory["pure-water"] || 0) + 3,
       },
     }));
     play("liquidBottle");
-    toast("Collected 1 Pure Water Vial from Maeve's rain gauge!");
+    toast("Collected 3 Pure Water Vials from Maeve's rain barrel!");
     return true;
   };
 
@@ -1051,7 +1055,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,
-      collectRainGaugeWater,
+      collectRainBarrelWater,
       buyFromSeaweed,
       sellToSeaweed,
       collectSeaWater,

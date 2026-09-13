@@ -165,3 +165,30 @@
   .water-bucket-visual.is-filling .water-bucket-fill,
   .water-bucket-visual.is-filling .water-bucket-drop { animation-duration: 0.01ms; animation-delay: 0ms; }
 }
+
+@keyframes rainBarrelRipple {
+  0%, 100% { transform: translateX(-7%) scaleX(1); }
+  50% { transform: translateX(7%) scaleX(1.12); }
+}
+
+@keyframes rainBarrelSparkle {
+  0%, 100% { opacity: 0.45; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(18deg); }
+}
+
+.rain-barrel { position: relative; width: 7rem; height: 8rem; flex: 0 0 auto; overflow: hidden; border: 0.32rem solid #78350f; border-radius: 1.4rem 1.4rem 1.8rem 1.8rem; background: #d97706; box-shadow: inset 0 0 0 0.22rem rgb(254 243 199 / 0.35), 0 6px 12px rgb(12 74 110 / 0.2); }
+.rain-barrel::before { position: absolute; z-index: 2; inset: 0; content: ""; background: repeating-linear-gradient(90deg, rgb(146 64 14 / 0.54) 0 0.3rem, rgb(245 158 11 / 0.38) 0.3rem 1.35rem); pointer-events: none; }
+.rain-barrel::after { position: absolute; z-index: 4; top: -0.18rem; right: 0.3rem; left: 0.3rem; height: 0.72rem; content: ""; border-radius: 50%; background: #fbbf24; border: 0.2rem solid #78350f; }
+.rain-barrel-water { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; min-height: 0; overflow: visible; background: linear-gradient(#67e8f9, #0284c7 45%, #075985); transition: height 900ms ease-out; }
+.rain-barrel-ripple { position: absolute; top: -0.25rem; left: -5%; width: 110%; height: 0.6rem; border-radius: 50%; background: #cffafe; animation: rainBarrelRipple 2.4s ease-in-out infinite; }
+.rain-barrel-band { position: absolute; z-index: 3; right: 0; left: 0; height: 0.42rem; background: #475569; box-shadow: 0 1px 1px rgb(15 23 42 / 0.45); }
+.rain-barrel-band-top { top: 2.25rem; }
+.rain-barrel-band-bottom { bottom: 2.15rem; }
+.rain-barrel-sparkle { position: absolute; z-index: 5; top: 0.65rem; right: 0.55rem; color: #fef9c3; font-size: 1.5rem; text-shadow: 0 0 8px white; animation: rainBarrelSparkle 1.35s ease-in-out infinite; }
+.rain-barrel.is-full { box-shadow: inset 0 0 0 0.22rem rgb(254 243 199 / 0.35), 0 0 18px 5px rgb(103 232 249 / 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rain-barrel-water { transition: none; }
+  .rain-barrel-ripple,
+  .rain-barrel-sparkle { animation: none; }
+}
