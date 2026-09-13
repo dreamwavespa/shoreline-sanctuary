@@ -167,6 +167,17 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
 
 export const DECOR_RECIPES: CraftRecipe[] = [
   {
+    id: "coastal-beeswax-candle",
+    name: "Sea-Rose Coastal Candle",
+    description: "Coastal beeswax poured around sea-rose petals and scallop shells, then tied with natural twine. Keep its warm glow or sell it to Seaweed.",
+    cost: [
+      { itemId: "beeswax-jar", count: 1 },
+      { itemId: "sea-rose-petal", count: 2 },
+      { itemId: "shell-scallop", count: 2 },
+    ],
+    sceneImage: "coastalBeeswaxCandle",
+  },
+  {
     id: "beach-bag",
     name: "The Beach Bag",
     description: "Washed-up canvas cut into sturdy strips and stitched with hemp thread. Make extra bags to sell to Seaweed.",

@@ -65,6 +65,8 @@ function RecipeCard({
   lockedMessage,
   accent = "amber",
   repeatable = false,
+  imageSrc,
+  imageAlt,
 }: {
   title: string;
   description: string;
@@ -74,6 +76,8 @@ function RecipeCard({
   lockedMessage?: string;
   accent?: string;
   repeatable?: boolean;
+  imageSrc?: string;
+  imageAlt?: string;
 }) {
   const { state, craft, hasEnough } = useGame();
   const [announcement, setAnnouncement] = useState("");
@@ -99,6 +103,11 @@ function RecipeCard({
     <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 mb-4">
       <h2 className="text-lg font-bold text-amber-900 mb-1">{title}</h2>
       <p className="text-sm text-amber-700 mb-3">{description}</p>
+      {imageSrc && (
+        <div className="relative mb-4 h-48 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-200">
+          <Image src={imageSrc} alt={imageAlt || `Finished ${title}`} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+        </div>
+      )}
       <CostRow cost={cost} />
       <button
         type="button"
@@ -674,14 +683,14 @@ export default function Workshop() {
             </section>
             <h2 className="mb-3 font-serif text-lg font-bold text-purple-950">Melody&apos;s Signature Designs</h2>
             {JEWELRY_RECIPES.map((r) => (
-              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : undefined} imageAlt={ITEMS[r.id]?.artDescription} />
             ))}
           </>
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
             {DECOR_RECIPES.map((r) => (
-              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable />
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={r.id === "coastal-beeswax-candle" && state.honeybellStage < 3} lockedMessage="Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe." />
             ))}
             <RecipeCard
               title={RAFT_RECIPE.name}

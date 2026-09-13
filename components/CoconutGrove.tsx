@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
-import { useGame } from "@/lib/store";
+import { getShopDateKey } from "@/lib/shop";
+import { BEE_VISIT_COOLDOWN_MS, useGame } from "@/lib/store";
 import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal";
@@ -42,7 +43,7 @@ function choose<T>(weighted: { value: T; weight: number }[]): T {
 }
 
 export default function CoconutGrove() {
-  const { state, collectItem, play, setMusicOverride, setScreen } = useGame();
+  const { state, collectItem, play, setMusicOverride, setScreen, advanceHoneybell, visitGroveBees } = useGame();
   const [harvestedAt, setHarvestedAt] = useState<HarvestTimes>({});
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
@@ -51,6 +52,11 @@ export default function CoconutGrove() {
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
   const season = month >= 8 && month <= 10 ? "autumn" : month === 11 || month <= 1 ? "winter" : "growing";
+  const beeClueFound = state.foundBottleMessages.includes("sea-rose-bees") || state.honeybellStage > 0;
+  const beesUnlocked = state.honeybellStage >= 3;
+  const beeVisitRemaining = Math.max(0, state.beeLastVisitAt + BEE_VISIT_COOLDOWN_MS - now);
+  const beeVisitMinutes = Math.ceil(beeVisitRemaining / 60_000);
+  const dailyWaxReady = state.beeWaxClaimDate !== getShopDateKey();
 
   useEffect(() => {
     setMusicOverride("grove");
@@ -177,6 +183,30 @@ export default function CoconutGrove() {
     window.setTimeout(() => nurseryButtonRef.current?.focus(), 0);
   };
 
+  const tendHoneybell = () => {
+    const result = advanceHoneybell();
+    if (!result.ok) return;
+    setMessage(result.stage === 1
+      ? "You found the Golden Honeybell Seed hidden beyond the sea lavender."
+      : result.stage === 2
+        ? "The Golden Honeybell is planted beside the sea roses. One careful watering will help it bloom."
+        : "The Golden Honeybell opens in the sunlight. The coastal bees circle down and return to their hive!");
+  };
+
+  const visitBees = () => {
+    const result = visitGroveBees();
+    if (!result.ok) {
+      setMessage(result.minutesLeft
+        ? `The bees are foraging. Visit again in about ${result.minutesLeft} minute${result.minutesLeft === 1 ? "" : "s"}.`
+        : "The bees will arrive after the Golden Honeybell blooms.");
+      return;
+    }
+    if (result.wax && result.honey) setMessage("The bees shared a jar of coastal wax and a surprise jar of honey.");
+    else if (result.wax) setMessage("The bees shared today's jar of coastal wax. Their honeycomb is still filling.");
+    else if (result.honey) setMessage("A golden jar of coastal honey was ready inside the hive!");
+    else setMessage("The bees are still filling their honeycomb. Visit again later.");
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
       <div className="relative h-[42%] min-h-[260px] w-full overflow-hidden">
@@ -218,6 +248,59 @@ export default function CoconutGrove() {
             </div>
           </div>
           <p className="mt-3 text-center text-xs font-semibold text-lime-100">Nursery rounds completed: {state.groveNurseryCompletions}</p>
+        </section>
+
+        <section aria-labelledby="honeybell-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-yellow-50 to-rose-50 p-5 shadow-md ring-1 ring-amber-300">
+          <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Frosted Bottle Secret</p>
+          <h2 id="honeybell-heading" className="mt-1 font-serif text-xl font-bold text-amber-950">Golden Honeybell &amp; Coastal Hive</h2>
+          {!beeClueFound ? (
+            <div className="mt-4 rounded-2xl bg-slate-100 p-5 text-center ring-1 ring-slate-300">
+              <span aria-hidden="true" className="text-4xl">🔒</span>
+              <p className="mt-2 font-bold text-slate-800">Flower and hive undiscovered</p>
+              <p className="mt-1 text-sm text-slate-600">A message inside a sealed frosted bottle may reveal what the coastal bees are waiting for.</p>
+            </div>
+          ) : !beesUnlocked ? (
+            <div className="mt-4 text-center">
+              <div role="img" aria-label={state.honeybellStage === 0 ? "Sea lavender hiding a rare seed" : state.honeybellStage === 1 ? "A Golden Honeybell seed ready to plant" : "A planted Golden Honeybell sprout waiting to bloom"} className="mx-auto flex h-36 max-w-sm items-end justify-center rounded-2xl bg-gradient-to-b from-sky-100 to-emerald-200 pb-4 shadow-inner ring-1 ring-emerald-300">
+                <span aria-hidden="true" className={`text-7xl ${state.honeybellStage === 2 ? "honeybell-sprout" : ""}`}>
+                  {state.honeybellStage === 0 ? "🪻" : state.honeybellStage === 1 ? "🌰" : "🌱"}
+                </span>
+              </div>
+              <p className="mt-3 text-sm text-amber-900">
+                {state.honeybellStage === 0
+                  ? "The bottle message points beyond the sea lavender. Search gently for the hidden seed."
+                  : state.honeybellStage === 1
+                    ? "Plant the seed beside the sea roses, where the bottle sender said the bees once gathered."
+                    : "The roots have taken hold. Water the sprout and let the Honeybell open."}
+              </p>
+              <button type="button" onClick={tendHoneybell} className="mt-3 min-h-12 w-full rounded-xl bg-amber-700 px-4 py-3 font-bold text-white shadow active:bg-amber-800">
+                {state.honeybellStage === 0 ? "Search Beyond the Sea Lavender" : state.honeybellStage === 1 ? "Plant the Golden Honeybell" : "Water and Grow the Honeybell"}
+              </button>
+              <p className="mt-2 text-xs font-semibold text-amber-700">Growth: {state.honeybellStage} of 3 steps</p>
+            </div>
+          ) : (
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={visitBees}
+                disabled={beeVisitRemaining > 0}
+                aria-describedby="bee-rewards-description bee-visit-status"
+                aria-label={`Visit the blooming Golden Honeybell and coastal bee hive. ${dailyWaxReady ? "Today's wax is ready." : "Today's wax has been collected."}`}
+                className="group relative mx-auto block h-56 w-full max-w-sm overflow-hidden rounded-2xl bg-gradient-to-b from-sky-200 via-amber-100 to-emerald-300 shadow-md ring-2 ring-amber-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-teal-600 disabled:cursor-not-allowed disabled:opacity-65"
+              >
+                <span aria-hidden="true" className="absolute bottom-3 left-1/2 -translate-x-1/2 text-8xl honeybell-bloom">🌼</span>
+                <span aria-hidden="true" className="honeybell-hive" />
+                <span aria-hidden="true" className="honeybell-bee honeybell-bee-one">🐝</span>
+                <span aria-hidden="true" className="honeybell-bee honeybell-bee-two">🐝</span>
+                <span aria-hidden="true" className="honeybell-bee honeybell-bee-three">🐝</span>
+                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-2 text-sm font-bold text-amber-950 shadow">
+                  {beeVisitRemaining > 0 ? `Bees foraging · ${beeVisitMinutes}m` : "Visit the Flower & Hive"}
+                </span>
+              </button>
+              <p id="bee-rewards-description" className="mt-3 text-sm text-amber-900">The first available visit each day gives one jar of wax. Honey is not guaranteed, but it will appear by the third visit without a honey reward.</p>
+              <p id="bee-visit-status" className="mt-2 text-xs font-semibold text-amber-700">{dailyWaxReady ? "Daily wax ready" : "Today’s wax collected"} · Hive visits: {state.beeVisits}</p>
+            </div>
+          )}
         </section>
 
         <section aria-labelledby="harvest-heading">

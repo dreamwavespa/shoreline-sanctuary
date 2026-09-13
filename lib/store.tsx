@@ -30,6 +30,7 @@ const NET_CUT_TARGET = 8;
 const TRAP_PRY_TARGET = 6;
 const ELLY_COOLDOWN_MS = 15000;
 export const MARSHMALLOW_TREAT_COOLDOWN_MS = 30 * 60 * 1000;
+export const BEE_VISIT_COOLDOWN_MS = 30 * 60 * 1000;
 
 export interface SandcastleFeature {
   label: string;
@@ -109,6 +110,11 @@ interface GameState {
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
   customJewelry: CustomJewelryPiece[];
+  honeybellStage: number;
+  beeWaxClaimDate: string;
+  beeLastVisitAt: number;
+  beeHoneyMisses: number;
+  beeVisits: number;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -169,6 +175,11 @@ const DEFAULT_STATE: GameState = {
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
   customJewelry: [],
+  honeybellStage: 0,
+  beeWaxClaimDate: "",
+  beeLastVisitAt: 0,
+  beeHoneyMisses: 0,
+  beeVisits: 0,
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -258,6 +269,8 @@ interface Ctx {
   completeStormCleanup: () => boolean;
   collectRainBarrelWater: () => boolean;
   completeGroveNursery: () => { ok: boolean; foundSeed: boolean };
+  advanceHoneybell: () => { ok: boolean; stage: number };
+  visitGroveBees: () => { ok: boolean; wax: boolean; honey: boolean; minutesLeft?: number };
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
@@ -1026,6 +1039,67 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return { ok: true, foundSeed };
   };
 
+  const advanceHoneybell = () => {
+    const current = stateRef.current;
+    const clueFound = current.foundBottleMessages.includes("sea-rose-bees");
+    if (!clueFound || current.honeybellStage >= 3) return { ok: false, stage: current.honeybellStage };
+    if (current.honeybellStage === 1 && (current.inventory["honeybell-seed"] || 0) < 1) {
+      return { ok: false, stage: current.honeybellStage };
+    }
+
+    const nextStage = current.honeybellStage + 1;
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      if (s.honeybellStage === 0) inventory["honeybell-seed"] = (inventory["honeybell-seed"] || 0) + 1;
+      if (s.honeybellStage === 1) inventory["honeybell-seed"] = Math.max(0, (inventory["honeybell-seed"] || 0) - 1);
+      return { ...s, inventory, honeybellStage: Math.min(3, s.honeybellStage + 1) };
+    });
+
+    if (nextStage === 1) {
+      play("groveItemPickup");
+      toast("Golden Honeybell Seed found!");
+    } else if (nextStage === 2) {
+      play("groveRootPull");
+      toast("Golden Honeybell planted beside the sea roses.");
+    } else {
+      play("beeLanding", 0.75);
+      toast("The Honeybell blooms, and the coastal bees return!");
+    }
+    return { ok: true, stage: nextStage };
+  };
+
+  const visitGroveBees = () => {
+    const current = stateRef.current;
+    if (current.honeybellStage < 3) return { ok: false, wax: false, honey: false };
+    const now = Date.now();
+    const remaining = Math.max(0, current.beeLastVisitAt + BEE_VISIT_COOLDOWN_MS - now);
+    if (remaining > 0) {
+      return { ok: false, wax: false, honey: false, minutesLeft: Math.ceil(remaining / 60_000) };
+    }
+
+    const dateKey = getShopDateKey();
+    const wax = current.beeWaxClaimDate !== dateKey;
+    const honey = current.beeHoneyMisses >= 2 || Math.random() < 0.3;
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      if (wax) inventory["beeswax-jar"] = (inventory["beeswax-jar"] || 0) + 1;
+      if (honey) inventory["coastal-honey-jar"] = (inventory["coastal-honey-jar"] || 0) + 1;
+      return {
+        ...s,
+        inventory,
+        beeWaxClaimDate: wax ? dateKey : s.beeWaxClaimDate,
+        beeLastVisitAt: now,
+        beeHoneyMisses: honey ? 0 : s.beeHoneyMisses + 1,
+        beeVisits: s.beeVisits + 1,
+      };
+    });
+    play("beeLanding", 0.7);
+    if (wax || honey) window.setTimeout(() => play("honeyJar", 0.85), 900);
+    const rewards = [wax ? "a jar of wax" : "", honey ? "a jar of honey" : ""].filter(Boolean).join(" and ");
+    toast(rewards ? `The bees shared ${rewards}!` : "The bees are still filling their honeycomb. Visit again later.");
+    return { ok: true, wax, honey };
+  };
+
   const collectSeaWater = () => {
     setState((s) => ({
       ...s,
@@ -1226,6 +1300,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       completeStormCleanup,
       collectRainBarrelWater,
       completeGroveNursery,
+      advanceHoneybell,
+      visitGroveBees,
       buyFromSeaweed,
       sellToSeaweed,
       collectSeaWater,

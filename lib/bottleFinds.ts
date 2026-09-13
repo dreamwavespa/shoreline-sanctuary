@@ -6,7 +6,7 @@ export interface FoundBottleMessage {
 export const FOUND_BOTTLE_MESSAGES: FoundBottleMessage[] = [
   { id: "silver-road", text: "The moon makes a silver road across the water. I hope it leads you somewhere kind." },
   { id: "crystal-bells", text: "If you hear bells beneath the waves, the crystal cave may be closer than it seems." },
-  { id: "sea-rose-bees", text: "I planted sea roses above the high-tide line. Please leave one for the bees." },
+  { id: "sea-rose-bees", text: "I hid a Golden Honeybell seed beyond the sea lavender in the Coconut Grove. Find it, plant it beside the sea roses, and the bees will return when it blooms." },
   { id: "dune-library", text: "A quiet library once stood where the dunes meet the cliffs." },
   { id: "missing-bookmark", text: "The little white lighthouse cat stole my bookmark again." },
   { id: "seaweeds-glass", text: "Seaweed always gives a fair price, but she keeps the prettiest glass for herself." },

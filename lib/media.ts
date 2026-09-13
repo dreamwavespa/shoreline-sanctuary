@@ -21,6 +21,7 @@ export const SCENES = {
   sealPontoon: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/908ffd5526974e38b77dfc1fdc4c4032.webp",
   roseBowl: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/9121aeb40725481fa0e3b50a1d82be14.webp",
   roseMilkBottle: "/images/rose-milk-bottle.jpeg",
+  coastalBeeswaxCandle: "/images/coastal-beeswax-candle.jpeg",
   maeveGlass: "/images/maeve-glass-lighthouse-keeper.jpeg",
   maevesKettle: "/images/maeves-antique-copper-kettle.jpeg",
   tidePool: "/images/tide-pool-search.webp",
@@ -98,6 +99,9 @@ export const SFX_FILES: Record<string, string> = {
   jewelryMaterials: "/audio/jewelry-materials.mp3",
   roseMilkPour: "/audio/rose-milk-pour.mp3",
   roseMilkBottle: "/audio/rose-milk-bottle.mp3",
+  beeLanding: "/audio/bee-landing.mp3",
+  honeyJar: "/audio/honey-jar.mp3",
+  candleLight: "/audio/candle-light.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,
