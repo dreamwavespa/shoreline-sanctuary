@@ -61,7 +61,7 @@ export default function BucketPanel() {
                 {def.isEmoji ? (
                   <span className={`text-2xl ${def.glows ? "chest-treasure-glow" : ""}`}>{def.icon}</span>
                 ) : (
-                  <Image src={def.icon} alt={def.name} width={40} height={40} unoptimized className={`object-contain ${def.glows ? "chest-treasure-glow" : ""}`} />
+                  <Image src={def.icon} alt={def.artDescription || def.name} width={40} height={40} unoptimized className={`object-contain ${def.glows ? "chest-treasure-glow" : ""}`} />
                 )}
               </div>
               <span className="text-[10px] text-amber-800 text-center mt-1 leading-tight">{def.name}</span>

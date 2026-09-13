@@ -16,6 +16,7 @@ export default function BottleQuests() {
   const latestMessage = latestFind
     ? FOUND_BOTTLE_MESSAGES.find((message) => message.id === latestFind.messageId)
     : null;
+  const latestBonus = latestFind?.bonusItemId ? ITEMS[latestFind.bonusItemId] : null;
   const journalMessages = FOUND_BOTTLE_MESSAGES.filter((message) => state.foundBottleMessages.includes(message.id));
 
   useEffect(() => {
@@ -76,10 +77,24 @@ export default function BottleQuests() {
             <div role="status" aria-live="polite" className="mt-4 rounded-xl bg-white p-4 text-left shadow-inner ring-1 ring-amber-200">
               <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Message Inside</p>
               <p className="mt-2 font-serif text-lg leading-relaxed text-slate-800">“{latestMessage.text}”</p>
-              {latestFind?.bonusItemId && (
-                <p className="mt-3 font-bold text-emerald-800">
-                  Bonus find: {ITEMS[latestFind.bonusItemId].icon} {ITEMS[latestFind.bonusItemId].name}
-                </p>
+              {latestBonus && (
+                <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-center ring-1 ring-emerald-200">
+                  <p className="font-bold text-emerald-900">Bonus find: {latestBonus.name}</p>
+                  {latestBonus.isEmoji ? (
+                    <span aria-hidden="true" className="mt-2 block text-4xl">{latestBonus.icon}</span>
+                  ) : (
+                    <div className="relative mx-auto mt-3 h-80 w-full max-w-48 overflow-hidden rounded-xl bg-amber-50 shadow-md ring-1 ring-amber-300">
+                      <Image
+                        src={latestBonus.icon}
+                        alt={latestBonus.artDescription || latestBonus.name}
+                        fill
+                        unoptimized
+                        sizes="192px"
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
               )}
               <p className="mt-2 text-xs text-teal-700">The checked bottle is now available for sand-art crafting.</p>
             </div>

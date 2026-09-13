@@ -9,6 +9,7 @@ export interface ItemDef {
   rarity: "common" | "uncommon" | "rare";
   sfx: string;
   glows?: boolean;
+  artDescription?: string;
 }
 
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
@@ -116,6 +117,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "driftwood-oar": { id: "driftwood-oar", name: "Weathered Driftwood Oar", category: "raw", icon: "🛶", isEmoji: true, rarity: "uncommon", sfx: "wood" },
   "sealed-frosted-bottle": { id: "sealed-frosted-bottle", name: "Sealed Frosted Bottle", category: "special", icon: "🍾", isEmoji: true, rarity: "uncommon", sfx: "bottleGlass" },
   "empty-glass-bottle": { id: "empty-glass-bottle", name: "Empty Frosted Glass Bottle", category: "raw", icon: "🍾", isEmoji: true, rarity: "common", sfx: "bottleGlass" },
+  "bookmark-cozy-marshmallow": { id: "bookmark-cozy-marshmallow", name: "Cozy Coastal Bookmark: Toasted Marshmallow", category: "special", icon: "/images/bookmarks/cozy-marshmallow-bookmark.jpeg", rarity: "rare", sfx: "notebookPage", artDescription: "An illustrated tassel bookmark showing Marshmallow, the white lighthouse cat, beside the lighthouse with a perfectly toasted marshmallow, tea, a star chart, coastal stones, sea glass, and constellations." },
+  "bookmark-cozy-maeve-kettle": { id: "bookmark-cozy-maeve-kettle", name: "Cozy Coastal Bookmark: Maeve's Kettle", category: "special", icon: "/images/bookmarks/maeve-kettle-bookmark.jpeg", rarity: "rare", sfx: "notebookPage", artDescription: "An illustrated tassel bookmark showing Marshmallow, the white lighthouse cat, beside Maeve's weathered copper kettle, two cups of tea, a star chart, coastal stones, sea glass, and constellations." },
   "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },

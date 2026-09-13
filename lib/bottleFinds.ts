@@ -25,4 +25,6 @@ export const FOUND_BOTTLE_BONUSES = [
   "old-coin",
   "pearl-silver",
   "star-sand",
+  "bookmark-cozy-marshmallow",
+  "bookmark-cozy-maeve-kettle",
 ];
