@@ -75,6 +75,7 @@ interface GameState {
   ellyLastTap: number;
   snappyAwake: boolean;
   snappyFedCount: number;
+  snappyChokerGifted: boolean;
   trapProgress: number;
   libbyRescued: boolean;
   marshmallowScratchCount: number;
@@ -140,6 +141,7 @@ const DEFAULT_STATE: GameState = {
   ellyLastTap: 0,
   snappyAwake: false,
   snappyFedCount: 0,
+  snappyChokerGifted: false,
   trapProgress: 0,
   libbyRescued: false,
   marshmallowScratchCount: 0,
@@ -241,6 +243,7 @@ interface Ctx {
   lastToast: string | null;
   tapElly: () => { ok: boolean; secondsLeft?: number };
   feedSnappy: () => boolean;
+  giftSnappyChoker: () => boolean;
   pryTrap: () => void;
   tradeWithLibby: (give: { itemId: string; count: number }, get: { itemId: string; count: number }) => boolean;
   scratchMarshmallow: () => void;
@@ -307,6 +310,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw);
         const inventory = { ...(parsed.inventory || {}) };
+        const crafted = Array.isArray(parsed.crafted) ? parsed.crafted : [];
+        // Earlier versions marked the Tidal Pearl Choker as crafted without
+        // creating an inventory item. Restore it once so existing players can
+        // give Snappy the gift without spending rare materials again.
+        if (crafted.includes("tidal-pearl-choker") && !parsed.snappyChokerGifted && (inventory["tidal-pearl-choker"] || 0) < 1) {
+          inventory["tidal-pearl-choker"] = 1;
+        }
         // Sand Dollars used to exist twice: as a collected shell in the
         // bucket and as separate shop currency. Migrate every loose Sand
         // Dollar into the shared wallet, then remove the duplicate stack.
@@ -657,6 +667,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
     play("craftSuccess");
     toast("Snappy wakes up, happy and refreshed! 🐢");
+    return true;
+  };
+
+  const giftSnappyChoker = () => {
+    if (stateRef.current.snappyChokerGifted || (stateRef.current.inventory["tidal-pearl-choker"] || 0) < 1) return false;
+    setState((s) => {
+      const inventory = { ...s.inventory };
+      inventory["tidal-pearl-choker"] = Math.max(0, (inventory["tidal-pearl-choker"] || 0) - 1);
+      return { ...s, inventory, snappyChokerGifted: true };
+    });
+    play("pearl", 0.85);
+    window.setTimeout(() => play("sparkle", 0.65), 450);
+    toast("Snappy wears the Tidal Pearl Choker, and his shell begins to sparkle!");
     return true;
   };
 
@@ -1272,6 +1295,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       lastToast,
       tapElly,
       feedSnappy,
+      giftSnappyChoker,
       pryTrap,
       tradeWithLibby,
       scratchMarshmallow,

@@ -89,29 +89,49 @@ function OllieCard() {
 }
 
 function SnappyCard() {
-  const { state, feedSnappy } = useGame();
+  const { state, feedSnappy, giftSnappyChoker } = useGame();
   const milk = state.inventory["food-sea-rose-milk"] || 0;
+  const choker = state.inventory["tidal-pearl-choker"] || 0;
 
   return (
     <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-emerald-200 flex items-center gap-3">
-      <div className="w-16 h-16 shrink-0 rounded-xl bg-emerald-50 flex items-center justify-center text-4xl">
-        {state.snappyAwake ? "🐢" : "😴"}
+      <div role="img" aria-label={`${state.snappyAwake ? "Snappy is awake" : "Snappy is sleeping"}${state.snappyChokerGifted ? ", wearing the Tidal Pearl Choker with a permanently sparkling shell" : ""}.`} className={`relative w-16 h-16 shrink-0 rounded-xl bg-emerald-50 flex items-center justify-center text-4xl ${state.snappyChokerGifted ? "snappy-shell-sparkle" : ""}`}>
+        <span aria-hidden="true">{state.snappyAwake ? "🐢" : "😴"}</span>
+        {state.snappyChokerGifted && <>
+          <span aria-hidden="true" className="snappy-sparkle snappy-sparkle-one">✦</span>
+          <span aria-hidden="true" className="snappy-sparkle snappy-sparkle-two">✧</span>
+          <span aria-hidden="true" className="snappy-sparkle snappy-sparkle-three">✦</span>
+        </>}
       </div>
       <div className="flex-1">
         <p className="font-bold text-emerald-900">Snappy the Sea Turtle</p>
         <p className="text-xs text-emerald-700 mb-2">
           {state.snappyAwake
-            ? `Wide awake and grateful — fed ${state.snappyFedCount} time(s).`
-            : "Fast asleep on a sun-warmed rock. A bowl of Sea-Rose Milk from the Kitchen might wake her gently."}
+            ? `Wide awake and grateful — fed ${state.snappyFedCount} time(s).${state.snappyChokerGifted ? " His Tidal Pearl Choker makes his shell shimmer." : ""}`
+            : `Fast asleep on a sun-warmed rock.${state.snappyChokerGifted ? " His jeweled shell sparkles softly as he dreams." : " A bowl of Sea-Rose Milk from the Kitchen might wake him gently."}`}
         </p>
-        <button
-          type="button"
-          disabled={milk < 1}
-          onClick={feedSnappy}
-          className="text-xs font-semibold px-3 py-1.5 rounded-full text-white disabled:bg-emerald-200 disabled:text-emerald-500 bg-emerald-600 active:bg-emerald-700"
-        >
-          🥛 Feed Sea-Rose Milk ({milk})
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={milk < 1}
+            onClick={feedSnappy}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full text-white disabled:bg-emerald-200 disabled:text-emerald-500 bg-emerald-600 active:bg-emerald-700"
+          >
+            🥛 Feed Sea-Rose Milk ({milk})
+          </button>
+          {!state.snappyChokerGifted && (
+            <button
+              type="button"
+              disabled={choker < 1}
+              onClick={giftSnappyChoker}
+              aria-label={`Gift the Tidal Pearl Choker to Snappy. ${choker} available.`}
+              className="text-xs font-semibold px-3 py-1.5 rounded-full text-white disabled:bg-cyan-200 disabled:text-cyan-600 bg-cyan-700 active:bg-cyan-800"
+            >
+              📿 Gift Tidal Pearl Choker ({choker})
+            </button>
+          )}
+        </div>
+        {state.snappyChokerGifted && <p className="mt-2 text-xs font-bold text-cyan-800">✦ Tidal Pearl Choker gifted · Shell sparkle active</p>}
       </div>
     </div>
   );

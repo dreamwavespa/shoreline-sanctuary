@@ -123,6 +123,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "beeswax-jar": { id: "beeswax-jar", name: "Jar of Coastal Beeswax", category: "special", icon: "🫙", isEmoji: true, rarity: "rare", sfx: "honeyJar" },
   "coastal-honey-jar": { id: "coastal-honey-jar", name: "Jar of Coastal Honey", category: "food", icon: "🍯", isEmoji: true, rarity: "rare", sfx: "honeyJar" },
   "coastal-beeswax-candle": { id: "coastal-beeswax-candle", name: "Sea-Rose Coastal Candle", category: "decor", icon: "/images/coastal-beeswax-candle.jpeg", rarity: "rare", sfx: "candleLight", artDescription: "A creamy white beeswax candle decorated with pastel coastal flowers, sea-rose petals, scallop and spiral shells, a small starfish, and a natural twine bow." },
+  "tidal-pearl-choker": { id: "tidal-pearl-choker", name: "Tidal Pearl Choker", category: "decor", icon: "📿", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },

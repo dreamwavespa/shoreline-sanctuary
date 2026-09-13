@@ -350,3 +350,26 @@
   .honeybell-sprout,
   .honeybell-bee { animation: none; }
 }
+
+@keyframes snappyShellGlow {
+  0%, 100% { filter: drop-shadow(0 0 3px rgb(34 211 238 / 0.45)); }
+  50% { filter: drop-shadow(0 0 11px rgb(103 232 249 / 1)); }
+}
+
+@keyframes snappySparkleTwinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.65) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(28deg); }
+}
+
+.snappy-shell-sparkle { animation: snappyShellGlow 2.1s ease-in-out infinite; }
+.snappy-sparkle { position: absolute; color: #fef9c3; font-size: 1rem; line-height: 1; text-shadow: 0 0 6px #fff; animation: snappySparkleTwinkle 1.35s ease-in-out infinite; }
+.snappy-sparkle-one { top: 0.25rem; right: 0.35rem; }
+.snappy-sparkle-two { bottom: 0.35rem; left: 0.3rem; animation-delay: -0.45s; }
+.snappy-sparkle-three { right: 0.2rem; bottom: 0.55rem; animation-delay: -0.9s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .snappy-shell-sparkle,
+  .snappy-sparkle { animation: none; }
+  .snappy-shell-sparkle { filter: drop-shadow(0 0 8px rgb(103 232 249 / 0.9)); }
+  .snappy-sparkle { opacity: 1; }
+}
