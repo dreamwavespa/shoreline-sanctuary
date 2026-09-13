@@ -8,6 +8,7 @@ import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import SandcastleArchitect from "./SandcastleArchitect";
 import { isBooOctober, localDateKey } from "@/lib/customSandArt";
+import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 
 interface Spot {
   key: string;
@@ -243,10 +244,15 @@ export default function SandbarsScene() {
           Underwater Village
         </p>
         <VillagerCard villager={VILLAGERS.coral} />
+        <UnderwaterResidentActivity villagerId="coral" />
         <VillagerCard villager={VILLAGERS.mina} />
+        <UnderwaterResidentActivity villagerId="mina" />
         <VillagerCard villager={VILLAGERS.bubbles} />
+        <UnderwaterResidentActivity villagerId="bubbles" />
         <VillagerCard villager={VILLAGERS.pearl} />
+        <UnderwaterResidentActivity villagerId="pearl" />
         <VillagerCard villager={VILLAGERS.splash} />
+        <UnderwaterResidentActivity villagerId="splash" />
 
         <section aria-labelledby="sandcastle-gallery-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-sky-100 p-4 shadow-md ring-1 ring-amber-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Saved Creations</p>
