@@ -207,6 +207,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "kelp-resin": { id: "kelp-resin", name: "Kelp Resin", category: "raw", icon: "🟩", isEmoji: true, rarity: "uncommon", sfx: "seaweedCollect" },
   "pure-water": { id: "pure-water", name: "Pure Water Vial", category: "special", icon: "💧", isEmoji: true, rarity: "uncommon", sfx: "liquidBottle" },
   "food-kelp-cookie": { id: "food-kelp-cookie", name: "Warm Kelp Cookie", category: "food", icon: "🍪", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "fresh-reef-fish": { id: "fresh-reef-fish", name: "Fresh Reef Fish", category: "food", icon: "🐟", isEmoji: true, rarity: "common", sfx: "oceanWaterSplash" },
   "shell-opal-rare": { id: "shell-opal-rare", name: "Rare Opal Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "shell" },
   "blueprint-wind-chime": { id: "blueprint-wind-chime", name: "Frosted Glass Wind Chime Blueprint", category: "special", icon: "📋", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "pattern-pastel-wave": { id: "pattern-pastel-wave", name: "Pastel Wave Shell Paint Pattern", category: "special", icon: "📋", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
@@ -330,6 +331,7 @@ export const SANDBAR_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "sand-teal", weight: 6 },
   { id: "sand-snow-white", weight: 10 },
   { id: "star-sand", weight: 3 },
+  { id: "fresh-reef-fish", weight: 5 },
 ];
 
 function rollFrom(pool: { id: string; weight: number }[]): string {
