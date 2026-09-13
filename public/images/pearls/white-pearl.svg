@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="White pearl">
+  <defs>
+    <radialGradient id="white" cx="35%" cy="28%" r="76%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".28" stop-color="#fffaf0"/>
+      <stop offset=".56" stop-color="#e0f2fe"/>
+      <stop offset=".78" stop-color="#fce7f3"/>
+      <stop offset="1" stop-color="#cbd5e1"/>
+    </radialGradient>
+  </defs>
+  <circle cx="64" cy="66" r="48" fill="#64748b" opacity=".24"/>
+  <circle cx="64" cy="60" r="48" fill="url(#white)" stroke="#94a3b8" stroke-width="3"/>
+  <ellipse cx="46" cy="39" rx="16" ry="10" fill="#fff" opacity=".95" transform="rotate(-28 46 39)"/>
+  <path d="M82 81c5-2 10-1 13 2" fill="none" stroke="#f9a8d4" stroke-width="5" stroke-linecap="round" opacity=".32"/>
+</svg>

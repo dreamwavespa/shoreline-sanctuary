@@ -10,7 +10,7 @@ export const JEWELRY_KIND_DETAILS: Record<JewelryKind, { label: string; slots: n
 
 export const JEWELRY_MATERIAL_IDS = [
   "pearl-silver", "pearl-pink", "pearl-black", "pearl-green", "pearl-amber", "pearl-blue",
-  "pearl-yellow", "pearl-purple", "pearl-orange", "pearl-rainbow", "pearl-gold", "pearl-glow-dark",
+  "pearl-yellow", "pearl-purple", "pearl-orange", "pearl-red", "pearl-white", "pearl-rainbow", "pearl-gold", "pearl-glow-dark",
   "pearl-deepsea", "mother-of-pearl",
   "glass-green", "glass-white", "glass-amber", "glass-teal", "glass-blue", "glass-pink", "glass-purple", "glass-red", "glass-rainbow", "glass-aquamarine-glow",
   "shell-scallop", "shell-whelk", "shell-cowrie", "shell-clam", "shell-conch", "shell-abalone", "shell-nautilus", "shell-murex", "shell-opal-rare", "iridescent-shell",
