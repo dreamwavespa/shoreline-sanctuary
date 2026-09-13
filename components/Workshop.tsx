@@ -508,6 +508,7 @@ export default function Workshop() {
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
               cost={WIND_CHIME_COST}
               recipeId="wind-chime"
+              repeatable
             />
 
             <RecipeCard
@@ -598,7 +599,7 @@ export default function Workshop() {
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
             {DECOR_RECIPES.map((r) => (
-              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} />
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable />
             ))}
             <RecipeCard
               title={RAFT_RECIPE.name}

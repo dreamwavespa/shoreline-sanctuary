@@ -154,7 +154,7 @@ export default function SeaweedSaltShop() {
         {section === "sell" && (
           <section aria-labelledby="shop-sell-heading">
             <h2 id="shop-sell-heading" className="font-serif text-2xl font-bold">Sell to Seaweed</h2>
-            <p className="mt-1 text-sm text-stone-700">Seaweed buys one item at a time so you always know what remains in your collection.</p>
+            <p className="mt-1 text-sm text-stone-700">Seaweed buys one item at a time, including extra workshop décor, wind chimes, and sand-art bottles, so you always know what remains in your collection.</p>
             {sellable.length === 0 ? (
               <div className="mt-3 rounded-2xl border border-dashed border-stone-400 bg-white/70 p-5 text-center">
                 <p className="font-bold">Nothing ready to trade yet.</p>

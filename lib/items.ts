@@ -120,6 +120,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "beach-bag": { id: "beach-bag", name: "Beach Bag", category: "decor", icon: "👜", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "coastal-salt-lamp": { id: "coastal-salt-lamp", name: "Coastal Salt Lamp", category: "decor", icon: "🔮", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "woven-sun-hat": { id: "woven-sun-hat", name: "Woven Sun Hat", category: "decor", icon: "👒", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "wind-chime": { id: "wind-chime", name: "Melodic Wind Chime", category: "decor", icon: "🎐", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "inflatable-raft": { id: "inflatable-raft", name: "Inflatable Rubber Raft", category: "decor", icon: "🛟", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "bottle-sunset-shoreline": { id: "bottle-sunset-shoreline", name: "Sunset Shoreline Bottle", category: "decor", icon: "🌇", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "bottle-subaquatic-sandbar": { id: "bottle-subaquatic-sandbar", name: "Sub-Aquatic Sandbar Bottle", category: "decor", icon: "🫧", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
