@@ -5,6 +5,7 @@ import Image from "next/image";
 import { SCENES } from "@/lib/media";
 import { useGame, WeatherForecast } from "@/lib/store";
 import StormCleanup from "./StormCleanup";
+import TeaWithMaeve from "./TeaWithMaeve";
 
 const WEATHER_PARTICLES = Array.from({ length: 12 }, (_, index) => index);
 
@@ -69,8 +70,10 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 export default function WeatherStation() {
   const { state, checkWeather, collectRainBarrelWater } = useGame();
   const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [teaOpen, setTeaOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const cleanupButtonRef = useRef<HTMLButtonElement>(null);
+  const teaButtonRef = useRef<HTMLButtonElement>(null);
   const keeperQuestDone = !!state.questProgress.keeperkettle;
   const rainBarrelFull = state.rainBarrelLevel >= 3;
   const rainBarrelPercent = Math.min(100, (state.rainBarrelLevel / 3) * 100);
@@ -84,6 +87,11 @@ export default function WeatherStation() {
     if (collectRainBarrelWater()) {
       setAnnouncement("Three Pure Water Vials filled and added to your inventory. The rain barrel is empty again.");
     }
+  };
+
+  const closeTea = () => {
+    setTeaOpen(false);
+    window.setTimeout(() => teaButtonRef.current?.focus(), 0);
   };
 
   return (
@@ -113,6 +121,21 @@ export default function WeatherStation() {
               <p className="text-sm leading-relaxed text-slate-700">
                 “Marshmallow watches the wind, I watch the instruments, and between us we rarely get it wrong.”
               </p>
+
+              <div className="mt-4 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-300">
+                <div className="relative h-44">
+                  <Image src={SCENES.maeveTeaTable} alt="Maeve and Marshmallow waiting beside the lighthouse tea table at sunset" fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-amber-950/80 via-transparent to-transparent" />
+                  <p className="absolute bottom-3 left-4 right-4 font-serif text-lg font-bold text-white">Tea with Maeve &amp; Marshmallow</p>
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-amber-900">Choose one of your prepared teas. Maeve will set the cups, brew the pot, and pour while Marshmallow keeps you company.</p>
+                  <button ref={teaButtonRef} type="button" onClick={() => setTeaOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-amber-700 py-3 font-bold text-white shadow active:bg-amber-800" aria-label="Open Maeve's teapot and have tea with Maeve and Marshmallow">
+                    🫖 Select Maeve&apos;s Teapot
+                  </button>
+                  <p className="mt-2 text-center text-xs font-semibold text-amber-800">Tea visits shared: {state.maeveTeaVisits}</p>
+                </div>
+              </div>
 
               <div className="mt-4 rounded-2xl bg-gradient-to-br from-sky-950 to-teal-800 p-4 text-white shadow-inner">
                 <p className="text-xs font-bold uppercase tracking-wide text-sky-200">Maeve&apos;s Weather Station</p>
@@ -191,6 +214,7 @@ export default function WeatherStation() {
         </div>
       </section>
       {cleanupOpen && <StormCleanup onClose={closeCleanup} />}
+      {teaOpen && <TeaWithMaeve onClose={closeTea} />}
     </>
   );
 }

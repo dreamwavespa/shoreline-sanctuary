@@ -141,6 +141,7 @@ interface GameState {
   stormCleanupAvailable: boolean;
   stormCleanupCompletions: number;
   rainBarrelLevel: number;
+  maeveTeaVisits: number;
   groveNurseryAvailable: boolean;
   groveNurseryCompletions: number;
   groveNurserySeedMisses: number;
@@ -236,6 +237,7 @@ const DEFAULT_STATE: GameState = {
   stormCleanupAvailable: false,
   stormCleanupCompletions: 0,
   rainBarrelLevel: 0,
+  maeveTeaVisits: 0,
   groveNurseryAvailable: false,
   groveNurseryCompletions: 0,
   groveNurserySeedMisses: 0,
@@ -404,6 +406,7 @@ interface Ctx {
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
   collectRainBarrelWater: () => boolean;
+  haveTeaWithMaeve: (teaItemId: string) => boolean;
   completeGroveNursery: () => { ok: boolean; foundSeed: boolean };
   advanceHoneybell: () => { ok: boolean; stage: number };
   visitGroveBees: () => { ok: boolean; wax: boolean; honey: boolean; minutesLeft?: number };
@@ -1180,6 +1183,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const haveTeaWithMaeve = (teaItemId: string) => {
+    const teaIds = ["food-sweet-sugar-berry-tea", "food-lemon-tea", "food-mint-tea"];
+    if (!teaIds.includes(teaItemId) || !stateRef.current.questProgress.keeperkettle) return false;
+    if ((stateRef.current.inventory[teaItemId] || 0) < 1) return false;
+    setState((s) => {
+      if ((s.inventory[teaItemId] || 0) < 1) return s;
+      return {
+        ...s,
+        inventory: { ...s.inventory, [teaItemId]: s.inventory[teaItemId] - 1 },
+        maeveTeaVisits: s.maeveTeaVisits + 1,
+      };
+    });
+    toast("Maeve begins setting the lighthouse tea table. 🫖");
+    return true;
+  };
+
   const checkWeather = () => {
     const forecasts: WeatherForecast[] = [
       {
@@ -1930,6 +1949,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       checkWeather,
       completeStormCleanup,
       collectRainBarrelWater,
+      haveTeaWithMaeve,
       completeGroveNursery,
       advanceHoneybell,
       visitGroveBees,

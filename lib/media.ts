@@ -24,6 +24,7 @@ export const SCENES = {
   coastalBeeswaxCandle: "/images/coastal-beeswax-candle.jpeg",
   maeveGlass: "/images/maeve-glass-lighthouse-keeper.jpeg",
   maevesKettle: "/images/maeves-antique-copper-kettle.jpeg",
+  maeveTeaTable: "/images/maeve-tea-table.jpeg",
   tidePool: "/images/tide-pool-search.webp",
   seaweedShopExterior: "/images/seaweed-and-salt-exterior.jpeg",
   seaweedShopInterior: "/images/seaweed-and-salt-interior.jpeg",
@@ -104,6 +105,9 @@ export const SFX_FILES: Record<string, string> = {
   beeLanding: "/audio/bee-landing.mp3",
   honeyJar: "/audio/honey-jar.mp3",
   candleLight: "/audio/candle-light.mp3",
+  cupAndSaucer: "/audio/cup-and-saucer.mp3",
+  teaBrewing: "/audio/tea-brewing.mp3",
+  teaPouring: "/audio/tea-pouring.mp3",
 
   // Bucket sounds
   bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,
