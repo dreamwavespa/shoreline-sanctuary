@@ -17,6 +17,21 @@ interface Spot {
   y: number;
 }
 
+const RAFT_AIR_LABELS = ["Deflated", "Low Air", "Slightly Soft", "Fully Inflated"];
+
+function RaftAirMeter({ level }: { level: number }) {
+  return (
+    <div className="mt-3 rounded-xl bg-white/70 p-3 ring-1 ring-sky-200">
+      <div className="flex items-center justify-between gap-3 text-sm font-bold text-sky-950">
+        <span>Raft air</span><span>{level}/3 · {RAFT_AIR_LABELS[level]}</span>
+      </div>
+      <div role="meter" aria-label="Raft air level" aria-valuemin={0} aria-valuemax={3} aria-valuenow={level} aria-valuetext={`${level} of 3, ${RAFT_AIR_LABELS[level]}`} className="mt-2 grid grid-cols-3 gap-1">
+        {[1, 2, 3].map((segment) => <span key={segment} aria-hidden="true" className={`h-3 rounded-full ${level >= segment ? "bg-sky-600" : "bg-slate-200"}`} />)}
+      </div>
+    </div>
+  );
+}
+
 function randomSpots(n: number): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
@@ -31,9 +46,22 @@ function randomSpots(n: number): Spot[] {
 }
 
 function RaftCard() {
-  const { state, reinflateRaft, feedKelpToBirds, splashBirds, ignoreBirds, hasEnough } = useGame();
+  const { state, reinflateRaft, checkRaftAirLevel, feedKelpToBirds, splashBirds, ignoreBirds, hasEnough } = useGame();
   const [birdEvent, setBirdEvent] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const canKelp = hasEnough([{ itemId: "food-seaweed-chips", count: 1 }]);
+  const airLevel = state.raftAirLevel;
+  const hasAirPump = (state.inventory["seaside-air-pump"] || 0) > 0;
+
+  const inflate = (useAirPump: boolean) => {
+    const level = reinflateRaft(useAirPump);
+    setAnnouncement(`Raft air is now ${level} of 3, ${RAFT_AIR_LABELS[level]}.`);
+  };
+
+  const checkAir = () => {
+    const level = checkRaftAirLevel();
+    setAnnouncement(`Raft air level: ${level} of 3, ${RAFT_AIR_LABELS[level]}.`);
+  };
 
   const checkOnRaft = () => {
     if (!state.raftInflated) return;
@@ -50,14 +78,12 @@ function RaftCard() {
       <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-slate-300 text-center">
         <p className="text-3xl mb-1">🫠</p>
         <p className="font-semibold text-slate-800 mb-1">The raft has deflated</p>
-        <p className="text-sm text-slate-600 mb-3">pffFSSSSSSSSssss... it drifted back to the dock. No materials needed to re-inflate.</p>
-        <button
-          type="button"
-          onClick={reinflateRaft}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-teal-600 active:bg-teal-700 shadow"
-        >
-          🧧 Hold to Re-Inflate
-        </button>
+        <p className="text-sm text-slate-600">It drifted back to the dock. Manual pumping restores one level per press and uses no materials.</p>
+        <RaftAirMeter level={airLevel} />
+        <button type="button" onClick={() => inflate(false)} className="mt-3 min-h-12 w-full rounded-xl bg-teal-600 px-3 py-3 font-semibold text-white shadow active:bg-teal-700">Pump Air Manually · +1 Level</button>
+        {hasAirPump && <button type="button" onClick={() => inflate(true)} className="mt-2 min-h-12 w-full rounded-xl bg-amber-600 px-3 py-3 font-semibold text-white shadow active:bg-amber-700">Use Seaside Air Pump · Fill to 3/3</button>}
+        {!hasAirPump && <p className="mt-2 text-xs text-slate-600">Shelldon occasionally brings a permanent Seaside Air Pump on Sundays.</p>}
+        <p role="status" aria-live="polite" className="mt-2 min-h-5 text-xs font-semibold text-teal-800">{announcement}</p>
       </div>
     );
   }
@@ -66,11 +92,19 @@ function RaftCard() {
     <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-teal-200">
       <p className="font-semibold text-teal-900 mb-1">🛟 The Inflatable Raft</p>
       <p className="text-sm text-teal-700 mb-3">Bobbing gently, anchored just past the shore. Keep an eye out for curious gulls.</p>
+      <RaftAirMeter level={airLevel} />
+      <button type="button" onClick={checkAir} className="mt-3 min-h-11 w-full rounded-xl bg-sky-100 px-3 py-2 text-sm font-bold text-sky-950 ring-1 ring-sky-300">Check Raft Air Level</button>
+      {airLevel < 3 && (
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <button type="button" onClick={() => inflate(false)} className="min-h-11 rounded-xl bg-teal-700 px-3 py-2 text-sm font-bold text-white">Pump Once · +1</button>
+          {hasAirPump && <button type="button" onClick={() => inflate(true)} className="min-h-11 rounded-xl bg-amber-600 px-3 py-2 text-sm font-bold text-white">Air Pump · Fill Completely</button>}
+        </div>
+      )}
       {!birdEvent ? (
         <button
           type="button"
           onClick={checkOnRaft}
-          className="w-full py-3 rounded-xl font-semibold text-white bg-teal-600 active:bg-teal-700 shadow"
+          className="mt-3 w-full py-3 rounded-xl font-semibold text-white bg-teal-600 active:bg-teal-700 shadow"
         >
           👀 Check on the Raft
         </button>
@@ -81,21 +115,21 @@ function RaftCard() {
             <button
               type="button"
               disabled={!canKelp}
-              onClick={() => resolve(feedKelpToBirds)}
+              onClick={() => { resolve(feedKelpToBirds); setAnnouncement("The birds follow the kelp chip. The raft keeps its air and one Recycled Rubber was added."); }}
               className="flex-1 text-xs font-semibold px-2 py-2 rounded-full text-white disabled:bg-emerald-200 disabled:text-emerald-500 bg-emerald-600 active:bg-emerald-700"
             >
               🌿 Toss Kelp Chip
             </button>
             <button
               type="button"
-              onClick={() => resolve(splashBirds)}
+              onClick={() => { resolve(splashBirds); setAnnouncement("A gentle splash sends the birds away. The raft keeps its air."); }}
               className="flex-1 text-xs font-semibold px-2 py-2 rounded-full text-white bg-sky-600 active:bg-sky-700"
             >
               💦 Splash Water
             </button>
             <button
               type="button"
-              onClick={() => resolve(ignoreBirds)}
+              onClick={() => { const level = ignoreBirds(); setBirdEvent(false); setAnnouncement(`The seagull lowers the raft to ${level} of 3, ${RAFT_AIR_LABELS[level]}.`); }}
               className="flex-1 text-xs font-semibold px-2 py-2 rounded-full text-white bg-slate-500 active:bg-slate-600"
             >
               🙈 Ignore
@@ -103,6 +137,7 @@ function RaftCard() {
           </div>
         </div>
       )}
+      <p role="status" aria-live="polite" className="mt-2 min-h-5 text-xs font-semibold text-teal-900">{announcement}</p>
     </div>
   );
 }

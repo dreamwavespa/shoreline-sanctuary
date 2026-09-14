@@ -164,6 +164,7 @@ export const SFX_FILES: Record<string, string> = {
   // Seagull sound
   seagullSwoop:
     "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/cd3851c6-7e13-4faf-8c34-c96dcf84a109.mp3",
+  airPump: "/audio/air-pump.mp3",
 };
 
 export const AMBIENCE_LOOP = `${SFX_BASE}/5e767b6a-1923-4961-9398-95e0e66349fa.mp3`;

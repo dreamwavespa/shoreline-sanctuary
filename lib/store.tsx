@@ -125,7 +125,9 @@ interface GameState {
   hasBeachBag: boolean;
   seagullTraded: boolean;
   seagullTradeCount: number;
+  seagullDismissedDate: string;
   raftInflated: boolean;
+  raftAirLevel: number;
   sandbarsUnlocked: boolean;
   villagerGiftCounts: Record<string, number>;
   notebookDiscovered: Record<string, boolean>;
@@ -149,6 +151,9 @@ interface GameState {
   sandyStormHuntsCompleted: number;
   paintedShells: PaintedShell[];
   kaiBuriedTrades: number;
+  mistyTradeDate: string;
+  mistyTrades: number;
+  mistyFriendshipRewardClaimed: boolean;
   sandDollars: number;
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
@@ -215,7 +220,9 @@ const DEFAULT_STATE: GameState = {
   hasBeachBag: false,
   seagullTraded: false,
   seagullTradeCount: 0,
+  seagullDismissedDate: "",
   raftInflated: false,
+  raftAirLevel: 0,
   sandbarsUnlocked: false,
   villagerGiftCounts: {},
   notebookDiscovered: {},
@@ -239,6 +246,9 @@ const DEFAULT_STATE: GameState = {
   sandyStormHuntsCompleted: 0,
   paintedShells: [],
   kaiBuriedTrades: 0,
+  mistyTradeDate: "",
+  mistyTrades: 0,
+  mistyFriendshipRewardClaimed: false,
   sandDollars: 8,
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
@@ -315,6 +325,7 @@ const SANDY_STORM_REWARDS = [
 ];
 const KAI_TRADEABLE_SHELL_IDS = ["shell-scallop", "shell-whelk", "shell-cowrie", "shell-clam", "shell-conch", "shell-abalone", "shell-nautilus", "shell-murex", "iridescent-shell"];
 const KAI_BURIED_REWARDS = ["moss-agate", "glass-rainbow", "glass-purple", "iridescent-shell", "shell-opal-rare"];
+const MISTY_EXCHANGE_REWARDS = ["luminous-sea-goo", "glass-aquamarine-glow", "pearl-glow-dark", "moonstone-moon", "star-sand"];
 const SPLASH_TRADE_REWARDS = ["hemp-thread", "copper-wire", "driftwood-oar"];
 const SPLASH_STORIES = [
   "Splash once followed a silver school of fish that glittered like a second moon beneath the water.",
@@ -357,12 +368,13 @@ interface Ctx {
   throwBallToSalty: () => { thrown: boolean; caught?: boolean };
   addFoundConstellation: (id: string) => void;
   digBeachBag: () => boolean;
-  tradeWithSeagull: () => { ok: boolean; snappyDefended?: boolean };
+  tradeWithSeagull: () => { ok: boolean; snappyDefended?: boolean; rewardItemId?: string };
   shooSeagull: () => void;
   feedKelpToBirds: () => boolean;
   splashBirds: () => void;
-  ignoreBirds: () => void;
-  reinflateRaft: () => void;
+  ignoreBirds: () => number;
+  reinflateRaft: (useAirPump?: boolean) => number;
+  checkRaftAirLevel: () => number;
   giftVillager: (villagerId: string, itemId: string) => boolean;
   musicOverride: string | null;
   setMusicOverride: (key: string | null) => void;
@@ -379,6 +391,8 @@ interface Ctx {
   completeSandyStormHunt: () => { itemId: string; count: number } | null;
   createPaintedShell: (shellId: string, color: string, pattern: string, name?: string) => PaintedShell | null;
   tradeWithKai: (shellId: string) => string | null;
+  tradeWithMisty: (itemId: string) => string | null;
+  claimMistyFriendshipReward: () => string | null;
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
@@ -454,6 +468,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         if (crafted.includes("tidal-pearl-choker") && !parsed.snappyChokerGifted && (inventory["tidal-pearl-choker"] || 0) < 1) {
           inventory["tidal-pearl-choker"] = 1;
         }
+        // Restore the missing physical reward for players who completed the
+        // earlier version of Oliver's picnic quest.
+        if (parsed.questProgress?.oliverpicnic && (inventory["vintage-beach-blanket"] || 0) < 1) {
+          inventory["vintage-beach-blanket"] = 1;
+        }
         // Sand Dollars used to exist twice: as a collected shell in the
         // bucket and as separate shop currency. Migrate every loose Sand
         // Dollar into the shared wallet, then remove the duplicate stack.
@@ -468,6 +487,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           inventory,
           blueprints,
           sandDollars,
+          raftAirLevel: parsed.raftAirLevel ?? (parsed.raftInflated ? 3 : 0),
           rainBarrelLevel,
           groveNurseryAvailable: parsed.groveNurseryAvailable ?? parsed.currentForecast?.id === "storm",
           booToolSetDelivered: parsed.booToolSetDelivered ?? (Array.isArray(parsed.customSandBottles) && parsed.customSandBottles.length > 0),
@@ -678,6 +698,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (recipeId === "beach-bag") next.hasBeachBag = true;
       if (recipeId === "inflatable-raft") {
         next.raftInflated = true;
+        next.raftAirLevel = 3;
         next.sandbarsUnlocked = true;
       }
       return next;
@@ -726,6 +747,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       for (const r of quest.requires) inv[r.itemId] = (inv[r.itemId] || 0) - r.count;
       if (quest.rewardItemId) inv[quest.rewardItemId] = (inv[quest.rewardItemId] || 0) + (quest.rewardCount || 1);
       if (quest.id === "sunnyshellpalette") inv["paint-pigment"] = (inv["paint-pigment"] || 0) + 1;
+      if (quest.id === "oliverpicnic") inv["glass-teal"] = (inv["glass-teal"] || 0) + 5;
       const keeperKettleComplete = quest.id === "keeperkettle";
       return {
         ...s,
@@ -950,7 +972,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const tradeWithSeagull = () => {
-    if (!stateRef.current.picnicBasketPlaced) return { ok: false };
+    if (!stateRef.current.picnicBasketPlaced || stateRef.current.seagullDismissedDate === localDateKey()) return { ok: false };
     const cost = [{ itemId: "coconut-cream", count: 1 }];
     if (!hasEnough(cost)) return { ok: false };
     const snappyDefended = stateRef.current.snappyAwake && Math.random() < 0.35;
@@ -959,24 +981,25 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setState((s) => {
         const inv = { ...s.inventory };
         inv["glass-teal"] = (inv["glass-teal"] || 0) + 1;
-        return { ...s, inventory: inv, seagullTraded: true };
+        return { ...s, inventory: inv, seagullTraded: true, seagullTradeCount: s.seagullTradeCount + 1 };
       });
       toast("Snappy startles the seagull — it drops a Polished Teal Sea Glass and flees! 🐢");
-      return { ok: true, snappyDefended: true };
+      return { ok: true, snappyDefended: true, rewardItemId: "glass-teal" };
     }
+    const rewardItemId = SEAGULL_LOOT_TABLE[Math.floor(Math.random() * SEAGULL_LOOT_TABLE.length)];
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
-      const loot = SEAGULL_LOOT_TABLE[Math.floor(Math.random() * SEAGULL_LOOT_TABLE.length)];
-      inv[loot] = (inv[loot] || 0) + 1;
+      inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
       return { ...s, inventory: inv, seagullTraded: true, seagullTradeCount: s.seagullTradeCount + 1 };
     });
-    toast('Cheeky Seagull: "Kerr-r-r! Excellent doing business, human!" 🕊️');
-    return { ok: true, snappyDefended: false };
+    toast(`The seagull trades you ${ITEMS[rewardItemId].name}! 🕊️`);
+    return { ok: true, snappyDefended: false, rewardItemId };
   };
 
   const shooSeagull = () => {
+    setState((s) => ({ ...s, seagullDismissedDate: localDateKey() }));
     play("plastic");
-    toast('Cheeky Seagull: "HRAAAK! Keep your fancy milk!" — it flies off.');
+    toast('Cheeky Seagull: "HRAAAK!" — it flies off until tomorrow.');
   };
 
   const feedKelpToBirds = () => {
@@ -998,15 +1021,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const ignoreBirds = () => {
-    setState((s) => ({ ...s, raftInflated: false }));
+    const nextLevel = Math.max(0, stateRef.current.raftAirLevel - 1);
+    setState((s) => ({ ...s, raftAirLevel: nextLevel, raftInflated: nextLevel > 0 }));
     play("plastic");
-    toast("A gull tugs the valve... the raft sags flat! pffFSSSSSSSSssss...");
+    toast(nextLevel === 0 ? "A gull tugs the valve—the raft is fully deflated." : `A gull bounces away. Raft air is now ${nextLevel} of 3.`);
+    return nextLevel;
   };
 
-  const reinflateRaft = () => {
-    setState((s) => ({ ...s, raftInflated: true }));
-    play("umbrellaWhoof");
-    toast("The raft is re-inflated and ready!");
+  const reinflateRaft = (useAirPump = false) => {
+    const hasPump = (stateRef.current.inventory["seaside-air-pump"] || 0) > 0;
+    const nextLevel = useAirPump && hasPump ? 3 : Math.min(3, stateRef.current.raftAirLevel + 1);
+    setState((s) => ({ ...s, raftAirLevel: nextLevel, raftInflated: nextLevel > 0 }));
+    play("airPump", useAirPump && hasPump ? 0.9 : 0.65);
+    toast(nextLevel === 3 ? "The raft is fully inflated: 3 of 3." : `Raft air increased to ${nextLevel} of 3.`);
+    return nextLevel;
+  };
+
+  const checkRaftAirLevel = () => {
+    const level = stateRef.current.raftAirLevel;
+    toast(`Raft air level: ${level} of 3.`);
+    return level;
   };
 
   const giftVillager = (villagerId: string, itemId: string) => {
@@ -1402,6 +1436,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const item = ITEMS[itemId];
     if (!listing || !item || stateRef.current.sandDollars < listing.price) return false;
     if (listing.kind === "blueprint" && stateRef.current.blueprints.includes(itemId)) return false;
+    if (itemId === "seaside-air-pump" && (stateRef.current.inventory[itemId] || 0) > 0) return false;
 
     setState((s) => ({
       ...s,
@@ -1520,6 +1555,36 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("oceanWaterSplash", 0.55);
     window.setTimeout(() => play(ITEMS[rewardItemId].sfx, 0.8), 300);
     toast(`Pfft! Kai uncovered ${ITEMS[rewardItemId].name}.`);
+    return rewardItemId;
+  };
+
+  const tradeWithMisty = (itemId: string) => {
+    const current = stateRef.current;
+    const today = localDateKey();
+    if (!getScheduleStatus("misty").available || current.mistyTradeDate === today || !["bioluminescent-shard", "moonstone"].includes(itemId) || (current.inventory[itemId] || 0) < 1) return null;
+    const rewardItemId = MISTY_EXCHANGE_REWARDS[current.mistyTrades % MISTY_EXCHANGE_REWARDS.length];
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
+      inventory[rewardItemId] = (inventory[rewardItemId] || 0) + 1;
+      return { ...s, inventory, mistyTradeDate: today, mistyTrades: s.mistyTrades + 1 };
+    });
+    play("pearl", 0.75);
+    window.setTimeout(() => play(ITEMS[rewardItemId].sfx, 0.75), 350);
+    toast(`Misty's moonlit current reveals ${ITEMS[rewardItemId].name}.`);
+    return rewardItemId;
+  };
+
+  const claimMistyFriendshipReward = () => {
+    const current = stateRef.current;
+    if (!getScheduleStatus("misty").available || current.mistyFriendshipRewardClaimed || (current.villagerGiftCounts.misty || 0) < 3) return null;
+    const rewardItemId = "misty-moon-lantern";
+    setState((s) => ({
+      ...s,
+      mistyFriendshipRewardClaimed: true,
+      inventory: { ...s.inventory, [rewardItemId]: (s.inventory[rewardItemId] || 0) + 1 },
+    }));
+    play("pearl", 0.9);
+    toast("Misty gives you a softly glowing Moon Jelly Lantern!");
     return rewardItemId;
   };
 
@@ -1834,6 +1899,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       splashBirds,
       ignoreBirds,
       reinflateRaft,
+      checkRaftAirLevel,
       giftVillager,
       musicOverride,
       setMusicOverride,
@@ -1850,6 +1916,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       completeSandyStormHunt,
       createPaintedShell,
       tradeWithKai,
+      tradeWithMisty,
+      claimMistyFriendshipReward,
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,

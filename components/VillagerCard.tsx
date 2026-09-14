@@ -27,7 +27,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
   splash: "🥭",
   shelldon: "🐢",
   shelby: "🦀",
-  misty: "🮼",
+  misty: "🪼",
   angel: "🐠",
   melody: "💍",
   marella: "🔮",
@@ -110,8 +110,8 @@ export default function VillagerCard({
                 {merchantStock.map((listing) => {
                   const item = ITEMS[listing.itemId];
                   if (!item) return null;
-                  const owned = listing.kind === "blueprint" && state.blueprints.includes(listing.itemId);
                   const count = state.inventory[listing.itemId] || 0;
+                  const owned = (listing.kind === "blueprint" && state.blueprints.includes(listing.itemId)) || (listing.itemId === "seaside-air-pump" && count > 0);
                   return (
                     <div key={listing.itemId} className="rounded-xl bg-white p-3 ring-1 ring-amber-100">
                       <div className="flex items-start gap-2">
@@ -128,7 +128,7 @@ export default function VillagerCard({
                         onClick={() => buyFromTraveler(merchantId, listing.itemId)}
                         className="mt-2 min-h-11 w-full rounded-lg bg-amber-700 px-3 py-2 text-xs font-bold text-white active:bg-amber-800 disabled:bg-amber-100 disabled:text-amber-500"
                       >
-                        {owned ? "Owned · Blueprint Collection" : `Buy for ${listing.price} Sand Dollars`}
+                        {owned ? (listing.kind === "blueprint" ? "Owned · Blueprint Collection" : "Owned · Permanent Tool") : `Buy for ${listing.price} Sand Dollars`}
                       </button>
                     </div>
                   );

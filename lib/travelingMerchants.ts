@@ -26,6 +26,7 @@ const SHELLDON_GOODS: TravelingMerchantListing[] = [
   { itemId: "binoculars", price: 10, kind: "item", note: "Useful for watching seabirds and distant ships." },
   { itemId: "flower-vase", price: 8, kind: "item", note: "A sea-glass-colored vase for fresh coastal flowers." },
   { itemId: "picnic-blanket", price: 11, kind: "item", note: "A soft striped blanket for shoreline picnics." },
+  { itemId: "seaside-air-pump", price: 18, kind: "item", note: "A rare brass-and-teal pump that fills the sanctuary raft in one use and is never consumed." },
 ];
 
 const SHELBY_BLUEPRINTS: TravelingMerchantListing[] = [
@@ -59,4 +60,3 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date())
   }
   return [];
 }
-

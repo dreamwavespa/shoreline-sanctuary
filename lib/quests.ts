@@ -130,9 +130,9 @@ export const QUESTS: QuestDef[] = [
     letter: "Hello friend! If you are reading this, I hope your blanket is firmly anchored. I set up a beautiful spot near the dunes yesterday afternoon, opened my woven wicker basket, and poured a cold glass of Coconut Milk. The view was magnificent! But then... it happened. A shadow fell, a thunderous flap of wings echoed, and a chubby seagull dive-bombed right into my snacks! In the panic, I dropped my favorite journal somewhere in the sand. Could you help me find it? I hear those birds love trading shiny things if you leave a treat out for them.",
     requires: [],
     requiresFlag: "seagullTraded",
-    rewardItemId: "glass-teal",
-    rewardCount: 5,
-    rewardLabel: "Rare Blueprint: Vintage Beach Blanket & 5x Polished Teal Sea Glass",
+    rewardItemId: "vintage-beach-blanket",
+    rewardCount: 1,
+    rewardLabel: "Vintage Beach Blanket & 5x Polished Teal Sea Glass",
     phase: 4,
   },
   {

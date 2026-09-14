@@ -12,6 +12,8 @@ import TidePoolSearch from "./TidePoolSearch";
 import { getOlliClue } from "@/lib/olli";
 import { PenelopeCleanupHeart, SandyStormHunt } from "./ShorelineResidentActivities";
 import KaiBuriedTreasure from "./KaiBuriedTreasure";
+import { localDateKey } from "@/lib/customSandArt";
+import MistyMoonlitExchange from "./MistyMoonlitExchange";
 
 interface Spot {
   key: string;
@@ -183,8 +185,17 @@ function SeagullCard() {
   const { state, tradeWithSeagull, shooSeagull } = useGame();
   const [msg, setMsg] = useState<string | null>(null);
   const milk = state.inventory["coconut-cream"] || 0;
+  const dismissedToday = state.seagullDismissedDate === localDateKey();
 
   if (!state.picnicBasketPlaced) return null;
+  if (dismissedToday) {
+    return (
+      <section className="rounded-2xl bg-white/90 p-4 text-center shadow-md ring-1 ring-yellow-200">
+        <h2 className="font-bold text-yellow-900">🕊️ The Winged Bandit Is Away</h2>
+        <p className="mt-1 text-sm text-yellow-700">The seagull you shooed away will return to the Picnic Basket tomorrow.</p>
+      </section>
+    );
+  }
 
   const handleTrade = () => {
     const result = tradeWithSeagull();
@@ -192,7 +203,10 @@ function SeagullCard() {
       setMsg("SQUAWK! (You need Coconut Cream to trade.)");
       window.setTimeout(() => setMsg((m) => (m ? null : m)), 1800);
     } else if (result.snappyDefended) {
-      setMsg('Snappy: "Crisis averted. Back to my nap."');
+      setMsg(`Snappy chased the seagull away and recovered ${ITEMS[result.rewardItemId!].name}.`);
+      window.setTimeout(() => setMsg((m) => (m ? null : m)), 2200);
+    } else if (result.rewardItemId) {
+      setMsg(`The seagull traded you ${ITEMS[result.rewardItemId].name}.`);
       window.setTimeout(() => setMsg((m) => (m ? null : m)), 2200);
     }
   };
@@ -212,7 +226,7 @@ function SeagullCard() {
           </p>
         </div>
       </div>
-      {msg && <p className="text-[11px] text-yellow-800 mb-2">{msg}</p>}
+        {msg && <p role="status" aria-live="polite" className="text-[11px] text-yellow-800 mb-2">{msg}</p>}
       <div className="flex gap-2">
         <button
           type="button"
@@ -502,6 +516,7 @@ export default function BeachScene() {
         <VillagerCard villager={VILLAGERS.shelldon} schedule={travelerSchedule?.shelldon} />
         <VillagerCard villager={VILLAGERS.shelby} schedule={travelerSchedule?.shelby} />
         <VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} />
+        <MistyMoonlitExchange />
         <VillagerCard villager={VILLAGERS.angel} />
       </div>
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
