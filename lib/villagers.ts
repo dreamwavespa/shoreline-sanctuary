@@ -157,6 +157,23 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       redirectTo: ["kai"],
     },
   },
+  olli: {
+    id: "olli",
+    name: "Olli",
+    title: "the Octopus",
+    group: "shoreline-resident",
+    personality: "Clever, playful, artistic, and delighted by a good disguise.",
+    role: "Camouflage Expert & Ink Artist",
+    behavior: "Changes color to hide throughout unlocked sanctuary locations.",
+    gameplay: "Starts accessible camouflage hunts, shares colorful ink, creates pictures in the Workshop, and hosts ring toss aboard the Community Ship.",
+    location: "Main Beach",
+    gift: {
+      lovedGiftIds: ["paint-pigment", "shiny-soda-tab", "seaweed-fronds"],
+      reactionSfx: "Bubbly ink pop and happy suction-cup taps",
+      reactionVisual: "Colorful Ink Cloud",
+      redirectTo: ["sunny", "melody"],
+    },
+  },
   kai: {
     id: "kai",
     name: "Kai",

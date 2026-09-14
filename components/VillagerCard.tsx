@@ -16,6 +16,7 @@ const RING_BY_GROUP: Record<string, string> = {
 
 const EMOJI_FALLBACK: Record<string, string> = {
   sandy: "🐦",
+  olli: "🐙",
   kai: "🐚",
   sunny: "⭐",
   penelope: "🦢",

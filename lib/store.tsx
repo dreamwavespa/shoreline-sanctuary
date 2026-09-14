@@ -10,6 +10,7 @@ import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELR
 import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
 import { getScheduleStatus } from "./schedule";
 import { getTravelingMerchantStock } from "./travelingMerchants";
+import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -64,6 +65,16 @@ export interface CustomSandBottle {
   accentId: string | null;
   value: number;
   favorite: boolean;
+  createdAt: number;
+}
+
+export interface OlliInkPicture {
+  id: string;
+  name: string;
+  inkId: string;
+  background: string;
+  stamp: string;
+  pattern: string;
   createdAt: number;
 }
 
@@ -138,6 +149,15 @@ interface GameState {
   bubblesDeliveryDate: string;
   pearlRewardsClaimed: number;
   splashTrades: number;
+  olliHidingLocation: OlliHidingLocation | null;
+  olliHuntCheckDate: string;
+  olliHuntMisses: number;
+  olliHuntsCompleted: number;
+  olliNotificationPending: boolean;
+  olliClueStage: number;
+  olliInkPictures: OlliInkPicture[];
+  olliRingBestScore: number;
+  olliRingRewardDate: string;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -213,6 +233,15 @@ const DEFAULT_STATE: GameState = {
   bubblesDeliveryDate: "",
   pearlRewardsClaimed: 0,
   splashTrades: 0,
+  olliHidingLocation: null,
+  olliHuntCheckDate: "",
+  olliHuntMisses: 2,
+  olliHuntsCompleted: 0,
+  olliNotificationPending: false,
+  olliClueStage: 0,
+  olliInkPictures: [],
+  olliRingBestScore: 0,
+  olliRingRewardDate: "",
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -322,6 +351,11 @@ interface Ctx {
   claimBubblesDelivery: () => { bottleItemId: string; bonusItemId: string } | null;
   claimPearlsFriendshipGift: () => string | null;
   tradeWithSplash: () => { rewardItemId: string; story: string } | null;
+  dismissOlliNotification: () => void;
+  requestOlliClue: () => void;
+  findOlli: (location: OlliHidingLocation) => string | null;
+  createOlliInkPicture: (inkId: string, background: string, stamp: string, pattern: string, name?: string) => OlliInkPicture | null;
+  completeOlliRingToss: (score: number) => { rewarded: boolean; bestScore: number };
   sellToSeaweed: (itemId: string) => boolean;
   collectSeaWater: () => void;
   inspectFoundBottle: () => { messageId: string; bonusItemId: string | null } | null;
@@ -341,6 +375,7 @@ const STORAGE_KEY = "shoreline-save";
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GameState>(DEFAULT_STATE);
+  const [hydrated, setHydrated] = useState(false);
   const [screen, setScreen] = useState<Screen>("beach");
   const [lastToast, setLastToast] = useState<string | null>(null);
   // Not persisted — a transient "this screen wants a specific track instead
@@ -352,7 +387,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [musicOverride, setMusicOverride] = useState<string | null>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const audioCache = useRef<Record<string, HTMLAudioElement>>({});
-  const loaded = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -402,15 +436,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch {}
-    loaded.current = true;
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded.current) return;
+    if (!hydrated) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {}
-  }, [state]);
+  }, [hydrated, state]);
 
   // Sanctuary Explorer's Notebook: the first time the player ever holds an
   // item, permanently log it as "discovered" — even if it's later spent,
@@ -450,6 +484,40 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         .catch(() => {});
     } catch {}
   };
+
+  // Check once per local day. Hunts are occasional, but two quiet days
+  // guarantee that Olli hides on the third. An active hunt waits indefinitely
+  // until the player finds him.
+  useEffect(() => {
+    if (!hydrated) return;
+    const current = stateRef.current;
+    const today = localDateKey();
+    if (current.olliHidingLocation || current.olliHuntCheckDate === today) return;
+
+    const startsToday = current.olliHuntMisses >= 2 || Math.random() < 0.35;
+    if (!startsToday) {
+      setState((s) => ({ ...s, olliHuntCheckDate: today, olliHuntMisses: s.olliHuntMisses + 1 }));
+      return;
+    }
+
+    const available: OlliHidingLocation[] = ["beach", "cottage", "grove"];
+    if (current.workshopUnlocked) available.push("workshop");
+    if (current.rowboatRepaired) available.push("cove");
+    if (current.hasDivingGear) available.push("reef");
+    if (current.sandbarsUnlocked) available.push("sandbars");
+    if (current.gameCompleted) available.push("ship");
+    const location = available[Math.floor(Math.random() * available.length)];
+    setState((s) => ({
+      ...s,
+      olliHidingLocation: location,
+      olliHuntCheckDate: today,
+      olliHuntMisses: 0,
+      olliNotificationPending: true,
+      olliClueStage: 0,
+    }));
+    play("oceanWaterSplash", 0.55);
+    window.setTimeout(() => play("sparkle", 0.45), 300);
+  }, [hydrated, state.olliHidingLocation, state.olliHuntCheckDate]);
 
   const playBottleSequence = () => {
     const keys = ["bottleGlass", "bottleCork", "bottleParchment"];
@@ -1347,6 +1415,82 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return { rewardItemId, story };
   };
 
+  const dismissOlliNotification = () => {
+    setState((s) => ({ ...s, olliNotificationPending: false }));
+  };
+
+  const requestOlliClue = () => {
+    if (!stateRef.current.olliHidingLocation) return;
+    setState((s) => ({
+      ...s,
+      olliNotificationPending: false,
+      olliClueStage: Math.min(2, s.olliClueStage + 1),
+    }));
+    play("oceanWaterSplash", 0.45);
+  };
+
+  const findOlli = (location: OlliHidingLocation) => {
+    if (stateRef.current.olliHidingLocation !== location) return null;
+    const rewardItemId = getOlliInkReward(stateRef.current.olliHuntsCompleted);
+    setState((s) => ({
+      ...s,
+      olliHidingLocation: null,
+      olliNotificationPending: false,
+      olliClueStage: 0,
+      olliHuntsCompleted: s.olliHuntsCompleted + 1,
+      inventory: { ...s.inventory, [rewardItemId]: (s.inventory[rewardItemId] || 0) + 1 },
+    }));
+    play("oceanWaterSplash", 0.6);
+    window.setTimeout(() => play(ITEMS[rewardItemId].sfx, 0.75), 350);
+    toast(`You found Olli! He shared ${ITEMS[rewardItemId].name}.`);
+    return rewardItemId;
+  };
+
+  const createOlliInkPicture = (inkId: string, background: string, stamp: string, pattern: string, requestedName?: string) => {
+    const allInkIds = [...OLLI_INK_IDS, "ink-pumpkin-orange"] as string[];
+    if (
+      !allInkIds.includes(inkId) ||
+      !(OLLI_ART_BACKGROUNDS as readonly string[]).includes(background) ||
+      !(OLLI_ART_STAMPS as readonly string[]).includes(stamp) ||
+      !(OLLI_ART_PATTERNS as readonly string[]).includes(pattern) ||
+      (stateRef.current.inventory[inkId] || 0) < 1
+    ) return null;
+    const picture: OlliInkPicture = {
+      id: `olli-art-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: requestedName?.trim().slice(0, 50) || `${stamp} in ${ITEMS[inkId].name}`,
+      inkId,
+      background,
+      stamp,
+      pattern,
+      createdAt: Date.now(),
+    };
+    setState((s) => ({
+      ...s,
+      inventory: { ...s.inventory, [inkId]: Math.max(0, (s.inventory[inkId] || 0) - 1) },
+      olliInkPictures: [...s.olliInkPictures, picture],
+    }));
+    play("paintPigment", 0.8);
+    window.setTimeout(() => play("sparkle", 0.45), 450);
+    toast(`${picture.name} added to Olli's Ink Gallery!`);
+    return picture;
+  };
+
+  const completeOlliRingToss = (score: number) => {
+    const safeScore = Math.max(0, Math.min(5, Math.floor(score)));
+    const today = localDateKey();
+    const rewarded = safeScore === 5 && stateRef.current.olliRingRewardDate !== today;
+    const bestScore = Math.max(stateRef.current.olliRingBestScore, safeScore);
+    setState((s) => ({
+      ...s,
+      olliRingBestScore: Math.max(s.olliRingBestScore, safeScore),
+      olliRingRewardDate: rewarded ? today : s.olliRingRewardDate,
+      sandDollars: rewarded ? s.sandDollars + 3 : s.sandDollars,
+    }));
+    play(safeScore > 0 ? "questComplete" : "oceanWaterSplash", 0.7);
+    if (rewarded) toast("Perfect ring toss! Olli awarded 3 Sand Dollars.");
+    return { rewarded, bestScore };
+  };
+
   const sellToSeaweed = (itemId: string) => {
     const price = SELL_PRICES[itemId];
     if (!price || (stateRef.current.inventory[itemId] || 0) < 1) return false;
@@ -1557,6 +1701,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       claimBubblesDelivery,
       claimPearlsFriendshipGift,
       tradeWithSplash,
+      dismissOlliNotification,
+      requestOlliClue,
+      findOlli,
+      createOlliInkPicture,
+      completeOlliRingToss,
       sellToSeaweed,
       collectSeaWater,
       inspectFoundBottle,

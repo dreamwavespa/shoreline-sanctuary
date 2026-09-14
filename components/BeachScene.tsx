@@ -9,6 +9,7 @@ import VillagerCard from "./VillagerCard";
 import { getScheduleStatus, ScheduleStatus } from "@/lib/schedule";
 import SnappyCurrentRide from "./SnappyCurrentRide";
 import TidePoolSearch from "./TidePoolSearch";
+import { getOlliClue } from "@/lib/olli";
 
 interface Spot {
   key: string;
@@ -60,32 +61,41 @@ function EllyCard() {
   );
 }
 
-function OllieCard() {
-  const { collectItem, play } = useGame();
+function OlliCard() {
+  const { state, collectItem, play, requestOlliClue } = useGame();
   const [squirt, setSquirt] = useState(false);
+  const hiding = state.olliHidingLocation;
 
   const handleTap = () => {
+    if (hiding) {
+      requestOlliClue();
+      return;
+    }
     setSquirt(true);
     collectItem("seaweed-fronds", { silent: true });
     play("seaweedCollect");
     window.setTimeout(() => setSquirt(false), 500);
   };
 
-  return (
-    <button
-      type="button"
-      onClick={handleTap}
-      className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-teal-200 flex items-center gap-3 active:scale-[0.98] transition"
-    >
-      <div className="w-16 h-16 shrink-0 rounded-xl bg-teal-50 flex items-center justify-center text-4xl">
-        {squirt ? "💦" : "🐙"}
+  return <div className="space-y-2">
+    <VillagerCard villager={VILLAGERS.olli} />
+    <section className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-teal-200">
+      <div className="flex items-center gap-3">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-4xl" aria-hidden="true">
+          {hiding ? "💨" : squirt ? "💦" : "🐙"}
+        </div>
+        <div className="flex-1">
+          <h2 className="font-bold text-teal-900">{hiding ? "Olli Is Hiding!" : "Visit Olli"}</h2>
+          <p role="status" aria-live="polite" className="mt-1 text-xs text-teal-700">
+            {hiding ? getOlliClue(hiding, state.olliClueStage) : "Say hello and Olli will toss you a stray frond of seaweed."}
+          </p>
+        </div>
       </div>
-      <div className="flex-1">
-        <p className="font-bold text-teal-900">Ollie the Octopus</p>
-        <p className="text-xs text-teal-700">Playful and curious — tap to say hello and he'll toss you a stray frond of seaweed.</p>
-      </div>
-    </button>
-  );
+      <button type="button" onClick={handleTap} className="mt-3 min-h-11 w-full rounded-xl bg-teal-700 px-3 py-2 text-sm font-bold text-white active:bg-teal-800">
+        {hiding ? (state.olliClueStage >= 2 ? "Repeat Final Clue" : "Ask Olli for Another Clue") : "Say Hello to Olli"}
+      </button>
+    </section>
+  </div>;
 }
 
 function SnappyCard() {
@@ -414,7 +424,7 @@ export default function BeachScene() {
 
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide">Sanctuary Residents</p>
         <EllyCard />
-        <OllieCard />
+        <OlliCard />
         <SnappyCard />
         <section aria-labelledby="tide-pool-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-cyan-50 to-teal-100 shadow-md ring-1 ring-cyan-300">
           <div className="relative h-40 w-full">

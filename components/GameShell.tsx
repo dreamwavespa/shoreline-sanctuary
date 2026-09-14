@@ -16,6 +16,7 @@ import SettingsModal from "./SettingsModal";
 import Notebook from "./Notebook";
 import SeaweedSaltShop from "./SeaweedSaltShop";
 import CoconutGrove from "./CoconutGrove";
+import OlliHuntOverlay from "./OlliHuntOverlay";
 
 const TABS: { id: Screen; label: string; icon: string }[] = [
   { id: "beach", label: "Beach", icon: "🏖️" },
@@ -101,6 +102,7 @@ export default function GameShell() {
       </header>
 
       <main className="flex-1 relative overflow-hidden">
+        <OlliHuntOverlay />
         {screen === "beach" && <BeachScene />}
         {screen === "bucket" && <BucketPanel />}
         {screen === "workshop" && <Workshop />}

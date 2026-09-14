@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import ListenToShell from "./ListenToShell";
+import OlliRingToss from "./OlliRingToss";
 
 const NOTES: { label: string; freq: number }[] = [
   { label: "C", freq: 261.63 },
@@ -93,11 +94,18 @@ function PianoCard() {
 export default function ShipScene() {
   const { state, setMusicOverride } = useGame();
   const [listenGameOpen, setListenGameOpen] = useState(false);
+  const [ringTossOpen, setRingTossOpen] = useState(false);
   const listenButtonRef = useRef<HTMLButtonElement>(null);
+  const ringTossButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeListenGame = () => {
     setListenGameOpen(false);
     window.setTimeout(() => listenButtonRef.current?.focus(), 0);
+  };
+
+  const closeRingToss = () => {
+    setRingTossOpen(false);
+    window.setTimeout(() => ringTossButtonRef.current?.focus(), 0);
   };
 
   useEffect(() => {
@@ -133,6 +141,12 @@ export default function ShipScene() {
           <p className="text-xs text-amber-800">Every friend of the sanctuary gathers here now.</p>
         </div>
         <SaltyCard />
+        <section aria-labelledby="olli-ring-toss-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-300">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Community Ship Party Game</p>
+          <h2 id="olli-ring-toss-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭕ Olli&apos;s Ring Toss</h2>
+          <p className="mt-1 text-sm text-sky-800">Match the direction and distance of Olli&apos;s raised tentacle, then toss a reusable woven seagrass ring. Nothing is timed.</p>
+          <button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 py-3 font-bold text-white shadow active:bg-amber-700">Play Ring Toss</button>
+        </section>
         <section aria-labelledby="listen-shell-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-100 p-4 shadow-md ring-1 ring-cyan-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-800">Community Ship Mini-Game</p>
           <h2 id="listen-shell-game-heading" className="mt-1 font-serif text-lg font-bold text-blue-950">🐚 Listen to the Shell</h2>
@@ -150,6 +164,7 @@ export default function ShipScene() {
       </div>
 
       {listenGameOpen && <ListenToShell onClose={closeListenGame} />}
+      {ringTossOpen && <OlliRingToss onClose={closeRingToss} />}
     </div>
   );
 }

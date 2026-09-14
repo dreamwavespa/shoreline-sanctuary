@@ -54,6 +54,7 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     completionReward: "Golden Feather (Crafts Special Wish Bottle)",
     entries: [
       { id: "sandy", kind: "villager", note: "Sandy the Sandpiper — scurries the intertidal zone after every storm." },
+      { id: "olli", kind: "villager", note: "Olli the Octopus — a playful ink artist who hides in plain sight." },
       { id: "kai", kind: "villager", note: "Kai the Clam — hides beneath wet sand with a gentle pfft-squirt." },
       { id: "sunny", kind: "villager", note: "Sunny the Starfish — lounges on the Tide Pool stones." },
       { id: "coral", kind: "villager", note: "Coral the Seahorse — tends the Underwater Village gardens." },
