@@ -11,6 +11,7 @@ import SnappyCurrentRide from "./SnappyCurrentRide";
 import TidePoolSearch from "./TidePoolSearch";
 import { getOlliClue } from "@/lib/olli";
 import { PenelopeCleanupHeart, SandyStormHunt } from "./ShorelineResidentActivities";
+import KaiBuriedTreasure from "./KaiBuriedTreasure";
 
 interface Spot {
   key: string;
@@ -468,6 +469,7 @@ export default function BeachScene() {
         <VillagerCard villager={VILLAGERS.sandy} />
         <SandyStormHunt />
         <VillagerCard villager={VILLAGERS.kai} />
+        <KaiBuriedTreasure />
         <VillagerCard villager={VILLAGERS.sunny} />
         <VillagerCard villager={VILLAGERS.penelope} />
         <PenelopeCleanupHeart />

@@ -148,6 +148,7 @@ interface GameState {
   penelopeRewardsClaimed: number;
   sandyStormHuntsCompleted: number;
   paintedShells: PaintedShell[];
+  kaiBuriedTrades: number;
   sandDollars: number;
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
@@ -237,6 +238,7 @@ const DEFAULT_STATE: GameState = {
   penelopeRewardsClaimed: 0,
   sandyStormHuntsCompleted: 0,
   paintedShells: [],
+  kaiBuriedTrades: 0,
   sandDollars: 8,
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
@@ -311,6 +313,8 @@ const SANDY_STORM_REWARDS = [
   { itemId: "wild-beach-plum", count: 1 },
   { itemId: "pearl-silver", count: 1 },
 ];
+const KAI_TRADEABLE_SHELL_IDS = ["shell-scallop", "shell-whelk", "shell-cowrie", "shell-clam", "shell-conch", "shell-abalone", "shell-nautilus", "shell-murex", "iridescent-shell"];
+const KAI_BURIED_REWARDS = ["moss-agate", "glass-rainbow", "glass-purple", "iridescent-shell", "shell-opal-rare"];
 const SPLASH_TRADE_REWARDS = ["hemp-thread", "copper-wire", "driftwood-oar"];
 const SPLASH_STORIES = [
   "Splash once followed a silver school of fish that glittered like a second moon beneath the water.",
@@ -374,6 +378,7 @@ interface Ctx {
   claimPenelopeCleanupReward: () => { itemId: string; count: number } | null;
   completeSandyStormHunt: () => { itemId: string; count: number } | null;
   createPaintedShell: (shellId: string, color: string, pattern: string, name?: string) => PaintedShell | null;
+  tradeWithKai: (shellId: string) => string | null;
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
@@ -1503,6 +1508,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return reward;
   };
 
+  const tradeWithKai = (shellId: string) => {
+    const current = stateRef.current;
+    if (!current.questProgress.kaiburrowsecret || !KAI_TRADEABLE_SHELL_IDS.includes(shellId) || (current.inventory[shellId] || 0) < 3) return null;
+    const rewardItemId = KAI_BURIED_REWARDS[current.kaiBuriedTrades % KAI_BURIED_REWARDS.length];
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, [{ itemId: shellId, count: 2 }]);
+      inventory[rewardItemId] = (inventory[rewardItemId] || 0) + 1;
+      return { ...s, inventory, kaiBuriedTrades: s.kaiBuriedTrades + 1 };
+    });
+    play("oceanWaterSplash", 0.55);
+    window.setTimeout(() => play(ITEMS[rewardItemId].sfx, 0.8), 300);
+    toast(`Pfft! Kai uncovered ${ITEMS[rewardItemId].name}.`);
+    return rewardItemId;
+  };
+
   const createPaintedShell = (shellId: string, color: string, pattern: string, requestedName?: string) => {
     const current = stateRef.current;
     const patterns = [
@@ -1829,6 +1849,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       claimPenelopeCleanupReward,
       completeSandyStormHunt,
       createPaintedShell,
+      tradeWithKai,
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,
