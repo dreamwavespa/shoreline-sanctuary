@@ -131,6 +131,42 @@ export const KITCHEN_RECIPES: CookRecipe[] = [
     station: "Prep Counter",
     season: "Year-round",
   },
+  {
+    id: "sweet-sugar-berry-tea",
+    name: "Sweet Sugar Berry Tea",
+    description: "A rosy, naturally sweet tea steeped with dried coastal sugar berries.",
+    cost: [
+      { itemId: "tea-bags", count: 1 },
+      { itemId: "dried-sugar-berries", count: 1 },
+    ],
+    outputItemId: "food-sweet-sugar-berry-tea",
+    station: "Prep Counter & Teapot",
+    season: "Year-round",
+  },
+  {
+    id: "lemon-tea",
+    name: "Lemon Tea",
+    description: "A bright cup of tea steeped with a fresh slice of island lemon.",
+    cost: [
+      { itemId: "tea-bags", count: 1 },
+      { itemId: "lemon", count: 1 },
+    ],
+    outputItemId: "food-lemon-tea",
+    station: "Prep Counter & Teapot",
+    season: "Year-round",
+  },
+  {
+    id: "mint-tea",
+    name: "Mint Tea",
+    description: "A soothing green tea infused with freshly snipped coastal beach mint.",
+    cost: [
+      { itemId: "tea-bags", count: 1 },
+      { itemId: "coastal-beach-mint", count: 1 },
+    ],
+    outputItemId: "food-mint-tea",
+    station: "Prep Counter & Teapot",
+    season: "Year-round",
+  },
 ];
 
 export interface CraftRecipe {
