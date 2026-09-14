@@ -164,6 +164,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "carnelian": { id: "carnelian", name: "Deep-Sea Carnelian", category: "special", icon: "🔺", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "moonstone-moon": { id: "moonstone-moon", name: "Glowing Moonstone Moon", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
   "carnelian-heart": { id: "carnelian-heart", name: "Carnelian Heart", category: "special", icon: "🧡", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "charm-green-leaf": { id: "charm-green-leaf", name: "Green Leaf Charm", category: "special", icon: "🍃", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "pendant-red-apple": { id: "pendant-red-apple", name: "Red Apple Pendant", category: "special", icon: "🍎", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "blueprint-beach-hut": { id: "blueprint-beach-hut", name: "Beach Hut Blueprints", category: "special", icon: "📐", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "blueprint-library": { id: "blueprint-library", name: "Library Blueprints", category: "special", icon: "📚", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "map-underwater-crystal-cave": { id: "map-underwater-crystal-cave", name: "Underwater Crystal Cave Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },

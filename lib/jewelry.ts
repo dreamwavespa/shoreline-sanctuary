@@ -15,6 +15,7 @@ export const JEWELRY_MATERIAL_IDS = [
   "glass-green", "glass-white", "glass-amber", "glass-teal", "glass-blue", "glass-pink", "glass-purple", "glass-red", "glass-rainbow", "glass-aquamarine-glow",
   "shell-scallop", "shell-whelk", "shell-cowrie", "shell-clam", "shell-conch", "shell-abalone", "shell-nautilus", "shell-murex", "shell-opal-rare", "iridescent-shell",
   "raw-stone", "raw-pebbles", "moonstone", "moss-agate", "carnelian",
+  "charm-green-leaf", "pendant-red-apple",
 ] as const;
 
 export function materialValue(itemId: string): number {
@@ -37,7 +38,7 @@ export function calculateJewelryValue(kind: JewelryKind, materials: string[]): n
 }
 
 export function defaultJewelryName(kind: JewelryKind, materials: string[]): string {
-  const firstName = ITEMS[materials[0]]?.name.replace(/ Pearl| Sea Glass| Shell/, "") || "Shoreline";
+  const firstName = ITEMS[materials[0]]?.name.replace(/ Pearl| Sea Glass| Shell| Charm| Pendant/, "") || "Shoreline";
   const label = JEWELRY_KIND_DETAILS[kind].label;
   return `${firstName} Tide ${label}`;
 }

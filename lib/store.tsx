@@ -309,6 +309,13 @@ const DAILY_CHEST_TREASURES = [
   "gold-world-globe",
   "bag-old-coins",
 ];
+const SEPTEMBER_CHEST_TREASURES = ["charm-green-leaf", "pendant-red-apple"];
+
+function getAvailableChestTreasures(now = new Date()) {
+  return now.getUTCMonth() === 8
+    ? [...DAILY_CHEST_TREASURES, ...SEPTEMBER_CHEST_TREASURES]
+    : DAILY_CHEST_TREASURES;
+}
 
 const BUBBLES_BONUSES = ["ribbon", "glass-teal", "shiny-soda-tab", "sea-berry"];
 const PEARL_FRIENDSHIP_REWARDS = ["pearl-white", "pearl-pink", "mother-of-pearl", "pearl-silver", "pearl-rainbow"];
@@ -795,10 +802,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const searchChest = () => {
     const today = getShopDateKey();
     if (!stateRef.current.chestOpened || stateRef.current.chestDailyClaimDate === today) return null;
-    const undiscoveredTreasures = DAILY_CHEST_TREASURES.filter(
+    const availableTreasures = getAvailableChestTreasures();
+    const undiscoveredTreasures = availableTreasures.filter(
       (treasureId) => !stateRef.current.notebookDiscovered[treasureId]
     );
-    const treasurePool = undiscoveredTreasures.length ? undiscoveredTreasures : DAILY_CHEST_TREASURES;
+    const treasurePool = undiscoveredTreasures.length ? undiscoveredTreasures : availableTreasures;
     const itemId = treasurePool[Math.floor(Math.random() * treasurePool.length)];
     setState((s) => ({
       ...s,

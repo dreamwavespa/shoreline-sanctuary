@@ -18,6 +18,7 @@ function MaterialIcon({ itemId, size = 36 }: { itemId: string; size?: number }) 
 }
 
 function materialGroup(itemId: string) {
+  if (itemId.startsWith("charm-") || itemId.startsWith("pendant-")) return "Charms & Pendants";
   if (itemId.startsWith("pearl-") || itemId === "mother-of-pearl") return "Pearls";
   if (itemId.startsWith("glass-")) return "Sea Glass";
   if (itemId.startsWith("shell-") || itemId === "iridescent-shell") return "Shells";
@@ -46,7 +47,7 @@ export default function JewelryCounter({ onClose }: { onClose: () => void }) {
   }, [materials]);
 
   const ownedMaterials = JEWELRY_MATERIAL_IDS.filter((itemId) => (state.inventory[itemId] || 0) > 0);
-  const groupedMaterials = ["Pearls", "Sea Glass", "Shells", "Stones"].map((group) => ({
+  const groupedMaterials = ["Charms & Pendants", "Pearls", "Sea Glass", "Shells", "Stones"].map((group) => ({
     group,
     items: ownedMaterials.filter((itemId) => materialGroup(itemId) === group),
   })).filter((section) => section.items.length > 0);

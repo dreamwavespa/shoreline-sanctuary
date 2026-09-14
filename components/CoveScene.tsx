@@ -35,6 +35,8 @@ const CHEST_COST = [
 const CHEST_TREASURE_NOTES: Record<string, string> = {
   "moonstone-moon": "A crescent-shaped moonstone that gives off a soft silver glow.",
   "carnelian-heart": "A warm orange-red gemstone polished into a tiny heart.",
+  "charm-green-leaf": "A rare green leaf charm found only during September. Once collected, it stays in your inventory until used in custom jewelry.",
+  "pendant-red-apple": "A rare red apple pendant found only during September. Once collected, it stays in your inventory until used in custom jewelry.",
   "blueprint-beach-hut": "Plans for a cozy beach hut—a clue for a future sanctuary expansion.",
   "blueprint-library": "Detailed plans for a quiet island library—a future expansion waiting to be built.",
   "map-underwater-crystal-cave": "A water-worn map marking the entrance to a future underwater crystal cave.",
@@ -52,6 +54,7 @@ function ChestCard() {
   const canOpen = hasEnough(CHEST_COST);
   const claimedToday = !!todayKey && state.chestDailyClaimDate === todayKey;
   const dailyFind = state.chestDailyRewardItemId ? ITEMS[state.chestDailyRewardItemId] : null;
+  const isSeptember = todayKey.slice(5, 7) === "09";
 
   useEffect(() => {
     setTodayKey(getShopDateKey());
@@ -69,6 +72,7 @@ function ChestCard() {
         <div className="mt-4 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
           <p className="font-semibold text-amber-900">Daily Chest Treasure</p>
           <p className="mt-1 text-sm text-amber-700">Search once each day for glowing gems, rare pearls, old-world curios, or plans pointing toward future sanctuary expansions.</p>
+          {isSeptember && <p className="mt-2 text-sm font-semibold text-emerald-800">September finds may include a rare Green Leaf Charm or Red Apple Pendant for Melody&apos;s custom jewelry.</p>}
           {claimedToday && dailyFind && (
             <div role="status" className="mt-3 rounded-xl bg-emerald-50 p-3 text-emerald-900 ring-1 ring-emerald-200">
               <span
