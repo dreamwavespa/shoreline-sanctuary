@@ -10,6 +10,7 @@ import { getScheduleStatus, ScheduleStatus } from "@/lib/schedule";
 import SnappyCurrentRide from "./SnappyCurrentRide";
 import TidePoolSearch from "./TidePoolSearch";
 import { getOlliClue } from "@/lib/olli";
+import { PenelopeCleanupHeart, SandyStormHunt } from "./ShorelineResidentActivities";
 
 interface Spot {
   key: string;
@@ -465,9 +466,11 @@ export default function BeachScene() {
           Shoreline Residents & Eco-Allies
         </p>
         <VillagerCard villager={VILLAGERS.sandy} />
+        <SandyStormHunt />
         <VillagerCard villager={VILLAGERS.kai} />
         <VillagerCard villager={VILLAGERS.sunny} />
         <VillagerCard villager={VILLAGERS.penelope} />
+        <PenelopeCleanupHeart />
 
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
           Traveling & Special Characters

@@ -27,7 +27,8 @@ function isDiscovered(
 }
 
 function SectionPage({ section }: { section: NotebookSection }) {
-  const { state } = useGame();
+  const { state, claimNotebookReward } = useGame();
+  const [rewardAnnouncement, setRewardAnnouncement] = useState("");
   const anchor = VILLAGERS[section.anchorVillagerId];
 
   const discoveredCount = section.entries.filter((e) =>
@@ -35,6 +36,12 @@ function SectionPage({ section }: { section: NotebookSection }) {
   ).length;
 
   const complete = discoveredCount === section.entries.length;
+  const rewardClaimed = state.notebookRewardsClaimed.includes(section.id);
+
+  const claimReward = () => {
+    const itemId = claimNotebookReward(section.id);
+    if (itemId) setRewardAnnouncement(`${ITEMS[itemId].name} was added to your inventory.`);
+  };
 
   return (
     <div className="relative rounded-2xl bg-[#fdf6e8] ring-1 ring-amber-200 shadow-inner p-4 overflow-hidden">
@@ -132,6 +139,17 @@ function SectionPage({ section }: { section: NotebookSection }) {
           </span>
         )}
       </div>
+      {section.completionRewardItemId && (
+        <button
+          type="button"
+          disabled={!complete || rewardClaimed}
+          onClick={claimReward}
+          className="relative mt-3 min-h-11 w-full rounded-xl bg-[#1c2f5c] px-3 py-2 text-sm font-bold text-white disabled:bg-amber-100 disabled:text-amber-500"
+        >
+          {rewardClaimed ? "Reward Collected" : complete ? "Collect Page Reward" : "Complete Page to Unlock"}
+        </button>
+      )}
+      <p role="status" aria-live="polite" className="relative mt-2 min-h-5 text-xs font-semibold text-emerald-800">{rewardAnnouncement}</p>
     </div>
   );
 }
@@ -206,7 +224,7 @@ export default function Notebook({
           className="overflow-y-auto px-1 pb-1"
           style={{ touchAction: "pan-y" }}
         >
-          <SectionPage section={section} />
+          <SectionPage key={section.id} section={section} />
         </div>
       </div>
     </div>

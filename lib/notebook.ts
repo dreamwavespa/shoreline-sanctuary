@@ -27,6 +27,7 @@ export interface NotebookSection {
   anchorVillagerId: string;
   entries: NotebookEntry[];
   completionReward: string;
+  completionRewardItemId?: string;
 }
 
 export const NOTEBOOK_SECTIONS: NotebookSection[] = [
@@ -52,6 +53,7 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     title: "Wildlife & Sightings",
     anchorVillagerId: "penelope",
     completionReward: "Golden Feather (Crafts Special Wish Bottle)",
+    completionRewardItemId: "golden-feather",
     entries: [
       { id: "sandy", kind: "villager", note: "Sandy the Sandpiper — scurries the intertidal zone after every storm." },
       { id: "olli", kind: "villager", note: "Olli the Octopus — a playful ink artist who hides in plain sight." },
@@ -80,6 +82,7 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     title: "Beachcombing & Shells",
     anchorVillagerId: "sunny",
     completionReward: "Pastel Shell Paint Patterns",
+    completionRewardItemId: "pattern-pastel-shell-set",
     entries: [
       { id: "shell-scallop", kind: "item", note: "Common along the tideline, ridged like a fan." },
       { id: "shell-whelk", kind: "item", note: "Smooth and spiraled — hermit crabs love these." },

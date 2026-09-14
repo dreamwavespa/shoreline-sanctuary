@@ -11,6 +11,8 @@ import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_
 import { getScheduleStatus } from "./schedule";
 import { getTravelingMerchantStock } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
+import { NOTEBOOK_SECTIONS } from "./notebook";
+import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -78,6 +80,15 @@ export interface OlliInkPicture {
   createdAt: number;
 }
 
+export interface PaintedShell {
+  id: string;
+  name: string;
+  shellId: string;
+  color: string;
+  pattern: string;
+  createdAt: number;
+}
+
 interface GameState {
   inventory: Record<string, number>;
   blueprints: string[];
@@ -119,6 +130,7 @@ interface GameState {
   villagerGiftCounts: Record<string, number>;
   notebookDiscovered: Record<string, boolean>;
   notebookSeenCount: number;
+  notebookRewardsClaimed: string[];
   sandcastleGallery: SavedSandcastle[];
   lookoutSightings: string[];
   kettleRecovered: boolean;
@@ -132,6 +144,10 @@ interface GameState {
   groveNurserySeedMisses: number;
   tidePoolDiscoveries: string[];
   tidePoolSearchesCompleted: number;
+  motherOfPearlMisses: number;
+  penelopeRewardsClaimed: number;
+  sandyStormHuntsCompleted: number;
+  paintedShells: PaintedShell[];
   sandDollars: number;
   seaweedDiscoveryPurchases: string[];
   foundBottleMessages: string[];
@@ -203,6 +219,7 @@ const DEFAULT_STATE: GameState = {
   villagerGiftCounts: {},
   notebookDiscovered: {},
   notebookSeenCount: 0,
+  notebookRewardsClaimed: [],
   sandcastleGallery: [],
   lookoutSightings: [],
   kettleRecovered: false,
@@ -216,6 +233,10 @@ const DEFAULT_STATE: GameState = {
   groveNurserySeedMisses: 0,
   tidePoolDiscoveries: [],
   tidePoolSearchesCompleted: 0,
+  motherOfPearlMisses: 0,
+  penelopeRewardsClaimed: 0,
+  sandyStormHuntsCompleted: 0,
+  paintedShells: [],
   sandDollars: 8,
   seaweedDiscoveryPurchases: [],
   foundBottleMessages: [],
@@ -279,6 +300,17 @@ const DAILY_CHEST_TREASURES = [
 
 const BUBBLES_BONUSES = ["ribbon", "glass-teal", "shiny-soda-tab", "sea-berry"];
 const PEARL_FRIENDSHIP_REWARDS = ["pearl-white", "pearl-pink", "mother-of-pearl", "pearl-silver", "pearl-rainbow"];
+const PENELOPE_CLEANUP_REWARDS = [
+  { itemId: "coconut", count: 2 },
+  { itemId: "wild-beach-plum", count: 2 },
+  { itemId: "blueberry", count: 3 },
+  { itemId: "raspberry", count: 3 },
+];
+const SANDY_STORM_REWARDS = [
+  { itemId: "soothing-sea-salt", count: 2 },
+  { itemId: "wild-beach-plum", count: 1 },
+  { itemId: "pearl-silver", count: 1 },
+];
 const SPLASH_TRADE_REWARDS = ["hemp-thread", "copper-wire", "driftwood-oar"];
 const SPLASH_STORIES = [
   "Splash once followed a silver school of fish that glittered like a second moon beneath the water.",
@@ -333,10 +365,15 @@ interface Ctx {
   notebookOpen: boolean;
   setNotebookOpen: (v: boolean) => void;
   markNotebookSeen: () => void;
+  claimNotebookReward: (sectionId: string) => string | null;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
   addLookoutSighting: (id: string) => void;
   addTidePoolDiscovery: (id: string) => void;
   completeTidePoolSearch: () => void;
+  collectTidePoolShellHollow: () => boolean;
+  claimPenelopeCleanupReward: () => { itemId: string; count: number } | null;
+  completeSandyStormHunt: () => { itemId: string; count: number } | null;
+  createPaintedShell: (shellId: string, color: string, pattern: string, name?: string) => PaintedShell | null;
   recoverMaevesKettle: () => boolean;
   checkWeather: () => WeatherForecast;
   completeStormCleanup: () => boolean;
@@ -1003,6 +1040,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const claimNotebookReward = (sectionId: string) => {
+    const current = stateRef.current;
+    const section = NOTEBOOK_SECTIONS.find((candidate) => candidate.id === sectionId);
+    if (!section?.completionRewardItemId || current.notebookRewardsClaimed.includes(sectionId)) return null;
+    const complete = section.entries.every((entry) => {
+      if (entry.kind === "item") return Boolean(current.notebookDiscovered[entry.id]);
+      if (entry.kind === "sighting") return current.lookoutSightings.includes(entry.id);
+      if (entry.kind === "tidepool") return current.tidePoolDiscoveries.includes(entry.id);
+      return (current.villagerGiftCounts[entry.id] || 0) > 0;
+    });
+    if (!complete) return null;
+    const itemId = section.completionRewardItemId;
+    setState((s) => ({
+      ...s,
+      notebookRewardsClaimed: [...s.notebookRewardsClaimed, sectionId],
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+    }));
+    play(ITEMS[itemId].sfx, 0.8);
+    toast(`${ITEMS[itemId].name} added to your inventory!`);
+    return itemId;
+  };
+
   const saveSandcastle = (castle: Omit<SavedSandcastle, "id" | "createdAt">) => {
     setState((s) => ({
       ...s,
@@ -1029,6 +1088,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ? s
       : { ...s, tidePoolDiscoveries: [...s.tidePoolDiscoveries, id] }
     );
+  };
+
+  const collectTidePoolShellHollow = () => {
+    const bonus = stateRef.current.motherOfPearlMisses >= 3 || Math.random() < 0.25;
+    setState((s) => ({
+      ...s,
+      motherOfPearlMisses: bonus ? 0 : s.motherOfPearlMisses + 1,
+      inventory: {
+        ...s.inventory,
+        "iridescent-shell": (s.inventory["iridescent-shell"] || 0) + 1,
+        ...(bonus ? { "mother-of-pearl": (s.inventory["mother-of-pearl"] || 0) + 1 } : {}),
+      },
+    }));
+    if (bonus) window.setTimeout(() => play("pearl", 0.8), 250);
+    return bonus;
   };
 
   const completeTidePoolSearch = () => {
@@ -1399,6 +1473,69 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return rewardItemId;
   };
 
+  const claimPenelopeCleanupReward = () => {
+    const earnedRewards = Math.floor((stateRef.current.villagerGiftCounts.penelope || 0) / 3);
+    if (stateRef.current.penelopeRewardsClaimed >= earnedRewards) return null;
+    const reward = PENELOPE_CLEANUP_REWARDS[stateRef.current.penelopeRewardsClaimed % PENELOPE_CLEANUP_REWARDS.length];
+    setState((s) => ({
+      ...s,
+      penelopeRewardsClaimed: s.penelopeRewardsClaimed + 1,
+      inventory: { ...s.inventory, [reward.itemId]: (s.inventory[reward.itemId] || 0) + reward.count },
+    }));
+    play(ITEMS[reward.itemId].sfx, 0.8);
+    toast(`Penelope dropped ${reward.count} ${ITEMS[reward.itemId].name}${reward.count === 1 ? "" : "s"} for you!`);
+    return reward;
+  };
+
+  const completeSandyStormHunt = () => {
+    const current = stateRef.current;
+    if (current.sandyStormHuntsCompleted >= current.stormCleanupCompletions) return null;
+    const cost = [{ itemId: "trash-plastic", count: 1 }, { itemId: "glass-blue", count: 1 }];
+    if (!hasEnough(cost)) return null;
+    const reward = SANDY_STORM_REWARDS[current.sandyStormHuntsCompleted % SANDY_STORM_REWARDS.length];
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, cost);
+      inventory[reward.itemId] = (inventory[reward.itemId] || 0) + reward.count;
+      return { ...s, inventory, sandyStormHuntsCompleted: s.sandyStormHuntsCompleted + 1, sandDollars: s.sandDollars + 1 };
+    });
+    play("questComplete", 0.75);
+    toast(`Sandy's checklist complete: ${reward.count} ${ITEMS[reward.itemId].name}${reward.count === 1 ? "" : "s"} and 1 Sand Dollar!`);
+    return reward;
+  };
+
+  const createPaintedShell = (shellId: string, color: string, pattern: string, requestedName?: string) => {
+    const current = stateRef.current;
+    const patterns = [
+      ...BASIC_SHELL_PATTERNS,
+      ...(current.questProgress.sunnyshellpalette ? [SUNNY_QUEST_PATTERN] : []),
+      ...(current.notebookRewardsClaimed.includes("beachcombing-shells") ? [...NOTEBOOK_SHELL_PATTERNS] : []),
+    ];
+    if (
+      !(PAINTABLE_SHELL_IDS as readonly string[]).includes(shellId) ||
+      !(SHELL_PAINT_COLORS as readonly string[]).includes(color) ||
+      !patterns.includes(pattern) ||
+      (current.inventory[shellId] || 0) < 1 ||
+      (current.inventory["paint-pigment"] || 0) < 1
+    ) return null;
+    const picture: PaintedShell = {
+      id: `painted-shell-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: requestedName?.trim().slice(0, 50) || defaultPaintedShellName(ITEMS[shellId].name, pattern),
+      shellId,
+      color,
+      pattern,
+      createdAt: Date.now(),
+    };
+    setState((s) => {
+      const inventory = deductCost({ ...s.inventory }, [{ itemId: shellId, count: 1 }, { itemId: "paint-pigment", count: 1 }]);
+      inventory["painted-shell"] = (inventory["painted-shell"] || 0) + 1;
+      return { ...s, inventory, paintedShells: [...s.paintedShells, picture] };
+    });
+    play("paintPigment", 0.8);
+    window.setTimeout(() => play("sparkle", 0.45), 350);
+    toast(`${picture.name} added to Sunny's Painted Shell Gallery!`);
+    return picture;
+  };
+
   const tradeWithSplash = () => {
     const cost = [{ itemId: "fresh-reef-fish", count: 1 }];
     if (!hasEnough(cost)) return null;
@@ -1683,10 +1820,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       notebookOpen,
       setNotebookOpen,
       markNotebookSeen,
+      claimNotebookReward,
       saveSandcastle,
       addLookoutSighting,
       addTidePoolDiscovery,
       completeTidePoolSearch,
+      collectTidePoolShellHollow,
+      claimPenelopeCleanupReward,
+      completeSandyStormHunt,
+      createPaintedShell,
       recoverMaevesKettle,
       checkWeather,
       completeStormCleanup,

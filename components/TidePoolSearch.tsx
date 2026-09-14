@@ -44,7 +44,7 @@ function shuffled<T>(items: readonly T[]) {
 }
 
 export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
-  const { state, play, collectItem, addTidePoolDiscovery, completeTidePoolSearch } = useGame();
+  const { state, play, collectItem, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
   const [areaFinds, setAreaFinds] = useState<Record<string, Discovery>>({});
@@ -104,8 +104,9 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
         : " Barnaby reminds you that his shell request is waiting on the Bottles tab.";
     }
     if (areaId === "shell") {
-      collectItem("iridescent-shell", { silent: true });
+      const foundMotherOfPearl = collectTidePoolShellHollow();
       rewardMessage += " An Iridescent Shell was tucked inside the Shell Hollow and has been added to your collection.";
+      if (foundMotherOfPearl) rewardMessage += " A rare piece of Mother-of-Pearl was hidden beneath it!";
     }
     setLastResult({ discovery, message: `${discovery.description}${rewardMessage}` });
 

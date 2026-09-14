@@ -93,7 +93,7 @@ export default function UnderwaterResidentActivity({ villagerId }: { villagerId:
     return (
       <section className={CARD_STYLE} aria-labelledby="pearl-activity-heading">
         <h3 id="pearl-activity-heading" className="font-serif text-lg font-bold text-teal-950">🦪 Pearl’s Friendship Pearl</h3>
-        <p className="mt-1 text-sm text-teal-800">Pearl slowly forms a special pearl after every three gifts. Unclaimed rewards remain safely waiting for you.</p>
+        <p className="mt-1 text-sm text-teal-800">Pearl slowly forms a special pearl after every three gifts. Find Iridescent Shells in the Tide Pool’s Shell Hollow; rare Mother-of-Pearl can also appear there. Unclaimed rewards remain safely waiting for you.</p>
         <p className="mt-2 text-xs font-semibold text-teal-900">{rewardReady ? "A friendship pearl is ready." : `Progress toward the next pearl: ${Math.min(progress, 3)}/3 gifts`}</p>
         <button type="button" disabled={!rewardReady} onClick={claim} className={BUTTON_STYLE}>
           {rewardReady ? "Receive Friendship Pearl" : "No Pearl Ready Yet"}

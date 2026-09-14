@@ -307,6 +307,18 @@ export const SAND_ART_RECIPES: SandArtRecipe[] = [
     outputItemId: "star-wish-bottle",
   },
   {
+    id: "golden-star-wish",
+    name: "Golden Feather Wish Bottle",
+    description: "Penelope's golden feather turns a completed wildlife journal into one especially luminous wish for Angel to carry across the sea.",
+    cost: [
+      { itemId: "golden-feather", count: 1 },
+      { itemId: "sand-snow-white", count: 1 },
+      { itemId: "firefly-jar", count: 1 },
+      { itemId: "empty-glass-bottle", count: 1 },
+    ],
+    outputItemId: "star-wish-bottle",
+  },
+  {
     id: "beach-bottle",
     name: "Beach in a Bottle",
     description: "Snow-white sand, a small shell, and sea-rose petals resting beneath a shimmer of collected ocean water.",

@@ -11,6 +11,7 @@ import PicnicPacking from "./PicnicPacking";
 import JewelryCounter from "./JewelryCounter";
 import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
+import ShellPaintingStudio from "./ShellPaintingStudio";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -504,11 +505,13 @@ export default function Workshop() {
   const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
   const [customSandArtOpen, setCustomSandArtOpen] = useState(false);
   const [olliInkOpen, setOlliInkOpen] = useState(false);
+  const [shellPaintingOpen, setShellPaintingOpen] = useState(false);
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
   const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
   const jewelryCounterButtonRef = useRef<HTMLButtonElement>(null);
   const customSandArtButtonRef = useRef<HTMLButtonElement>(null);
   const olliInkButtonRef = useRef<HTMLButtonElement>(null);
+  const shellPaintingButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeWindChime = () => {
     setWindChimeOpen(false);
@@ -533,6 +536,11 @@ export default function Workshop() {
   const closeOlliInk = () => {
     setOlliInkOpen(false);
     window.setTimeout(() => olliInkButtonRef.current?.focus(), 0);
+  };
+
+  const closeShellPainting = () => {
+    setShellPaintingOpen(false);
+    window.setTimeout(() => shellPaintingButtonRef.current?.focus(), 0);
   };
 
   // AudioEngine owns the single music element. The Kitchen sub-tab uses its
@@ -639,6 +647,13 @@ export default function Workshop() {
               >
                 Open Wind Chime Workshop
               </button>
+            </section>
+
+            <section aria-labelledby="shell-painting-heading" className="rounded-2xl bg-gradient-to-br from-pink-50 to-cyan-50 p-4 mb-4 shadow-md ring-1 ring-pink-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-pink-800">Sunny&apos;s Crafting Activity</p>
+              <h2 id="shell-painting-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭐ Shell Painting Studio</h2>
+              <p className="mt-1 text-sm text-sky-800">Turn collected shells and Paint Pigment into named artwork for Sunny&apos;s gallery. All choices use buttons—nothing needs to be drawn or dragged.</p>
+              <button ref={shellPaintingButtonRef} type="button" onClick={() => setShellPaintingOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-pink-600 px-4 py-3 font-bold text-white shadow active:bg-pink-700">Open Shell Painting Studio</button>
             </section>
 
             {!state.rowboatRepaired && !state.bucketsFilled ? (
@@ -768,6 +783,7 @@ export default function Workshop() {
       {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
       {customSandArtOpen && <CustomSandArtStudio onClose={closeCustomSandArt} />}
       {olliInkOpen && <OlliInkStudio onClose={closeOlliInk} />}
+      {shellPaintingOpen && <ShellPaintingStudio onClose={closeShellPainting} />}
     </div>
   );
 }
