@@ -29,6 +29,14 @@ const SHELLDON_GOODS: TravelingMerchantListing[] = [
   { itemId: "seaside-air-pump", price: 18, kind: "item", note: "A rare brass-and-teal pump that fills the sanctuary raft in one use and is never consumed." },
 ];
 
+const SHELLDON_PANTRY_STAPLES: TravelingMerchantListing[] = [
+  { itemId: "tea-bags", price: 2, kind: "item", note: "A small packet of tea bags for warming shoreline blends." },
+  { itemId: "vanilla", price: 4, kind: "item", note: "Fragrant vanilla for cakes, cookies, and other baked treats." },
+  { itemId: "cocoa-powder", price: 4, kind: "item", note: "Rich cocoa powder for chocolate baking and cozy drinks." },
+  { itemId: "flour", price: 3, kind: "item", note: "A paper sack of flour for the cottage baking oven." },
+  { itemId: "eggs", price: 3, kind: "item", note: "A small carton of fresh eggs for baking." },
+];
+
 const SHELBY_BLUEPRINTS: TravelingMerchantListing[] = [
   { itemId: "blueprint-marine-biology-lab", price: 30, kind: "blueprint", note: "Future expansion plan for studying Shoreline's marine life." },
   { itemId: "blueprint-smoothie-bar", price: 26, kind: "blueprint", note: "Future expansion plan for a fresh island smoothie bar." },
@@ -49,6 +57,7 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date())
   if (villagerId === "shelldon") {
     const sunday = Math.floor(day / 7);
     return [
+      ...SHELLDON_PANTRY_STAPLES,
       ...rotate(SHELLDON_SEEDS, sunday % SHELLDON_SEEDS.length, 3),
       ...rotate(SHELLDON_FURNITURE, sunday % SHELLDON_FURNITURE.length, 2),
       ...rotate(SHELLDON_GOODS, sunday % SHELLDON_GOODS.length, 2),
