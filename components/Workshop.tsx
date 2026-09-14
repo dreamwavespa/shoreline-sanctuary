@@ -147,6 +147,9 @@ const FOOD_VISUALS: Record<string, FoodVisualDef> = {
   "seaweed-chips": { kind: "illustration", main: "🥬", detail: "🧂", gradient: "from-emerald-200 via-lime-100 to-amber-100", alt: "A ceramic bowl filled with crisp green seaweed chips and a pinch of sea salt" },
   "campfire-marshmallow": { kind: "illustration", main: "🍡", detail: "🔥", gradient: "from-orange-200 via-rose-100 to-indigo-100", alt: "A golden campfire marshmallow toasted on a skewer above glowing coals" },
   "sea-lettuce-wrap": { kind: "illustration", main: "🌯", detail: "🥬", gradient: "from-teal-200 via-emerald-100 to-amber-100", alt: "A finished sea lettuce garden wrap on a coastal ceramic plate" },
+  "sweet-sugar-berry-tea": { kind: "illustration", main: "🫖", detail: "🍇", gradient: "from-rose-200 via-violet-100 to-amber-100", alt: "A rosy pot of sweet sugar berry tea with dried purple berries" },
+  "lemon-tea": { kind: "illustration", main: "🍵", detail: "🍋", gradient: "from-yellow-100 via-amber-50 to-emerald-100", alt: "A warm cup of lemon tea with a fresh lemon slice" },
+  "mint-tea": { kind: "illustration", main: "🍵", detail: "🌿", gradient: "from-emerald-200 via-teal-100 to-amber-50", alt: "A warm cup of mint tea with fresh coastal mint leaves" },
 };
 
 function FoodVisual({ recipeId }: { recipeId: string }) {
