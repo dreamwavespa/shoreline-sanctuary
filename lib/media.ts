@@ -71,6 +71,16 @@ const SFX_BASE =
   "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  offshorewalter: "/audio/offshore/walter.mp3",
+  offshorelab: "/audio/offshore/lab.mp3",
+  offshorestill: "/audio/offshore/still.mp3",
+  offshorepolish: "/audio/offshore/polish.mp3",
+  offshorechip: "/audio/offshore/chip.mp3",
+  offshoresalt: "/audio/offshore/salt.mp3",
+  offshoredock: "/audio/offshore/dock.mp3",
+  offshoresailing: "/audio/offshore/sailing.mp3",
+  offshorecarve: "/audio/offshore/carve.mp3",
+
   // Existing collection sounds
   seaGlass: `${SFX_BASE}/c3e9dc25-b686-4a2e-a5df-1d177b4ccf30.mp3`,
   driftwood: `${SFX_BASE}/70e1d219-1883-410c-ad85-0b8d12e87266.mp3`,

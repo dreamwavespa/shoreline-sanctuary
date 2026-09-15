@@ -1,4 +1,5 @@
 "use client";
+import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
 import { SFX_FILES } from "./media";
@@ -90,6 +91,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  offshore: OffshoreProgress;
   inventory: Record<string, number>;
   blueprints: string[];
   bucketCount: number;
@@ -186,6 +188,7 @@ interface GameState {
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  offshore: DEFAULT_OFFSHORE,
   inventory: {},
   blueprints: [],
   bucketCount: 0,
@@ -344,6 +347,7 @@ const SPLASH_STORIES = [
 ];
 
 interface Ctx {
+  offshoreAction: (action: OffshoreAction) => string;
   state: GameState;
   screen: Screen;
   zone: Zone;
@@ -494,6 +498,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         setState({
           ...DEFAULT_STATE,
           ...parsed,
+          offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
           blueprints,
           sandDollars,
@@ -1874,6 +1879,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
 
+  const offshoreAction = (action: OffshoreAction) => {
+    const result = advanceOffshore(stateRef.current, action);
+    stateRef.current = result.state;
+    setState(result.state);
+    if (result.sound) play(result.sound);
+    toast(result.message);
+    return result.message;
+  };
+
   const resetProgress = () => {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -1891,6 +1905,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       screen,
       zone,
       setScreen,
+      offshoreAction,
       collectItem,
       emptyBucket,
       craft,

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { OffshoreEntry } from "./Offshore";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
@@ -39,7 +40,7 @@ const CHEST_TREASURE_NOTES: Record<string, string> = {
   "pendant-red-apple": "A rare red apple pendant found only during September. Once collected, it stays in your inventory until used in custom jewelry.",
   "blueprint-beach-hut": "Plans for a cozy beach hut—a clue for a future sanctuary expansion.",
   "blueprint-library": "Detailed plans for a quiet island library—a future expansion waiting to be built.",
-  "map-underwater-crystal-cave": "A water-worn map marking the entrance to a future underwater crystal cave.",
+  "map-underwater-crystal-cave": "A water-worn map marking the Benthic Pocket beneath Waverly’s research ship. Visit the marine lab through the Reef.",
   "pearl-rainbow": "A rare pearl whose colors shift like a rainbow in sunlight.",
   "pearl-gold": "A lustrous pearl with a rich golden sheen.",
   "pearl-glow-dark": "A pale pearl that glows softly after the surrounding light fades.",
@@ -208,6 +209,7 @@ export default function CoveScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
+      <OffshoreEntry kind="dock" />
       <div className="relative w-full h-[55%] min-h-[280px] overflow-hidden select-none">
         <Image src={SCENES.treasureCove} alt="Hidden Cove" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />

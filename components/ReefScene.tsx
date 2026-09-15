@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { OffshoreEntry } from "./Offshore";
 import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
@@ -288,6 +289,7 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
+      <OffshoreEntry kind="lab" />
       <div className="relative w-full h-[48%] min-h-[240px] overflow-hidden select-none">
         <Image src={SCENES.shipwreck} alt="Deep Reef shipwreck" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-blue-900/25" />

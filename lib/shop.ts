@@ -10,6 +10,10 @@ export interface SeaweedDiscovery extends ShopStockItem {
 }
 
 export const SHOP_STOCK: ShopStockItem[] = [
+  { itemId: "uv-dive-torch", price: 25, note: "Illuminates the deepest cave and reveals fluorescence." },
+  { itemId: "deep-fins", price: 45, note: "Stabilizes you in the Siphon Trench currents." },
+  { itemId: "reserve-tank", price: 75, note: "Enables the Abyssal Hearth with fins and a UV torch." },
+
   { itemId: "food-beach-plum-jelly", price: 4, note: "A sweet shoreline favorite." },
   { itemId: "food-seaweed-chips", price: 3, note: "Crisp, salty, and packed by Seaweed." },
   { itemId: "soothing-sea-salt", price: 3, note: "Useful in the kitchen and workshop." },
@@ -20,6 +24,9 @@ export const SHOP_STOCK: ShopStockItem[] = [
 ];
 
 export const SELL_PRICES: Record<string, number> = {
+  "crystal-walrus": 12,
+  "crystal-dolphin": 12,
+  "polished-enhydro": 6,
   "raw-driftwood-arch": 1,
   "raw-driftwood-planks": 2,
   "raw-barnacle-wood": 2,

@@ -15,6 +15,19 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "uv-dive-torch": { id: "uv-dive-torch", name: "High-Intensity UV Dive Torch", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "deep-fins": { id: "deep-fins", name: "Weighted Belt & Deep Fins", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "reserve-tank": { id: "reserve-tank", name: "Twin Reserve Tank & Regulator", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "cave-calcite": { id: "cave-calcite", name: "Cave Calcite", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "rough-enhydro": { id: "rough-enhydro", name: "Rough Enhydro Crystal", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "included-quartz": { id: "included-quartz", name: "Sand-Included Quartz", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "glowing-fluorite": { id: "glowing-fluorite", name: "Glowing Fluorite", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "tidal-heart": { id: "tidal-heart", name: "Tidal Heart Enhydro", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "polished-enhydro": { id: "polished-enhydro", name: "Window-Clear Enhydro", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "crystal-walrus": { id: "crystal-walrus", name: "Glowing Crystal Walrus", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "crystal-dolphin": { id: "crystal-dolphin", name: "Glowing Crystal Dolphin", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+  "mystery-liquid": { id: "mystery-liquid", name: "Mystery Liquid Sample", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
+
   "shell-nautilus": { id: "shell-nautilus", name: "Nautilus Shell", category: "shell", icon: `${ICON_BASE}/604cb7e3-03ed-411d-97fa-2435e8340fc7.png`, rarity: "uncommon", sfx: "shell" },
   "shell-scallop": { id: "shell-scallop", name: "Scallop Shell", category: "shell", icon: `${ICON_BASE}/e93500d7-8dea-48fa-ad4b-f8bd6439708f.png`, rarity: "common", sfx: "shell" },
   "shell-conch": { id: "shell-conch", name: "Conch Shell", category: "shell", icon: `${ICON_BASE}/43715411-ab07-442e-ae82-563d96c4cc45.png`, rarity: "uncommon", sfx: "shell" },
