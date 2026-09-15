@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "@/lib/items";
 import { useGame } from "@/lib/store";
 
@@ -57,20 +57,62 @@ const RECIPES: SmoothieRecipe[] = [
   },
 ];
 
+const BLENDER_AUDIO = "/audio/freesound_community-blender-mixer-smoothie-33026.mp3";
+const POUR_AUDIO = "/audio/kalsstockmedia-large-glass-of-water-filling-sound-fx-353321.mp3";
+
 export default function SmoothieBar({ onClose }: { onClose: () => void }) {
-  const { state, cook, play } = useGame();
+  const { state, cook } = useGame();
   const [selectedId, setSelectedId] = useState(RECIPES[0].id);
   const [status, setStatus] = useState("Choose a smoothie recipe, then blend it when you have the ingredients.");
   const [blending, setBlending] = useState(false);
   const blendTimer = useRef<number | null>(null);
+  const pourTimer = useRef<number | null>(null);
+  const blenderAudio = useRef<HTMLAudioElement | null>(null);
+  const pourAudio = useRef<HTMLAudioElement | null>(null);
 
   const selected = useMemo(() => RECIPES.find((recipe) => recipe.id === selectedId) || RECIPES[0], [selectedId]);
   const hasIngredients = selected.ingredients.every(({ itemId, count }) => (state.inventory[itemId] || 0) >= count);
+
+  useEffect(() => {
+    return () => {
+      if (blendTimer.current) window.clearTimeout(blendTimer.current);
+      if (pourTimer.current) window.clearTimeout(pourTimer.current);
+      blenderAudio.current?.pause();
+      pourAudio.current?.pause();
+    };
+  }, []);
 
   const ingredientText = (recipe: SmoothieRecipe) =>
     recipe.ingredients
       .map(({ itemId, count }) => `${count} ${ITEMS[itemId]?.name || itemId}`)
       .join(", ");
+
+  const stopAudio = (audio: HTMLAudioElement | null) => {
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  const finishSmoothie = () => {
+    stopAudio(pourAudio.current);
+    const made = cook(selected.ingredients, `food-smoothie-${selected.id}`, 1);
+    if (made) {
+      setStatus(`${selected.name} is ready! It has been added to your inventory.`);
+    } else {
+      setStatus("The smoothie could not be made. Check your ingredients and try again.");
+    }
+    setBlending(false);
+  };
+
+  const startPour = () => {
+    stopAudio(blenderAudio.current);
+    setStatus(`Pouring ${selected.name} into a serving glass.`);
+    if (!pourAudio.current) pourAudio.current = new Audio(POUR_AUDIO);
+    pourAudio.current.volume = 0.75;
+    pourAudio.current.currentTime = 0;
+    pourAudio.current.play().catch(() => undefined);
+    pourTimer.current = window.setTimeout(finishSmoothie, 2500);
+  };
 
   const blend = () => {
     if (blending) return;
@@ -85,17 +127,11 @@ export default function SmoothieBar({ onClose }: { onClose: () => void }) {
 
     setBlending(true);
     setStatus(`Blending ${selected.name}.`);
-    play("craftSuccess", 0.35);
-    blendTimer.current = window.setTimeout(() => {
-      const made = cook(selected.ingredients, `food-smoothie-${selected.id}`, 1);
-      if (made) {
-        setStatus(`${selected.name} is ready! It has been added to your inventory.`);
-        play("craftSuccess", 0.65);
-      } else {
-        setStatus(`The smoothie could not be made. Check your ingredients and try again.`);
-      }
-      setBlending(false);
-    }, 1200);
+    if (!blenderAudio.current) blenderAudio.current = new Audio(BLENDER_AUDIO);
+    blenderAudio.current.volume = 0.68;
+    blenderAudio.current.currentTime = 0;
+    blenderAudio.current.play().catch(() => undefined);
+    blendTimer.current = window.setTimeout(startPour, 3200);
   };
 
   return (
@@ -112,7 +148,7 @@ export default function SmoothieBar({ onClose }: { onClose: () => void }) {
           <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{status}</div>
           <p className="rounded-xl bg-white p-3 text-sm font-medium text-teal-950 shadow-sm" aria-hidden="true">{status}</p>
 
-          <fieldset>
+          <fieldset disabled={blending}>
             <legend className="mb-3 text-lg font-bold text-teal-950">Choose a recipe</legend>
             <div className="grid gap-3 sm:grid-cols-2">
               {RECIPES.map((recipe) => {
@@ -156,11 +192,11 @@ export default function SmoothieBar({ onClose }: { onClose: () => void }) {
               aria-describedby="smoothie-selection-heading"
               className="mt-4 min-h-12 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white shadow disabled:bg-teal-300 disabled:text-teal-800"
             >
-              {blending ? "Blending…" : `Blend ${selected.name}`}
+              {blending ? "Preparing smoothie…" : `Blend ${selected.name}`}
             </button>
           </section>
 
-          <p className="text-xs text-slate-600">The blending step is intentionally not timed as a challenge. VoiceOver announces recipe selection, missing ingredients, blending, and completion.</p>
+          <p className="text-xs text-slate-600">The blending step is not a timed challenge. VoiceOver announces the selected recipe, missing ingredients, blending, pouring, and completion.</p>
         </div>
       </div>
     </div>
