@@ -7,6 +7,26 @@ import { SIGHTINGS, SPECIMENS, type OffshoreAction } from '@/lib/offshore';
 const button = 'min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white disabled:bg-slate-200 disabled:text-slate-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500';
 const card = 'rounded-2xl bg-white p-4 text-slate-900 shadow space-y-3';
 function Art({ name, alt }: { name: string; alt: string }) { return <Image src={`/images/offshore/${name}.jpg`} alt={alt} width={1000} height={560} unoptimized className="w-full rounded-xl object-cover" />; }
+type EntranceIconName = 'lab' | 'walter' | 'caves' | 'cabinet' | 'dock';
+// Display individual regions of the supplied artwork without changing the image.
+const ENTRANCE_ICONS: Record<EntranceIconName, { x: number; y: number; width: number; height: number }> = {
+  lab: { x: 32, y: 45, width: 338, height: 342 },
+  walter: { x: 287, y: 231, width: 318, height: 351 },
+  caves: { x: 514, y: 43, width: 344, height: 344 },
+  cabinet: { x: 771, y: 231, width: 322, height: 353 },
+  dock: { x: 1007, y: 46, width: 340, height: 343 },
+};
+function EntranceIcon({ name }: { name: EntranceIconName }) {
+  const frame = ENTRANCE_ICONS[name];
+  return <span aria-hidden="true" className="pointer-events-none block w-28 max-w-full shrink-0 overflow-hidden rounded-[50%] bg-slate-900 sm:w-32" style={{
+    aspectRatio: `${frame.width} / ${frame.height}`,
+    backgroundImage: 'url("/images/offshore/entrance-icons.jpeg")',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: `${1376 / frame.width * 100}% ${768 / frame.height * 100}%`,
+    backgroundPosition: `${frame.x / (1376 - frame.width) * 100}% ${frame.y / (768 - frame.height) * 100}%`,
+  }} />;
+}
+const entranceButton = 'flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-slate-900 p-3 text-center text-base font-semibold text-amber-50 shadow hover:bg-slate-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-teal-500';
 export function OffshoreEntry({ kind, onMusicChange }: { kind: 'lab' | 'dock'; onMusicChange?: (track: string | null) => void }) {
   const { play } = useGame();
   const [open, setOpen] = useState(false);
@@ -14,7 +34,7 @@ export function OffshoreEntry({ kind, onMusicChange }: { kind: 'lab' | 'dock'; o
   return <section className={`${card} m-4`}>
     <h2 className="text-xl font-bold">{kind === 'lab' ? 'Waverly’s Marine Research Ship' : 'Cove Dock'}</h2>
     <p>{kind === 'lab' ? 'Visit Waverly, Walter, and the crystal caves beneath the reef.' : 'Seaweed’s pier counter offers wildlife photography and inshore salvage voyages.'}</p>
-    <button ref={trigger} type="button" className={button} aria-expanded={open} onClick={() => { if (!open && kind === 'dock') play('dockFootsteps'); setOpen(!open); }}>{open ? 'Close' : kind === 'lab' ? 'Visit the Marine Lab' : 'Walk to the Dock'}</button>
+    <button ref={trigger} type="button" className={`${entranceButton} w-full sm:w-auto sm:min-w-48`} aria-expanded={open} onClick={() => { if (!open && kind === 'dock') play('dockFootsteps'); setOpen(!open); }}><EntranceIcon name={kind} /><span>{open ? (kind === 'lab' ? 'Close the Marine Lab' : 'Return to Cove') : kind === 'lab' ? 'Visit the Marine Lab' : 'Walk to the Dock'}</span></button>
     {open && <OffshorePanel kind={kind} onMusicChange={onMusicChange} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
   </section>;
 }
@@ -62,7 +82,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
       <p>Wildlife album: {o.photos.length}/3. Basic diving gear: {state.hasDivingGear ? 'ready' : 'needed'}.</p>
       <button type="button" className={button} onClick={() => act({ type: 'charter' })}>{o.photos.length >= 3 ? 'Request Free Readiness Clearance' : 'Book Research Charter · 20 Sand Dollars'}</button>
     </section> : <>
-      <nav aria-label="Research ship activities" className="flex flex-wrap gap-2">{[['lab','Waverly’s Lab'],['walter','Walter’s Raft'],['caves','Crystal Caves'],['cabinet','Specimen Cabinet']].map(([id,label]) => <button type="button" key={id} className={button} aria-pressed={area === id} onClick={() => { setArea(id); if(id === 'walter') play('offshorewalter'); }}>{label}</button>)}</nav>
+      <nav aria-label="Research ship activities" className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[['lab','Waverly’s Lab'],['walter','Walter’s Raft'],['caves','Crystal Caves'],['cabinet','Specimen Cabinet']].map(([id,label]) => <button type="button" key={id} className={`${entranceButton} ${area === id ? 'border-teal-500 ring-2 ring-teal-500' : ''}`} aria-pressed={area === id} onClick={() => { setArea(id); if(id === 'walter') play('offshorewalter'); }}><EntranceIcon name={id as EntranceIconName} /><span>{label}</span></button>)}</nav>
       {area === 'lab' && <section className={card}><Art name="waverly" alt="Dr. Waverly studies a crystal in her cozy marine laboratory." /><h4 className="font-bold">Dr. Waverly · Marine Biologist</h4><p>“Ancient water inside a crystal! Imagine the currents it remembers.” Waverly studies wildlife, unusual liquids, and minerals from the reef.</p><p>Mystery samples: {count('mystery-liquid')}. Completed tests: {o.tests}.</p><button type="button" className={button} disabled={!count('mystery-liquid')} onClick={() => act({type:'test'})}>Test Mystery Liquid · Earn 3 Sand Dollars</button><p>Find samples during the dock’s raft voyages. Existing sealed bottle messages still open in your bucket.</p></section>}
       {area === 'walter' && <section className={card}><Art name="walter" alt="Walter the walrus rests under a striped awning beside his copper still and shelves of polished crystals." /><h4 className="font-bold">Walter · Arctic Artisan</h4><p>Patient and warm-hearted, Walter distills seawater and shapes crystals with the tips of his tusks.</p><p>Sea Water: {count('sea-water')} · Rough Enhydro: {count('rough-enhydro')} · Fluorite: {count('glowing-fluorite')}</p><div className="flex flex-wrap gap-2"><button type="button" className={button} disabled={!count('sea-water')} onClick={() => act({type:'distill'})}>Distill 1 Sea Water → 1 Pure Water + 1 Sea Salt</button><button type="button" className={button} disabled={!count('rough-enhydro')} onClick={() => act({type:'polish',item:'rough-enhydro'})}>Polish 1 Rough Enhydro</button>{['walrus','dolphin'].map(animal => <button type="button" key={animal} className={button} disabled={!count('glowing-fluorite')} onClick={() => act({type:'carve',item:`crystal-${animal}`})}>Carve Crystal {animal} · 1 Fluorite</button>)}</div></section>}
       {area === 'caves' && <section className={card}><h4 className="font-bold">The Benthic Pocket</h4>{state.blueprints.includes('map-underwater-crystal-cave') || count('map-underwater-crystal-cave') ? <p>Your treasure-chest cave map matches Waverly’s survey: the passage lies directly beneath the ship.</p> : <p>Waverly shares her survey of the caves beneath the ship. The treasure-chest cave map describes this same place.</p>}<label className="block">Choose a chamber<select className="block w-full rounded-lg border p-3" value={chamber} onChange={e => setChamber(Number(e.target.value))}><option value={1}>1 · The Luminous Arch</option><option value={2}>2 · The Siphon Trench</option><option value={3}>3 · The Abyssal Hearth</option></select></label><Art name={['arch','trench','hearth'][chamber-1]} alt={['Sunlight streams into an underwater cavern with pale mineral veins.','Cyan anemones glow along dark stone arches in the Siphon Trench.','Purple and blue crystals illuminate the deep Abyssal Hearth.'][chamber-1]} /><p>{['Basic diving gear required. Find Calcite and Rough Enhydro.','Weighted Belt & Deep Fins required. Find Sand-Included Quartz.','Fins, reserve tank, and UV torch required. Find Glowing Fluorite and the Tidal Heart.'][chamber-1]}</p><label className="flex items-center gap-3"><input type="checkbox" checked={uv} disabled={!count('uv-dive-torch')} onChange={e => setUv(e.target.checked)} />Switch on ultraviolet light {count('uv-dive-torch') ? '' : '(purchase torch first)'}</label>{uv && <p>The ultraviolet beam reveals vivid mineral fluorescence.</p>}<button type="button" className={button} onClick={() => act({type:'dive',chamber,uv})}>Explore Chamber and Collect a Specimen</button></section>}
