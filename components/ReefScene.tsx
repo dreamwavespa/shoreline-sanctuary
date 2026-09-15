@@ -224,6 +224,7 @@ export default function ReefScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
+  const [offshoreTrack, setOffshoreTrack] = useState<string | null>(null);
   const [artifactGameOpen, setArtifactGameOpen] = useState(false);
   const artifactButtonRef = useRef<HTMLButtonElement>(null);
   const [reefRescueOpen, setReefRescueOpen] = useState(false);
@@ -255,13 +256,15 @@ export default function ReefScene() {
   // and clears that preference on tab-away/unmount so the zone's default
   // underwater track resumes. Never mount a second <audio> element here.
   useEffect(() => {
-    if (tab === "libby") {
+    if (offshoreTrack) {
+      setMusicOverride(offshoreTrack);
+    } else if (tab === "libby") {
       setMusicOverride("deepReefDescent");
     } else {
       setMusicOverride(null);
     }
     return () => setMusicOverride(null);
-  }, [tab, setMusicOverride]);
+  }, [tab, offshoreTrack, setMusicOverride]);
 
   if (!state.hasDivingGear) {
     return (
@@ -289,7 +292,7 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
-      <OffshoreEntry kind="lab" />
+      <OffshoreEntry kind="lab" onMusicChange={setOffshoreTrack} />
       <div className="relative w-full h-[48%] min-h-[240px] overflow-hidden select-none">
         <Image src={SCENES.shipwreck} alt="Deep Reef shipwreck" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-blue-900/25" />

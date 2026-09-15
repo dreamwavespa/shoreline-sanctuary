@@ -7,22 +7,32 @@ import { SIGHTINGS, SPECIMENS, type OffshoreAction } from '@/lib/offshore';
 const button = 'min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white disabled:bg-slate-200 disabled:text-slate-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500';
 const card = 'rounded-2xl bg-white p-4 text-slate-900 shadow space-y-3';
 function Art({ name, alt }: { name: string; alt: string }) { return <Image src={`/images/offshore/${name}.jpg`} alt={alt} width={1000} height={560} unoptimized className="w-full rounded-xl object-cover" />; }
-export function OffshoreEntry({ kind }: { kind: 'lab' | 'dock' }) {
+export function OffshoreEntry({ kind, onMusicChange }: { kind: 'lab' | 'dock'; onMusicChange?: (track: string | null) => void }) {
+  const { play } = useGame();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   return <section className={`${card} m-4`}>
     <h2 className="text-xl font-bold">{kind === 'lab' ? 'Waverly’s Marine Research Ship' : 'Cove Dock'}</h2>
     <p>{kind === 'lab' ? 'Visit Waverly, Walter, and the crystal caves beneath the reef.' : 'Seaweed’s pier counter offers wildlife photography and inshore salvage voyages.'}</p>
-    <button ref={trigger} type="button" className={button} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Close' : kind === 'lab' ? 'Visit the Marine Lab' : 'Walk to the Dock'}</button>
-    {open && <OffshorePanel kind={kind} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
+    <button ref={trigger} type="button" className={button} aria-expanded={open} onClick={() => { if (!open && kind === 'dock') play('dockFootsteps'); setOpen(!open); }}>{open ? 'Close' : kind === 'lab' ? 'Visit the Marine Lab' : 'Walk to the Dock'}</button>
+    {open && <OffshorePanel kind={kind} onMusicChange={onMusicChange} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
   </section>;
 }
-function OffshorePanel({ kind, onClose }: { kind: 'lab' | 'dock'; onClose: () => void }) {
+function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock'; onClose: () => void; onMusicChange?: (track: string | null) => void }) {
   const { state, offshoreAction, buyFromSeaweed, play } = useGame();
   const [message, setMessage] = useState({ text: '', revision: 0 });
   const [area, setArea] = useState('lab');
   const [chamber, setChamber] = useState(1);
   const [uv, setUv] = useState(false);
+  const musicTrack = area === 'caves'
+    ? (chamber === 2 ? 'deepSeaEchoes' : 'crystalCavern')
+    : area === 'cabinet' ? 'specimenCabinet' : 'marineLab';
+  // The Reef owns its music override, including restoration when this panel closes.
+  // Inventory, rewards and sound effects never change this dependency.
+  useEffect(() => {
+    if (kind === 'lab') onMusicChange?.(musicTrack);
+  }, [kind, musicTrack, onMusicChange]);
+  useEffect(() => () => { onMusicChange?.(null); }, [onMusicChange]);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
   const announce = (text: string) => setMessage(s => ({ text, revision: s.revision + 1 }));

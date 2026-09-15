@@ -39,6 +39,10 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  marineLab: "/audio/Marine%20Lab%20-%20Coral%20%26%20Currents.mp3",
+  specimenCabinet: "/audio/Marine%20Lab%20-%20Deep%20Discovery.mp3",
+  crystalCavern: "/audio/Crystal%20Cavern.mp3",
+  deepSeaEchoes: "/audio/Deep%20Sea%20Echoes.mp3",
   beach: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2272649d13f1496683d46733ff6a4d7b.mp3",
   underwater: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2922b0a505d240a28037f7b469dd7d87.mp3",
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
@@ -71,6 +75,7 @@ const SFX_BASE =
   "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  dockFootsteps: "/audio/dock-footsteps.mp3",
   offshorewalter: "/audio/offshore/walter.mp3",
   offshorelab: "/audio/offshore/lab.mp3",
   offshorestill: "/audio/offshore/still.mp3",
