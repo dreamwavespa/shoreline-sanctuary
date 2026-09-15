@@ -43,6 +43,9 @@ export const MUSIC = {
   specimenCabinet: "/audio/Marine%20Lab%20-%20Deep%20Discovery.mp3",
   crystalCavern: "/audio/Crystal%20Cavern.mp3",
   deepSeaEchoes: "/audio/Deep%20Sea%20Echoes.mp3",
+  cadence1: "/audio/Shoreline-lullaby1.mp3",
+  cadence2: "/audio/Shoreline-lullaby2.mp3",
+  cadence3: "/audio/Shoreline-lullaby3.mp3",
   beach: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2272649d13f1496683d46733ff6a4d7b.mp3",
   underwater: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2922b0a505d240a28037f7b469dd7d87.mp3",
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
@@ -54,12 +57,6 @@ export const MUSIC = {
   deepReefDescent: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d01cd0e5715348f0b9c41c7ffc94b6cd.mp3",
   market: "/audio/Shoreline%20Artisan%20Market.mp3",
   grove: "/audio/Coconut%20Grove%20-%20Coastal%20Breeze.mp3",
-
-  // Cottage Harmony Engine — layers in as Sea Glass Sisters are bonded.
-  // cottage1: Melody alone (acoustic guitar + glass marimba)
-  // cottage2: +Coralie (adds wooden marimba + plucked bass)
-  // cottage3: +Marella (adds ambient pads + moonlit harp)
-  // cottage4: +Kaiana (full orchestral — solo cello + crystalline bells)
   cottage1: "https://static.galaxy.ai/d9b033248bba41d7b99ae128b3b45075.mp3",
   cottage2: "https://static.galaxy.ai/57d516ee0c4640f895fd1c4f1f3e95d4.mp3",
   cottage3: "https://static.galaxy.ai/7e2d80cb08054a07828738e176e1bef4.mp3",
@@ -71,119 +68,22 @@ export const PWA_ICONS = {
   icon512: "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3/c02984e6-d6a6-4ea3-b96a-5115e073bcba.png",
 };
 
-const SFX_BASE =
-  "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
+const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
   dockFootsteps: "/audio/dock-footsteps.mp3",
-  offshorewalter: "/audio/offshore/walter.mp3",
-  offshorelab: "/audio/offshore/lab.mp3",
-  offshorestill: "/audio/offshore/still.mp3",
-  offshorepolish: "/audio/offshore/polish.mp3",
-  offshorechip: "/audio/offshore/chip.mp3",
-  offshoresalt: "/audio/offshore/salt.mp3",
-  offshoredock: "/audio/offshore/dock.mp3",
-  offshoresailing: "/audio/offshore/sailing.mp3",
-  offshorecarve: "/audio/offshore/carve.mp3",
-
-  // Existing collection sounds
-  seaGlass: `${SFX_BASE}/c3e9dc25-b686-4a2e-a5df-1d177b4ccf30.mp3`,
-  driftwood: `${SFX_BASE}/70e1d219-1883-410c-ad85-0b8d12e87266.mp3`,
-  pearl: `${SFX_BASE}/52e9f579-14be-49ce-b0f7-ba77b57db8d3.mp3`,
-  plastic: `${SFX_BASE}/1bdb7a8e-a8c7-49ed-9ea7-3709bf0b4500.mp3`,
-  shell: `${SFX_BASE}/f48416b5-8c60-4262-9c34-325c7f2f8119.mp3`,
-
-  // New local pickup sounds
-  beachBall: "/audio/Beach%20ball%20.wav",
-  sodaTab: "/audio/Soda-tab.wav",
-  wood: "/audio/Wood.wav",
-  salt: "/audio/Salt-shaker.wav",
-  coconut: "/audio/Coconut-falling.wav",
-  sandDollarCoin: "/audio/Sand%20Dollar%20Coin.mp3",
-  stone: "/audio/freesound_community-stone-dropping-6843.mp3",
-  groveTrail: "/audio/walking-in-the-sand-on-the-beach.mp3",
-  groveLeafRustle: "/audio/grove-leaf-rustle.mp3",
-  grovePalmFall: "/audio/grove-palm-fall.mp3",
-  groveCoconutImpact: "/audio/grove-coconut-impact.mp3",
-  groveBerryPick: "/audio/grove-berry-pick.mp3",
-  groveBasketFill: "/audio/grove-basket-fill.mp3",
-  groveHerbSnip: "/audio/grove-herb-snip.mp3",
-  groveRootPull: "/audio/grove-root-pull.mp3",
-  groveSignTap: "/audio/grove-sign-tap.mp3",
-  groveItemPickup: "/audio/grove-item-pickup.mp3",
-  nurseryDig: "/audio/nursery-dig.mp3",
-  nurseryPlant: "/audio/nursery-plant.mp3",
-  nurseryWater: "/audio/nursery-water.mp3",
-  jewelryMaterials: "/audio/jewelry-materials.mp3",
-  roseMilkPour: "/audio/rose-milk-pour.mp3",
-  roseMilkBottle: "/audio/rose-milk-bottle.mp3",
-  beeLanding: "/audio/bee-landing.mp3",
-  honeyJar: "/audio/honey-jar.mp3",
-  candleLight: "/audio/candle-light.mp3",
-  cupAndSaucer: "/audio/cup-and-saucer.mp3",
-  teaBrewing: "/audio/tea-brewing.mp3",
-  teaPouring: "/audio/tea-pouring.mp3",
-
-  // Bucket sounds
-  bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`,
-  bucketHalf: `${SFX_BASE}/69ff9589-9e45-4f61-9ea7-ca756817a641.mp3`,
-  bucketFull: `${SFX_BASE}/44f3aa7c-c126-4865-bf11-4f073d22ad41.mp3`,
-
-  // Bottle opening sequence
-  // These three sounds will be played in order by the bottle-opening code.
-  bottleGlass: "/audio/Glass%20bottle.wav",
-  bottleCork: "/audio/Bottle%20cork.wav",
-  bottleParchment: "/audio/Parchment.wav",
-
-  // Notebook page-turn sound
-  notebookPage: "/audio/Notebook%20page.wav",
-  sparkle: "/audio/Sparkle%20the%20Fish.mp3",
-  shopDoor: "/audio/Seaweed%20Shop%20Door.mp3",
-  seaweedDiscovery: "/audio/Seaweed%20Discovery.mp3",
-  chestOpen: "/audio/Chest%20Opening.mp3",
-  liquidBottle: "/audio/Liquid%20Bottle.mp3",
-  oceanWaterSplash: "/audio/Ocean%20Water%20Splash.mp3",
-  seaweedCollect: "/audio/Seaweed%20Collect.mp3",
-  paintPigment: "/audio/Paint%20Pigment.mp3",
-
-  // Quest and crafting sounds
-  questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`,
-  craftSuccess: `${SFX_BASE}/3a6a92e5-28f6-4014-8654-6bb5924ccd69.mp3`,
-
-  // Picnic / interaction sounds
-  umbrellaWhoof:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d493dfed-4f3e-4be0-b8a6-cc8f88bdd5e3.mp3",
-
-  picnicLatch:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/6ed13919-ab45-4568-bfab-a813393a5305.mp3",
-
-  bagRustle:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/63c19dbc-ab24-4a47-9fca-4c2a478f56be.mp3",
-
-  // Lamp crafting sounds
-  lampSanding:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/90a9f9fc-a78d-4c9a-bd08-37bf42cb6568.mp3",
-
-  lampSaltPlacement:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/68f5a249-de95-49b9-84a8-4909b60cc4cf.mp3",
-
-  lampFireflyHum:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/c4069507-cefd-47d2-97cc-bb05947ccbbd.mp3",
-
-  // Hat crafting sounds
-  hatStrawWeave:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/3fe6597c-963b-4c14-b096-296b1d9ed132.mp3",
-
-  hatBandWrap:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/7b869c71-0dc0-4865-a9f4-93338c7e7fbe.mp3",
-
-  hatBuckleClink:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/1214603d-596e-4bca-b055-37ed15f10259.mp3",
-
-  // Seagull sound
-  seagullSwoop:
-    "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/cd3851c6-7e13-4faf-8c34-c96dcf84a109.mp3",
-  airPump: "/audio/air-pump.mp3",
+  offshorewalter: "/audio/offshore/walter.mp3", offshorelab: "/audio/offshore/lab.mp3", offshorestill: "/audio/offshore/still.mp3", offshorepolish: "/audio/offshore/polish.mp3", offshorechip: "/audio/offshore/chip.mp3", offshoresalt: "/audio/offshore/salt.mp3", offshoredock: "/audio/offshore/dock.mp3", offshoresailing: "/audio/offshore/sailing.mp3", offshorecarve: "/audio/offshore/carve.mp3",
+  seaGlass: `${SFX_BASE}/c3e9dc25-b686-4a2e-a5df-1d177b4ccf30.mp3`, driftwood: `${SFX_BASE}/70e1d219-1883-410c-ad85-0b8d12e87266.mp3`, pearl: `${SFX_BASE}/52e9f579-14be-49ce-b0f7-ba77b57db8d3.mp3`, plastic: `${SFX_BASE}/1bdb7a8e-a8c7-49ed-9ea7-3709bf0b4500.mp3`, shell: `${SFX_BASE}/f48416b5-8c60-4262-9c34-325c7f2f8119.mp3`,
+  beachBall: "/audio/Beach%20ball%20.wav", sodaTab: "/audio/Soda-tab.wav", wood: "/audio/Wood.wav", salt: "/audio/Salt-shaker.wav", coconut: "/audio/Coconut-falling.wav", sandDollarCoin: "/audio/Sand%20Dollar%20Coin.mp3", stone: "/audio/freesound_community-stone-dropping-6843.mp3",
+  babyLaugh: "/audio/Baby-laugh.mp3", babyBabble: "/audio/Baby-babble.wav", babyBottle: "/audio/Baby-bottle.mp3", babySpoon: "/audio/Baby-spoon.mp3", babyRattle: "/audio/baby-toy-rattle.mp3", cadenceMobile: "/audio/Mobile.mp3", rockingCradle: "/audio/Rocking-cradle.mp3", rockingChair: "/audio/Rocking-chair.mp3", rubberDucky: "/audio/Rubber-ducky-squeak.mp3", squeezeToy: "/audio/Squeeze-toy.mp3", toyBoxClose: "/audio/Toy%20box-close.mp3", cookieCrunch: "/audio/Cookie-crunch.mp3", clack: "/audio/Clack-sound.mp3",
+  groveTrail: "/audio/walking-in-the-sand-on-the-beach.mp3", groveLeafRustle: "/audio/grove-leaf-rustle.mp3", grovePalmFall: "/audio/grove-palm-fall.mp3", groveCoconutImpact: "/audio/grove-coconut-impact.mp3", groveBerryPick: "/audio/grove-berry-pick.mp3", groveBasketFill: "/audio/grove-basket-fill.mp3", groveHerbSnip: "/audio/grove-herb-snip.mp3", groveRootPull: "/audio/grove-root-pull.mp3", groveSignTap: "/audio/grove-sign-tap.mp3", groveItemPickup: "/audio/grove-item-pickup.mp3",
+  nurseryDig: "/audio/nursery-dig.mp3", nurseryPlant: "/audio/nursery-plant.mp3", nurseryWater: "/audio/nursery-water.mp3", jewelryMaterials: "/audio/jewelry-materials.mp3", roseMilkPour: "/audio/rose-milk-pour.mp3", roseMilkBottle: "/audio/rose-milk-bottle.mp3", beeLanding: "/audio/bee-landing.mp3", honeyJar: "/audio/honey-jar.mp3", candleLight: "/audio/candle-light.mp3", cupAndSaucer: "/audio/cup-and-saucer.mp3", teaBrewing: "/audio/tea-brewing.mp3", teaPouring: "/audio/tea-pouring.mp3",
+  bucketEmpty: `${SFX_BASE}/1282214e-c37f-4ff8-87d5-082629e201d0.mp3`, bucketHalf: `${SFX_BASE}/69ff9589-9e45-4f61-9ea7-ca756817a641.mp3`, bucketFull: `${SFX_BASE}/44f3aa7c-c126-4865-bf11-4f073d22ad41.mp3`,
+  bottleGlass: "/audio/Glass%20bottle.wav", bottleCork: "/audio/Bottle%20cork.wav", bottleParchment: "/audio/Parchment.wav", notebookPage: "/audio/Notebook%20page.wav", sparkle: "/audio/Sparkle%20the%20Fish.mp3", shopDoor: "/audio/Seaweed%20Shop%20Door.mp3", seaweedDiscovery: "/audio/Seaweed%20Discovery.mp3", chestOpen: "/audio/Chest%20Opening.mp3", liquidBottle: "/audio/Liquid%20Bottle.mp3", oceanWaterSplash: "/audio/Ocean%20Water%20Splash.mp3", seaweedCollect: "/audio/Seaweed%20Collect.mp3", paintPigment: "/audio/Paint%20Pigment.mp3",
+  questComplete: `${SFX_BASE}/dbe6c196-db3e-4a78-b615-b8a5c3c6d3be.mp3`, craftSuccess: `${SFX_BASE}/3a6a92e5-28f6-4014-8654-6bb5924ccd69.mp3`,
+  umbrellaWhoof: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/d493dfed-4f3e-4be0-b8a6-cc8f88bdd5e3.mp3", picnicLatch: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/6ed13919-ab45-4568-bfab-a813393a5305.mp3", bagRustle: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/63c19dbc-ab24-4a47-9fca-4c2a478f56be.mp3",
+  lampSanding: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/90a9f9fc-a78d-4c9a-bd08-37bf42cb6568.mp3", lampSaltPlacement: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/68f5a249-de95-49b9-84a8-4909b60cc4cf.mp3", lampFireflyHum: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/c4069507-cefd-47d2-97cc-bb05947d41ef.mp3",
+  hatBuckleClink: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/1214603d-596e-4bca-b055-37ed15f10259.mp3", seagullSwoop: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/cd3851c6-7e13-4faf-8c34-c96dcf84a109.mp3", airPump: "/audio/air-pump.mp3",
 };
 
 export const AMBIENCE_LOOP = `${SFX_BASE}/5e767b6a-1923-4961-9398-95e0e66349fa.mp3`;
