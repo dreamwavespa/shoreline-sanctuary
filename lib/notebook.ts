@@ -1,20 +1,11 @@
 // Sanctuary Explorer's Notebook — data module.
 // Source: "Shoreline Sanctuary: Explorer's Notebook Design Blueprint" design doc.
-//
-// The notebook is a warm, tactile scrapbook journal that tracks the player's
-// discoveries across four sections. Two kinds of entries are tracked:
-//   - "item"    — an item id (see lib/items.ts). Marked discovered the first
-//                 time the player ever holds one in their inventory.
-//   - "villager" — a villager id (see lib/villagers.ts). Marked discovered
-//                 the first time the player gifts that villager (reusing
-//                 lib/store.tsx's existing villagerGiftCounts tracking).
 
-export type NotebookEntryKind = "item" | "villager" | "sighting" | "tidepool";
+export type NotebookEntryKind = "item" | "villager" | "sighting" | "tidepool" | "cadence";
 
 export interface NotebookEntry {
   id: string;
   kind: NotebookEntryKind;
-  /** Handwritten-log flavor text shown in the right-hand column. */
   note: string;
   name?: string;
   icon?: string;
@@ -23,7 +14,6 @@ export interface NotebookEntry {
 export interface NotebookSection {
   id: string;
   title: string;
-  /** Villager id whose portrait anchors the top-right of the page. */
   anchorVillagerId: string;
   entries: NotebookEntry[];
   completionReward: string;
@@ -126,6 +116,19 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
       { id: "coralie", kind: "villager", note: "Stage 2 — Coralie's Bioluminescent Grotto blooms below." },
       { id: "marella", kind: "villager", note: "Stage 3 — Marella's Celestial Observatory opens above." },
       { id: "kaiana", kind: "villager", note: "Stage 4 — Kaiana's Antique Restoration Studio, tucked in the attic." },
+    ],
+  },
+  {
+    id: "cadence-playroom",
+    title: "Cadence's Playroom & Keepsakes",
+    anchorVillagerId: "cadence",
+    completionReward: "Miniature Driftwood Toy Box (Furniture Piece)",
+    entries: [
+      { id: "cadence-ducky", kind: "cadence", name: "Squeaky Yellow Rubber Ducky", icon: "🐤", note: "Rescued from the outer Sandbars by raft and returned safely to Cadence for bedtime." },
+      { id: "cadence-silver-spoon", kind: "cadence", name: "Engraved Silver Baby Spoon", icon: "🥄", note: "An antique sunken-ship relic polished by Kaiana for Cadence's feeding routines." },
+      { id: "cadence-golden-rattle", kind: "cadence", name: "Golden Pearl Rattle", icon: "✨", note: "A golden sphere inlaid with tiny pink pearls from Pearl the Oyster." },
+      { id: "cadence-signature-beach-ball", kind: "item", note: "Cadence's blush-pink and seafoam beach ball with cheerful gold star panels." },
+      { id: "food-cadence-warm-rose-milk", kind: "item", note: "A baby-sized bottle of coconut cream warmed with sea-rose petals until blush pink." },
     ],
   },
 ];
