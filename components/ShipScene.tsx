@@ -50,9 +50,14 @@ export default function ShipScene() {
       <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-teal-100 p-5 shadow-md ring-1 ring-amber-300 text-center"><p className="text-3xl mb-1">⛵🎉</p><p className="font-semibold text-amber-900">Welcome aboard the Community Ship</p><p className="text-xs text-amber-800">Every friend of the sanctuary gathers here now.</p></div>
       <section aria-labelledby="smoothie-bar-heading" className="rounded-2xl bg-gradient-to-br from-lime-50 via-amber-50 to-pink-100 p-4 shadow-md ring-1 ring-lime-300">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Community Ship Party Activity</p>
-        <h2 id="smoothie-bar-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🥤 Shoreline Smoothie Bar</h2>
+        <h2 id="smoothie-bar-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">Shoreline Smoothie Bar</h2>
         <p className="mt-1 text-sm text-teal-800">Blend fruit and herbs gathered around the sanctuary into fresh drinks for the party. Recipes use ingredients from your inventory.</p>
-        <button ref={smoothieButtonRef} type="button" onClick={() => setSmoothieBarOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800">Visit the Smoothie Bar</button>
+        <button ref={smoothieButtonRef} type="button" onClick={() => setSmoothieBarOpen(true)} aria-label="Visit the Shoreline Smoothie Bar" className="mt-3 w-full overflow-hidden rounded-2xl bg-white text-left shadow ring-2 ring-teal-700 active:ring-4">
+          <span className="relative block h-44 w-full sm:h-56">
+            <Image src="/images/IMG_6341.jpeg" alt="" fill unoptimized className="object-cover" />
+          </span>
+          <span className="block min-h-12 bg-teal-700 px-4 py-3 text-center font-bold text-white">Visit the Smoothie Bar</span>
+        </button>
       </section>
       <SaltyCard />
       <section aria-labelledby="olli-ring-toss-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-300"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Community Ship Party Game</p><h2 id="olli-ring-toss-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭕ Olli&apos;s Ring Toss</h2><p className="mt-1 text-sm text-sky-800">Match the direction and distance of Olli&apos;s raised tentacle, then toss a reusable woven seagrass ring. Nothing is timed.</p><button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 py-3 font-bold text-white shadow active:bg-amber-700">Play Ring Toss</button></section>
