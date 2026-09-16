@@ -47,7 +47,7 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
     } else { const item = ['raw-driftwood-planks', 'sealed-frosted-bottle', 'mystery-liquid'][step]; add(item); coins += 1; message = 'Salvage stored in your inventory. Earned 1 Sand Dollar.'; }
     o.voyage = step === 2 ? null : { ...o.voyage, step: step + 1 };
     message += o.voyage ? (action.type === 'photo' ? ` ${SIGHTINGS[step + 1]}` : ' Another find is ready to collect.') : ' The boat returns to the cove dock.';
-    sound = o.voyage ? 'sandDollarCoin' : 'offshoredock';
+    sound = action.type === 'photo' ? 'cameraFlash' : (o.voyage ? 'sandDollarCoin' : 'offshoredock');
   } else if (action.type === 'return') { o.voyage = null; message = 'Returned to the cove dock. Your finds are safe; the fare is not refunded.'; sound = 'offshoredock';
   } else {
     if (!o.labAccess || !s.hasDivingGear) return fail('Obtain research clearance at the reef first.');
