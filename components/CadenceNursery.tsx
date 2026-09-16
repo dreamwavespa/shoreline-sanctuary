@@ -8,6 +8,7 @@ const RECIPES = [
   { id: "cadence-crib-mobile", name: "Crib Mobile", image: "/images/IMG_6347.jpeg", sound: "cadenceMobile", cost: [{ itemId: "shell-clam", count: 1 }, { itemId: "shell-scallop", count: 1 }, { itemId: "shell-conch", count: 1 }, { itemId: "glass-purple", count: 1 }, { itemId: "glass-pink", count: 1 }, { itemId: "glass-white", count: 1 }, { itemId: "copper-wire", count: 1 }], description: "A shell and sea-glass mobile that gently turns above Cadence's bed." },
   { id: "cadence-clamshell-nightlight", name: "Clamshell Nightlight", image: "/images/IMG_6348.jpeg", sound: "sparkle", cost: [{ itemId: "firefly-jar", count: 1 }, { itemId: "star-sand", count: 1 }, { itemId: "shell-clam", count: 2 }], description: "A softly glowing clamshell nightlight filled with firefly light and sparkling star sand." },
   { id: "cadence-rose-milk-bubble-bath", name: "Rose Milk Bubble Bath", image: "/images/IMG_6349.jpeg", sound: "oceanWaterSplash", cost: [{ itemId: "rose-milk", count: 1 }, { itemId: "dry-oats", count: 1 }, { itemId: "lavender", count: 1 }], description: "A gentle rose-milk bubble bath with oats and lavender." },
+  { id: "cadence-snappy-turtle-teether", name: "Snappy Turtle Teether", image: "/images/IMG_0197.jpeg", sound: "sparkle", cost: [{ itemId: "plastic-debris", count: 1 }, { itemId: "glowing-sea-goo", count: 1 }, { itemId: "salt-water", count: 1 }], description: "A seafoam turtle teether inspired by Snappy, with a softly glowing swirl at the center for Cadence." },
 ] as const;
 
 const DISCOVERIES = [
