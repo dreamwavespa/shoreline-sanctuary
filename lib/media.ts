@@ -72,6 +72,7 @@ const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
   dockFootsteps: "/audio/dock-footsteps.mp3",
+  cameraFlash: "/audio/Camera-flash.mp3",
   offshorewalter: "/audio/offshore/walter.mp3", offshorelab: "/audio/offshore/lab.mp3", offshorestill: "/audio/offshore/still.mp3", offshorepolish: "/audio/offshore/polish.mp3", offshorechip: "/audio/offshore/chip.mp3", offshoresalt: "/audio/offshore/salt.mp3", offshoredock: "/audio/offshore/dock.mp3", offshoresailing: "/audio/offshore/sailing.mp3", offshorecarve: "/audio/offshore/carve.mp3",
   seaGlass: `${SFX_BASE}/c3e9dc25-b686-4a2e-a5df-1d177b4ccf30.mp3`, driftwood: `${SFX_BASE}/70e1d219-1883-410c-ad85-0b8d12e87266.mp3`, pearl: `${SFX_BASE}/52e9f579-14be-49ce-b0f7-ba77b57db8d3.mp3`, plastic: `${SFX_BASE}/1bdb7a8e-a8c7-49ed-9ea7-3709bf0b4500.mp3`, shell: `${SFX_BASE}/f48416b5-8c60-4262-9c34-325c7f2f8119.mp3`,
   beachBall: "/audio/Beach%20ball%20.wav", sodaTab: "/audio/Soda-tab.wav", wood: "/audio/Wood.wav", salt: "/audio/Salt-shaker.wav", coconut: "/audio/Coconut-falling.wav", sandDollarCoin: "/audio/Sand%20Dollar%20Coin.mp3", stone: "/audio/freesound_community-stone-dropping-6843.mp3",
