@@ -34,6 +34,21 @@ const SIGHTINGS: LookoutSighting[] = [
   { id: "lookout-shooting-stars", name: "Shooting Star Pair", icon: "🌠", description: "Two shooting stars cross high above the lighthouse, one bright gold and one soft blue.", clue: "A quick streak of light flickers in the high sky.", direction: "sky", mode: "night" },
 ];
 
+const WHALE_FRAMES = [
+  "/images/whale_01_surface.png",
+  "/images/whale_02_rising.png",
+  "/images/whale_03_blow.png",
+  "/images/whale_04_arc.png",
+  "/images/whale_05_prepare_dive.png",
+  "/images/whale_06_tail_rise.png",
+  "/images/whale_07_tail_high.png",
+  "/images/whale_08_tail_lower.png",
+  "/images/whale_09_tail_disappear.png",
+  "/images/whale_10_splash.png",
+  "/images/whale_11_ripples.png",
+  "/images/whale_12_ripples_fade.png",
+];
+
 export default function LighthouseLookout({ onClose }: { onClose: () => void }) {
   const { state, addLookoutSighting, play } = useGame();
   const [mode, setMode] = useState<WatchMode>("day");
@@ -43,16 +58,41 @@ export default function LighthouseLookout({ onClose }: { onClose: () => void }) 
   const [currentSighting, setCurrentSighting] = useState<LookoutSighting | null>(null);
   const [roundFinds, setRoundFinds] = useState<string[]>([]);
   const [announcement, setAnnouncement] = useState("Choose a daylight or starry-night lookout watch.");
+  const [whaleFrame, setWhaleFrame] = useState(0);
+  const [whaleAnimating, setWhaleAnimating] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const completionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const modeSightings = useMemo(() => SIGHTINGS.filter((sighting) => sighting.mode === mode), [mode]);
   const journalCount = SIGHTINGS.filter((sighting) => state.lookoutSightings.includes(sighting.id)).length;
   const selectedDirection = DIRECTIONS.find((item) => item.id === direction) || DIRECTIONS[1];
   const clue = modeSightings.find((sighting) => sighting.direction === direction)?.clue || "The view is calm.";
+  const showingWhale = currentSighting?.id === "lookout-moonlit-whale";
 
   useEffect(() => {
     headingRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (completionTimerRef.current) clearTimeout(completionTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!whaleAnimating) return;
+    const timer = window.setInterval(() => {
+      setWhaleFrame((frame) => {
+        if (frame >= WHALE_FRAMES.length - 1) {
+          window.clearInterval(timer);
+          setWhaleAnimating(false);
+          return frame;
+        }
+        return frame + 1;
+      });
+    }, 430);
+    return () => window.clearInterval(timer);
+  }, [whaleAnimating]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -60,7 +100,7 @@ export default function LighthouseLookout({ onClose }: { onClose: () => void }) 
         onClose();
         return;
       }
-      if (!playing || complete) return;
+      if (!playing || complete || whaleAnimating) return;
       const keyboardDirection: Record<string, Direction> = {
         "1": "west",
         "2": "horizon",
@@ -82,38 +122,57 @@ export default function LighthouseLookout({ onClose }: { onClose: () => void }) 
   });
 
   const startWatch = () => {
+    if (completionTimerRef.current) clearTimeout(completionTimerRef.current);
     setDirection("horizon");
     setCurrentSighting(null);
     setRoundFinds([]);
     setComplete(false);
     setPlaying(true);
+    setWhaleFrame(0);
+    setWhaleAnimating(false);
     setAnnouncement(`${mode === "day" ? "Daylight" : "Starry-night"} watch started. The telescope is aimed at the open horizon. ${modeSightings.find((sighting) => sighting.direction === "horizon")?.clue}`);
   };
 
   const moveTelescope = (nextDirection: Direction) => {
+    if (whaleAnimating) return;
     const next = DIRECTIONS.find((item) => item.id === nextDirection) || DIRECTIONS[1];
     const nextClue = modeSightings.find((sighting) => sighting.direction === nextDirection)?.clue || "The view is calm.";
     setDirection(nextDirection);
     setCurrentSighting(null);
+    setWhaleFrame(0);
     play("driftwood");
     setAnnouncement(`Telescope aimed at ${next.label}. ${nextClue} Select Scan This View to look closer.`);
   };
 
   const scan = () => {
+    if (whaleAnimating) return;
     const sighting = modeSightings.find((item) => item.direction === direction);
     if (!sighting) return;
     const alreadyInRound = roundFinds.includes(sighting.id);
     const alreadyInJournal = state.lookoutSightings.includes(sighting.id);
+    const isWhale = sighting.id === "lookout-moonlit-whale";
     setCurrentSighting(sighting);
+    if (isWhale) {
+      setWhaleFrame(0);
+      setWhaleAnimating(true);
+    }
     if (!alreadyInRound) setRoundFinds((finds) => [...finds, sighting.id]);
     if (!alreadyInJournal) addLookoutSighting(sighting.id);
     play(alreadyInRound ? "shell" : "questComplete");
 
     const nextCount = alreadyInRound ? roundFinds.length : roundFinds.length + 1;
     if (nextCount === modeSightings.length) {
-      setComplete(true);
-      setPlaying(false);
-      setAnnouncement(`${sighting.name}. ${sighting.description} ${mode === "day" ? "Daylight" : "Starry-night"} watch complete. All four sightings are in the lookout journal.`);
+      const finishWatch = () => {
+        setComplete(true);
+        setPlaying(false);
+        setAnnouncement(`${sighting.name}. ${sighting.description} ${mode === "day" ? "Daylight" : "Starry-night"} watch complete. All four sightings are in the lookout journal.`);
+      };
+      if (isWhale) {
+        setAnnouncement(`${sighting.name}. ${sighting.description} Watch the whale surface, lift its tail, and disappear beneath the moonlit water.`);
+        completionTimerRef.current = setTimeout(finishWatch, WHALE_FRAMES.length * 430 + 500);
+      } else {
+        finishWatch();
+      }
     } else {
       setAnnouncement(`${sighting.name}. ${sighting.description}${alreadyInJournal ? " This sighting was already in your journal." : " New journal entry unlocked."} ${modeSightings.length - nextCount} sightings remain in this watch.`);
     }
@@ -175,8 +234,12 @@ export default function LighthouseLookout({ onClose }: { onClose: () => void }) 
           <div className="mt-5">
             <div className="rounded-3xl bg-sky-100 p-5 text-center ring-4 ring-amber-500 shadow-inner">
               <p className="text-sm font-semibold text-indigo-800">{mode === "day" ? "Daylight Watch" : "Starry-Night Watch"} · Found {roundFinds.length}/4</p>
-              <div className="mt-3 min-h-36 rounded-full border-[10px] border-indigo-950 bg-gradient-to-b from-sky-300 to-cyan-100 p-6 shadow-inner" role="img" aria-label={currentSighting ? `${currentSighting.name}. ${currentSighting.description}` : `Telescope aimed at ${selectedDirection.label}. ${clue}`}>
-                <div className="text-6xl" aria-hidden="true">{currentSighting?.icon || selectedDirection.icon}</div>
+              <div className="mt-3 min-h-36 overflow-hidden rounded-full border-[10px] border-indigo-950 bg-gradient-to-b from-sky-300 to-cyan-100 p-6 shadow-inner" role="img" aria-label={currentSighting ? `${currentSighting.name}. ${currentSighting.description}` : `Telescope aimed at ${selectedDirection.label}. ${clue}`}>
+                {showingWhale ? (
+                  <img src={WHALE_FRAMES[whaleFrame]} alt="" aria-hidden="true" className="mx-auto h-44 w-full max-w-md object-contain" />
+                ) : (
+                  <div className="text-6xl" aria-hidden="true">{currentSighting?.icon || selectedDirection.icon}</div>
+                )}
                 <p className="mt-2 font-bold text-indigo-950">{currentSighting?.name || selectedDirection.label}</p>
                 <p className="mt-1 text-sm text-indigo-800">{currentSighting?.description || clue}</p>
               </div>
@@ -187,16 +250,17 @@ export default function LighthouseLookout({ onClose }: { onClose: () => void }) 
                 <button
                   key={item.id}
                   type="button"
+                  disabled={whaleAnimating}
                   aria-pressed={direction === item.id}
                   aria-keyshortcuts={`${item.shortcut}${item.id === "west" ? " ArrowLeft" : item.id === "east" ? " ArrowRight" : item.id === "sky" ? " ArrowUp" : " ArrowDown"}`}
                   onClick={() => moveTelescope(item.id)}
-                  className={`min-h-20 rounded-xl p-3 font-bold ring-2 ${direction === item.id ? "bg-amber-500 text-indigo-950 ring-amber-200" : "bg-white text-indigo-950 ring-sky-200"}`}
+                  className={`min-h-20 rounded-xl p-3 font-bold ring-2 disabled:cursor-wait disabled:opacity-60 ${direction === item.id ? "bg-amber-500 text-indigo-950 ring-amber-200" : "bg-white text-indigo-950 ring-sky-200"}`}
                 >
                   <span aria-hidden="true">{item.icon}</span> {item.shortcut}. {item.label}
                 </button>
               ))}
             </div>
-            <button type="button" onClick={scan} className="mt-4 w-full rounded-xl bg-teal-600 py-3 font-bold text-white shadow active:bg-teal-700">Scan This View</button>
+            <button type="button" onClick={scan} disabled={whaleAnimating} className="mt-4 w-full rounded-xl bg-teal-600 py-3 font-bold text-white shadow active:bg-teal-700 disabled:cursor-wait disabled:opacity-60">{whaleAnimating ? "Watching Whale…" : "Scan This View"}</button>
           </div>
         )}
 
