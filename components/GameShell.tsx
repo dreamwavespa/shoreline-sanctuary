@@ -1,4 +1,5 @@
 "use client";
+import "@/lib/coastalClay";
 import { useState } from "react";
 import { useGame, Screen } from "@/lib/store";
 import BeachScene from "./BeachScene";
