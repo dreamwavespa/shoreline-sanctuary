@@ -145,6 +145,19 @@ export default function HalloweenCauldron() {
           {busy ? "The cauldron is bubbling..." : claimed ? "Today's treat collected — come back tomorrow" : "Trick or Treat!"}
         </button>
         <div aria-live="polite" aria-atomic="true" className="mt-3 min-h-6 text-sm font-semibold text-purple-950">{message}</div>
+        {HALLOWEEN_TEST_MODE && claimed && (
+          <button
+            type="button"
+            onClick={() => {
+              try { localStorage.removeItem("shoreline-halloween-cauldron-date"); } catch {}
+              setLastClaim("");
+              setMessage("Test reset complete. The cauldron is ready for another trick or treat.");
+            }}
+            className="mt-2 w-full rounded-xl border border-purple-400 bg-white py-2 font-semibold text-purple-900"
+          >
+            Reset today's cauldron for testing
+          </button>
+        )}
         <p className="mt-2 text-xs text-purple-800">Pumpkin Collection: {pumpkinCount}/4 colors found — White, Yellow, Green, and Blue.</p>
 
         {hasEightBall && (
