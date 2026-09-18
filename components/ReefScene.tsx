@@ -8,6 +8,7 @@ import { SCENES } from "@/lib/media";
 import ArtifactRestoration from "./ArtifactRestoration";
 import LibbyReefRescue from "./LibbyReefRescue";
 import ShipwreckSalvage from "./ShipwreckSalvage";
+import { getAquariumSpecies, rollBabyFish } from "@/lib/aquarium";
 
 interface Spot {
   key: string;
@@ -220,7 +221,7 @@ function ShipwreckCard() {
 }
 
 export default function ReefScene() {
-  const { state, collectItem, setMusicOverride } = useGame();
+  const { state, collectItem, setMusicOverride, discoverBabyFish } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
@@ -252,7 +253,14 @@ export default function ReefScene() {
       collectItem("seaweed-fronds");
       setReefSearchMessage("You find healthy seaweed swaying beside the restored coral.");
     } else {
-      setReefSearchMessage("You spot tiny fish darting through the coral. Waverly may be able to raise suitable babies in her Marine Lab aquarium.");
+      const excluded = [...state.aquariumResidents.map(r => r.speciesId), ...(state.pendingBabyFishId ? [state.pendingBabyFishId] : [])];
+      const baby = rollBabyFish(excluded);
+      if (baby && Math.random() < 0.58 && discoverBabyFish(baby.id)) {
+        setReefSearchMessage(`You discovered a ${baby.babyName} in the ${baby.habitat}! It is young enough for Waverly’s nursery. Bring it to the Marine Lab aquarium.`);
+      } else {
+        const adult = rollBabyFish([]);
+        setReefSearchMessage(adult ? `You observe an adult ${adult.name} swimming through the reef. Adult fish stay in their natural habitat; only suitable babies are brought to Waverly.` : "You watch healthy reef fish move through the restored coral.");
+      }
     }
   };
 
@@ -358,7 +366,7 @@ export default function ReefScene() {
             🦞 Libby
           </button>
         </div>
-        {tab === "dive" ? <div className="space-y-4"><GhostNetCard />{state.ghostNetCut && <section aria-labelledby="reef-search-heading" className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-100 p-4 shadow-md ring-1 ring-teal-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Restored Reef Activity</p><h2 id="reef-search-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🐠 Search the Reef</h2><p className="mt-1 text-sm text-teal-800">Explore the coral, seagrass, rock shelters, and open water. Baby fish suitable for Waverly’s aquarium will be discovered here as the nursery system grows.</p><button type="button" onClick={searchRestoredReef} className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800">Search the Restored Reef</button><p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-teal-900 ring-1 ring-teal-200">{reefSearchMessage}</p></section>}</div> : tab === "restore" ? (
+        {tab === "dive" ? <div className="space-y-4"><GhostNetCard />{state.ghostNetCut && <section aria-labelledby="reef-search-heading" className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-100 p-4 shadow-md ring-1 ring-teal-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Restored Reef Activity</p><h2 id="reef-search-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🐠 Search the Reef</h2><p className="mt-1 text-sm text-teal-800">Explore the coral, seagrass, rock shelters, and open water. Baby fish suitable for Waverly’s aquarium will be discovered here as the nursery system grows.</p><button type="button" onClick={searchRestoredReef} className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800">Search the Restored Reef</button><p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-teal-900 ring-1 ring-teal-200">{reefSearchMessage}</p>{state.pendingBabyFishId && <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900 ring-1 ring-amber-200">🐟 Nursery discovery waiting: {getAquariumSpecies(state.pendingBabyFishId)?.babyName}. Visit Waverly’s Marine Lab to place the baby in the aquarium.</p>}</section>}</div> : tab === "restore" ? (
           <div className="space-y-4">
             <ShipwreckCard />
             <section aria-labelledby="artifact-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-50 p-4 shadow-md ring-1 ring-amber-200">
