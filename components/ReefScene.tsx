@@ -230,6 +230,7 @@ export default function ReefScene() {
   const [reefRescueOpen, setReefRescueOpen] = useState(false);
   const reefRescueButtonRef = useRef<HTMLButtonElement>(null);
   const [salvageOpen, setSalvageOpen] = useState(false);
+  const [reefSearchMessage, setReefSearchMessage] = useState("The restored reef is ready to explore.");
   const salvageButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeArtifactGame = () => {
@@ -240,6 +241,19 @@ export default function ReefScene() {
   const closeReefRescue = () => {
     setReefRescueOpen(false);
     window.setTimeout(() => reefRescueButtonRef.current?.focus(), 0);
+  };
+
+  const searchRestoredReef = () => {
+    const roll = Math.random();
+    if (roll < 0.18) {
+      collectItem("fishing-net");
+      setReefSearchMessage("You find a usable section of fishing net caught harmlessly between the rocks. It has been added to your inventory.");
+    } else if (roll < 0.43) {
+      collectItem("seaweed-fronds");
+      setReefSearchMessage("You find healthy seaweed swaying beside the restored coral.");
+    } else {
+      setReefSearchMessage("You spot tiny fish darting through the coral. Waverly may be able to raise suitable babies in her Marine Lab aquarium.");
+    }
   };
 
   const closeSalvage = () => {
@@ -344,7 +358,7 @@ export default function ReefScene() {
             🦞 Libby
           </button>
         </div>
-        {tab === "dive" ? <GhostNetCard /> : tab === "restore" ? (
+        {tab === "dive" ? <div className="space-y-4"><GhostNetCard />{state.ghostNetCut && <section aria-labelledby="reef-search-heading" className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-100 p-4 shadow-md ring-1 ring-teal-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Restored Reef Activity</p><h2 id="reef-search-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🐠 Search the Reef</h2><p className="mt-1 text-sm text-teal-800">Explore the coral, seagrass, rock shelters, and open water. Baby fish suitable for Waverly’s aquarium will be discovered here as the nursery system grows.</p><button type="button" onClick={searchRestoredReef} className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800">Search the Restored Reef</button><p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-teal-900 ring-1 ring-teal-200">{reefSearchMessage}</p></section>}</div> : tab === "restore" ? (
           <div className="space-y-4">
             <ShipwreckCard />
             <section aria-labelledby="artifact-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-50 p-4 shadow-md ring-1 ring-amber-200">
