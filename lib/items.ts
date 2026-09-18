@@ -15,6 +15,24 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "halloween-candy": { id: "halloween-candy", name: "Halloween Candy", category: "food", icon: "🍬", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "chocolate-seashells": { id: "chocolate-seashells", name: "Chocolate Seashells", category: "food", icon: "🍫", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "orange-sea-glitter": { id: "orange-sea-glitter", name: "Orange Sea Glitter", category: "decor", icon: "✨", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "orange-glaze": { id: "orange-glaze", name: "Orange Glaze", category: "food", icon: "🫙", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "glowing-wax": { id: "glowing-wax", name: "Glowing Wax", category: "raw", icon: "🕯️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess", glows: true },
+  "pumpkin-spice": { id: "pumpkin-spice", name: "Pumpkin Spice", category: "raw", icon: "🎃", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
+  "ghost-pearl": { id: "ghost-pearl", name: "Ghost Pearl", category: "pearl", icon: "👻", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "moon-charm": { id: "moon-charm", name: "Moon Charm", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "carnelian-crystal-pumpkin": { id: "carnelian-crystal-pumpkin", name: "Carnelian Crystal Pumpkin", category: "decor", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "clear-quartz-skull": { id: "clear-quartz-skull", name: "Clear Quartz Skull", category: "decor", icon: "💀", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "black-obsidian-cat": { id: "black-obsidian-cat", name: "Black Obsidian Cat", category: "decor", icon: "🐈‍⬛", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "porcelain-ghost-figurine": { id: "porcelain-ghost-figurine", name: "Porcelain Ghost Figurine", category: "decor", icon: "👻", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "magic-8-ball": { id: "magic-8-ball", name: "Magic 8 Ball", category: "decor", icon: "🎱", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "white-pumpkin": { id: "white-pumpkin", name: "White Pumpkin", category: "decor", icon: "⚪", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "yellow-pumpkin": { id: "yellow-pumpkin", name: "Yellow Pumpkin", category: "decor", icon: "🟡", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "green-pumpkin": { id: "green-pumpkin", name: "Green Pumpkin", category: "decor", icon: "🟢", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "blue-pumpkin": { id: "blue-pumpkin", name: "Blue Pumpkin", category: "decor", icon: "🔵", isEmoji: true, rarity: "rare", sfx: "pearl" },
+
   "uv-dive-torch": { id: "uv-dive-torch", name: "High-Intensity UV Dive Torch", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
   "deep-fins": { id: "deep-fins", name: "Weighted Belt & Deep Fins", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
   "reserve-tank": { id: "reserve-tank", name: "Twin Reserve Tank & Regulator", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "offshorechip" },
