@@ -97,7 +97,7 @@ export default function HalloweenCauldron() {
   }, []);
 
   const today = dateKey();
-  const claimed = lastClaim === today;
+  const claimed = !HALLOWEEN_TEST_MODE && lastClaim === today;
   const hasEightBall = (state.inventory["magic-8-ball"] || 0) > 0;
   const pumpkins = useMemo(() => ["white-pumpkin", "yellow-pumpkin", "green-pumpkin", "blue-pumpkin"], []);
   const pumpkinCount = pumpkins.filter((id) => (state.inventory[id] || 0) > 0).length;
@@ -141,7 +141,7 @@ export default function HalloweenCauldron() {
         <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-800">October Cottage Event{HALLOWEEN_TEST_MODE ? " · Test Mode" : ""}</p>
         <h2 id="halloween-cauldron-heading" className="mt-1 font-serif text-lg font-bold text-purple-950">🎃 The Trick-or-Treat Cauldron</h2>
         <p className="mt-1 text-sm text-purple-900">Visit once each day in October. The cauldron always gives a treat, but it may play a trick first.</p>
-        <button type="button" disabled={claimed || busy} onClick={trickOrTreat} className="mt-3 w-full rounded-xl bg-orange-700 py-3 font-bold text-white shadow disabled:cursor-not-allowed disabled:bg-orange-300">
+        <button type="button" disabled={busy} onClick={trickOrTreat} className="mt-3 w-full rounded-xl bg-orange-700 py-3 font-bold text-white shadow disabled:cursor-not-allowed disabled:bg-orange-300">
           {busy ? "The cauldron is bubbling..." : claimed ? "Today's treat collected — come back tomorrow" : "Trick or Treat!"}
         </button>
         <div aria-live="polite" aria-atomic="true" className="mt-3 min-h-6 text-sm font-semibold text-purple-950">{message}</div>
