@@ -132,7 +132,7 @@ export default function HalloweenCauldron() {
   };
 
   return (
-    <section aria-labelledby="halloween-cauldron-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-purple-50 to-emerald-50 shadow-md ring-1 ring-orange-300">
+    <section aria-labelledby={halloweenActive ? "halloween-cauldron-heading" : "magic-8-ball-heading"} className="overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-purple-50 to-emerald-50 shadow-md ring-1 ring-orange-300">
       {halloweenActive && <div className="relative h-44 w-full">
         <Image src="/images/IMG_6365.jpeg" alt="A Halloween cauldron bubbling over a fire with green mist, glowing bubbles, herbs, and tiny spooky decorations" fill unoptimized className="object-cover" />
       </div>}
@@ -150,7 +150,7 @@ export default function HalloweenCauldron() {
 
         {hasEightBall && (
           <div className="mt-4 rounded-xl bg-indigo-950 p-3 text-indigo-50">
-            <h3 className="font-bold">🔮 Magic 8 Ball</h3>
+            <h3 id="magic-8-ball-heading" className="font-bold">🔮 Magic 8 Ball</h3>
             <p className="mt-1 text-xs text-indigo-100">Your rare cauldron find is now a permanent cottage keepsake. Ask it one question each day.</p>
             <button type="button" onClick={askEightBall} disabled={eightBallDate === today} className="mt-2 w-full rounded-lg bg-violet-600 py-2 font-semibold text-white disabled:bg-violet-900">
               {eightBallDate === today ? "The Magic 8 Ball is resting until tomorrow" : "Ask the Magic 8 Ball"}
