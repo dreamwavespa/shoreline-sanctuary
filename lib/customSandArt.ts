@@ -5,6 +5,9 @@ export const CUSTOM_SAND_IDS = [
   "sand-teal",
   "sand-apricot",
   "sand-snow-white",
+  "sand-black-obsidian",
+  "sand-red-ruby",
+  "sand-green-leaf",
   "sand-pumpkin-orange",
   "sand-candy-corn-swirl",
 ] as const;
