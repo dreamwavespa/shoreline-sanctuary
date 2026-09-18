@@ -120,7 +120,7 @@ export default function HalloweenCauldron() {
       setMessage(`${trick.text} Underneath the trick, you find ${rewardName}!`);
       if (reward.rare) window.setTimeout(() => playHalloween("rare_reward_sparkle.mp3", 0.7), 650);
       setBusy(false);
-    }, 1800);
+    }, 3200);
   };
 
   const askEightBall = () => {
