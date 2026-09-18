@@ -56,11 +56,8 @@ function dateKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-// TEMPORARY TEST OVERRIDE: keep the October event visible before October so it can be tested.
-const HALLOWEEN_TEST_MODE = true;
-
 function isOctober() {
-  return HALLOWEEN_TEST_MODE || new Date().getMonth() === 9;
+  return new Date().getMonth() === 9;
 }
 
 function rollReward() {
@@ -97,12 +94,13 @@ export default function HalloweenCauldron() {
   }, []);
 
   const today = dateKey();
-  const claimed = !HALLOWEEN_TEST_MODE && lastClaim === today;
+  const claimed = lastClaim === today;
   const hasEightBall = (state.inventory["magic-8-ball"] || 0) > 0;
   const pumpkins = useMemo(() => ["white-pumpkin", "yellow-pumpkin", "green-pumpkin", "blue-pumpkin"], []);
   const pumpkinCount = pumpkins.filter((id) => (state.inventory[id] || 0) > 0).length;
 
-  if (!isOctober()) return null;
+  const halloweenActive = isOctober();
+  if (!halloweenActive && !hasEightBall) return null;
 
   const trickOrTreat = () => {
     if (busy || claimed) return;
@@ -135,31 +133,20 @@ export default function HalloweenCauldron() {
 
   return (
     <section aria-labelledby="halloween-cauldron-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-purple-50 to-emerald-50 shadow-md ring-1 ring-orange-300">
-      <div className="relative h-44 w-full">
+      {halloweenActive && <div className="relative h-44 w-full">
         <Image src="/images/IMG_6365.jpeg" alt="A Halloween cauldron bubbling over a fire with green mist, glowing bubbles, herbs, and tiny spooky decorations" fill unoptimized className="object-cover" />
-      </div>
+      </div>}
       <div className="p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-800">October Cottage Event{HALLOWEEN_TEST_MODE ? " · Test Mode" : ""}</p>
+        {halloweenActive && <>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-800">October Cottage Event</p>
         <h2 id="halloween-cauldron-heading" className="mt-1 font-serif text-lg font-bold text-purple-950">🎃 The Trick-or-Treat Cauldron</h2>
         <p className="mt-1 text-sm text-purple-900">Visit once each day in October. The cauldron always gives a treat, but it may play a trick first.</p>
-        <button type="button" disabled={busy} onClick={trickOrTreat} className="mt-3 w-full rounded-xl bg-orange-700 py-3 font-bold text-white shadow disabled:cursor-not-allowed disabled:bg-orange-300">
+        <button type="button" disabled={busy || claimed} onClick={trickOrTreat} className="mt-3 w-full rounded-xl bg-orange-700 py-3 font-bold text-white shadow disabled:cursor-not-allowed disabled:bg-orange-300">
           {busy ? "The cauldron is bubbling..." : claimed ? "Today's treat collected — come back tomorrow" : "Trick or Treat!"}
         </button>
         <div aria-live="polite" aria-atomic="true" className="mt-3 min-h-6 text-sm font-semibold text-purple-950">{message}</div>
-        {HALLOWEEN_TEST_MODE && claimed && (
-          <button
-            type="button"
-            onClick={() => {
-              try { localStorage.removeItem("shoreline-halloween-cauldron-date"); } catch {}
-              setLastClaim("");
-              setMessage("Test reset complete. The cauldron is ready for another trick or treat.");
-            }}
-            className="mt-2 w-full rounded-xl border border-purple-400 bg-white py-2 font-semibold text-purple-900"
-          >
-            Reset today's cauldron for testing
-          </button>
-        )}
         <p className="mt-2 text-xs text-purple-800">Pumpkin Collection: {pumpkinCount}/4 colors found — White, Yellow, Green, and Blue.</p>
+        </>}
 
         {hasEightBall && (
           <div className="mt-4 rounded-xl bg-indigo-950 p-3 text-indigo-50">
