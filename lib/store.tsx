@@ -116,6 +116,7 @@ interface GameState {
   snappyChokerGifted: boolean;
   trapProgress: number;
   libbyRescued: boolean;
+  libbyTrapBottleFound: boolean;
   marshmallowScratchCount: number;
   marshmallowGifted: boolean;
   marshmallowLastGiftAt: number;
@@ -213,6 +214,7 @@ const DEFAULT_STATE: GameState = {
   snappyChokerGifted: false,
   trapProgress: 0,
   libbyRescued: false,
+  libbyTrapBottleFound: false,
   marshmallowScratchCount: 0,
   marshmallowGifted: false,
   marshmallowLastGiftAt: 0,
@@ -1278,6 +1280,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       currentForecast: forecast,
       stormCleanupAvailable: forecast.id === "storm" ? true : s.stormCleanupAvailable,
       groveNurseryAvailable: forecast.id === "storm" ? true : s.groveNurseryAvailable,
+      libbyTrapBottleFound: forecast.id === "storm" && s.libbyRescued && !s.questProgress.libbytraprepair
+        ? true
+        : s.libbyTrapBottleFound,
     }));
     play(forecast.id === "storm" ? "plastic" : "shell");
     return forecast;
