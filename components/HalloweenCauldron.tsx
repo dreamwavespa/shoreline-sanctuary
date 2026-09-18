@@ -56,8 +56,11 @@ function dateKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+// TEMPORARY TEST OVERRIDE: keep the October event visible before October so it can be tested.
+const HALLOWEEN_TEST_MODE = true;
+
 function isOctober() {
-  return new Date().getMonth() === 9;
+  return HALLOWEEN_TEST_MODE || new Date().getMonth() === 9;
 }
 
 function rollReward() {
@@ -135,7 +138,7 @@ export default function HalloweenCauldron() {
         <Image src="/images/IMG_6365.jpeg" alt="A Halloween cauldron bubbling over a fire with green mist, glowing bubbles, herbs, and tiny spooky decorations" fill unoptimized className="object-cover" />
       </div>
       <div className="p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-800">October Cottage Event</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-800">October Cottage Event{HALLOWEEN_TEST_MODE ? " · Test Mode" : ""}</p>
         <h2 id="halloween-cauldron-heading" className="mt-1 font-serif text-lg font-bold text-purple-950">🎃 The Trick-or-Treat Cauldron</h2>
         <p className="mt-1 text-sm text-purple-900">Visit once each day in October. The cauldron always gives a treat, but it may play a trick first.</p>
         <button type="button" disabled={claimed || busy} onClick={trickOrTreat} className="mt-3 w-full rounded-xl bg-orange-700 py-3 font-bold text-white shadow disabled:cursor-not-allowed disabled:bg-orange-300">
