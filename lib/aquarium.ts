@@ -1,0 +1,27 @@
+export interface AquariumSpecies {
+  id: string; name: string; babyName: string; habitat: "coral" | "seagrass" | "rocks" | "open"; daysToMature: number; rarity: "common" | "uncommon" | "rare"; emoji: string; adultNote: string;
+}
+export interface AquariumResident { id: string; speciesId: string; arrivedDate: string; }
+export const AQUARIUM_SPECIES: AquariumSpecies[] = [
+ {id:"seahorse",name:"Seahorse",babyName:"Juvenile Seahorse",habitat:"seagrass",daysToMature:3,rarity:"common",emoji:"🌿",adultNote:"Its crown is distinct and its curled tail is strong enough for the seagrass."},
+ {id:"pufferfish",name:"Pufferfish",babyName:"Baby Pufferfish",habitat:"coral",daysToMature:3,rarity:"common",emoji:"🐡",adultNote:"It has learned to puff up when startled."},
+ {id:"clownfish",name:"Clownfish Pair",babyName:"Baby Clownfish Pair",habitat:"coral",daysToMature:4,rarity:"common",emoji:"🐠",adultNote:"The pair is ready for a nursery anemone on the reef."},
+ {id:"mandarinfish",name:"Mandarinfish",babyName:"Baby Mandarinfish",habitat:"coral",daysToMature:4,rarity:"uncommon",emoji:"🐟",adultNote:"Intricate colors now cover its body."},
+ {id:"yellow-tang",name:"Yellow Tang",babyName:"Baby Yellow Tang",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",adultNote:"Its brilliant yellow coloring has fully developed."},
+ {id:"royal-gramma",name:"Royal Gramma",babyName:"Baby Royal Gramma",habitat:"rocks",daysToMature:4,rarity:"common",emoji:"🐟",adultNote:"Its purple-to-yellow colors glow beside the rock shelters."},
+ {id:"cardinalfish",name:"Banggai Cardinalfish",babyName:"Baby Banggai Cardinalfish",habitat:"rocks",daysToMature:4,rarity:"uncommon",emoji:"🐟",adultNote:"Its bold black-and-white pattern and long fins are fully formed."},
+ {id:"cowfish",name:"Longhorn Cowfish",babyName:"Baby Longhorn Cowfish",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",adultNote:"The tiny yellow box has grown its unmistakable horns."},
+ {id:"chromis",name:"Blue-Green Chromis School",babyName:"Baby Chromis School",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",adultNote:"The young fish now move together in a confident school."},
+ {id:"flying-gurnard",name:"Flying Gurnard",babyName:"Baby Flying Gurnard",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",adultNote:"Its enormous patterned fins now open like underwater wings."},
+ {id:"leafy-seadragon",name:"Leafy Seadragon",babyName:"Baby Leafy Seadragon",habitat:"seagrass",daysToMature:6,rarity:"rare",emoji:"🌿",adultNote:"Its elaborate leafy appendages blend beautifully into the seagrass."},
+ {id:"emperor-angelfish",name:"Emperor Angelfish",babyName:"Baby Emperor Angelfish",habitat:"coral",daysToMature:6,rarity:"rare",emoji:"🐠",adultNote:"Its juvenile rings have transformed into striking adult stripes."},
+ {id:"moonbeam-minnow",name:"Moonbeam Minnow",babyName:"Baby Moonbeam Minnow",habitat:"open",daysToMature:5,rarity:"rare",emoji:"✨",adultNote:"Its silvery body now gives off a soft moonlit glow."},
+ {id:"sea-glass-goby",name:"Sea Glass Goby",babyName:"Baby Sea Glass Goby",habitat:"rocks",daysToMature:5,rarity:"rare",emoji:"💎",adultNote:"Its body has developed translucent aqua sea-glass coloring."},
+ {id:"rosefin-butterflyfish",name:"Rosefin Butterflyfish",babyName:"Baby Rosefin Butterflyfish",habitat:"coral",daysToMature:5,rarity:"rare",emoji:"🌸",adultNote:"Its delicate pale-pink fins are fully grown."},
+ {id:"starlight-lanternfish",name:"Starlight Lanternfish",babyName:"Baby Starlight Lanternfish",habitat:"rocks",daysToMature:6,rarity:"rare",emoji:"✨",adultNote:"Every tiny bioluminescent dot now shines like a star."},
+];
+export function aquariumDateKey(d=new Date()){return d.toISOString().slice(0,10)}
+export function aquariumAgeDays(arrived:string, now=new Date()){const a=new Date(arrived+"T12:00:00");const b=new Date(aquariumDateKey(now)+"T12:00:00");return Math.max(0,Math.floor((b.getTime()-a.getTime())/86400000))}
+export function getAquariumSpecies(id:string){return AQUARIUM_SPECIES.find(s=>s.id===id)}
+export function aquariumStage(r:AquariumResident, now=new Date()){const s=getAquariumSpecies(r.speciesId);const age=aquariumAgeDays(r.arrivedDate,now);if(!s)return {age,label:"Unknown",mature:false,progress:0};return {age,label:age>=s.daysToMature?"Ready for release":age===0?"New arrival":age<Math.ceil(s.daysToMature/2)?"Growing baby":"Juvenile",mature:age>=s.daysToMature,progress:Math.min(100,Math.round(age/s.daysToMature*100))}}
+export function rollBabyFish(excluded:string[]=[]){const available=AQUARIUM_SPECIES.filter(s=>!excluded.includes(s.id));if(!available.length)return null;const weighted=available.flatMap(s=>Array(s.rarity==="common"?6:s.rarity==="uncommon"?3:1).fill(s));return weighted[Math.floor(Math.random()*weighted.length)]}
