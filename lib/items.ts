@@ -328,6 +328,7 @@ export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "sand-apricot", weight: 5 },
   { id: "sand-snow-white", weight: 6 },
   { id: "firefly-jar", weight: 2 },
+  { id: "fishing-net", weight: 3 },
 ];
 
 export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
