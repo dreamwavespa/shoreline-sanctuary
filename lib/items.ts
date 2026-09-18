@@ -167,6 +167,9 @@ export const ITEMS: Record<string, ItemDef> = {
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "sand-apricot": { id: "sand-apricot", name: "Warm Apricot Sand", category: "raw", icon: "🏜️", isEmoji: true, rarity: "uncommon", sfx: "driftwood" },
   "sand-snow-white": { id: "sand-snow-white", name: "Snow-White Sand", category: "raw", icon: "⚪", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "sand-black-obsidian": { id: "sand-black-obsidian", name: "Black Obsidian Sand", category: "raw", icon: "⚫", isEmoji: true, rarity: "uncommon", sfx: "stone", artDescription: "Deep black sand with a subtle glossy sparkle." },
+  "sand-red-ruby": { id: "sand-red-ruby", name: "Red Ruby Sand", category: "raw", icon: "🔴", isEmoji: true, rarity: "uncommon", sfx: "stone", artDescription: "Rich, dark ruby-red sand." },
+  "sand-green-leaf": { id: "sand-green-leaf", name: "Green Leaf Sand", category: "raw", icon: "🍃", isEmoji: true, rarity: "uncommon", sfx: "groveLeafRustle", artDescription: "Leafy green sand with tiny leaves mixed throughout." },
   "sand-pumpkin-orange": { id: "sand-pumpkin-orange", name: "Pumpkin Orange Sand", category: "raw", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "driftwood" },
   "sand-candy-corn-swirl": { id: "sand-candy-corn-swirl", name: "Candy Corn Swirl Sand", category: "raw", icon: "🍬", isEmoji: true, rarity: "rare", sfx: "shell" },
   "boo-sand-art-tool-set": { id: "boo-sand-art-tool-set", name: "Boo's Sand Art Tool Set", category: "special", icon: "/images/boo-sand-art-tools.jpeg", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Boo's handmade sand art tools: an orange striped scoop, two pale green bone-handled shovels and sieves, and a small funnel, arranged against driftwood on the sand." },
@@ -348,6 +351,7 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "wild-beach-plum", weight: 4 },
   { id: "copper-wire", weight: 6 },
   { id: "sand-pink", weight: 6 },
+  { id: "sand-black-obsidian", weight: 4 },
   { id: "salt-crystal-pink", weight: 5 },
 ];
 
@@ -366,6 +370,7 @@ export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "shell-abalone", weight: 5 },
   { id: "copper-wire", weight: 6 },
   { id: "sand-teal", weight: 6 },
+  { id: "sand-red-ruby", weight: 4 },
   { id: "coral-bulb", weight: 10 },
   { id: "fertilizer", weight: 10 },
   { id: "kelp", weight: 12 },
