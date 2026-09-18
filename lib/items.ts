@@ -23,7 +23,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "pumpkin-spice": { id: "pumpkin-spice", name: "Pumpkin Spice", category: "raw", icon: "🎃", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
   "ghost-pearl": { id: "ghost-pearl", name: "Ghost Pearl", category: "pearl", icon: "👻", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
   "moon-charm": { id: "moon-charm", name: "Moon Charm", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl" },
-  "carnelian-crystal-pumpkin": { id: "carnelian-crystal-pumpkin", name: "Carnelian Crystal Pumpkin", category: "decor", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "carnelian-crystal-pumpkin": { id: "carnelian-crystal-pumpkin", name: "Orange Crystal Pumpkin", category: "decor", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "clear-quartz-skull": { id: "clear-quartz-skull", name: "Clear Quartz Skull", category: "decor", icon: "💀", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "black-obsidian-cat": { id: "black-obsidian-cat", name: "Black Obsidian Cat", category: "decor", icon: "🐈‍⬛", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "porcelain-ghost-figurine": { id: "porcelain-ghost-figurine", name: "Porcelain Ghost Figurine", category: "decor", icon: "👻", isEmoji: true, rarity: "rare", sfx: "pearl" },
