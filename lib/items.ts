@@ -76,6 +76,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "pearl-red": { id: "pearl-red", name: "Red Pearl", category: "pearl", icon: "/images/pearls/red-pearl.svg", rarity: "rare", sfx: "pearl" },
   "pearl-white": { id: "pearl-white", name: "White Pearl", category: "pearl", icon: "/images/pearls/white-pearl.svg", rarity: "rare", sfx: "pearl" },
   "raw-driftwood-arch": { id: "raw-driftwood-arch", name: "Driftwood", category: "raw", icon: `${ICON_BASE}/0f39c941-3590-4858-9c41-36498d6a0a6c.png`, rarity: "common", sfx: "wood" },
+  "fishing-net": { id: "fishing-net", name: "Fishing Net", category: "raw", icon: "🕸️", isEmoji: true, rarity: "uncommon", sfx: "driftwood", artDescription: "A sturdy coil of salt-worn fishing net, useful for repairs and future crafting." },
+  "lobster-charm": { id: "lobster-charm", name: "Libby’s Lobster Charm", category: "special", icon: "🦞", isEmoji: true, rarity: "rare", sfx: "pearl", artDescription: "A tiny polished red lobster charm gifted by Libby after her storm-damaged trap was repaired." },
   "raw-driftwood-planks": { id: "raw-driftwood-planks", name: "Weathered Plank", category: "raw", icon: `${ICON_BASE}/eb0500d4-6d90-40d7-9de5-97e94423a255.png`, rarity: "uncommon", sfx: "wood" },
   "raw-barnacle-wood": { id: "raw-barnacle-wood", name: "Barnacled Wood", category: "raw", icon: `${ICON_BASE}/2831f0ac-862c-4fb8-8036-0a7a74df36f6.png`, rarity: "uncommon", sfx: "wood" },
   "raw-stone": { id: "raw-stone", name: "Smooth Stone", category: "raw", icon: `${ICON_BASE}/a05a5d04-c254-4f79-9ed8-cbda421fdcd0.png`, rarity: "common", sfx: "stone" },
