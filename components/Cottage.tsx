@@ -9,6 +9,7 @@ import SeaGlassSorting from "./SeaGlassSorting";
 import KaianaMosaicStudio from "./KaianaMosaicStudio";
 import CoralieUnderwaterGarden from "./CoralieUnderwaterGarden";
 import CadenceNursery from "./CadenceNursery";
+import HalloweenCauldron from "./HalloweenCauldron";
 
 const COTTAGE_MOSAICS = [
   { itemId: "mosaic-moonlit-tide", name: "Moonlit Tide", icon: "🌙" },
@@ -63,6 +64,8 @@ export default function Cottage() {
         {room.id === "jewelry-parlor" && <button type="button" onClick={() => setNotebookOpen(true)} className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"><div className="w-14 h-14 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-3xl">📖</div><div className="flex-1"><p className="font-bold text-amber-900">The Reading Stand</p><p className="text-xs text-amber-700">A sunlit wooden stand near Melody's workbench, holding your Sanctuary Explorer's Notebook.</p></div></button>}
 
         {sister && <VillagerCard villager={sister} />}
+
+        <HalloweenCauldron />
 
         <section aria-labelledby="cadence-heading" className="rounded-2xl bg-gradient-to-br from-pink-50 via-white to-emerald-50 p-4 shadow-md ring-1 ring-pink-200">
           <div className="flex items-center gap-3">
