@@ -87,4 +87,6 @@ export const SFX_FILES: Record<string, string> = {
   hatBuckleClink: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/1214603d-596e-4bca-b055-37ed15f10259.mp3", seagullSwoop: "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/cd3851c6-7e13-4faf-8c34-c96dcf84a109.mp3", airPump: "/audio/air-pump.mp3",
 };
 
+export const AQUARIUM_AMBIENCE = "/audio/Aquarium-ambiance.wav";
+
 export const AMBIENCE_LOOP = `${SFX_BASE}/5e767b6a-1923-4961-9398-95e0e66349fa.mp3`;
