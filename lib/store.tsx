@@ -14,6 +14,7 @@ import { getTravelingMerchantStock } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
 import { NOTEBOOK_SECTIONS } from "./notebook";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
+import { aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -184,6 +185,9 @@ interface GameState {
   olliInkPictures: OlliInkPicture[];
   olliRingBestScore: number;
   olliRingRewardDate: string;
+  aquariumResidents: AquariumResident[];
+  pendingBabyFishId: string | null;
+  releasedAquariumFish: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -282,6 +286,9 @@ const DEFAULT_STATE: GameState = {
   olliInkPictures: [],
   olliRingBestScore: 0,
   olliRingRewardDate: "",
+  aquariumResidents: [],
+  pendingBabyFishId: null,
+  releasedAquariumFish: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -439,6 +446,9 @@ interface Ctx {
   createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string) => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
+  discoverBabyFish: (speciesId: string) => boolean;
+  admitBabyFish: () => boolean;
+  releaseAquariumFish: (residentId: string) => boolean;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -1880,6 +1890,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const discoverBabyFish = (speciesId: string) => {
+    if (!stateRef.current.ghostNetCut || stateRef.current.pendingBabyFishId || stateRef.current.aquariumResidents.some(r => r.speciesId === speciesId)) return false;
+    const species = getAquariumSpecies(speciesId);
+    if (!species) return false;
+    setState(s => ({ ...s, pendingBabyFishId: speciesId }));
+    play("sparkle");
+    toast(`You discovered a ${species.babyName}! Bring the baby to Waverly’s Nursery Aquarium.`);
+    return true;
+  };
+
+  const admitBabyFish = () => {
+    const speciesId = stateRef.current.pendingBabyFishId;
+    const species = speciesId ? getAquariumSpecies(speciesId) : null;
+    if (!speciesId || !species) return false;
+    const resident: AquariumResident = { id: `aquarium-${Date.now()}-${speciesId}`, speciesId, arrivedDate: aquariumDateKey() };
+    setState(s => ({ ...s, pendingBabyFishId: null, aquariumResidents: [...s.aquariumResidents, resident] }));
+    play("sparkle");
+    toast(`${species.babyName} is safely settled in Waverly’s aquarium.`);
+    return true;
+  };
+
+  const releaseAquariumFish = (residentId: string) => {
+    const resident = stateRef.current.aquariumResidents.find(r => r.id === residentId);
+    const species = resident ? getAquariumSpecies(resident.speciesId) : null;
+    if (!resident || !species) return false;
+    const age = Math.floor((new Date(aquariumDateKey()+"T12:00:00").getTime() - new Date(resident.arrivedDate+"T12:00:00").getTime()) / 86400000);
+    if (age < species.daysToMature) return false;
+    setState(s => ({ ...s, aquariumResidents: s.aquariumResidents.filter(r => r.id !== residentId), releasedAquariumFish: [...s.releasedAquariumFish, species.id] }));
+    play("oceanWaterSplash");
+    toast(`${species.name} has returned to the restored reef!`);
+    return true;
+  };
+
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
@@ -1996,6 +2039,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       createCustomSandBottle,
       toggleCustomSandBottleFavorite,
       sellCustomSandBottle,
+      discoverBabyFish,
+      admitBabyFish,
+      releaseAquariumFish,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );
