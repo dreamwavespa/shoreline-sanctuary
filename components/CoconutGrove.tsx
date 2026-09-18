@@ -48,6 +48,7 @@ export default function CoconutGrove() {
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
+  const [leafSandReady, setLeafSandReady] = useState(false);
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
@@ -165,12 +166,21 @@ export default function CoconutGrove() {
     }
 
     rewards.forEach(({ itemId, count }) => add(itemId, count));
+    if (Math.random() < 0.22) setLeafSandReady(true);
     const names = rewards.map(({ itemId, count }) => `${count} ${ITEMS[itemId].name}`).join(" and ");
     setMessage(`Collected ${names}. It is now in your bucket and inventory.`);
     const next = { ...harvestedAt, [id]: Date.now() };
     setHarvestedAt(next);
     setNow(Date.now());
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+  };
+
+  const investigateLeafSand = () => {
+    if (!leafSandReady) return;
+    collectItem("sand-green-leaf", { silent: true });
+    play("groveLeafRustle");
+    setLeafSandReady(false);
+    setMessage("You brush aside the leaves and discover Green Leaf Sand, green grains sprinkled with tiny leaves. It is now in your bucket and inventory.");
   };
 
   const leave = () => {
@@ -224,6 +234,14 @@ export default function CoconutGrove() {
           <p className="rounded-xl bg-sky-100 p-3 text-sm font-semibold text-sky-950 ring-1 ring-sky-300">🌦️ Post-storm growth is active: rare plants may appear and every grove patch regrows twice as fast.</p>
         )}
         <p role="status" aria-live="polite" className="rounded-xl bg-white/90 p-3 text-sm font-medium text-emerald-950 shadow-sm ring-1 ring-emerald-200">{message}</p>
+
+        {leafSandReady && (
+          <section aria-labelledby="leaf-sand-heading" className="rounded-2xl bg-lime-50 p-4 shadow-sm ring-1 ring-lime-300">
+            <h2 id="leaf-sand-heading" className="font-serif text-lg font-bold text-emerald-950">✨ Something sparkles beneath the leaves</h2>
+            <p className="mt-1 text-sm text-emerald-900">A faint green shimmer catches your attention near the plants.</p>
+            <button type="button" onClick={investigateLeafSand} className="mt-3 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white shadow">Investigate the sparkle</button>
+          </section>
+        )}
 
         <section aria-labelledby="nursery-launch-heading" className="rounded-2xl bg-gradient-to-br from-emerald-900 to-teal-800 p-5 text-white shadow-md ring-1 ring-emerald-700">
           <div className="flex items-center gap-4">
