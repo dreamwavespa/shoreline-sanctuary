@@ -14,7 +14,7 @@ import { getTravelingMerchantStock } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
 import { NOTEBOOK_SECTIONS } from "./notebook";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
-import { aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
+import { AQUARIUM_SHELL_MILESTONES, aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -191,6 +191,7 @@ interface GameState {
   discoveredAquariumFish: string[];
   raisedAquariumFish: string[];
   aquariumCareDates: Record<string, string>;
+  rareShellDisplays: string[];
 }
 
 const BUCKET_CAPACITY = 20;
@@ -295,6 +296,7 @@ const DEFAULT_STATE: GameState = {
   discoveredAquariumFish: [],
   raisedAquariumFish: [],
   aquariumCareDates: {},
+  rareShellDisplays: [],
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -1924,9 +1926,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!resident || !species) return false;
     const age = Math.floor((new Date(aquariumDateKey()+"T12:00:00").getTime() - new Date(resident.arrivedDate+"T12:00:00").getTime()) / 86400000);
     if (age < species.daysToMature) return false;
-    setState(s => ({ ...s, aquariumResidents: s.aquariumResidents.filter(r => r.id !== residentId), releasedAquariumFish: [...s.releasedAquariumFish, species.id] }));
+    let newlyEarned: string[] = [];
+    setState(s => {
+      const releasedAquariumFish = s.releasedAquariumFish.includes(species.id) ? s.releasedAquariumFish : [...s.releasedAquariumFish, species.id];
+      const uniqueReleased = new Set(releasedAquariumFish).size;
+      const unlocked = AQUARIUM_SHELL_MILESTONES.filter(m => uniqueReleased >= m.releases && !s.rareShellDisplays.includes(m.id));
+      newlyEarned = unlocked.map(m => m.name);
+      return {
+        ...s,
+        aquariumResidents: s.aquariumResidents.filter(r => r.id !== residentId),
+        releasedAquariumFish,
+        rareShellDisplays: [...s.rareShellDisplays, ...unlocked.map(m => m.id)],
+      };
+    });
     play("oceanWaterSplash");
-    toast(`${species.name} has returned to the restored reef!`);
+    toast(newlyEarned.length ? `${species.name} returned to the restored reef! Waverly added ${newlyEarned.join(" and ")} to the Rare Shell Shelf.` : `${species.name} has returned to the restored reef!`);
     return true;
   };
 
