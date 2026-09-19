@@ -1,24 +1,24 @@
 export interface AquariumSpecies {
-  id: string; name: string; babyName: string; habitat: "coral" | "seagrass" | "rocks" | "open"; daysToMature: number; rarity: "common" | "uncommon" | "rare"; emoji: string; adultNote: string;
+  id: string; name: string; babyName: string; habitat: "coral" | "seagrass" | "rocks" | "open"; daysToMature: number; rarity: "common" | "uncommon" | "rare"; emoji: string; imageSrc: string; adultNote: string;
 }
 export interface AquariumResident { id: string; speciesId: string; arrivedDate: string; }
 export const AQUARIUM_SPECIES: AquariumSpecies[] = [
- {id:"seahorse",name:"Seahorse",babyName:"Juvenile Seahorse",habitat:"seagrass",daysToMature:3,rarity:"common",emoji:"🌿",adultNote:"Its crown is distinct and its curled tail is strong enough for the seagrass."},
- {id:"pufferfish",name:"Pufferfish",babyName:"Baby Pufferfish",habitat:"coral",daysToMature:3,rarity:"common",emoji:"🐡",adultNote:"It has learned to puff up when startled."},
- {id:"clownfish",name:"Clownfish Pair",babyName:"Baby Clownfish Pair",habitat:"coral",daysToMature:4,rarity:"common",emoji:"🐠",adultNote:"The pair is ready for a nursery anemone on the reef."},
- {id:"mandarinfish",name:"Mandarinfish",babyName:"Baby Mandarinfish",habitat:"coral",daysToMature:4,rarity:"uncommon",emoji:"🐟",adultNote:"Intricate colors now cover its body."},
- {id:"yellow-tang",name:"Yellow Tang",babyName:"Baby Yellow Tang",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",adultNote:"Its brilliant yellow coloring has fully developed."},
- {id:"royal-gramma",name:"Royal Gramma",babyName:"Baby Royal Gramma",habitat:"rocks",daysToMature:4,rarity:"common",emoji:"🐟",adultNote:"Its purple-to-yellow colors glow beside the rock shelters."},
- {id:"cardinalfish",name:"Banggai Cardinalfish",babyName:"Baby Banggai Cardinalfish",habitat:"rocks",daysToMature:4,rarity:"uncommon",emoji:"🐟",adultNote:"Its bold black-and-white pattern and long fins are fully formed."},
- {id:"cowfish",name:"Longhorn Cowfish",babyName:"Baby Longhorn Cowfish",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",adultNote:"The tiny yellow box has grown its unmistakable horns."},
- {id:"chromis",name:"Blue-Green Chromis School",babyName:"Baby Chromis School",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",adultNote:"The young fish now move together in a confident school."},
- {id:"flying-gurnard",name:"Flying Gurnard",babyName:"Baby Flying Gurnard",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",adultNote:"Its enormous patterned fins now open like underwater wings."},
- {id:"leafy-seadragon",name:"Leafy Seadragon",babyName:"Baby Leafy Seadragon",habitat:"seagrass",daysToMature:6,rarity:"rare",emoji:"🌿",adultNote:"Its elaborate leafy appendages blend beautifully into the seagrass."},
- {id:"emperor-angelfish",name:"Emperor Angelfish",babyName:"Baby Emperor Angelfish",habitat:"coral",daysToMature:6,rarity:"rare",emoji:"🐠",adultNote:"Its juvenile rings have transformed into striking adult stripes."},
- {id:"moonbeam-minnow",name:"Moonbeam Minnow",babyName:"Baby Moonbeam Minnow",habitat:"open",daysToMature:5,rarity:"rare",emoji:"✨",adultNote:"Its silvery body now gives off a soft moonlit glow."},
- {id:"sea-glass-goby",name:"Sea Glass Goby",babyName:"Baby Sea Glass Goby",habitat:"rocks",daysToMature:5,rarity:"rare",emoji:"💎",adultNote:"Its body has developed translucent aqua sea-glass coloring."},
- {id:"rosefin-butterflyfish",name:"Rosefin Butterflyfish",babyName:"Baby Rosefin Butterflyfish",habitat:"coral",daysToMature:5,rarity:"rare",emoji:"🌸",adultNote:"Its delicate pale-pink fins are fully grown."},
- {id:"starlight-lanternfish",name:"Starlight Lanternfish",babyName:"Baby Starlight Lanternfish",habitat:"rocks",daysToMature:6,rarity:"rare",emoji:"✨",adultNote:"Every tiny bioluminescent dot now shines like a star."},
+ {id:"seahorse",name:"Seahorse",babyName:"Juvenile Seahorse",habitat:"seagrass",daysToMature:3,rarity:"common",emoji:"🌿",imageSrc:"/images/juvenile-seahorse.png",adultNote:"Its crown is distinct and its curled tail is strong enough for the seagrass."},
+ {id:"pufferfish",name:"Pufferfish",babyName:"Baby Pufferfish",habitat:"coral",daysToMature:3,rarity:"common",emoji:"🐡",imageSrc:"/images/baby-pufferfish.png",adultNote:"It has learned to puff up when startled."},
+ {id:"clownfish",name:"Clownfish Pair",babyName:"Baby Clownfish Pair",habitat:"coral",daysToMature:4,rarity:"common",emoji:"🐠",imageSrc:"/images/baby-clownfish-pair.png",adultNote:"The pair is ready for a nursery anemone on the reef."},
+ {id:"mandarinfish",name:"Mandarinfish",babyName:"Baby Mandarinfish",habitat:"coral",daysToMature:4,rarity:"uncommon",emoji:"🐟",imageSrc:"/images/baby-mandarinfish.png",adultNote:"Intricate colors now cover its body."},
+ {id:"yellow-tang",name:"Yellow Tang",babyName:"Baby Yellow Tang",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",imageSrc:"/images/baby-yellow-tang.png",adultNote:"Its brilliant yellow coloring has fully developed."},
+ {id:"royal-gramma",name:"Royal Gramma",babyName:"Baby Royal Gramma",habitat:"rocks",daysToMature:4,rarity:"common",emoji:"🐟",imageSrc:"/images/baby-royal-gramma.png",adultNote:"Its purple-to-yellow colors glow beside the rock shelters."},
+ {id:"cardinalfish",name:"Banggai Cardinalfish",babyName:"Baby Banggai Cardinalfish",habitat:"rocks",daysToMature:4,rarity:"uncommon",emoji:"🐟",imageSrc:"/images/baby-banggai-cardinalfish.png",adultNote:"Its bold black-and-white pattern and long fins are fully formed."},
+ {id:"cowfish",name:"Longhorn Cowfish",babyName:"Baby Longhorn Cowfish",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",imageSrc:"/images/baby-longhorn-cowfish.png",adultNote:"The tiny yellow box has grown its unmistakable horns."},
+ {id:"chromis",name:"Blue-Green Chromis School",babyName:"Baby Chromis School",habitat:"open",daysToMature:3,rarity:"common",emoji:"🐟",imageSrc:"/images/baby-blue-green-chromis-school.png",adultNote:"The young fish now move together in a confident school."},
+ {id:"flying-gurnard",name:"Flying Gurnard",babyName:"Baby Flying Gurnard",habitat:"open",daysToMature:5,rarity:"uncommon",emoji:"🐟",imageSrc:"/images/baby-flying-gurnard.png",adultNote:"Its enormous patterned fins now open like underwater wings."},
+ {id:"leafy-seadragon",name:"Leafy Seadragon",babyName:"Baby Leafy Seadragon",habitat:"seagrass",daysToMature:6,rarity:"rare",emoji:"🌿",imageSrc:"/images/baby-leafy-seadragon.png",adultNote:"Its elaborate leafy appendages blend beautifully into the seagrass."},
+ {id:"emperor-angelfish",name:"Emperor Angelfish",babyName:"Baby Emperor Angelfish",habitat:"coral",daysToMature:6,rarity:"rare",emoji:"🐠",imageSrc:"/images/baby-emperor-angelfish.png",adultNote:"Its juvenile rings have transformed into striking adult stripes."},
+ {id:"moonbeam-minnow",name:"Moonbeam Minnow",babyName:"Baby Moonbeam Minnow",habitat:"open",daysToMature:5,rarity:"rare",emoji:"✨",imageSrc:"/images/baby-moonbeam-minnow.png",adultNote:"Its silvery body now gives off a soft moonlit glow."},
+ {id:"sea-glass-goby",name:"Sea Glass Goby",babyName:"Baby Sea Glass Goby",habitat:"rocks",daysToMature:5,rarity:"rare",emoji:"💎",imageSrc:"/images/baby-sea-glass-goby.png",adultNote:"Its body has developed translucent aqua sea-glass coloring."},
+ {id:"rosefin-butterflyfish",name:"Rosefin Butterflyfish",babyName:"Baby Rosefin Butterflyfish",habitat:"coral",daysToMature:5,rarity:"rare",emoji:"🌸",imageSrc:"/images/baby-rosefin-butterflyfish.png",adultNote:"Its delicate pale-pink fins are fully grown."},
+ {id:"starlight-lanternfish",name:"Starlight Lanternfish",babyName:"Baby Starlight Lanternfish",habitat:"rocks",daysToMature:6,rarity:"rare",emoji:"✨",imageSrc:"/images/baby-starlight-lanternfish.png",adultNote:"Every tiny bioluminescent dot now shines like a star."},
 ];
 export function aquariumDateKey(d=new Date()){return d.toISOString().slice(0,10)}
 export function aquariumAgeDays(arrived:string, now=new Date()){const a=new Date(arrived+"T12:00:00");const b=new Date(aquariumDateKey(now)+"T12:00:00");return Math.max(0,Math.floor((b.getTime()-a.getTime())/86400000))}
