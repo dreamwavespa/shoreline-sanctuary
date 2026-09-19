@@ -188,6 +188,9 @@ interface GameState {
   aquariumResidents: AquariumResident[];
   pendingBabyFishId: string | null;
   releasedAquariumFish: string[];
+  discoveredAquariumFish: string[];
+  raisedAquariumFish: string[];
+  aquariumCareDates: Record<string, string>;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -289,6 +292,9 @@ const DEFAULT_STATE: GameState = {
   aquariumResidents: [],
   pendingBabyFishId: null,
   releasedAquariumFish: [],
+  discoveredAquariumFish: [],
+  raisedAquariumFish: [],
+  aquariumCareDates: {},
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -449,6 +455,7 @@ interface Ctx {
   discoverBabyFish: (speciesId: string) => boolean;
   admitBabyFish: () => boolean;
   releaseAquariumFish: (residentId: string) => boolean;
+  careForAquariumFish: (residentId: string) => string | null;
 }
 
 const GameCtx = createContext<Ctx | null>(null);
@@ -1894,7 +1901,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!stateRef.current.ghostNetCut || stateRef.current.pendingBabyFishId || stateRef.current.aquariumResidents.some(r => r.speciesId === speciesId)) return false;
     const species = getAquariumSpecies(speciesId);
     if (!species) return false;
-    setState(s => ({ ...s, pendingBabyFishId: speciesId }));
+    setState(s => ({ ...s, pendingBabyFishId: speciesId, discoveredAquariumFish: s.discoveredAquariumFish.includes(speciesId) ? s.discoveredAquariumFish : [...s.discoveredAquariumFish, speciesId] }));
     play("sparkle");
     toast(`You discovered a ${species.babyName}! Bring the baby to Waverly’s Nursery Aquarium.`);
     return true;
@@ -1905,7 +1912,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const species = speciesId ? getAquariumSpecies(speciesId) : null;
     if (!speciesId || !species) return false;
     const resident: AquariumResident = { id: `aquarium-${Date.now()}-${speciesId}`, speciesId, arrivedDate: aquariumDateKey() };
-    setState(s => ({ ...s, pendingBabyFishId: null, aquariumResidents: [...s.aquariumResidents, resident] }));
+    setState(s => ({ ...s, pendingBabyFishId: null, aquariumResidents: [...s.aquariumResidents, resident], raisedAquariumFish: s.raisedAquariumFish.includes(speciesId) ? s.raisedAquariumFish : [...s.raisedAquariumFish, speciesId] }));
     play("sparkle");
     toast(`${species.babyName} is safely settled in Waverly’s aquarium.`);
     return true;
@@ -1921,6 +1928,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("oceanWaterSplash");
     toast(`${species.name} has returned to the restored reef!`);
     return true;
+  };
+
+  const careForAquariumFish = (residentId: string) => {
+    const resident = stateRef.current.aquariumResidents.find(r => r.id === residentId);
+    const species = resident ? getAquariumSpecies(resident.speciesId) : null;
+    if (!resident || !species) return null;
+    const today = aquariumDateKey();
+    if (stateRef.current.aquariumCareDates[residentId] === today) return null;
+    setState(s => ({ ...s, aquariumCareDates: { ...s.aquariumCareDates, [residentId]: today } }));
+    play("sparkle");
+    toast(species.careNote);
+    return species.careNote;
   };
 
   const setAudioSetting = <K extends keyof AudioSettings>(key: K, value: AudioSettings[K]) => {
@@ -2042,6 +2061,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       discoverBabyFish,
       admitBabyFish,
       releaseAquariumFish,
+      careForAquariumFish,
     }),
     [state, screen, zone, lastToast, musicOverride, notebookOpen]
   );
