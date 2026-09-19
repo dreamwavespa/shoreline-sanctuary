@@ -20,6 +20,16 @@ export const AQUARIUM_SPECIES: AquariumSpecies[] = [
  {id:"rosefin-butterflyfish",name:"Rosefin Butterflyfish",babyName:"Baby Rosefin Butterflyfish",habitat:"coral",daysToMature:5,rarity:"rare",emoji:"🌸",imageSrc:"/images/baby-rosefin-butterflyfish.png",careNote:"The pale pink color along its fins is becoming stronger and easier to see.",adultNote:"Its delicate pale-pink fins are fully grown."},
  {id:"starlight-lanternfish",name:"Starlight Lanternfish",babyName:"Baby Starlight Lanternfish",habitat:"rocks",daysToMature:6,rarity:"rare",emoji:"✨",imageSrc:"/images/baby-starlight-lanternfish.png",careNote:"Another tiny bioluminescent dot has appeared, giving it a little more starlight.",adultNote:"Every tiny bioluminescent dot now shines like a star."},
 ];
+
+export const AQUARIUM_SHELL_MILESTONES = [
+  { id: "large-sand-dollar", name: "Large Sand Dollar", releases: 5, description: "A broad, pale sand dollar selected by Waverly to mark your first major nursery milestone." },
+  { id: "sun-dial-shell", name: "Sun Dial Shell", releases: 10, description: "A beautifully patterned spiral shell with radiating markings like a tiny coastal sundial." },
+  { id: "harp-shell", name: "Harp Shell", releases: 15, description: "An elegant collector shell with fine ribbing and a graceful harp-like pattern." },
+  { id: "scotch-bonnet", name: "Scotch Bonnet", releases: 16, description: "A prized spotted shell displayed as a record of completing Waverly’s reef research." },
+  { id: "golden-unicorn-horn-shell", name: "Golden Unicorn Horn Shell", releases: 16, description: "A long golden spiral shell shaped like a unicorn horn, reserved for completing the full field guide." },
+] as const;
+export type AquariumShellMilestoneId = typeof AQUARIUM_SHELL_MILESTONES[number]["id"];
+
 export function aquariumDateKey(d=new Date()){return d.toISOString().slice(0,10)}
 export function aquariumAgeDays(arrived:string, now=new Date()){const a=new Date(arrived+"T12:00:00");const b=new Date(aquariumDateKey(now)+"T12:00:00");return Math.max(0,Math.floor((b.getTime()-a.getTime())/86400000))}
 export function getAquariumSpecies(id:string){return AQUARIUM_SPECIES.find(s=>s.id===id)}
