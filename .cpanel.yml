@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/aflomfbj/shoreline.dreamwavespa.com/app/
+    - export DEPLOYPATH=/home/aflomfbj/shoreline-sanctuary/
     - /bin/cp -R app $DEPLOYPATH
     - /bin/cp -R components $DEPLOYPATH
     - /bin/cp -R lib $DEPLOYPATH
