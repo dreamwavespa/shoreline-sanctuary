@@ -56,7 +56,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           source: deploy.tar.gz
-          target: /home/aflombhj/shoreline.dreamwavespa.com/app
+          target: /home/aflomfbj/shoreline.dreamwavespa.com/app
           overwrite: true
 
       - name: Install deployment and restart app
@@ -69,7 +69,7 @@ jobs:
           passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           script: |
             set -e
-            cd /home/aflombhj/shoreline.dreamwavespa.com/app
+            cd /home/aflomfbj/shoreline.dreamwavespa.com/app
             tar -xzf deploy.tar.gz
             rm -f deploy.tar.gz
             mkdir -p tmp
