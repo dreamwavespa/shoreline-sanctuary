@@ -529,7 +529,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           booToolSetDelivered: parsed.booToolSetDelivered ?? (Array.isArray(parsed.customSandBottles) && parsed.customSandBottles.length > 0),
           notebookDiscovered: collectedSandDollars > 0
             ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
-            : { ...(parsed.notebookDiscovered || {}) },
+            : { ...(parsed.notebookDiscovered || {}) },villagerGiftCounts: {
+  ...(parsed.villagerGiftCounts || {}),
+  misty: Math.max(parsed.villagerGiftCounts?.misty || 0, parsed.mistyTrades || 0),
+},
           audio: { ...DEFAULT_STATE.audio, ...(parsed.audio || {}) },
         });
       }
@@ -1622,7 +1625,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => {
       const inventory = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
       inventory[rewardItemId] = (inventory[rewardItemId] || 0) + 1;
-      return { ...s, inventory, mistyTradeDate: today, mistyTrades: s.mistyTrades + 1 };
+      return {
+  ...s,
+  inventory,
+  mistyTradeDate: today,
+  mistyTrades: s.mistyTrades + 1,
+  villagerGiftCounts: {
+    ...s.villagerGiftCounts,
+    misty: Math.max(s.villagerGiftCounts.misty || 0, s.mistyTrades + 1),
+  },
+};
     });
     play("pearl", 0.75);
     window.setTimeout(() => play(ITEMS[rewardItemId].sfx, 0.75), 350);
