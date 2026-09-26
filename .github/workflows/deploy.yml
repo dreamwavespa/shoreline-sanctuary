@@ -54,7 +54,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           source: deploy.tar.gz
           target: /home/aflombhj/shoreline.dreamwavespa.com/app
           overwrite: true
@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           script: |
             set -e
             cd /home/aflombhj/shoreline.dreamwavespa.com/app
