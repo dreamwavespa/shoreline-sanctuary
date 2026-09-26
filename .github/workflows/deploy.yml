@@ -1,0 +1,71 @@
+name: Deploy Shoreline Sanctuary
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: shoreline-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Shoreline
+        run: npm run build
+
+      - name: Create deployment archive
+        run: |
+          tar -czf deploy.tar.gz \
+            .next \
+            app \
+            components \
+            lib \
+            public \
+            package.json \
+            next.config.js \
+            server.js
+
+      - name: Upload deployment archive
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+          source: deploy.tar.gz
+          target: /home/aflombhj/shoreline.dreamwavespa.com/app
+          overwrite: true
+
+      - name: Install deployment and restart app
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+          script: |
+            set -e
+            cd /home/aflombhj/shoreline.dreamwavespa.com/app
+            tar -xzf deploy.tar.gz
+            rm -f deploy.tar.gz
+            mkdir -p tmp
+            touch tmp/restart.txt
