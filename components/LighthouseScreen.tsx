@@ -74,7 +74,7 @@ const MARSHMALLOW_SHORT_PURR = "/audio/Marshmallow/marshmallow-purr-short.mp3";
 const MARSHMALLOW_COZY_PURR = "/audio/Marshmallow/marshmallow-purr-cozy.mp3";
 
 function MarshmallowCard() {
-  const { state, scratchMarshmallow, giftMarshmallow, collectItem, giveMarshmallowBed, restMarshmallowInBed } = useGame();
+  const { state, scratchMarshmallow, giftMarshmallow, collectItem, giveMarshmallowFluffyBed, restMarshmallowInBed } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
   const fluffyBedCount = state.inventory["furniture-fluffy-cat-bed"] || 0;
   const [reaction, setReaction] = useState("Curled up by the lantern room window.");
@@ -139,7 +139,7 @@ function MarshmallowCard() {
   };
 
   const handleGiveBed = () => {
-    if (!giveMarshmallowBed("fluffy")) return;
+    if (!giveMarshmallowFluffyBed()) return;
     setReaction("You set the fluffy cat bed near the warm lighthouse window. Marshmallow circles it twice, kneads the cushion, and curls up with a pleased little purr.");
     playCatSound(MARSHMALLOW_COZY_PURR, 0.62);
   };
@@ -187,15 +187,15 @@ function MarshmallowCard() {
       </div>
       <div className="mt-3 rounded-xl bg-rose-50 p-3 ring-1 ring-rose-100">
         <p className="text-sm font-semibold text-rose-900 mb-2">🛏️ Marshmallow's Care</p>
-        {!state.marshmallowFluffyBedGiven && fluffyBedCount > 0 && (
+        {state.marshmallowBed === "none" && fluffyBedCount > 0 && (
           <button type="button" onClick={handleGiveBed} className="w-full py-2.5 rounded-xl font-semibold text-white bg-amber-700 active:bg-amber-800 shadow text-sm">
             Give Fluffy Cat Bed to Marshmallow
           </button>
         )}
-        {!state.marshmallowFluffyBedGiven && fluffyBedCount < 1 && (
+        {state.marshmallowBed === "none" && fluffyBedCount < 1 && (
           <p className="text-xs text-rose-700">Seaweed sometimes has a fluffy cat bed that would make the lighthouse extra cozy.</p>
         )}
-        {state.marshmallowFluffyBedGiven && (
+        {state.marshmallowBed !== "none" && (
           <>
             <p className="text-xs text-rose-700 mb-2">Marshmallow's fluffy cat bed is tucked beside the warm lighthouse window.</p>
             <button type="button" onClick={handleRestInBed} className="w-full py-2.5 rounded-xl font-semibold text-white bg-rose-600 active:bg-rose-700 shadow text-sm">
