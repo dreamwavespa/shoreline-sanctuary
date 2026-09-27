@@ -1026,13 +1026,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       toast("Snappy startles the seagull — it drops a Polished Teal Sea Glass and flees! 🐢");
       return { ok: true, snappyDefended: true, rewardItemId: "glass-teal" };
     }
-    const rewardItemId = SEAGULL_LOOT_TABLE[Math.floor(Math.random() * SEAGULL_LOOT_TABLE.length)];
+    const journalNeeded = !stateRef.current.questProgress.oliverpicnic && (stateRef.current.inventory["olivers-lost-journal"] || 0) < 1;
+    const rewardItemId = journalNeeded
+      ? "olivers-lost-journal"
+      : SEAGULL_LOOT_TABLE[Math.floor(Math.random() * SEAGULL_LOOT_TABLE.length)];
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
       inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
       return { ...s, inventory: inv, seagullTraded: true, seagullTradeCount: s.seagullTradeCount + 1 };
     });
-    toast(`The seagull trades you ${ITEMS[rewardItemId].name}! 🕊️`);
+    toast(journalNeeded
+      ? "The seagull drops Oliver's Lost Journal into your hands! 📔🕊️"
+      : `The seagull trades you ${ITEMS[rewardItemId].name}! 🕊️`);
     return { ok: true, snappyDefended: false, rewardItemId };
   };
 

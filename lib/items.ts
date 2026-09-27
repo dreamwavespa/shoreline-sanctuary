@@ -181,6 +181,7 @@ export const ITEMS: Record<string, ItemDef> = {
 
   "beach-umbrella": { id: "beach-umbrella", name: "Beach Umbrella", category: "decor", icon: "⛱️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "picnic-basket": { id: "picnic-basket", name: "Picnic Basket", category: "decor", icon: "🧺", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "olivers-lost-journal": { id: "olivers-lost-journal", name: "Oliver\'s Lost Journal", category: "special", icon: "📔", isEmoji: true, rarity: "rare", sfx: "notebookPage", artDescription: "Oliver\'s weathered travel journal, recovered from a cheeky seagull after it vanished from his picnic near the dunes." },
   "beach-bag": { id: "beach-bag", name: "Beach Bag", category: "decor", icon: "👜", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "coastal-salt-lamp": { id: "coastal-salt-lamp", name: "Coastal Salt Lamp", category: "decor", icon: "🔮", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "woven-sun-hat": { id: "woven-sun-hat", name: "Woven Sun Hat", category: "decor", icon: "👒", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
