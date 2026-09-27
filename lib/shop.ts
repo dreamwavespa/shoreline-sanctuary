@@ -21,6 +21,7 @@ export const SHOP_STOCK: ShopStockItem[] = [
   { itemId: "shell-abalone", price: 7, note: "An iridescent shell for crafting or gifting." },
   { itemId: "copper-wire", price: 5, note: "Weathered wire cleaned and coiled for custom earrings and pendants." },
   { itemId: "tarnished-compass", price: 10, note: "A small brass compass awaiting restoration." },
+  { itemId: "furniture-fluffy-cat-bed", price: 10, note: "A soft fluffy starter bed for Marshmallow at the lighthouse." },
 ];
 
 export const SELL_PRICES: Record<string, number> = {
@@ -106,5 +107,5 @@ export function getTodaysDiscovery(date = new Date()): SeaweedDiscovery {
 }
 
 export function getShopDateKey(date = new Date()): string {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+  return `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`;
 }
