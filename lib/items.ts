@@ -246,6 +246,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "furniture-beach-chair": { id: "furniture-beach-chair", name: "Beach Chair", category: "decor", icon: "🏖️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "furniture-bird-bath": { id: "furniture-bird-bath", name: "Bird Bath", category: "decor", icon: "🐦", isEmoji: true, rarity: "uncommon", sfx: "liquidBottle" },
   "furniture-water-fountain": { id: "furniture-water-fountain", name: "Water Fountain", category: "decor", icon: "⛲", isEmoji: true, rarity: "rare", sfx: "liquidBottle" },
+  "furniture-fluffy-cat-bed": { id: "furniture-fluffy-cat-bed", name: "Fluffy Cat Bed", category: "decor", icon: "🛏️", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess", artDescription: "A soft, fluffy bed for Marshmallow to curl up in at the lighthouse." },
   "furniture-clamshell-cat-bed": { id: "furniture-clamshell-cat-bed", name: "Marshmallow's Clamshell Cat Bed", category: "decor", icon: "🛏️", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "binoculars": { id: "binoculars", name: "Binoculars", category: "special", icon: "🔭", isEmoji: true, rarity: "uncommon", sfx: "questComplete" },
   "flower-vase": { id: "flower-vase", name: "Flower Vase", category: "decor", icon: "🏺", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },

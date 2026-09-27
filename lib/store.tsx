@@ -121,6 +121,7 @@ interface GameState {
   marshmallowScratchCount: number;
   marshmallowGifted: boolean;
   marshmallowLastGiftAt: number;
+  marshmallowBed: "none" | "fluffy" | "clamshell";
   saltyStreak: number;
   saltyTotalCatches: number;
   foundConstellations: string[];
@@ -226,6 +227,7 @@ const DEFAULT_STATE: GameState = {
   marshmallowScratchCount: 0,
   marshmallowGifted: false,
   marshmallowLastGiftAt: 0,
+  marshmallowBed: "none",
   saltyStreak: 0,
   saltyTotalCatches: 0,
   foundConstellations: [],
@@ -395,6 +397,8 @@ interface Ctx {
   tradeWithLibby: (give: { itemId: string; count: number }, get: { itemId: string; count: number }) => boolean;
   scratchMarshmallow: () => void;
   giftMarshmallow: () => boolean;
+  giveMarshmallowFluffyBed: () => boolean;
+  restMarshmallowInBed: () => boolean;
   throwBallToSalty: () => { thrown: boolean; caught?: boolean };
   addFoundConstellation: (id: string) => void;
   digBeachBag: () => boolean;
@@ -968,6 +972,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
     play("craftSuccess");
     toast("Marshmallow the cat curls up happily by the hearth 🔥");
+    return true;
+  };
+
+  const giveMarshmallowFluffyBed = () => {
+    if (stateRef.current.marshmallowBed !== "none") return false;
+    if ((stateRef.current.inventory["furniture-fluffy-cat-bed"] || 0) < 1) return false;
+    setState((s) => {
+      const inv = { ...s.inventory };
+      inv["furniture-fluffy-cat-bed"] = Math.max(0, (inv["furniture-fluffy-cat-bed"] || 0) - 1);
+      if (inv["furniture-fluffy-cat-bed"] === 0) delete inv["furniture-fluffy-cat-bed"];
+      return {
+        ...s,
+        inventory: inv,
+        marshmallowBed: "fluffy",
+        marshmallowScratchCount: s.marshmallowScratchCount + 1,
+      };
+    });
+    play("craftSuccess");
+    toast("Marshmallow circles his new fluffy bed, kneads it twice, and curls up with a happy purr. 🐈💕");
+    return true;
+  };
+
+  const restMarshmallowInBed = () => {
+    if (stateRef.current.marshmallowBed === "none") return false;
+    const message = stateRef.current.marshmallowBed === "clamshell"
+      ? "Marshmallow settles into his clamshell bed and tucks his paws beneath him. 🐚🐈"
+      : "Marshmallow curls into his fluffy bed and starts purring softly. 🐈💤";
+    toast(message);
     return true;
   };
 
@@ -2031,6 +2063,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       tradeWithLibby,
       scratchMarshmallow,
       giftMarshmallow,
+      giveMarshmallowFluffyBed,
+      restMarshmallowInBed,
       throwBallToSalty,
       addFoundConstellation,
       digBeachBag,
