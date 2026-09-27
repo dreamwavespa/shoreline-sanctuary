@@ -1630,6 +1630,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   inventory,
   mistyTradeDate: today,
   mistyTrades: s.mistyTrades + 1,
+
   villagerGiftCounts: {
     ...s.villagerGiftCounts,
     misty: Math.max(s.villagerGiftCounts.misty || 0, s.mistyTrades + 1),
