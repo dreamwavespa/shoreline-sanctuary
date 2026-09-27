@@ -36,10 +36,14 @@ export default function SeaweedSaltShop() {
   const dateKey = useMemo(() => getShopDateKey(), []);
   const discoveryPurchased = state.seaweedDiscoveryPurchases.includes(dateKey);
   const copperWireStockUnlocked = state.rowboatRepaired && state.hasDivingGear;
-  const visibleShopStock = SHOP_STOCK.filter((listing) => listing.itemId !== "copper-wire" || copperWireStockUnlocked);
+  const visibleShopStock = SHOP_STOCK.filter(
+    (listing) =>
+      ITEMS[listing.itemId] &&
+      (listing.itemId !== "copper-wire" || copperWireStockUnlocked)
+  );
 
   const sellable = Object.entries(state.inventory)
-    .filter(([itemId, count]) => count > 0 && SELL_PRICES[itemId])
+    .filter(([itemId, count]) => count > 0 && SELL_PRICES[itemId] && ITEMS[itemId])
     .sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name));
 
   useEffect(() => {
@@ -209,7 +213,7 @@ export default function SeaweedSaltShop() {
                             </div>
                             <span className="text-2xl" aria-hidden="true">{piece.favorite ? "⭐" : piece.kind === "necklace" ? "📿" : piece.kind === "bracelet" ? "⭕" : "✨"}</span>
                           </div>
-                          <p className="mt-2 text-sm text-stone-700">{piece.materials.map((itemId) => ITEMS[itemId]?.name).join(", ")}</p>
+                          <p className="mt-2 text-sm text-stone-700">{piece.materials.map((itemId) => ITEMS[itemId]?.name).filter(Boolean).join(", ")}</p>
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <button type="button" onClick={() => toggleCustomJewelryFavorite(piece.id)} aria-pressed={piece.favorite} className="min-h-11 rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{piece.favorite ? "Unfavorite" : "Favorite"}</button>
                             <button type="button" disabled={piece.favorite} onClick={() => sellCustomJewelry(piece.id)} aria-label={piece.favorite ? `${piece.name} is favorited and protected from sale.` : `Sell ${piece.name} for ${piece.value} Sand Dollars.`} className="min-h-11 rounded-xl bg-purple-700 px-3 py-2 text-sm font-bold text-white disabled:bg-purple-200 disabled:text-purple-600">Sell · 🪙 {piece.value}</button>
@@ -234,7 +238,7 @@ export default function SeaweedSaltShop() {
                             </div>
                             <span className="text-2xl" aria-hidden="true">{bottle.favorite ? "⭐" : "🏺"}</span>
                           </div>
-                          <p className="mt-2 text-sm text-stone-700">{bottle.layers.map((itemId) => ITEMS[itemId]?.name).join(", ")}</p>
+                          <p className="mt-2 text-sm text-stone-700">{bottle.layers.map((itemId) => ITEMS[itemId]?.name).filter(Boolean).join(", ")}</p>
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <button type="button" onClick={() => toggleCustomSandBottleFavorite(bottle.id)} aria-pressed={bottle.favorite} className="min-h-11 rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{bottle.favorite ? "Unfavorite" : "Favorite"}</button>
                             <button type="button" disabled={bottle.favorite} onClick={() => sellCustomSandBottle(bottle.id)} aria-label={bottle.favorite ? `${bottle.name} is favorited and protected from sale.` : `Sell ${bottle.name} for ${bottle.value} Sand Dollars.`} className="min-h-11 rounded-xl bg-orange-700 px-3 py-2 text-sm font-bold text-white disabled:bg-orange-200 disabled:text-orange-700">Sell · 🪙 {bottle.value}</button>
