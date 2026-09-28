@@ -13,6 +13,8 @@ export default function BottleQuests() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [latestFind, setLatestFind] = useState<{ messageId: string; bonusItemId: string | null } | null>(null);
   const [duckyRescued, setDuckyRescued] = useState(false);
+  const [marshmallowToyQuestStarted, setMarshmallowToyQuestStarted] = useState(false);
+  const [marshmallowToyFound, setMarshmallowToyFound] = useState(false);
   const sealedBottleCount = state.inventory["sealed-frosted-bottle"] || 0;
   const emptyBottleCount = state.inventory["empty-glass-bottle"] || 0;
   const latestMessage = latestFind ? FOUND_BOTTLE_MESSAGES.find((message) => message.id === latestFind.messageId) : null;
@@ -23,13 +25,26 @@ export default function BottleQuests() {
     setMusicOverride("bottles");
     setDuckyRescued(isCadenceDuckyRescued());
     const syncDucky = () => setDuckyRescued(isCadenceDuckyRescued());
+    const syncMarshmallowToy = () => {
+      try {
+        setMarshmallowToyQuestStarted(window.localStorage.getItem("shoreline-marshmallow-toy-quest-started") === "yes");
+        setMarshmallowToyFound(window.localStorage.getItem("shoreline-marshmallow-toy-found") === "yes");
+      } catch {}
+    };
+    syncMarshmallowToy();
     window.addEventListener("shoreline:cadence-ducky", syncDucky);
-    return () => { setMusicOverride(null); window.removeEventListener("shoreline:cadence-ducky", syncDucky); };
+    window.addEventListener("shoreline:marshmallow-toy-quest", syncMarshmallowToy);
+    return () => {
+      setMusicOverride(null);
+      window.removeEventListener("shoreline:cadence-ducky", syncDucky);
+      window.removeEventListener("shoreline:marshmallow-toy-quest", syncMarshmallowToy);
+    };
   }, [setMusicOverride]);
 
   const isReady = (q: QuestDef) => {
     if (state.questProgress[q.id]) return false;
     if (q.id === "cadence-ducky" && !duckyRescued) return false;
+    if (q.id === "marshmallowlosttoy" && !marshmallowToyFound) return false;
     if (q.requiresFlag && !(state as any)[q.requiresFlag]) return false;
     if (q.requiresCraft && !state.crafted.includes(q.requiresCraft)) return false;
     if (q.requires.length && !hasEnough(q.requires)) return false;
@@ -40,6 +55,7 @@ export default function BottleQuests() {
     if (q.phase === 2 && !state.rowboatRepaired) return false;
     if (q.phase === 3 && !state.hasDivingGear) return false;
     if (q.id === "libbytraprepair" && !state.libbyTrapBottleFound) return false;
+    if (q.id === "marshmallowlosttoy" && !marshmallowToyQuestStarted) return false;
     return true;
   };
 
@@ -61,9 +77,10 @@ export default function BottleQuests() {
           {q.requires.map((r) => { const def = ITEMS[r.itemId]; const have = state.inventory[r.itemId] || 0; const ok = have >= r.count; return <div key={r.itemId} className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${ok ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>{def.isEmoji ? <span>{def.icon}</span> : <Image src={def.icon} alt={def.name} width={16} height={16} unoptimized />}<span>{def.name} {have}/{r.count}</span></div>; })}
           {q.id === "libbytraprepair" && <div className="w-full rounded-xl bg-cyan-50 px-3 py-2 text-xs font-semibold text-teal-900 ring-1 ring-cyan-200">🌊 This bottle washed in after a storm. Take the repair materials to Libby.</div>}
           {q.id === "cadence-ducky" && <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${duckyRescued ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>{duckyRescued ? "🐤 Ducky rescued from the Sandbars ✓" : "🛟 Take the raft to the Sandbars and find Ducky"}</div>}
+          {q.id === "marshmallowlosttoy" && <div className={`w-full rounded-xl px-3 py-2 text-xs font-semibold ring-1 ${marshmallowToyFound ? "bg-emerald-50 text-emerald-900 ring-emerald-200" : "bg-violet-50 text-violet-900 ring-violet-200"}`}>{marshmallowToyFound ? "🧶 Crinkly Foil Ball found in the lighthouse ✓" : "🐈 Search the lighthouse and listen for a faint crinkle."}</div>}
           {q.requiresCraft && <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${state.crafted.includes(q.requiresCraft) ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>🔨 {state.crafted.includes(q.requiresCraft) ? "Crafted" : "Needs crafting"}</div>}
           {q.requiresFlag && <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ring-1 ${(state as any)[q.requiresFlag] ? "ring-emerald-300 bg-emerald-50 text-emerald-800" : "ring-red-200 bg-red-50 text-red-700"}`}>{(state as any)[q.requiresFlag] ? "✓ Ready" : "Not yet"}</div>}
-        </div><p className="text-xs text-amber-700 mb-3">Reward: {q.rewardLabel}</p><button type="button" disabled={done || !ready} onClick={() => claimQuest(q)} className="w-full py-2 rounded-xl font-semibold text-white disabled:bg-amber-200 disabled:text-amber-500 bg-teal-600 active:bg-teal-700">{done ? "Turned In" : ready ? (q.id === "cadence-ducky" ? "Return Ducky to Cadence" : q.id === "libbytraprepair" ? "Take Materials to Libby" : "Turn In Quest") : "Not Ready Yet"}</button></div>}
+        </div><p className="text-xs text-amber-700 mb-3">Reward: {q.rewardLabel}</p><button type="button" disabled={done || !ready} onClick={() => claimQuest(q)} className="w-full py-2 rounded-xl font-semibold text-white disabled:bg-amber-200 disabled:text-amber-500 bg-teal-600 active:bg-teal-700">{done ? "Turned In" : ready ? (q.id === "cadence-ducky" ? "Return Ducky to Cadence" : q.id === "libbytraprepair" ? "Take Materials to Libby" : q.id === "marshmallowlosttoy" ? "Return Toy to Marshmallow" : "Turn In Quest") : "Not Ready Yet"}</button></div>}
       </div>; })}
     </div>
   </div>;
