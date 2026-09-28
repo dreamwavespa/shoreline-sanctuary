@@ -181,12 +181,12 @@ function MarshmallowCard() {
         </div>
       </div>
       <div className="mb-3 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
-        <p>Friendship visits: {state.marshmallowScratchCount}</p>
-        {relationship.next !== null ? <p>{relationship.next - state.marshmallowScratchCount} more pet{relationship.next - state.marshmallowScratchCount === 1 ? "" : "s"} until the next relationship stage.</p> : <p>Marshmallow trusts you completely. 💕</p>}
-        <p className="mt-1">Every fifth friendship visit, Marshmallow may bring you one found gift for the day.</p>
+        <p>Spend time with Marshmallow and your friendship will grow naturally.</p>
+        {relationship.next === null && <p className="mt-1">Marshmallow trusts you completely. 💕</p>}
+        <p className="mt-1">As Marshmallow grows more comfortable with you, he may occasionally bring you something he found.</p>
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Pet Marshmallow ({state.marshmallowScratchCount})</button>
+        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Pet Marshmallow</button>
         <button type="button" disabled={treats < 1 || !treatReady} onClick={handleTreat} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
           {now === null ? "Checking Treat Time…" : !treatReady ? `Full · Ready in about ${remainingMinutes} min` : treats < 1 ? "No Marshmallow Treats" : `🍡 Give Treat (${treats})`}
         </button>
