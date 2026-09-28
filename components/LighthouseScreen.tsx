@@ -40,6 +40,19 @@ const MARSHMALLOW_REACTIONS = [
   "Marshmallow rolls onto his side and looks completely content.",
 ];
 
+const MARSHMALLOW_ORDINARY_GIFTS = [
+  { id: "shell-scallop", name: "Scallop Shell" },
+  { id: "glass-white", name: "White Sea Glass" },
+  { id: "glass-teal", name: "Teal Sea Glass" },
+  { id: "ribbon", name: "Ribbon" },
+];
+
+const MARSHMALLOW_RARE_GIFTS = [
+  { id: "moonstone-moon", name: "Moonstone Moon" },
+  { id: "pearl-rainbow", name: "Rainbow Pearl" },
+  { id: "glass-aquamarine-glow", name: "Glowing Aquamarine Sea Glass" },
+];
+
 function getMarshmallowRelationship(scratches: number) {
   if (scratches >= 25) return { name: "Lighthouse Best Friend", next: null };
   if (scratches >= 12) return { name: "Trusted Friend", next: 25 };
@@ -48,15 +61,16 @@ function getMarshmallowRelationship(scratches: number) {
 }
 
 function MarshmallowCard() {
-  const { state, scratchMarshmallow, giftMarshmallow } = useGame();
+  const { state, scratchMarshmallow, giftMarshmallow, collectItem } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
   const [reactionIndex, setReactionIndex] = useState(-1);
+  const [giftMessage, setGiftMessage] = useState("");
   const [now, setNow] = useState<number | null>(null);
   const remainingMs = now === null ? 0 : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
   const remainingMinutes = Math.ceil(remainingMs / 60_000);
   const treatReady = now !== null && remainingMs === 0;
   const relationship = getMarshmallowRelationship(state.marshmallowScratchCount);
-  const reaction = reactionIndex < 0 ? "Curled up by the lantern room window." : MARSHMALLOW_REACTIONS[reactionIndex];
+  const reaction = giftMessage || (reactionIndex < 0 ? "Curled up by the lantern room window." : MARSHMALLOW_REACTIONS[reactionIndex]);
 
   useEffect(() => {
     setNow(Date.now());
@@ -64,9 +78,30 @@ function MarshmallowCard() {
     return () => window.clearInterval(timer);
   }, []);
 
+  const maybeFindGift = (nextCount: number) => {
+    if (nextCount < 5 || nextCount % 5 !== 0) return;
+    const today = new Date().toLocaleDateString("en-CA");
+    const key = "shoreline-marshmallow-found-gift-date";
+    try {
+      if (window.localStorage.getItem(key) === today) return;
+      const rareEligible = nextCount >= 12;
+      const useRare = rareEligible && Math.random() < 0.2;
+      const pool = useRare ? MARSHMALLOW_RARE_GIFTS : MARSHMALLOW_ORDINARY_GIFTS;
+      const gift = pool[Math.floor(Math.random() * pool.length)];
+      collectItem(gift.id, { silent: true });
+      window.localStorage.setItem(key, today);
+      setGiftMessage(useRare
+        ? `Marshmallow trots back proudly with a ${gift.name} and places the rare treasure at your feet!`
+        : `Marshmallow trots back with a ${gift.name} in his mouth and drops it at your feet. A present for you!`);
+    } catch {}
+  };
+
   const handleScratch = () => {
+    const nextCount = state.marshmallowScratchCount + 1;
     scratchMarshmallow();
+    setGiftMessage("");
     setReactionIndex((current) => (current + 1) % MARSHMALLOW_REACTIONS.length);
+    maybeFindGift(nextCount);
   };
 
   return (
@@ -84,6 +119,7 @@ function MarshmallowCard() {
       <div className="mb-3 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
         <p>Friendship visits: {state.marshmallowScratchCount}</p>
         {relationship.next !== null ? <p>{relationship.next - state.marshmallowScratchCount} more pet{relationship.next - state.marshmallowScratchCount === 1 ? "" : "s"} until the next relationship stage.</p> : <p>Marshmallow trusts you completely. 💕</p>}
+        <p className="mt-1">Every fifth friendship visit, Marshmallow may bring you one found gift for the day.</p>
       </div>
       <div className="flex gap-2">
         <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Pet Marshmallow ({state.marshmallowScratchCount})</button>
