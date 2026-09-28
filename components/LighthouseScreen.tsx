@@ -32,14 +32,30 @@ const CONSTELLATIONS: Constellation[] = [
   { id: "the-whale", name: "The Great Whale", emoji: "🐋", description: "A long, gentle curve of stars arcing across the sky like a breaching whale.", panMin: 0.5, panMax: 1, freq: 784, type: "sawtooth" },
 ];
 
+const MARSHMALLOW_REACTIONS = [
+  "Marshmallow leans into your hand and gives a tiny purr.",
+  "Marshmallow closes his eyes and makes happy biscuits with his paws.",
+  "Marshmallow bumps your hand with his forehead for another scratch.",
+  "Marshmallow's tail curls around your wrist while he purrs.",
+  "Marshmallow rolls onto his side and looks completely content.",
+];
+
+function getMarshmallowRelationship(scratches: number) {
+  if (scratches >= 25) return { name: "Lighthouse Best Friend", next: null };
+  if (scratches >= 12) return { name: "Trusted Friend", next: 25 };
+  if (scratches >= 5) return { name: "Friendly", next: 12 };
+  return { name: "Getting Acquainted", next: 5 };
+}
+
 function MarshmallowCard() {
   const { state, scratchMarshmallow, giftMarshmallow } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
-  const [purr, setPurr] = useState(false);
+  const [reaction, setReaction] = useState("Curled up by the lantern room window.");
   const [now, setNow] = useState<number | null>(null);
   const remainingMs = now === null ? 0 : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
   const remainingMinutes = Math.ceil(remainingMs / 60_000);
   const treatReady = now !== null && remainingMs === 0;
+  const relationship = getMarshmallowRelationship(state.marshmallowScratchCount);
 
   useEffect(() => {
     setNow(Date.now());
@@ -49,8 +65,8 @@ function MarshmallowCard() {
 
   const handleScratch = () => {
     scratchMarshmallow();
-    setPurr(true);
-    window.setTimeout(() => setPurr(false), 600);
+    const nextIndex = state.marshmallowScratchCount % MARSHMALLOW_REACTIONS.length;
+    setReaction(MARSHMALLOW_REACTIONS[nextIndex]);
   };
 
   return (
@@ -61,18 +77,23 @@ function MarshmallowCard() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-rose-900">Marshmallow the Lighthouse Cat</h2>
-          <p className="text-sm text-rose-700">{purr ? "Purring softly... 💕" : "Curled up by the lantern room window."}</p>
+          <p className="text-sm font-semibold text-rose-800">Relationship: {relationship.name}</p>
+          <p className="text-sm text-rose-700" role="status" aria-live="polite">{reaction}</p>
         </div>
       </div>
+      <div className="mb-3 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-800">
+        <p>Friendship visits: {state.marshmallowScratchCount}</p>
+        {relationship.next !== null ? <p>{relationship.next - state.marshmallowScratchCount} more pet{relationship.next - state.marshmallowScratchCount === 1 ? "" : "s"} until the next relationship stage.</p> : <p>Marshmallow trusts you completely. 💕</p>}
+      </div>
       <div className="flex gap-2">
-        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Scratch ({state.marshmallowScratchCount})</button>
+        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Pet Marshmallow ({state.marshmallowScratchCount})</button>
         <button type="button" disabled={treats < 1 || !treatReady} onClick={giftMarshmallow} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
           {now === null ? "Checking Treat Time…" : !treatReady ? `Full · Ready in about ${remainingMinutes} min` : treats < 1 ? "No Marshmallow Treats" : `🍡 Give Treat (${treats})`}
         </button>
       </div>
       <div className="mt-3 text-center text-xs text-rose-700">
         {state.marshmallowGifted && <p>First marshmallow gift remembered ✓</p>}
-        <p role="status" aria-live="polite">{now === null ? "Checking when Marshmallow will be ready." : treatReady ? "Marshmallow is ready for another treat." : `Marshmallow is full. Another treat in about ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`}</p>
+        <p>{now === null ? "Checking when Marshmallow will be ready." : treatReady ? "Marshmallow is ready for another treat." : `Marshmallow is full. Another treat in about ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`}</p>
       </div>
     </div>
   );
