@@ -32,56 +32,11 @@ const CONSTELLATIONS: Constellation[] = [
   { id: "the-whale", name: "The Great Whale", emoji: "🐋", description: "A long, gentle curve of stars arcing across the sky like a breaching whale.", panMin: 0.5, panMax: 1, freq: 784, type: "sawtooth" },
 ];
 
-const MARSHMALLOW_REACTIONS = {
-  newFriend: [
-    "Marshmallow leans into your hand and gives a tiny purr.",
-    "Marshmallow slow-blinks at you from his spot by the window.",
-    "His tail curls happily around his paws.",
-  ],
-  trusting: [
-    "Marshmallow kneads his paws and purrs like a little lighthouse motor.",
-    "He bumps his forehead against your hand, then settles beside you.",
-    "Marshmallow rolls onto his side and stretches his fluffy paws toward you.",
-  ],
-  closeFriend: [
-    "Marshmallow trots over as soon as he sees you and rubs against your legs.",
-    "He flops dramatically onto his back, completely certain you came to see him.",
-    "Marshmallow curls up beside you and starts purring before you even touch him.",
-  ],
-  bestFriend: [
-    "Marshmallow chirps, races around the lantern room, and comes skidding back for more attention!",
-    "He rests one soft paw on you and gives you a long, contented slow blink.",
-    "Marshmallow follows you around the lighthouse, purring every step of the way.",
-  ],
-};
-
-const ORDINARY_TREASURES = [
-  { id: "shell-scallop", name: "Scallop Shell" },
-  { id: "glass-white", name: "White Sea Glass" },
-  { id: "glass-teal", name: "Teal Sea Glass" },
-  { id: "ribbon", name: "Ribbon" },
-];
-
-const MARSHMALLOW_MEOWS = [
-  "/audio/Marshmallow/marshmallow-meow-1.mp3",
-  "/audio/Marshmallow/meow1.mp3",
-  "/audio/Marshmallow/meow2.mp3",
-  "/audio/Marshmallow/meow3.mp3",
-  "/audio/Marshmallow/meow4.mp3",
-  "/audio/Marshmallow/meow5.mp3",
-];
-const MARSHMALLOW_SHORT_PURR = "/audio/Marshmallow/marshmallow-purr-short.mp3";
-const MARSHMALLOW_COZY_PURR = "/audio/Marshmallow/marshmallow-purr-cozy.mp3";
-
 function MarshmallowCard() {
-  const { state, scratchMarshmallow, giftMarshmallow, collectItem, giveMarshmallowFluffyBed, restMarshmallowInBed } = useGame();
+  const { state, scratchMarshmallow, giftMarshmallow } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
-  const fluffyBedCount = state.inventory["furniture-fluffy-cat-bed"] || 0;
-  const [reaction, setReaction] = useState("Curled up by the lantern room window.");
+  const [purr, setPurr] = useState(false);
   const [now, setNow] = useState<number | null>(null);
-  const interactions = state.marshmallowScratchCount + (state.marshmallowGifted ? 3 : 0);
-  const relationship = interactions >= 30 ? "bestFriend" : interactions >= 16 ? "closeFriend" : interactions >= 7 ? "trusting" : "newFriend";
-  const relationshipLabel = relationship === "bestFriend" ? "Devoted lighthouse companion" : relationship === "closeFriend" ? "Close friend" : relationship === "trusting" ? "Growing trust" : "Getting acquainted";
   const remainingMs = now === null ? 0 : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
   const remainingMinutes = Math.ceil(remainingMs / 60_000);
   const treatReady = now !== null && remainingMs === 0;
@@ -92,77 +47,10 @@ function MarshmallowCard() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const playCatSound = (src: string, volume = 0.75) => {
-    try {
-      window.dispatchEvent(new Event("shoreline:audio-interaction"));
-      const audio = new Audio(src);
-      audio.volume = Math.max(0, Math.min(1, volume * state.audio.master));
-      void audio.play().catch(() => {});
-    } catch {}
-  };
-
-  const randomMeow = () => MARSHMALLOW_MEOWS[Math.floor(Math.random() * MARSHMALLOW_MEOWS.length)];
-
-  const chooseReaction = () => {
-    const pool = MARSHMALLOW_REACTIONS[relationship];
-    setReaction(pool[Math.floor(Math.random() * pool.length)]);
-  };
-
-  const maybeFindTreasure = (nextScratchCount: number) => {
-    if (nextScratchCount < 5 || nextScratchCount % 5 !== 0) return;
-    const today = new Date().toLocaleDateString("en-CA");
-    const key = "shoreline-marshmallow-treasure-date";
-    try {
-      if (localStorage.getItem(key) === today) return;
-      const treasure = ORDINARY_TREASURES[Math.floor(Math.random() * ORDINARY_TREASURES.length)];
-      collectItem(treasure.id, { silent: true });
-      localStorage.setItem(key, today);
-      setReaction(`Marshmallow trots back with something in his mouth and drops a ${treasure.name} at your feet. A present for you!`);
-    } catch {}
-  };
-
   const handleScratch = () => {
-    const nextCount = state.marshmallowScratchCount + 1;
     scratchMarshmallow();
-    chooseReaction();
-    maybeFindTreasure(nextCount);
-    const soundRoll = Math.random();
-    if (relationship === "closeFriend" || relationship === "bestFriend") {
-      if (soundRoll < 0.55) playCatSound(MARSHMALLOW_SHORT_PURR, 0.68);
-      else if (soundRoll < 0.82) playCatSound(randomMeow(), 0.72);
-      else playCatSound(MARSHMALLOW_COZY_PURR, 0.62);
-    } else if (soundRoll < 0.5) {
-      playCatSound(randomMeow(), 0.72);
-    } else {
-      playCatSound(MARSHMALLOW_SHORT_PURR, 0.64);
-    }
-  };
-
-  const handleGiveBed = () => {
-    if (!giveMarshmallowFluffyBed()) return;
-    setReaction("You set the fluffy cat bed near the warm lighthouse window. Marshmallow circles it twice, kneads the cushion, and curls up with a pleased little purr.");
-    playCatSound(MARSHMALLOW_COZY_PURR, 0.62);
-  };
-
-  const handleRestInBed = () => {
-    if (!restMarshmallowInBed()) return;
-    const bedReactions = [
-      "Marshmallow climbs into his fluffy bed, kneads the cushion, and settles into a warm little cloud of fur.",
-      "He circles his bed twice, tucks his paws underneath himself, and begins to purr.",
-      "Marshmallow stretches across his fluffy bed and gives you a sleepy slow blink before closing his eyes.",
-    ];
-    setReaction(bedReactions[Math.floor(Math.random() * bedReactions.length)]);
-    playCatSound(MARSHMALLOW_COZY_PURR, 0.6);
-  };
-
-  const handleTreat = () => {
-    if (!giftMarshmallow()) return;
-    const special = relationship === "bestFriend" && Math.random() < 0.25;
-    setReaction(special
-      ? "Marshmallow's eyes go huge. He chirps, dashes around the lighthouse in a burst of marshmallow-fueled zoomies, then returns purring!"
-      : "Marshmallow delicately takes the treat, licks his whiskers, and curls up happily beside you.");
-    playCatSound(randomMeow(), special ? 0.82 : 0.72);
-    window.setTimeout(() => playCatSound(special ? MARSHMALLOW_SHORT_PURR : MARSHMALLOW_COZY_PURR, 0.62), 650);
+    setPurr(true);
+    window.setTimeout(() => setPurr(false), 600);
   };
 
   return (
@@ -173,42 +61,18 @@ function MarshmallowCard() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-rose-900">Marshmallow the Lighthouse Cat</h2>
-          <p className="text-xs font-semibold text-rose-600">{relationshipLabel}</p>
-          <p className="text-sm text-rose-700 mt-1" role="status" aria-live="polite">{reaction}</p>
+          <p className="text-sm text-rose-700">{purr ? "Purring softly... 💕" : "Curled up by the lantern room window."}</p>
         </div>
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">
-          🖐️ Pet Marshmallow
-        </button>
-        <button type="button" disabled={treats < 1 || !treatReady} onClick={handleTreat} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
+        <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Scratch ({state.marshmallowScratchCount})</button>
+        <button type="button" disabled={treats < 1 || !treatReady} onClick={giftMarshmallow} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
           {now === null ? "Checking Treat Time…" : !treatReady ? `Full · Ready in about ${remainingMinutes} min` : treats < 1 ? "No Marshmallow Treats" : `🍡 Give Treat (${treats})`}
         </button>
       </div>
-      <div className="mt-3 rounded-xl bg-rose-50 p-3 ring-1 ring-rose-100">
-        <p className="text-sm font-semibold text-rose-900 mb-2">🛏️ Marshmallow's Care</p>
-        {state.marshmallowBed === "none" && fluffyBedCount > 0 && (
-          <button type="button" onClick={handleGiveBed} className="w-full py-2.5 rounded-xl font-semibold text-white bg-amber-700 active:bg-amber-800 shadow text-sm">
-            Give Fluffy Cat Bed to Marshmallow
-          </button>
-        )}
-        {state.marshmallowBed === "none" && fluffyBedCount < 1 && (
-          <p className="text-xs text-rose-700">Seaweed sometimes has a fluffy cat bed that would make the lighthouse extra cozy.</p>
-        )}
-        {state.marshmallowBed !== "none" && (
-          <>
-            <p className="text-xs text-rose-700 mb-2">Marshmallow's fluffy cat bed is tucked beside the warm lighthouse window.</p>
-            <button type="button" onClick={handleRestInBed} className="w-full py-2.5 rounded-xl font-semibold text-white bg-rose-600 active:bg-rose-700 shadow text-sm">
-              💤 Let Marshmallow Rest in His Bed
-            </button>
-          </>
-        )}
-      </div>
       <div className="mt-3 text-center text-xs text-rose-700">
-        <p>Marshmallow's friendship grows through care and time together. Some changes are meant to be discovered rather than counted.</p>
-        <p className="mt-1" role="status" aria-live="polite">
-          {now === null ? "Checking when Marshmallow will be ready." : treatReady ? "Marshmallow is ready for another treat." : `Marshmallow is full. Another treat in about ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`}
-        </p>
+        {state.marshmallowGifted && <p>First marshmallow gift remembered ✓</p>}
+        <p role="status" aria-live="polite">{now === null ? "Checking when Marshmallow will be ready." : treatReady ? "Marshmallow is ready for another treat." : `Marshmallow is full. Another treat in about ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`}</p>
       </div>
     </div>
   );
@@ -255,8 +119,7 @@ export default function LighthouseScreen() {
     } else {
       playBlip(pan);
       setFoundThisScan(null);
-      const pick = SIGHTINGS[Math.floor(Math.random() * SIGHTINGS.length)];
-      setSighting(pick);
+      setSighting(SIGHTINGS[Math.floor(Math.random() * SIGHTINGS.length)]);
     }
   };
 
@@ -266,9 +129,7 @@ export default function LighthouseScreen() {
         <div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm">
           <p className="text-3xl mb-2">🗺️</p>
           <p className="font-semibold text-amber-900 mb-1">The cliff path is still overgrown</p>
-          <p className="text-sm text-amber-700">
-            Return Maeve&apos;s missing kettle or open the locked chest on the Hidden Beach to reveal the way up to the lighthouse.
-          </p>
+          <p className="text-sm text-amber-700">Return Maeve&apos;s missing kettle or open the locked chest on the Hidden Beach to reveal the way up to the lighthouse.</p>
         </div>
       </div>
     );
@@ -286,5 +147,32 @@ export default function LighthouseScreen() {
         <Image src={SCENES.telescopeStars} alt="Lighthouse lookout" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
       </div>
-
       <div className="px-4 -mt-6 relative space-y-4">
+        <WeatherStation />
+        <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200">
+          <h2 className="text-lg font-bold text-amber-900 mb-1">Star-Gazing Binoculars</h2>
+          <p className="text-sm text-amber-700 mb-1">Pan across the horizon and scan for four ocean-themed constellations — headphones recommended.</p>
+          <p className="text-xs font-semibold text-teal-700 mb-4">Found: {foundCount}/4</p>
+          <div className="flex items-center gap-3 mb-4">
+            <button type="button" onClick={() => setPan((p) => Math.max(-1, +(p - 0.34).toFixed(2)))} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">⬅️</button>
+            <div className="flex-1 h-2 rounded-full bg-amber-100 relative"><div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-teal-600 shadow" style={{ left: `calc(${((pan + 1) / 2) * 100}% - 8px)` }} /></div>
+            <button type="button" onClick={() => setPan((p) => Math.min(1, +(p + 0.34).toFixed(2)))} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">➡️</button>
+          </div>
+          <button type="button" onClick={scan} className="w-full py-3 rounded-xl font-semibold text-white bg-amber-700 active:bg-amber-800 shadow">🔭 Scan the Horizon</button>
+          {foundThisScan && <div className="mt-4 p-3 rounded-xl bg-teal-50 ring-1 ring-teal-300 text-center"><p className="text-2xl mb-1">{foundThisScan.emoji}</p><p className="font-semibold text-teal-900 text-sm">{foundThisScan.name}</p><p className="text-xs text-teal-700">{foundThisScan.description}</p></div>}
+          {!foundThisScan && sighting && <div className="mt-4 p-3 rounded-xl bg-amber-50 ring-1 ring-amber-200 text-center"><p className="text-2xl mb-1">{sighting.emoji}</p><p className="text-sm text-amber-800">{sighting.text}</p></div>}
+        </div>
+        <section aria-labelledby="lighthouse-lookout-heading" className="rounded-2xl bg-gradient-to-br from-indigo-950 to-sky-800 p-5 text-white shadow-md ring-1 ring-sky-300">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-200">Lighthouse Mini-Game</p>
+          <h2 id="lighthouse-lookout-heading" className="mt-1 font-serif text-lg font-bold">🔭 Lighthouse Lookout</h2>
+          <p className="mt-1 text-sm text-sky-100">Scan four directions during daylight or under the stars to find whales, dolphins, boats, unusual birds, distant islands, and shooting stars.</p>
+          <p className="mt-2 text-sm font-semibold text-amber-200">Lookout journal: {state.lookoutSightings.length}/8</p>
+          <button ref={lookoutButtonRef} type="button" onClick={() => setLookoutOpen(true)} className="mt-3 w-full rounded-xl bg-amber-500 py-3 font-bold text-indigo-950 shadow active:bg-amber-400">Open Lighthouse Lookout</button>
+        </section>
+        <MarshmallowCard />
+        {state.hasDivingGear && <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center"><p className="text-3xl mb-1">🤿</p><p className="font-semibold text-amber-900 mb-1">Diving Gear Equipped</p><p className="text-sm text-amber-700">The Deep Reef and the sunken shipwreck await below the waves — head to the Reef tab.</p></div>}
+      </div>
+      {lookoutOpen && <LighthouseLookout onClose={closeLookout} />}
+    </div>
+  );
+}
