@@ -9,6 +9,7 @@ import BottleQuests from "./BottleQuests";
 import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
 import MarshmallowCarePanel from "./MarshmallowCarePanel";
+import MarshmallowCareSounds from "./MarshmallowCareSounds";
 import ReefScene from "./ReefScene";
 import ShipScene from "./ShipScene";
 import SandbarsScene from "./SandbarsScene";
@@ -75,6 +76,7 @@ export default function GameShell() {
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <AudioEngine />
+      <MarshmallowCareSounds />
 
       <header className="flex items-center justify-between px-4 py-2 bg-[#0b3d3a] text-amber-50">
         <span className="font-serif text-lg tracking-wide">Shoreline Sanctuary</span>
