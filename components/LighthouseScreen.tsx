@@ -51,6 +51,9 @@ const MARSHMALLOW_RARE_GIFTS = [
   { id: "moonstone-moon", name: "Moonstone Moon" },
   { id: "pearl-rainbow", name: "Rainbow Pearl" },
   { id: "glass-aquamarine-glow", name: "Glowing Aquamarine Sea Glass" },
+  { id: "marshmallow-pearl", name: "Marshmallow Pearl" },
+  { id: "mini-marshmallows", name: "Bag of Mini Marshmallows" },
+  { id: "cats-eye-marble", name: "Cat's-Eye Marble" },
 ];
 
 function getMarshmallowRelationship(scratches: number) {
