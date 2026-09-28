@@ -50,12 +50,13 @@ function getMarshmallowRelationship(scratches: number) {
 function MarshmallowCard() {
   const { state, scratchMarshmallow, giftMarshmallow } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
-  const [reaction, setReaction] = useState("Curled up by the lantern room window.");
+  const [reactionIndex, setReactionIndex] = useState(-1);
   const [now, setNow] = useState<number | null>(null);
   const remainingMs = now === null ? 0 : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
   const remainingMinutes = Math.ceil(remainingMs / 60_000);
   const treatReady = now !== null && remainingMs === 0;
   const relationship = getMarshmallowRelationship(state.marshmallowScratchCount);
+  const reaction = reactionIndex < 0 ? "Curled up by the lantern room window." : MARSHMALLOW_REACTIONS[reactionIndex];
 
   useEffect(() => {
     setNow(Date.now());
@@ -65,8 +66,7 @@ function MarshmallowCard() {
 
   const handleScratch = () => {
     scratchMarshmallow();
-    const nextIndex = state.marshmallowScratchCount % MARSHMALLOW_REACTIONS.length;
-    setReaction(MARSHMALLOW_REACTIONS[nextIndex]);
+    setReactionIndex((current) => (current + 1) % MARSHMALLOW_REACTIONS.length);
   };
 
   return (
