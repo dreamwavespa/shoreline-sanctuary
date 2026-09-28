@@ -56,6 +56,17 @@ const MARSHMALLOW_RARE_GIFTS = [
   { id: "cats-eye-marble", name: "Cat's-Eye Marble" },
 ];
 
+const MARSHMALLOW_MEOWS = [
+  "/audio/Marshmallow/marshmallow-meow-1.mp3",
+  "/audio/Marshmallow/meow1.mp3",
+  "/audio/Marshmallow/meow2.mp3",
+  "/audio/Marshmallow/meow3.mp3",
+  "/audio/Marshmallow/meow4.mp3",
+  "/audio/Marshmallow/meow5.mp3",
+];
+const MARSHMALLOW_SHORT_PURR = "/audio/Marshmallow/marshmallow-purr-short.mp3";
+const MARSHMALLOW_COZY_PURR = "/audio/Marshmallow/marshmallow-purr-cozy.mp3";
+
 function getMarshmallowRelationship(scratches: number) {
   if (scratches >= 25) return { name: "Lighthouse Best Friend", next: null };
   if (scratches >= 12) return { name: "Trusted Friend", next: 25 };
@@ -85,6 +96,17 @@ function MarshmallowCard() {
     return () => window.clearInterval(timer);
   }, []);
 
+  const playCatSound = (src: string, volume = 0.75) => {
+    try {
+      window.dispatchEvent(new Event("shoreline:audio-interaction"));
+      const audio = new Audio(src);
+      audio.volume = Math.max(0, Math.min(1, volume * state.audio.master));
+      void audio.play().catch(() => {});
+    } catch {}
+  };
+
+  const randomMeow = () => MARSHMALLOW_MEOWS[Math.floor(Math.random() * MARSHMALLOW_MEOWS.length)];
+
   const maybeFindGift = (nextCount: number) => {
     if (nextCount < 5 || nextCount % 5 !== 0) return;
     const today = new Date().toLocaleDateString("en-CA");
@@ -110,12 +132,20 @@ function MarshmallowCard() {
     setGiftMessage("");
     setReactionIndex((current) => (current + 1) % MARSHMALLOW_REACTIONS.length);
     maybeFindGift(nextCount);
+    Math.random() < 0.5 ? playCatSound(randomMeow(), 0.72) : playCatSound(MARSHMALLOW_SHORT_PURR, 0.64);
+  };
+
+  const handleTreat = () => {
+    if (!giftMarshmallow()) return;
+    playCatSound(randomMeow(), 0.72);
+    window.setTimeout(() => playCatSound(MARSHMALLOW_COZY_PURR, 0.62), 650);
   };
 
   const handleGiveBed = () => {
     if (giveMarshmallowFluffyBed()) {
       setGiftMessage("");
       setBedMessage("Marshmallow circles the fluffy bed, kneads it twice, and curls up with a happy purr. 💕");
+      playCatSound(MARSHMALLOW_COZY_PURR, 0.62);
     }
   };
 
@@ -129,10 +159,12 @@ function MarshmallowCard() {
     setGiftMessage("");
     if (effectiveBed === "clamshell") {
       setBedMessage("Marshmallow settles into his clamshell bed and tucks his paws beneath him. 🐚🐈");
+      playCatSound(MARSHMALLOW_COZY_PURR, 0.6);
       return;
     }
     if (restMarshmallowInBed()) {
       setBedMessage("Marshmallow curls into his fluffy bed and starts purring softly. 🐈💤");
+      playCatSound(MARSHMALLOW_COZY_PURR, 0.6);
     }
   };
 
@@ -155,7 +187,7 @@ function MarshmallowCard() {
       </div>
       <div className="flex gap-2">
         <button type="button" onClick={handleScratch} className="flex-1 py-2.5 rounded-xl font-semibold text-white bg-rose-500 active:bg-rose-600 shadow text-sm">🖐️ Pet Marshmallow ({state.marshmallowScratchCount})</button>
-        <button type="button" disabled={treats < 1 || !treatReady} onClick={giftMarshmallow} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
+        <button type="button" disabled={treats < 1 || !treatReady} onClick={handleTreat} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
           {now === null ? "Checking Treat Time…" : !treatReady ? `Full · Ready in about ${remainingMinutes} min` : treats < 1 ? "No Marshmallow Treats" : `🍡 Give Treat (${treats})`}
         </button>
       </div>
