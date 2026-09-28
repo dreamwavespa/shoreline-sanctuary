@@ -64,16 +64,18 @@ function getMarshmallowRelationship(scratches: number) {
 }
 
 function MarshmallowCard() {
-  const { state, scratchMarshmallow, giftMarshmallow, collectItem } = useGame();
+  const { state, scratchMarshmallow, giftMarshmallow, collectItem, giveMarshmallowFluffyBed, restMarshmallowInBed } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
+  const fluffyBeds = state.inventory["furniture-fluffy-cat-bed"] || 0;
   const [reactionIndex, setReactionIndex] = useState(-1);
   const [giftMessage, setGiftMessage] = useState("");
+  const [bedMessage, setBedMessage] = useState("");
   const [now, setNow] = useState<number | null>(null);
   const remainingMs = now === null ? 0 : Math.max(0, state.marshmallowLastGiftAt + MARSHMALLOW_TREAT_COOLDOWN_MS - now);
   const remainingMinutes = Math.ceil(remainingMs / 60_000);
   const treatReady = now !== null && remainingMs === 0;
   const relationship = getMarshmallowRelationship(state.marshmallowScratchCount);
-  const reaction = giftMessage || (reactionIndex < 0 ? "Curled up by the lantern room window." : MARSHMALLOW_REACTIONS[reactionIndex]);
+  const reaction = bedMessage || giftMessage || (reactionIndex < 0 ? "Curled up by the lantern room window." : MARSHMALLOW_REACTIONS[reactionIndex]);
 
   useEffect(() => {
     setNow(Date.now());
@@ -102,9 +104,26 @@ function MarshmallowCard() {
   const handleScratch = () => {
     const nextCount = state.marshmallowScratchCount + 1;
     scratchMarshmallow();
+    setBedMessage("");
     setGiftMessage("");
     setReactionIndex((current) => (current + 1) % MARSHMALLOW_REACTIONS.length);
     maybeFindGift(nextCount);
+  };
+
+  const handleGiveBed = () => {
+    if (giveMarshmallowFluffyBed()) {
+      setGiftMessage("");
+      setBedMessage("Marshmallow circles the fluffy bed, kneads it twice, and curls up with a happy purr. 💕");
+    }
+  };
+
+  const handleRest = () => {
+    if (restMarshmallowInBed()) {
+      setGiftMessage("");
+      setBedMessage(state.marshmallowBed === "clamshell"
+        ? "Marshmallow settles into his clamshell bed and tucks his paws beneath him. 🐚🐈"
+        : "Marshmallow curls into his fluffy bed and starts purring softly. 🐈💤");
+    }
   };
 
   return (
@@ -129,6 +148,16 @@ function MarshmallowCard() {
         <button type="button" disabled={treats < 1 || !treatReady} onClick={giftMarshmallow} className="flex-1 py-2.5 rounded-xl font-semibold text-white disabled:bg-rose-200 disabled:text-rose-500 bg-rose-700 active:bg-rose-800 shadow text-sm">
           {now === null ? "Checking Treat Time…" : !treatReady ? `Full · Ready in about ${remainingMinutes} min` : treats < 1 ? "No Marshmallow Treats" : `🍡 Give Treat (${treats})`}
         </button>
+      </div>
+      <div className="mt-3 rounded-xl bg-amber-50 px-3 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
+        <p className="font-semibold">Marshmallow's bed: {state.marshmallowBed === "none" ? "No bed yet" : state.marshmallowBed === "clamshell" ? "Clamshell bed" : "Fluffy bed"}</p>
+        {state.marshmallowBed === "none" ? (
+          <button type="button" disabled={fluffyBeds < 1} onClick={handleGiveBed} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white disabled:bg-amber-200 disabled:text-amber-500">
+            {fluffyBeds > 0 ? `🛏️ Give Fluffy Bed (${fluffyBeds})` : "No Fluffy Cat Bed in Inventory"}
+          </button>
+        ) : (
+          <button type="button" onClick={handleRest} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white active:bg-amber-800">💤 Let Marshmallow Rest</button>
+        )}
       </div>
       <div className="mt-3 text-center text-xs text-rose-700">
         {state.marshmallowGifted && <p>First marshmallow gift remembered ✓</p>}
