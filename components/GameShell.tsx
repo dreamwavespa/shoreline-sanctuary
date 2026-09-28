@@ -8,6 +8,7 @@ import Workshop from "./Workshop";
 import BottleQuests from "./BottleQuests";
 import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
+import MarshmallowCarePanel from "./MarshmallowCarePanel";
 import ReefScene from "./ReefScene";
 import ShipScene from "./ShipScene";
 import SandbarsScene from "./SandbarsScene";
@@ -109,7 +110,7 @@ export default function GameShell() {
         {screen === "workshop" && <Workshop />}
         {screen === "bottles" && <BottleQuests />}
         {screen === "cove" && <CoveScene />}
-        {screen === "lighthouse" && <LighthouseScreen />}
+        {screen === "lighthouse" && <><LighthouseScreen /><MarshmallowCarePanel /></>}
         {screen === "reef" && <ReefScene />}
         {screen === "ship" && <ShipScene />}
         {screen === "sandbars" && <SandbarsScene />}
