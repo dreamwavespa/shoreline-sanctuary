@@ -67,6 +67,8 @@ function MarshmallowCard() {
   const { state, scratchMarshmallow, giftMarshmallow, collectItem, giveMarshmallowFluffyBed, restMarshmallowInBed } = useGame();
   const treats = state.inventory["food-campfire-marshmallow"] || 0;
   const fluffyBeds = state.inventory["furniture-fluffy-cat-bed"] || 0;
+  const clamshellBeds = state.inventory["furniture-clamshell-cat-bed"] || 0;
+  const effectiveBed = state.marshmallowBed === "fluffy" && clamshellBeds > 0 ? "clamshell" : state.marshmallowBed;
   const [reactionIndex, setReactionIndex] = useState(-1);
   const [giftMessage, setGiftMessage] = useState("");
   const [bedMessage, setBedMessage] = useState("");
@@ -124,11 +126,13 @@ function MarshmallowCard() {
   };
 
   const handleRest = () => {
+    setGiftMessage("");
+    if (effectiveBed === "clamshell") {
+      setBedMessage("Marshmallow settles into his clamshell bed and tucks his paws beneath him. 🐚🐈");
+      return;
+    }
     if (restMarshmallowInBed()) {
-      setGiftMessage("");
-      setBedMessage(state.marshmallowBed === "clamshell"
-        ? "Marshmallow settles into his clamshell bed and tucks his paws beneath him. 🐚🐈"
-        : "Marshmallow curls into his fluffy bed and starts purring softly. 🐈💤");
+      setBedMessage("Marshmallow curls into his fluffy bed and starts purring softly. 🐈💤");
     }
   };
 
@@ -156,7 +160,8 @@ function MarshmallowCard() {
         </button>
       </div>
       <div className="mt-3 rounded-xl bg-amber-50 px-3 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
-        <p className="font-semibold">Marshmallow's bed: {state.marshmallowBed === "none" ? "No bed yet" : state.marshmallowBed === "clamshell" ? "Clamshell bed" : "Fluffy bed"}</p>
+        <p className="font-semibold">Marshmallow's bed: {effectiveBed === "none" ? "No bed yet" : effectiveBed === "clamshell" ? "Clamshell bed" : "Fluffy bed"}</p>
+        {effectiveBed === "clamshell" && state.marshmallowBed === "fluffy" && <p className="mt-1 text-xs text-amber-800">Sheldon's Sunday clamshell bed is now Marshmallow's upgraded bed.</p>}
         {state.marshmallowBed === "none" ? (
           fluffyBeds > 0 ? (
             <button type="button" onClick={handleGiveBed} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white active:bg-amber-800">🛏️ Give Fluffy Bed ({fluffyBeds})</button>
