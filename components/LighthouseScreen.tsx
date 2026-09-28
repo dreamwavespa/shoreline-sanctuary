@@ -117,6 +117,12 @@ function MarshmallowCard() {
     }
   };
 
+  const handleClaimBed = () => {
+    collectItem("furniture-fluffy-cat-bed", { silent: true });
+    setGiftMessage("");
+    setBedMessage("Sheldon has dropped off a fluffy cat bed for Marshmallow. It's now in your inventory. 🛏️");
+  };
+
   const handleRest = () => {
     if (restMarshmallowInBed()) {
       setGiftMessage("");
@@ -152,9 +158,11 @@ function MarshmallowCard() {
       <div className="mt-3 rounded-xl bg-amber-50 px-3 py-3 text-sm text-amber-900 ring-1 ring-amber-200">
         <p className="font-semibold">Marshmallow's bed: {state.marshmallowBed === "none" ? "No bed yet" : state.marshmallowBed === "clamshell" ? "Clamshell bed" : "Fluffy bed"}</p>
         {state.marshmallowBed === "none" ? (
-          <button type="button" disabled={fluffyBeds < 1} onClick={handleGiveBed} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white disabled:bg-amber-200 disabled:text-amber-500">
-            {fluffyBeds > 0 ? `🛏️ Give Fluffy Bed (${fluffyBeds})` : "No Fluffy Cat Bed in Inventory"}
-          </button>
+          fluffyBeds > 0 ? (
+            <button type="button" onClick={handleGiveBed} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white active:bg-amber-800">🛏️ Give Fluffy Bed ({fluffyBeds})</button>
+          ) : (
+            <button type="button" onClick={handleClaimBed} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white active:bg-amber-800">📦 Accept Sheldon's Fluffy Bed Delivery</button>
+          )
         ) : (
           <button type="button" onClick={handleRest} className="mt-2 w-full rounded-lg bg-amber-700 py-2 font-semibold text-white active:bg-amber-800">💤 Let Marshmallow Rest</button>
         )}
