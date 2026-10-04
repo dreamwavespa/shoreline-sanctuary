@@ -11,6 +11,8 @@ export const CUSTOM_SAND_IDS = [
   "star-sand",
   "sand-pumpkin-orange",
   "sand-candy-corn-swirl",
+  "sand-moonlight-silver",
+  "sand-blush-pearl",
 ] as const;
 
 export const CUSTOM_SAND_ACCENT_IDS = [
