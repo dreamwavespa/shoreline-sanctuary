@@ -44,6 +44,36 @@ export function getEarnedSeaGlassSisterRewards(villagerId: string, giftCount: nu
   return (SEA_GLASS_SISTER_REWARDS[villagerId] || []).filter((reward) => reward.gifts <= giftCount);
 }
 
+/**
+ * Physical friendship rewards become eligible as repeat return gifts after
+ * their milestone is reached. Permanent recipes/designs/unlocks are excluded.
+ */
+export function getSeaGlassSisterItemGiftPool(villagerId: string, giftCount: number) {
+  return getEarnedSeaGlassSisterRewards(villagerId, giftCount).filter(
+    (reward) => reward.kind === "item"
+  );
+}
+
+/**
+ * Pick one unlocked physical friendship reward at random.
+ * Marella's moonstone reward IDs are normalized to the shared inventory IDs.
+ */
+export function rollSeaGlassSisterItemGift(villagerId: string, giftCount: number) {
+  const pool = getSeaGlassSisterItemGiftPool(villagerId, giftCount);
+  if (!pool.length) return null;
+
+  const reward = pool[Math.floor(Math.random() * pool.length)];
+
+  if (reward.id === "marella-white-moonstone") {
+    return { ...reward, id: "white-moonstone" };
+  }
+  if (reward.id === "marella-black-moonstone") {
+    return { ...reward, id: "black-moonstone" };
+  }
+
+  return reward;
+}
+
 export function sisterRewardClaimId(villagerId: string, gifts: number) {
   return `sea-glass-sister-reward:${villagerId}:${gifts}`;
 }
