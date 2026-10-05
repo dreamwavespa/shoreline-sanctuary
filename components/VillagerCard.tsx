@@ -55,9 +55,13 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
 
   const availableGifts = villager.gift.lovedGiftIds.map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] })).filter((g) => g.def);
   const handleGift = (itemId: string) => {
-    const returnGift = rollSeaGlassSisterItemGift(villager.id, giftCount);
     const accepted = giftVillager(villager.id, itemId);
     if (!accepted) return;
+
+    // giftVillager updates the store after this handler runs, so use the count
+    // this accepted gift will produce when calculating newly unlocked returns.
+    const updatedGiftCount = giftCount + 1;
+    const returnGift = rollSeaGlassSisterItemGift(villager.id, updatedGiftCount);
 
     if (returnGift) {
       collectItem(returnGift.id);
