@@ -15,6 +15,7 @@ interface GardenOption {
   harvestItemId?: string;
   harvestName?: string;
   regrowMs?: number;
+  rewardGiftCount?: number;
 }
 interface GardenBed { id: string; name: string; description: string; }
 type GardenPlacements = Record<string, string>;
@@ -53,6 +54,9 @@ const GARDEN_OPTIONS: GardenOption[] = [
   { id: "sea-pea-vine", name: "Sea Pea Vine", icon: "🫛", kind: "plant", description: "A climbing coastal edible with delicate green tendrils.", discoveryIds: ["sea-peas"], discoveryLabel: "Harvest Sea Peas in the Coconut Grove", harvestItemId: "sea-peas", harvestName: "Sea Peas" },
   { id: "lemongrass", name: "Wild Lemongrass", icon: "🌾", kind: "plant", description: "Tall fragrant blades brought from the island herb thicket.", discoveryIds: ["wild-lemongrass"], discoveryLabel: "Harvest Wild Lemongrass in the Coconut Grove", harvestItemId: "wild-lemongrass", harvestName: "Wild Lemongrass" },
   { id: "beach-mint", name: "Coastal Beach Mint", icon: "🍃", kind: "plant", description: "A fresh mint patch that thrives near Coralie's cool grotto springs.", discoveryIds: ["coastal-beach-mint"], discoveryLabel: "Harvest Coastal Beach Mint in the Coconut Grove", harvestItemId: "coastal-beach-mint", harvestName: "Coastal Beach Mint" },
+  { id: "radiant-moonflower", name: "Radiant Moonflower", icon: "🌙", kind: "plant", description: "A silvery moonlit flower gifted by Coralie after your friendship grows.", discoveryLabel: "Give Coralie 6 gifts", rewardGiftCount: 6, harvestItemId: "radiant-moonflower", harvestName: "Radiant Moonflower", regrowMs: 10 * 60 * 1000 },
+  { id: "twinkle-star-flower", name: "Twinkle Star Flower", icon: "⭐", kind: "plant", description: "A star-shaped flower with a gentle twinkling glow, unlocked through friendship with Coralie.", discoveryLabel: "Give Coralie 9 gifts", rewardGiftCount: 9, harvestItemId: "twinkle-star-flower", harvestName: "Twinkle Star Flower", regrowMs: 10 * 60 * 1000 },
+  { id: "glowing-roses", name: "Glowing Roses", icon: "🌹", kind: "plant", description: "Coralie's rare luminous roses, permanently unlocked at her highest friendship milestone.", discoveryLabel: "Give Coralie 12 gifts", rewardGiftCount: 12, harvestItemId: "glowing-roses", harvestName: "Glowing Roses", regrowMs: 10 * 60 * 1000 },
   { id: "pearl-lantern", name: "Pearl Lantern", icon: "🏮", kind: "decor", description: "A softly glowing lantern made from shell, pearl, and sea glass." },
   { id: "shell-arch", name: "Shell Arch", icon: "🐚", kind: "decor", description: "A small decorative arch made from shells gathered around the sanctuary." },
   { id: "sea-glass-marker", name: "Sea Glass Garden Marker", icon: "💎", kind: "decor", description: "A colorful marker that catches the grotto light." },
@@ -79,6 +83,7 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
   useEffect(() => { try { localStorage.setItem(HARVEST_STORAGE_KEY, JSON.stringify(harvestTimes)); } catch {} }, [harvestTimes]);
 
   const discovered = (option: GardenOption) => {
+    if (option.rewardGiftCount) return (state.villagerGiftCounts.coralie || 0) >= option.rewardGiftCount;
     if (!option.discoveryIds) return true;
     if (option.id === "golden-honeybell" && state.honeybellStage >= 1) return true;
     return option.discoveryIds.some((id) => state.notebookDiscovered[id] || (state.inventory[id] || 0) > 0);
