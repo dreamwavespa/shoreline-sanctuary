@@ -19,6 +19,11 @@ const EMOJI_FALLBACK: Record<string, string> = {
   sandy: "🐦", olli: "🐙", kai: "🐚", sunny: "⭐", penelope: "🦢", coral: "🐴", mina: "🥭", bubbles: "🐬", pearl: "🪪", splash: "🥭", shelldon: "🐢", shelby: "🦀", misty: "🪼", angel: "🐠", melody: "💍", marella: "🔮", coralie: "🌿", kaiana: "🧭",
 };
 
+const SISTER_ITEM_IDS: Record<string, string> = {
+  "marella-white-moonstone": "white-moonstone",
+  "marella-black-moonstone": "black-moonstone",
+};
+
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
   const { state, giftVillager, buyFromTraveler, craft } = useGame();
   const [expanded, setExpanded] = useState(false);
@@ -34,6 +39,15 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
     if (!sisterRewards.length) return;
     for (const reward of getEarnedSeaGlassSisterRewards(villager.id, giftCount)) {
       const claimId = sisterRewardClaimId(villager.id, reward.gifts);
+      const grantId = `sea-glass-sister-granted:${villager.id}:${reward.gifts}`;
+      if (!state.crafted.includes(grantId)) {
+        if (reward.kind === "item") {
+          craft(SISTER_ITEM_IDS[reward.id] || reward.id, []);
+        } else if (!state.crafted.includes(reward.id)) {
+          craft(reward.id, []);
+        }
+        craft(grantId, []);
+      }
       if (!state.crafted.includes(claimId)) craft(claimId, []);
     }
   }, [villager.id, giftCount, sisterRewards.length, state.crafted, craft]);
