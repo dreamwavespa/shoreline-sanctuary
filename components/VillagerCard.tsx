@@ -6,7 +6,7 @@ import { ITEMS } from "@/lib/items";
 import { VillagerDef } from "@/lib/villagers";
 import { ScheduleStatus } from "@/lib/schedule";
 import { getTravelingMerchantStock } from "@/lib/travelingMerchants";
-import { getEarnedSeaGlassSisterRewards, getNextSeaGlassSisterReward, SEA_GLASS_SISTER_REWARDS, sisterRewardClaimId } from "@/lib/seaGlassSisterRewards";
+import { getEarnedSeaGlassSisterRewards, getNextSeaGlassSisterReward, rollSeaGlassSisterItemGift, SEA_GLASS_SISTER_REWARDS, sisterRewardClaimId } from "@/lib/seaGlassSisterRewards";
 
 const RING_BY_GROUP: Record<string, string> = {
   "sea-glass-sister": "ring-indigo-200",
@@ -20,8 +20,9 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler, craft } = useGame();
+  const { state, giftVillager, buyFromTraveler, craft, collectItem } = useGame();
   const [expanded, setExpanded] = useState(false);
+  const [returnGiftMessage, setReturnGiftMessage] = useState("");
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
   const giftCount = state.villagerGiftCounts[villager.id] || 0;
@@ -34,12 +35,37 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
     if (!sisterRewards.length) return;
     for (const reward of getEarnedSeaGlassSisterRewards(villager.id, giftCount)) {
       const claimId = sisterRewardClaimId(villager.id, reward.gifts);
-      if (!state.crafted.includes(claimId)) craft(claimId, []);
+      if (state.crafted.includes(claimId)) continue;
+
+      if (reward.kind === "item") {
+        const itemId =
+          reward.id === "marella-white-moonstone"
+            ? "white-moonstone"
+            : reward.id === "marella-black-moonstone"
+            ? "black-moonstone"
+            : reward.id;
+        collectItem(itemId);
+      } else if (!state.crafted.includes(reward.id)) {
+        craft(reward.id, []);
+      }
+
+      craft(claimId, []);
     }
-  }, [villager.id, giftCount, sisterRewards.length, state.crafted, craft]);
+  }, [villager.id, giftCount, sisterRewards.length, state.crafted, craft, collectItem]);
 
   const availableGifts = villager.gift.lovedGiftIds.map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] })).filter((g) => g.def);
-  const handleGift = (itemId: string) => { giftVillager(villager.id, itemId); };
+  const handleGift = (itemId: string) => {
+    const returnGift = rollSeaGlassSisterItemGift(villager.id, giftCount);
+    const accepted = giftVillager(villager.id, itemId);
+    if (!accepted) return;
+
+    if (returnGift) {
+      collectItem(returnGift.id);
+      setReturnGiftMessage(`${villager.name} gives you ${returnGift.name} in return.`);
+    } else {
+      setReturnGiftMessage("");
+    }
+  };
 
   return (
     <div className={`rounded-2xl bg-white/90 shadow-md ring-1 ${RING_BY_GROUP[villager.group] || "ring-amber-200"} overflow-hidden`}>
@@ -93,6 +119,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
           {isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
             <div><p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>{availableGifts.length === 0 ? <p className="text-xs text-amber-500 italic">You don't have any of their favorite gifts yet.</p> : <div className="flex flex-wrap gap-2">{availableGifts.map((g) => <button key={g.id} type="button" disabled={g.have < 1} onClick={() => handleGift(g.id)} className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full text-white disabled:bg-amber-100 disabled:text-amber-400 bg-rose-500 active:bg-rose-600">{g.def.isEmoji ? <span>{g.def.icon}</span> : <Image src={g.def.icon} alt={g.def.name} width={16} height={16} unoptimized />}Give {g.def.name} ({g.have})</button>)}</div>}</div>
           )}
+          {returnGiftMessage && <p className="rounded-lg bg-emerald-50 p-2 text-xs font-semibold text-emerald-900" role="status" aria-live="polite">{returnGiftMessage}</p>}
           <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>
         </div>
       )}
