@@ -15,6 +15,7 @@ import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STA
 import { NOTEBOOK_SECTIONS } from "./notebook";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
 import { AQUARIUM_SHELL_MILESTONES, aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
+import { getEarnedSeaGlassSisterRewards, getSeaGlassSisterItemGiftPool, sisterRewardClaimId } from "./seaGlassSisterRewards";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -1125,22 +1126,63 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!villager) return false;
     if (!hasEnough([{ itemId, count: 1 }])) return false;
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
+    const loved = villager.gift.lovedGiftIds.includes(itemId);
+    let sisterReturnGiftName: string | null = null;
+
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
       if (starWishReturned) inv["carnelian"] = (inv["carnelian"] || 0) + 1;
-      const villagerGiftCounts = {
-        ...s.villagerGiftCounts,
-        [villagerId]: (s.villagerGiftCounts[villagerId] || 0) + 1,
-      };
-      return { ...s, inventory: inv, villagerGiftCounts };
+
+      const nextGiftCount = (s.villagerGiftCounts[villagerId] || 0) + 1;
+      const villagerGiftCounts = { ...s.villagerGiftCounts, [villagerId]: nextGiftCount };
+      const crafted = [...s.crafted];
+
+      // Sea Glass Sister milestone rewards are granted in the same state update
+      // as the loved gift, so inventory/unlocks cannot be lost between renders.
+      if (loved) {
+        for (const reward of getEarnedSeaGlassSisterRewards(villagerId, nextGiftCount)) {
+          const claimId = sisterRewardClaimId(villagerId, reward.gifts);
+          if (crafted.includes(claimId)) continue;
+
+          if (reward.kind === "item") {
+            const rewardItemId = reward.id === "marella-white-moonstone"
+              ? "white-moonstone"
+              : reward.id === "marella-black-moonstone"
+              ? "black-moonstone"
+              : reward.id;
+            inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
+          } else if (!crafted.includes(reward.id)) {
+            crafted.push(reward.id);
+          }
+          crafted.push(claimId);
+        }
+
+        // Once a physical sister reward has been unlocked, it can appear again
+        // as a random return gift whenever the player gives that sister a loved gift.
+        const pool = getSeaGlassSisterItemGiftPool(villagerId, nextGiftCount);
+        if (pool.length) {
+          const reward = pool[Math.floor(Math.random() * pool.length)];
+          const rewardItemId = reward.id === "marella-white-moonstone"
+            ? "white-moonstone"
+            : reward.id === "marella-black-moonstone"
+            ? "black-moonstone"
+            : reward.id;
+          inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
+          sisterReturnGiftName = reward.name;
+        }
+      }
+
+      return { ...s, inventory: inv, villagerGiftCounts, crafted };
     });
+
     const def = ITEMS[itemId];
-    const loved = villager.gift.lovedGiftIds.includes(itemId);
     play(loved ? def.sfx : "shell");
     if (starWishReturned) window.setTimeout(() => play("pearl", 0.75), 600);
     toast(
       starWishReturned
         ? "Angel carries your Star Wish out to sea and returns with a glowing Deep-Sea Carnelian!"
+        : sisterReturnGiftName
+        ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ ${villager.name} gives you ${sisterReturnGiftName} in return!`
         : loved
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨`
         : `${villager.name} accepts the ${def.name} politely.`
