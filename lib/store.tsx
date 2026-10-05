@@ -15,6 +15,7 @@ import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STA
 import { NOTEBOOK_SECTIONS } from "./notebook";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
 import { AQUARIUM_SHELL_MILESTONES, aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
+import { rollSeaGlassSisterItemGift } from "./seaGlassSisterRewards";
 
 export type Screen = "beach" | "bucket" | "workshop" | "bottles" | "cove" | "lighthouse" | "reef" | "ship" | "sandbars" | "cottage" | "shop" | "grove";
 export type Zone = "beach" | "lighthouse" | "underwater";
@@ -1124,23 +1125,45 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const villager = VILLAGERS[villagerId];
     if (!villager) return false;
     if (!hasEnough([{ itemId, count: 1 }])) return false;
+
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
+
+    // Sea Glass Sisters can return one of their already-unlocked physical
+    // friendship rewards. Use the count BEFORE this exchange so a newly
+    // reached milestone is granted only by the milestone reward system and
+    // cannot be duplicated as a random return gift on the same exchange.
+    const previousGiftCount = stateRef.current.villagerGiftCounts[villagerId] || 0;
+    const sisterReturnGift = rollSeaGlassSisterItemGift(villagerId, previousGiftCount);
+
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
       if (starWishReturned) inv["carnelian"] = (inv["carnelian"] || 0) + 1;
+      if (sisterReturnGift) {
+        inv[sisterReturnGift.id] = (inv[sisterReturnGift.id] || 0) + 1;
+      }
       const villagerGiftCounts = {
         ...s.villagerGiftCounts,
         [villagerId]: (s.villagerGiftCounts[villagerId] || 0) + 1,
       };
       return { ...s, inventory: inv, villagerGiftCounts };
     });
+
     const def = ITEMS[itemId];
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     play(loved ? def.sfx : "shell");
-    if (starWishReturned) window.setTimeout(() => play("pearl", 0.75), 600);
+
+    if (starWishReturned) {
+      window.setTimeout(() => play("pearl", 0.75), 600);
+    } else if (sisterReturnGift) {
+      const rewardDef = ITEMS[sisterReturnGift.id];
+      window.setTimeout(() => play(rewardDef?.sfx || "pearl", 0.75), 500);
+    }
+
     toast(
       starWishReturned
         ? "Angel carries your Star Wish out to sea and returns with a glowing Deep-Sea Carnelian!"
+        : sisterReturnGift
+        ? `${villager.name} accepts your gift and gives you ${sisterReturnGift.name} in return!`
         : loved
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨`
         : `${villager.name} accepts the ${def.name} politely.`

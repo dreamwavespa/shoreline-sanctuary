@@ -201,6 +201,21 @@ export const ITEMS: Record<string, ItemDef> = {
   "sandcastle-masterpiece": { id: "sandcastle-masterpiece", name: "Sandcastle Masterpiece Keepsake", category: "decor", icon: "🏰", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "picnic-packed-keepsake": { id: "picnic-packed-keepsake", name: "Perfectly Packed Picnic Keepsake", category: "special", icon: "🧺", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "snappy-current-keepsake": { id: "snappy-current-keepsake", name: "Snappy's Current Ride Keepsake", category: "special", icon: "🐢", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  // Sea Glass Sisters friendship rewards. These physical rewards can be granted at
+  // their milestone and can later reappear in that sister's return-gift pool.
+  "white-moonstone": { id: "white-moonstone", name: "White Moonstone", category: "special", icon: "🤍", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "black-moonstone": { id: "black-moonstone", name: "Black Moonstone", category: "special", icon: "🖤", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "marella-white-moonstone": { id: "marella-white-moonstone", name: "White Moonstone", category: "special", icon: "🤍", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "marella-black-moonstone": { id: "marella-black-moonstone", name: "Black Moonstone", category: "special", icon: "🖤", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "sea-foam-sponges": { id: "sea-foam-sponges", name: "Sea-Foam Sponges", category: "raw", icon: "🧽", isEmoji: true, rarity: "rare", sfx: "seaweedCollect" },
+  "white-porcelain-clay": { id: "white-porcelain-clay", name: "White Porcelain Clay", category: "raw", icon: "⚪", isEmoji: true, rarity: "rare", sfx: "stone" },
+  "sea-diamond": { id: "sea-diamond", name: "Sea Diamond", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+
+  // Coralie's friendship flowers become harvestable inventory materials after
+  // their permanent garden unlock milestones.
+  "plant-radiant-moonflower": { id: "plant-radiant-moonflower", name: "Radiant Moonflower", category: "raw", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "groveHerbSnip", glows: true },
+  "plant-twinkle-star-flower": { id: "plant-twinkle-star-flower", name: "Twinkle Star Flower", category: "raw", icon: "⭐", isEmoji: true, rarity: "rare", sfx: "groveHerbSnip", glows: true },
+  "plant-glowing-roses": { id: "plant-glowing-roses", name: "Glowing Roses", category: "raw", icon: "🌹", isEmoji: true, rarity: "rare", sfx: "groveHerbSnip", glows: true },
   "moonstone": { id: "moonstone", name: "Moonstone", category: "special", icon: "🌙", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "star-wish-bottle": { id: "star-wish-bottle", name: "Star Wish Bottle", category: "special", icon: "⭐", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "bioluminescent-shard": { id: "bioluminescent-shard", name: "Bioluminescent Shard", category: "special", icon: "✨", isEmoji: true, rarity: "rare", sfx: "seaGlass" },
