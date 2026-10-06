@@ -93,7 +93,6 @@ function SectionPage({ section }: { section: NotebookSection }) {
           {rewardClaimed ? "Reward Collected" : complete ? "Collect Page Reward" : "Complete Page to Unlock"}
         </button>
       )}
-      {section.id === "cadence-playroom" && complete && <p className="relative mt-3 rounded-xl bg-pink-50 p-2 text-xs font-semibold text-rose-800" role="status">🌸 Cadence's miniature Driftwood Toy Box furniture piece is unlocked for her playroom.</p>}
       <p role="status" aria-live="polite" className="relative mt-2 min-h-5 text-xs font-semibold text-emerald-800">{rewardAnnouncement}</p>
     </div>
   );
