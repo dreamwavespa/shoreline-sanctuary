@@ -293,6 +293,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "food-cadence-warm-rose-milk": { id: "food-cadence-warm-rose-milk", name: "Warm Rose Milk", category: "food", icon: "🍼", isEmoji: true, rarity: "uncommon", sfx: "babyBottle" },
   "cadence-driftwood-toy-box": { id: "cadence-driftwood-toy-box", name: "Miniature Driftwood Toy Box", category: "decor", icon: "🧰", isEmoji: true, rarity: "rare", sfx: "toyBoxClose" },
   "display-mariners-compass": { id: "display-mariners-compass", name: "Restored Mariner's Compass Display Item", category: "special", icon: "🧭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "kaiana-antique-crystal-curio-case": { id: "kaiana-antique-crystal-curio-case", name: "Kaiana’s Antique Crystal Curio Case", category: "decor", icon: "🗄️", isEmoji: true, rarity: "rare", sfx: "questComplete", artDescription: "A beautifully restored antique curio cabinet with driftwood-patina wood, brass shell detailing, glass doors, and softly lit shelves for gems and restored relics." },
   "museum-painted-vase": { id: "museum-painted-vase", name: "Restored Painted Harbor Vase", category: "special", icon: "🏺", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "museum-harbor-sign": { id: "museum-harbor-sign", name: "Restored Old Harbor Sign", category: "special", icon: "🪧", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "museum-captains-map": { id: "museum-captains-map", name: "Restored Captain's Island Map", category: "special", icon: "🗺️", isEmoji: true, rarity: "rare", sfx: "questComplete" },
