@@ -123,6 +123,7 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     title: "Cadence's Playroom & Keepsakes",
     anchorVillagerId: "cadence",
     completionReward: "Miniature Driftwood Toy Box (Furniture Piece)",
+    completionRewardItemId: "cadence-driftwood-toy-box",
     entries: [
       { id: "cadence-ducky", kind: "cadence", name: "Squeaky Yellow Rubber Ducky", icon: "🐤", note: "Rescued from the outer Sandbars by raft and returned safely to Cadence for bedtime." },
       { id: "cadence-silver-spoon", kind: "cadence", name: "Engraved Silver Baby Spoon", icon: "🥄", note: "An antique sunken-ship relic polished by Kaiana for Cadence's feeding routines." },
