@@ -25,7 +25,8 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     id: "gems-restorations",
     title: "Gems & Restorations",
     anchorVillagerId: "kaiana",
-    completionReward: "Crystal Display Case (Furniture Item)",
+    completionReward: "Kaiana’s Antique Crystal Curio Case",
+    completionRewardItemId: "kaiana-antique-crystal-curio-case",
     entries: [
       { id: "moonstone", kind: "item", note: "Washes ashore glowing faintly under a full moon." },
       { id: "carnelian", kind: "item", note: "Found after a Star Wish returns — warm glow, energy for the cottage." },
