@@ -570,6 +570,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, [state.inventory]);
 
+  // Cadence keepsakes predate individual notebook tracking. When the Ducky
+  // voyage is complete, ensure all three keepsakes exist as real collectibles.
+  // This also repairs older saves that already completed the quest.
+  useEffect(() => {
+    if (!state.questProgress["cadence-ducky"]) return;
+    setState((s) => {
+      const keepsakeIds = ["cadence-ducky", "cadence-silver-spoon", "cadence-golden-rattle"];
+      const missing = keepsakeIds.filter((itemId) => (s.inventory[itemId] || 0) < 1);
+      if (!missing.length) return s;
+      const inventory = { ...s.inventory };
+      for (const itemId of missing) inventory[itemId] = 1;
+      return { ...s, inventory };
+    });
+  }, [state.questProgress["cadence-ducky"]]);
+
   const play = (key: string, volume = 0.75) => {
     const src = SFX_FILES[key];
     if (!src) return;
