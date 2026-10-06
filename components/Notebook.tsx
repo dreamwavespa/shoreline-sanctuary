@@ -24,7 +24,7 @@ function isDiscovered(
   if (kind === "item") return !!state.notebookDiscovered[entryId];
   if (kind === "sighting") return state.lookoutSightings.includes(entryId);
   if (kind === "tidepool") return state.tidePoolDiscoveries.includes(entryId);
-  if (kind === "cadence") return !!state.questProgress["cadence-ducky"];
+  if (kind === "cadence") return !!state.notebookDiscovered[entryId];
   return (state.villagerGiftCounts[entryId] || 0) > 0;
 }
 
