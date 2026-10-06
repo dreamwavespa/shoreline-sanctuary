@@ -76,7 +76,7 @@ function SectionPage({ section }: { section: NotebookSection }) {
                 {found ? icon || "✦" : "?"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-xs font-semibold ${found ? "text-amber-900" : "text-amber-400"}`}>{found ? label : "Undiscovered"}</p>
+                <p className={`text-xs font-semibold ${found ? "text-amber-900" : "text-amber-400"}`}>{label}{!found ? " — Undiscovered" : ""}</p>
                 {found && <p className="text-[11px] italic text-amber-700/80 leading-snug">{entry.note}</p>}
               </div>
             </div>
