@@ -1221,6 +1221,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (entry.kind === "item") return Boolean(current.notebookDiscovered[entry.id]);
       if (entry.kind === "sighting") return current.lookoutSightings.includes(entry.id);
       if (entry.kind === "tidepool") return current.tidePoolDiscoveries.includes(entry.id);
+      if (entry.kind === "cadence") return Boolean(current.notebookDiscovered[entry.id]);
       return (current.villagerGiftCounts[entry.id] || 0) > 0;
     });
     if (!complete) return null;
