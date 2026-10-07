@@ -345,14 +345,14 @@ export const SAND_ART_RECIPES: SandArtRecipe[] = [
   {
     id: "golden-star-wish",
     name: "Golden Feather Wish Bottle",
-    description: "Penelope's golden feather turns a completed wildlife journal into one especially luminous wish for Angel to carry across the sea.",
+    description: "Penelope's Golden Feather permanently unlocks this luminous wish. The feather is a crafting catalyst and is never consumed.",
     cost: [
-      { itemId: "golden-feather", count: 1 },
       { itemId: "sand-snow-white", count: 1 },
+      { itemId: "star-sand", count: 1 },
       { itemId: "firefly-jar", count: 1 },
       { itemId: "empty-glass-bottle", count: 1 },
     ],
-    outputItemId: "star-wish-bottle",
+    outputItemId: "golden-wish-bottle",
   },
   {
     id: "beach-bottle",
