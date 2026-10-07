@@ -530,6 +530,13 @@ export default function BeachScene() {
         <VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} />
         <MistyMoonlitExchange />
         <VillagerCard villager={VILLAGERS.angel} />
+        {nighttime && state.notebookRewardsClaimed.includes("lighthouse-lookout") && (
+          <>
+            <p className="text-xs font-semibold text-cyan-800/80 uppercase tracking-wide pt-2">Master Lookout · Secret Night Visitors</p>
+            <VillagerCard villager={VILLAGERS.celeste} />
+            <VillagerCard villager={VILLAGERS.orion} />
+          </>
+        )}
       </div>
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
