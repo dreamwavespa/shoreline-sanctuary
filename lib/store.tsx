@@ -544,7 +544,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             ].some((id) => (parsed.inventory?.[id] || 0) > 0 || parsed.notebookDiscovered?.[id]) ? { shelldon: true } : {}),
             ...([
               "blueprint-marine-biology-lab", "blueprint-smoothie-bar", "blueprint-cadence-nursery",
-            ].some((id) => parsed.blueprints?.includes(id) || parsed.notebookDiscovered?.[id]) ? { shelby: true } : {}),
+            ].some((id) => blueprints.includes(id) || parsed.notebookDiscovered?.[id]) ? { shelby: true } : {}),
           },
           villagerGiftCounts: {
   ...(parsed.villagerGiftCounts || {}),
