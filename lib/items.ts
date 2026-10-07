@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "master-lookout-journal-page": { id: "master-lookout-journal-page", name: "Master Lookout Journal Page", category: "special", icon: "📜", isEmoji: true, rarity: "rare", sfx: "questComplete", artDescription: "A moonlit master lookout page recording Shoreline’s rarest day and night sightings. Its completion reveals the secret nighttime visitors Celeste and Orion." },
   "halloween-candy": { id: "halloween-candy", name: "Halloween Candy", category: "food", icon: "🍬", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "chocolate-seashells": { id: "chocolate-seashells", name: "Chocolate Seashells", category: "food", icon: "🍫", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "orange-sea-glitter": { id: "orange-sea-glitter", name: "Orange Sea Glitter", category: "decor", icon: "✨", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
