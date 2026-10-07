@@ -476,8 +476,7 @@ export const COTTAGE_ROOMS: CottageRoomDef[] = [
     description:
       "Indigo glass dome skylight, glowing tide orb pedestal, star-charm canopy bed, water-reflecting basin.",
     station: "Tide Orb & Event Altar",
-    imageUrl:
-      "https://galaxy-prod.tlcdn.com/gen/14f65012810542d38ca3f3a43e146d65.png",
+    imageUrl: "/images/Marella-observatory.PNG",
   },
   {
     id: "restoration-studio",
