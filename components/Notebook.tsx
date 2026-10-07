@@ -25,7 +25,7 @@ function isDiscovered(
   if (kind === "sighting") return state.lookoutSightings.includes(entryId);
   if (kind === "tidepool") return state.tidePoolDiscoveries.includes(entryId);
   if (kind === "cadence") return !!state.notebookDiscovered[entryId];
-  return (state.villagerGiftCounts[entryId] || 0) > 0;
+  return !!state.notebookDiscovered[entryId] || (state.villagerGiftCounts[entryId] || 0) > 0;
 }
 
 function SectionPage({ section }: { section: NotebookSection }) {
