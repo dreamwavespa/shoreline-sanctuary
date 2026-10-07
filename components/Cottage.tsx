@@ -11,6 +11,16 @@ import CoralieUnderwaterGarden from "./CoralieUnderwaterGarden";
 import CadenceNursery from "./CadenceNursery";
 import HalloweenCauldron from "./HalloweenCauldron";
 
+const MARELLA_OBSERVATIONS = [
+  { id: "moon-halo", name: "Moon Halo", icon: "🌕", interpretation: "A silver ring around the moon. Marella says the sanctuary is holding a quiet promise.", reward: "star-sand" },
+  { id: "constellation-reflection", name: "Constellation Reflection", icon: "✨", interpretation: "Stars shimmer in the tide basin as if the sea has borrowed the sky.", reward: "pearl-silver" },
+  { id: "meteor-trail", name: "Meteor Trail", icon: "☄️", interpretation: "A bright trail crosses the horizon. Marella calls it a wish already on its way.", reward: "sand-snow-white" },
+  { id: "bioluminescent-tide", name: "Bioluminescent Tide", icon: "🌊", interpretation: "Cyan light gathers along the waves. The smallest sea creatures are answering the moon.", reward: "bioluminescent-shard" },
+  { id: "distant-aurora", name: "Distant Aurora", icon: "🌌", interpretation: "A veil of color flickers far beyond the island. Marella records it as an exceptionally rare sky-tide.", reward: "pearl-rainbow" },
+  { id: "moon-jelly-migration", name: "Moon Jelly Migration", icon: "🪼", interpretation: "Tiny lights drift beneath the surface. Marella says the moon jellies are following an ancient current.", reward: "pearl-glow-dark" },
+  { id: "celestial-tide", name: "Celestial Tide", icon: "🔮", interpretation: "For one luminous moment, stars, moonlight, and ocean reflections align. Marella calls it the Celestial Tide.", reward: "moonstone-moon" },
+] as const;
+
 const COTTAGE_MOSAICS = [
   { itemId: "mosaic-moonlit-tide", name: "Moonlit Tide", icon: "🌙" },
   { itemId: "mosaic-rainbow-fish", name: "Rainbow Fish", icon: "🐠" },
@@ -25,6 +35,9 @@ export default function Cottage() {
   const [mosaicOpen, setMosaicOpen] = useState(false);
   const [gardenOpen, setGardenOpen] = useState(false);
   const [cadenceOpen, setCadenceOpen] = useState(false);
+  const [marellaDiscoveries, setMarellaDiscoveries] = useState<string[]>([]);
+  const [marellaLastObservation, setMarellaLastObservation] = useState("");
+  const [marellaResult, setMarellaResult] = useState<string>("");
   const sortingButtonRef = useRef<HTMLButtonElement>(null);
   const mosaicButtonRef = useRef<HTMLButtonElement>(null);
   const gardenButtonRef = useRef<HTMLButtonElement>(null);
@@ -47,6 +60,33 @@ export default function Cottage() {
   const room = COTTAGE_ROOMS.find((r) => r.id === roomId) || COTTAGE_ROOMS[0];
   const sister = VILLAGERS[room.ownerId];
   const completedMosaics = COTTAGE_MOSAICS.filter((mosaic) => (state.inventory[mosaic.itemId] || 0) > 0);
+  const nighttime = (() => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; })();
+
+  useEffect(() => {
+    try {
+      const discoveries = JSON.parse(localStorage.getItem("shoreline-marella-observations") || "[]");
+      if (Array.isArray(discoveries)) setMarellaDiscoveries(discoveries);
+      setMarellaLastObservation(localStorage.getItem("shoreline-marella-last-observation") || "");
+    } catch {}
+  }, []);
+
+  const observeWithMarella = () => {
+    if (!nighttime) { setMarellaResult("Marella's telescope is ready after 7 PM, when the night sky becomes visible."); return; }
+    const now = new Date();
+    const nightDate = new Date(now);
+    if (now.getHours() < 6) nightDate.setDate(nightDate.getDate() - 1);
+    const nightKey = `${nightDate.getFullYear()}-${String(nightDate.getMonth() + 1).padStart(2, "0")}-${String(nightDate.getDate()).padStart(2, "0")}`;
+    if (marellaLastObservation === nightKey) { setMarellaResult("You and Marella have already recorded tonight's observation. Return tomorrow night."); return; }
+    const undiscovered = MARELLA_OBSERVATIONS.filter((o) => !marellaDiscoveries.includes(o.id));
+    const pool = undiscovered.length ? undiscovered : MARELLA_OBSERVATIONS;
+    const observation = pool[Math.floor(Math.random() * pool.length)];
+    const next = marellaDiscoveries.includes(observation.id) ? marellaDiscoveries : [...marellaDiscoveries, observation.id];
+    setMarellaDiscoveries(next);
+    setMarellaLastObservation(nightKey);
+    localStorage.setItem("shoreline-marella-observations", JSON.stringify(next));
+    localStorage.setItem("shoreline-marella-last-observation", nightKey);
+    setMarellaResult(`${observation.name}. ${observation.interpretation}`);
+  };
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#241a3d]">
@@ -75,6 +115,17 @@ export default function Cottage() {
           <p className="mt-2 text-sm text-rose-900">Visit Cady's nursery to play the shell piano, toss her beach ball, discover washed-up toys, feed her snacks, and craft decorations for her room.</p>
           <button ref={cadenceButtonRef} type="button" onClick={() => setCadenceOpen(true)} className="mt-3 w-full rounded-xl bg-rose-700 p-2 font-bold text-white shadow active:bg-rose-800 flex items-center justify-center gap-3"><Image src="/images/IMG_6344.jpeg" alt="" aria-hidden="true" width={52} height={52} unoptimized className="h-13 w-13 rounded-xl object-cover" /><span>Enter Cadence's Nursery</span></button>
         </section>
+
+        {room.id === "celestial-observatory" && <section aria-labelledby="marella-observatory-heading" className="rounded-2xl bg-gradient-to-br from-indigo-950 via-blue-950 to-cyan-950 p-4 shadow-md ring-1 ring-cyan-300 text-white">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-200">Marella · Seer of Tides</p>
+          <h2 id="marella-observatory-heading" className="mt-1 font-serif text-lg font-bold">🔭 Marella's Observatory</h2>
+          <Image src="/images/Marella-observatory.PNG" alt="Marella's moonlit observatory with a brass telescope, celestial charts, crystals, lanterns, and an open view across the ocean" width={1536} height={1024} unoptimized className="mt-3 w-full rounded-xl object-cover shadow" />
+          <p className="mt-3 text-sm text-cyan-50">Stars reveal what the tides remember. Join Marella for one observation each night and gradually fill her Observatory Journal.</p>
+          <p className="mt-2 text-xs text-cyan-200">{marellaDiscoveries.length}/7 celestial observations recorded · Available 7 PM–5:59 AM.</p>
+          <button type="button" onClick={observeWithMarella} className="mt-3 w-full rounded-xl bg-cyan-700 py-3 font-bold text-white shadow active:bg-cyan-800">{nighttime ? "Observe the Night Sky" : "Observatory Opens at 7 PM"}</button>
+          {marellaResult && <p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/10 p-3 text-sm text-cyan-50">{marellaResult}</p>}
+          <div className="mt-4" aria-labelledby="marella-journal-heading"><h3 id="marella-journal-heading" className="font-bold text-cyan-100">Observatory Journal</h3><ul className="mt-2 space-y-1 text-sm">{MARELLA_OBSERVATIONS.map((o) => <li key={o.id}>{marellaDiscoveries.includes(o.id) ? `${o.icon} ${o.name}` : "☆ Undiscovered celestial event"}</li>)}</ul></div>
+        </section>}
 
         {room.id === "bioluminescent-grotto" && <section aria-labelledby="coralie-garden-heading" className="rounded-2xl bg-gradient-to-br from-emerald-50 to-cyan-100 p-4 shadow-md ring-1 ring-emerald-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">Coralie's Sanctuary</p><h2 id="coralie-garden-heading" className="mt-1 font-serif text-lg font-bold text-emerald-950">🌿 Underwater Garden</h2><p className="mt-1 text-sm text-emerald-800">Create Coralie's glowing grotto garden. Choose six garden spaces, then fill them with underwater plants, island flora, and handcrafted decorations.</p><p className="mt-2 text-xs text-emerald-700">Your garden layout is saved automatically, and every space has a named, screen-reader-friendly control.</p><button ref={gardenButtonRef} type="button" onClick={() => setGardenOpen(true)} className="mt-3 w-full rounded-xl bg-emerald-700 py-3 font-bold text-white shadow active:bg-emerald-800">Enter Coralie's Underwater Garden</button></section>}
 
