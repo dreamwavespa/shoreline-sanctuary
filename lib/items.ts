@@ -244,6 +244,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "ribbon": { id: "ribbon", name: "Silk Ribbon", category: "decor", icon: "🎀", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "iridescent-shell": { id: "iridescent-shell", name: "Iridescent Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "mother-of-pearl": { id: "mother-of-pearl", name: "Mother-of-Pearl", category: "pearl", icon: "🦪", isEmoji: true, rarity: "rare", sfx: "pearl" },
+  "angel-geode": { id: "angel-geode", name: "Angel's Tide Geode", category: "special", icon: "🪨", isEmoji: true, rarity: "rare", sfx: "questComplete", artDescription: "A sealed ocean-worn geode with a faint pearly glow in its cracks, retrieved by Angel from deep water." },
   "golden-feather": { id: "golden-feather", name: "Penelope's Golden Feather", category: "special", icon: "🪶", isEmoji: true, rarity: "rare", sfx: "questComplete" },
   "pattern-pastel-shell-set": { id: "pattern-pastel-shell-set", name: "Pastel Shell Paint Pattern Set", category: "special", icon: "🎨", isEmoji: true, rarity: "rare", sfx: "paintPigment" },
   "painted-shell": { id: "painted-shell", name: "Hand-Painted Shell", category: "decor", icon: "🐚", isEmoji: true, rarity: "uncommon", sfx: "paintPigment" },
