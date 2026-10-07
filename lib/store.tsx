@@ -533,9 +533,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           rainBarrelLevel,
           groveNurseryAvailable: parsed.groveNurseryAvailable ?? parsed.currentForecast?.id === "storm",
           booToolSetDelivered: parsed.booToolSetDelivered ?? (Array.isArray(parsed.customSandBottles) && parsed.customSandBottles.length > 0),
-          notebookDiscovered: collectedSandDollars > 0
-            ? { ...(parsed.notebookDiscovered || {}), "shell-sanddollar": true }
-            : { ...(parsed.notebookDiscovered || {}) },villagerGiftCounts: {
+          notebookDiscovered: {
+            ...(parsed.notebookDiscovered || {}),
+            ...(collectedSandDollars > 0 ? { "shell-sanddollar": true } : {}),
+            ...([
+              "seed-beach-rose", "seed-sea-holly", "seed-seaside-daisy", "seed-coastal-sunflower",
+              "seed-dune-evening-primrose", "seed-saltmarsh-mallow", "seed-sea-morning-glory",
+              "furniture-beach-chair", "furniture-bird-bath", "furniture-water-fountain",
+              "furniture-clamshell-cat-bed", "binoculars", "flower-vase", "picnic-blanket", "seaside-air-pump",
+            ].some((id) => (parsed.inventory?.[id] || 0) > 0 || parsed.notebookDiscovered?.[id]) ? { shelldon: true } : {}),
+            ...([
+              "blueprint-marine-biology-lab", "blueprint-smoothie-bar", "blueprint-cadence-nursery",
+            ].some((id) => parsed.blueprints?.includes(id) || parsed.notebookDiscovered?.[id]) ? { shelby: true } : {}),
+          },
+          villagerGiftCounts: {
   ...(parsed.villagerGiftCounts || {}),
   misty: Math.max(parsed.villagerGiftCounts?.misty || 0, parsed.mistyTrades || 0),
 },
@@ -1629,7 +1640,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       inventory: listing.kind === "blueprint"
         ? s.inventory
         : { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
-      notebookDiscovered: { ...s.notebookDiscovered, [itemId]: true },
+      notebookDiscovered: { ...s.notebookDiscovered, [itemId]: true, [villagerId]: true },
     }));
     play("sandDollarCoin");
     toast(listing.kind === "blueprint" ? `${item.name} added to your Blueprint Collection!` : `Purchased ${item.name} from ${VILLAGERS[villagerId].name}!`);
