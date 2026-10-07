@@ -1143,10 +1143,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     let sisterReturnGiftName: string | null = null;
+    let angelWishGiftName: string | null = null;
 
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
-      if (starWishReturned) inv["carnelian"] = (inv["carnelian"] || 0) + 1;
+      if (starWishReturned) {
+        // The first Star Wish guarantees Deep-Sea Carnelian so the Gems &
+        // Restorations notebook can always progress. Later wishes draw from
+        // Angel's rare return pool.
+        const firstWish = (s.inventory["carnelian"] || 0) < 1 && !s.notebookDiscovered["carnelian"];
+        const angelWishPool = [
+          "angel-geode",
+          "mother-of-pearl",
+          "bioluminescent-shard",
+          "iridescent-shell",
+          "kelp-resin",
+          "pure-water",
+          "pearl-rainbow",
+          "pearl-gold",
+        ];
+        const rewardItemId = firstWish
+          ? "carnelian"
+          : angelWishPool[Math.floor(Math.random() * angelWishPool.length)];
+        inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
+        angelWishGiftName = ITEMS[rewardItemId]?.name || "a rare treasure";
+      }
 
       const nextGiftCount = (s.villagerGiftCounts[villagerId] || 0) + 1;
       const villagerGiftCounts = { ...s.villagerGiftCounts, [villagerId]: nextGiftCount };
@@ -1195,7 +1216,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (starWishReturned) window.setTimeout(() => play("pearl", 0.75), 600);
     toast(
       starWishReturned
-        ? "Angel carries your Star Wish out to sea and returns with a glowing Deep-Sea Carnelian!"
+        ? `Angel carries your Star Wish out to sea and returns with ${angelWishGiftName || "a rare treasure"}!`
         : sisterReturnGiftName
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ ${villager.name} gives you ${sisterReturnGiftName} in return!`
         : loved
