@@ -416,6 +416,7 @@ interface Ctx {
   notebookOpen: boolean;
   setNotebookOpen: (v: boolean) => void;
   markNotebookSeen: () => void;
+  markVillagerEncounter: (villagerId: string) => void;
   claimNotebookReward: (sectionId: string) => string | null;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
   addLookoutSighting: (id: string) => void;
@@ -1233,6 +1234,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const total = Object.keys(s.notebookDiscovered).length + villagerMet + s.lookoutSightings.length + s.tidePoolDiscoveries.length;
       return { ...s, notebookSeenCount: total };
     });
+  };
+
+  const markVillagerEncounter = (villagerId: string) => {
+    setState((s) => s.notebookDiscovered[villagerId]
+      ? s
+      : { ...s, notebookDiscovered: { ...s.notebookDiscovered, [villagerId]: true } }
+    );
   };
 
   const claimNotebookReward = (sectionId: string) => {
@@ -2161,6 +2169,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       notebookOpen,
       setNotebookOpen,
       markNotebookSeen,
+    markVillagerEncounter,
       claimNotebookReward,
       saveSandcastle,
       addLookoutSighting,
