@@ -20,7 +20,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler } = useGame();
+  const { state, giftVillager, buyFromTraveler, markVillagerEncounter } = useGame();
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
@@ -38,7 +38,10 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
 
   return (
     <div className={`rounded-2xl bg-white/90 shadow-md ring-1 ${RING_BY_GROUP[villager.group] || "ring-amber-200"} overflow-hidden`}>
-      <button type="button" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded} className="w-full text-left p-4 flex items-center gap-3">
+      <button type="button" onClick={() => {
+        if (!expanded && !isAway) markVillagerEncounter(villager.id);
+        setExpanded((v) => !v);
+      }} aria-expanded={expanded} className="w-full text-left p-4 flex items-center gap-3">
         <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-amber-50 flex items-center justify-center">
           {villager.imageUrl ? <Image src={villager.imageUrl} alt={villager.name} fill unoptimized className="object-cover" /> : <span className="text-3xl">{EMOJI_FALLBACK[villager.id] || "🐚"}</span>}
         </div>
