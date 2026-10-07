@@ -20,7 +20,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler, markVillagerEncounter } = useGame();
+  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor } = useGame();
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
@@ -29,6 +29,8 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
   const nextSisterReward = getNextSeaGlassSisterReward(villager.id, giftCount);
   const merchantId: "shelldon" | "shelby" | null = villager.id === "shelldon" || villager.id === "shelby" ? villager.id : null;
   const merchantStock = merchantId ? getTravelingMerchantStock(merchantId) : [];
+  const nightVisitorId: "celeste" | "orion" | null = villager.id === "celeste" || villager.id === "orion" ? villager.id : null;
+  const nightVisits = nightVisitorId ? (state.nightVisitorVisits[nightVisitorId] || 0) : 0;
 
 
   const availableGifts = villager.gift.lovedGiftIds.map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] })).filter((g) => g.def);
@@ -73,6 +75,17 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
             </section>
           )}
 
+          {nightVisitorId && (
+            <section aria-label={`${villager.name} nighttime friendship`} className="rounded-xl bg-cyan-50 p-3 ring-1 ring-cyan-200">
+              <h3 className="text-sm font-bold text-cyan-950">Moonlit Friendship</h3>
+              <p className="mt-1 text-xs text-cyan-800">{nightVisits} of 5 nighttime visits shared</p>
+              <p className="mt-1 text-[11px] text-cyan-700">A visit can be recorded once per real-world night. Special treasures are shared as your friendship grows.</p>
+              <button type="button" onClick={() => visitNightVisitor(nightVisitorId)} className="mt-3 min-h-11 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-bold text-white active:bg-cyan-800">
+                Spend a Moonlit Moment with {villager.name}
+              </button>
+            </section>
+          )}
+
           {merchantId && !isAway && (
             <section aria-label={`${villager.name}'s current stock`} className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
               <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-sm font-bold text-amber-950">Current Traveling Stock</h3><span className="text-xs font-semibold text-amber-800">🪙 {state.sandDollars}</span></div>
@@ -88,10 +101,10 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
             </section>
           )}
 
-          {isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
+          {!nightVisitorId && (isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
             <div><p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>{availableGifts.length === 0 ? <p className="text-xs text-amber-500 italic">You don't have any of their favorite gifts yet.</p> : <div className="flex flex-wrap gap-2">{availableGifts.map((g) => <button key={g.id} type="button" disabled={g.have < 1} onClick={() => handleGift(g.id)} className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full text-white disabled:bg-amber-100 disabled:text-amber-400 bg-rose-500 active:bg-rose-600">{g.def.isEmoji ? <span>{g.def.icon}</span> : <Image src={g.def.icon} alt={g.def.name} width={16} height={16} unoptimized />}Give {g.def.name} ({g.have})</button>)}</div>}</div>
-          )}
-          <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>
+          ))}
+          {!nightVisitorId && <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>}
         </div>
       )}
     </div>
