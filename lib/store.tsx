@@ -1271,6 +1271,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ...s,
       notebookRewardsClaimed: [...s.notebookRewardsClaimed, sectionId],
       inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+      notebookDiscovered: sectionId === "lighthouse-lookout"
+        ? { ...s.notebookDiscovered, celeste: true, orion: true }
+        : s.notebookDiscovered,
     }));
     play(ITEMS[itemId].sfx, 0.8);
     toast(`${ITEMS[itemId].name} added to your inventory!`);
