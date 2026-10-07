@@ -420,7 +420,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       "Retrieves Star Wish Bottles released into the sea and returns with desired rare materials or wildlife event triggers.",
     location: "Open Water",
     gift: {
-      lovedGiftIds: ["star-wish-bottle", "kelp-resin", "pure-water"],
+      lovedGiftIds: ["star-wish-bottle", "golden-wish-bottle", "kelp-resin", "pure-water"],
       reactionSfx: "Golden Wish Glow, Twinkling Star Harp",
       reactionVisual: "Golden Wish Glow",
       redirectTo: [],
