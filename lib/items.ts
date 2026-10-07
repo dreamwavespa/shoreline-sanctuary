@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "golden-wish-bottle": { id: "golden-wish-bottle", name: "Golden Feather Wish Bottle", category: "special", icon: "🌟", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "A luminous frosted wish bottle glowing with warm gold light, unlocked by Penelope’s Golden Feather." },
   "orion-star-charm": { id: "orion-star-charm", name: "Star Charm", category: "special", icon: "⭐", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "A radiant gold-glowing celestial charm carrying the light of the night sky." },
   "orion-stardust-drifts": { id: "orion-stardust-drifts", name: "Stardust Drifts", category: "raw", icon: "✨", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "Fine bioluminescent sea sand holding a soft, pulsing golden glow." },
   "orion-constellation-drift-shell": { id: "orion-constellation-drift-shell", name: "Constellation Drift Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "A spiral shell with starry pinhole markings that cast gentle beams of warm light." },
