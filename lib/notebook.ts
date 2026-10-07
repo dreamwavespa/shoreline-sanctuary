@@ -95,7 +95,8 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     id: "lighthouse-lookout",
     title: "Lighthouse Lookout",
     anchorVillagerId: "marella",
-    completionReward: "Master Lookout Journal Page",
+    completionReward: "Master Lookout Journal Page — Unlocks Celeste & Orion",
+    completionRewardItemId: "master-lookout-journal-page",
     entries: [
       { id: "lookout-humpback-pod", kind: "sighting", name: "Humpback Whale Pod", icon: "🐋", note: "Three humpbacks surfaced beyond the western cove in a cloud of silver mist." },
       { id: "lookout-sunlit-sailboat", kind: "sighting", name: "Sunlit Sailboat", icon: "⛵", note: "A small white sailboat crossed the horizon beneath a bright teal sail." },
