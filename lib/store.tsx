@@ -1143,30 +1143,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     let sisterReturnGiftName: string | null = null;
-    let angelWishGiftName: string | null = null;
+    let angelWishRewardItemId: string | null = null;
+    if (starWishReturned) {
+      // Choose the reward before the React state updater so the toast and
+      // VoiceOver announcement always have the exact returned item name.
+      const firstWish = (stateRef.current.inventory["carnelian"] || 0) < 1 && !stateRef.current.notebookDiscovered["carnelian"];
+      const angelWishPool = [
+        "angel-geode",
+        "mother-of-pearl",
+        "bioluminescent-shard",
+        "iridescent-shell",
+        "kelp-resin",
+        "pure-water",
+        "pearl-rainbow",
+        "pearl-gold",
+      ];
+      angelWishRewardItemId = firstWish
+        ? "carnelian"
+        : angelWishPool[Math.floor(Math.random() * angelWishPool.length)];
+    }
+    const angelWishGiftName = angelWishRewardItemId ? ITEMS[angelWishRewardItemId]?.name || "a rare treasure" : null;
 
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
-      if (starWishReturned) {
-        // The first Star Wish guarantees Deep-Sea Carnelian so the Gems &
-        // Restorations notebook can always progress. Later wishes draw from
-        // Angel's rare return pool.
-        const firstWish = (s.inventory["carnelian"] || 0) < 1 && !s.notebookDiscovered["carnelian"];
-        const angelWishPool = [
-          "angel-geode",
-          "mother-of-pearl",
-          "bioluminescent-shard",
-          "iridescent-shell",
-          "kelp-resin",
-          "pure-water",
-          "pearl-rainbow",
-          "pearl-gold",
-        ];
-        const rewardItemId = firstWish
-          ? "carnelian"
-          : angelWishPool[Math.floor(Math.random() * angelWishPool.length)];
-        inv[rewardItemId] = (inv[rewardItemId] || 0) + 1;
-        angelWishGiftName = ITEMS[rewardItemId]?.name || "a rare treasure";
+      if (angelWishRewardItemId) {
+        inv[angelWishRewardItemId] = (inv[angelWishRewardItemId] || 0) + 1;
       }
 
       const nextGiftCount = (s.villagerGiftCounts[villagerId] || 0) + 1;
