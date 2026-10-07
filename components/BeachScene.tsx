@@ -22,12 +22,20 @@ interface Spot {
   y: number;
 }
 
-function randomSpots(n: number): Spot[] {
+function isBeachNight(date = new Date()): boolean {
+  const hour = date.getHours();
+  return hour >= 19 || hour < 6;
+}
+
+function randomSpots(n: number, night = false): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
+    // Star Wish Bottles are a rare beach-after-dark discovery. Daytime
+    // continues to use the existing beach spawn table unchanged.
+    const itemId = night && Math.random() < 0.08 ? "star-wish-bottle" : rollSpawn();
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
-      itemId: rollSpawn(),
+      itemId,
       x: 8 + Math.random() * 84,
       y: 38 + Math.random() * 52,
     });
@@ -277,6 +285,7 @@ function BeachBagCard() {
 export default function BeachScene() {
   const { state, collectItem, collectSeaWater, setScreen } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [nighttime, setNighttime] = useState(false);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
   // (schedule depends on real wall-clock time/date).
@@ -289,7 +298,9 @@ export default function BeachScene() {
   const waterAnimationTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setSpots(randomSpots(9));
+    const night = isBeachNight();
+    setNighttime(night);
+    setSpots(randomSpots(9, night));
     setTravelerSchedule({
       shelldon: getScheduleStatus("shelldon"),
       shelby: getScheduleStatus("shelby"),
@@ -321,7 +332,7 @@ export default function BeachScene() {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => {
         if (cur.length < 6) {
-          return [...cur, ...randomSpots(1)];
+          return [...cur, ...randomSpots(1, nighttime)];
         }
         return cur;
       });
@@ -342,8 +353,8 @@ export default function BeachScene() {
     <div className="relative w-full h-full overflow-y-auto select-none">
       <div className="relative w-full h-[60%] min-h-[280px] overflow-hidden rounded-b-2xl">
         <Image
-          src={SCENES.beachMain}
-          alt="Shoreline beach"
+          src={nighttime ? "/images/Nighttime-beach.PNG" : SCENES.beachMain}
+          alt={nighttime ? "Shoreline beach at night beneath a starry sky and bright moon" : "Shoreline beach during the day"}
           fill
           priority
           unoptimized
@@ -351,6 +362,7 @@ export default function BeachScene() {
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+        <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
         {spots.map((spot) => {
           const def = ITEMS[spot.itemId];
           const popping = poppingKeys[spot.key];
