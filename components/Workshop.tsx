@@ -392,7 +392,8 @@ function SandArtStudio() {
   const [announcement, setAnnouncement] = useState("");
   const selectedRecipe = SAND_ART_RECIPES.find((recipe) => recipe.id === selectedId) || SAND_ART_RECIPES[0];
   const selectedLayers = useMemo(() => SAND_ART_LAYERS[selectedRecipe.id] || [], [selectedRecipe.id]);
-  const canMake = hasEnough(selectedRecipe.cost);
+  const goldenWishLocked = selectedRecipe.id === "golden-star-wish" && (state.inventory["golden-feather"] || 0) < 1;
+  const canMake = hasEnough(selectedRecipe.cost) && !goldenWishLocked;
   const completedBottles = SAND_ART_RECIPES.filter((recipe) => (state.inventory[recipe.outputItemId] || 0) > 0);
 
   useEffect(() => {
@@ -461,6 +462,7 @@ function SandArtStudio() {
           {isFilling ? `${filledLayers} of ${selectedLayers.length} layers filled` : filledLayers === selectedLayers.length ? "Bottle complete" : "Bottle ready to fill"}
         </p>
         <CostRow cost={selectedRecipe.cost} />
+        {selectedRecipe.id === "golden-star-wish" && <p className={`mt-2 text-xs font-semibold text-center ${goldenWishLocked ? "text-amber-800" : "text-emerald-700"}`}>{goldenWishLocked ? "Complete Wildlife & Sightings to earn Penelope’s Golden Feather and unlock this recipe." : "Golden Feather catalyst unlocked · the feather will not be consumed."}</p>}
         <button
           type="button"
           disabled={!canMake || isFilling}
