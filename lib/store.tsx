@@ -194,6 +194,8 @@ interface GameState {
   raisedAquariumFish: string[];
   aquariumCareDates: Record<string, string>;
   rareShellDisplays: string[];
+  nightVisitorVisits: Record<string, number>;
+  nightVisitorLastVisitDate: Record<string, string>;
 }
 
 const BUCKET_CAPACITY = 20;
@@ -300,6 +302,8 @@ const DEFAULT_STATE: GameState = {
   raisedAquariumFish: [],
   aquariumCareDates: {},
   rareShellDisplays: [],
+  nightVisitorVisits: {},
+  nightVisitorLastVisitDate: {},
 };
 
 const SCREEN_ZONE: Record<Screen, Zone> = {
@@ -417,6 +421,7 @@ interface Ctx {
   setNotebookOpen: (v: boolean) => void;
   markNotebookSeen: () => void;
   markVillagerEncounter: (villagerId: string) => void;
+  visitNightVisitor: (villagerId: "celeste" | "orion") => { counted: boolean; visits: number; rewardItemId: string | null };
   claimNotebookReward: (sectionId: string) => string | null;
   saveSandcastle: (castle: Omit<SavedSandcastle, "id" | "createdAt">) => void;
   addLookoutSighting: (id: string) => void;
@@ -528,6 +533,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
           blueprints,
+          nightVisitorVisits: parsed.nightVisitorVisits || {},
+          nightVisitorLastVisitDate: parsed.nightVisitorLastVisitDate || {},
           sandDollars,
           raftAirLevel: parsed.raftAirLevel ?? (parsed.raftInflated ? 3 : 0),
           rainBarrelLevel,
@@ -1252,6 +1259,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       ? s
       : { ...s, notebookDiscovered: { ...s.notebookDiscovered, [villagerId]: true } }
     );
+  };
+
+  const visitNightVisitor = (villagerId: "celeste" | "orion") => {
+    const current = stateRef.current;
+    if (!current.notebookRewardsClaimed.includes("lighthouse-lookout")) return { counted: false, visits: current.nightVisitorVisits[villagerId] || 0, rewardItemId: null };
+    const now = new Date();
+    const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const previousVisits = current.nightVisitorVisits[villagerId] || 0;
+    if (current.nightVisitorLastVisitDate[villagerId] === dateKey) return { counted: false, visits: previousVisits, rewardItemId: null };
+    const visits = previousVisits + 1;
+    const milestones: Record<"celeste" | "orion", Record<number, string>> = {
+      celeste: { 1: "celeste-glowing-translucent-pearl", 2: "celeste-tear-of-the-tide", 4: "celeste-echo-conch", 5: "celeste-floating-moon-lantern" },
+      orion: { 1: "orion-star-charm", 3: "orion-stardust-drifts", 5: "orion-constellation-drift-shell" },
+    };
+    const rewardItemId = milestones[villagerId][visits] || null;
+    setState((s) => ({
+      ...s,
+      nightVisitorVisits: { ...s.nightVisitorVisits, [villagerId]: visits },
+      nightVisitorLastVisitDate: { ...s.nightVisitorLastVisitDate, [villagerId]: dateKey },
+      inventory: rewardItemId ? { ...s.inventory, [rewardItemId]: (s.inventory[rewardItemId] || 0) + 1 } : s.inventory,
+    }));
+    if (rewardItemId) {
+      play(ITEMS[rewardItemId].sfx, 0.8);
+      toast(`${VILLAGERS[villagerId].name} shared ${ITEMS[rewardItemId].name} with you! Nighttime visit ${visits}.`);
+    } else {
+      toast(`${VILLAGERS[villagerId].name} spends a quiet moonlit moment with you. Nighttime visit ${visits}.`);
+    }
+    return { counted: true, visits, rewardItemId };
   };
 
   const claimNotebookReward = (sectionId: string) => {
