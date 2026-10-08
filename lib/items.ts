@@ -17,7 +17,7 @@ const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJ
 export const ITEMS: Record<string, ItemDef> = {
   "moonlit-sea-glass": { id: "moonlit-sea-glass", name: "Moonlit Sea Glass", category: "glass", icon: "🩵", isEmoji: true, rarity: "uncommon", sfx: "pearl", glows: true },
   "milky-moonstone-pebbles": { id: "milky-moonstone-pebbles", name: "Milky Moonstone Pebbles", category: "raw", icon: "🤍", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
-  "ceramic-bell": { id: "ceramic-bell", name: "Ceramic Bell", category: "raw", icon: "🔔", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
+  "ceramic-bell": { id: "ceramic-bell", name: "Ceramic Bell", category: "raw", icon: "🔔", isEmoji: true, rarity: "uncommon", sfx: "ceramicBell" },
   "moonwashed-shell": { id: "moonwashed-shell", name: "Moonwashed Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "tideglow-pebble": { id: "tideglow-pebble", name: "Tideglow Pebble", category: "raw", icon: "🔹", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
   "glowing-sand-dollar": { id: "glowing-sand-dollar", name: "Glowing Sand Dollar", category: "shell", icon: "🌟", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
