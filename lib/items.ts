@@ -15,6 +15,12 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "moonlit-sea-glass": { id: "moonlit-sea-glass", name: "Moonlit Sea Glass", category: "glass", icon: "🩵", isEmoji: true, rarity: "uncommon", sfx: "pearl", glows: true },
+  "milky-moonstone-pebbles": { id: "milky-moonstone-pebbles", name: "Milky Moonstone Pebbles", category: "raw", icon: "🤍", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
+  "ceramic-bell": { id: "ceramic-bell", name: "Ceramic Bell", category: "raw", icon: "🔔", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
+  "moonwashed-shell": { id: "moonwashed-shell", name: "Moonwashed Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "uncommon", sfx: "shell" },
+  "tideglow-pebble": { id: "tideglow-pebble", name: "Tideglow Pebble", category: "raw", icon: "🔹", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
+  "glowing-sand-dollar": { id: "glowing-sand-dollar", name: "Glowing Sand Dollar", category: "shell", icon: "🌟", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true },
   "golden-wish-bottle": { id: "golden-wish-bottle", name: "Golden Feather Wish Bottle", category: "special", icon: "🌟", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "A luminous frosted wish bottle glowing with warm gold light, unlocked by Penelope’s Golden Feather." },
   "orion-star-charm": { id: "orion-star-charm", name: "Star Charm", category: "special", icon: "⭐", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "A radiant gold-glowing celestial charm carrying the light of the night sky." },
   "orion-stardust-drifts": { id: "orion-stardust-drifts", name: "Stardust Drifts", category: "raw", icon: "✨", isEmoji: true, rarity: "rare", sfx: "questComplete", glows: true, artDescription: "Fine bioluminescent sea sand holding a soft, pulsing golden glow." },
