@@ -28,7 +28,7 @@ const COTTAGE_MOSAICS = [
 ];
 
 export default function Cottage() {
-  const { state, setMusicOverride } = useGame();
+  const { state, setMusicOverride, collectItem } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
@@ -85,7 +85,9 @@ export default function Cottage() {
     setMarellaLastObservation(nightKey);
     localStorage.setItem("shoreline-marella-observations", JSON.stringify(next));
     localStorage.setItem("shoreline-marella-last-observation", nightKey);
-    setMarellaResult(`${observation.name}. ${observation.interpretation}`);
+    collectItem(observation.reward);
+    const rewardNames: Record<string, string> = { "star-sand": "Sparkling Star-Sand", "pearl-silver": "Silver Pearl", "sand-snow-white": "Snow-White Sand", "bioluminescent-shard": "Bioluminescent Shard", "pearl-rainbow": "Rainbow Pearl", "pearl-glow-dark": "Glow-in-the-Dark Pearl", "moonstone-moon": "Glowing Moonstone Moon" };
+    setMarellaResult(`${observation.name}. ${observation.interpretation} Marella gives you one ${rewardNames[observation.reward]} for your inventory.`);
   };
 
   return (
@@ -120,7 +122,7 @@ export default function Cottage() {
           <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-200">Marella · Seer of Tides</p>
           <h2 id="marella-observatory-heading" className="mt-1 font-serif text-lg font-bold">🔭 Marella's Observatory</h2>
           <Image src="/images/Marella-observatory.PNG" alt="Marella's moonlit observatory with a brass telescope, celestial charts, crystals, lanterns, and an open view across the ocean" width={1536} height={1024} unoptimized className="mt-3 w-full rounded-xl object-cover shadow" />
-          <p className="mt-3 text-sm text-cyan-50">Stars reveal what the tides remember. Join Marella for one observation each night and gradually fill her Observatory Journal.</p>
+          <p className="mt-3 text-sm text-cyan-50">Stars reveal what the tides remember. Join Marella for one observation each night and gradually fill her Observatory Journal. Each observation grants a celestial treasure, even after the journal is complete.</p>
           <p className="mt-2 text-xs text-cyan-200">{marellaDiscoveries.length}/7 celestial observations recorded · Available 7 PM–5:59 AM.</p>
           <button type="button" onClick={observeWithMarella} className="mt-3 w-full rounded-xl bg-cyan-700 py-3 font-bold text-white shadow active:bg-cyan-800">{nighttime ? "Observe the Night Sky" : "Observatory Opens at 7 PM"}</button>
           {marellaResult && <p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/10 p-3 text-sm text-cyan-50">{marellaResult}</p>}
