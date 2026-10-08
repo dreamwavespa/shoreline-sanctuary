@@ -89,6 +89,12 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
       { id: "glass-white", kind: "item", note: "Frosted sea glass swatch — Melody's favorite." },
       { id: "glass-teal", kind: "item", note: "Deep ocean teal, polished smooth by the surf." },
       { id: "glass-rainbow", kind: "item", note: "Neon-bright — said to hold the light of falling stars." },
+      { id: "moonlit-sea-glass", kind: "item", note: "A glowing piece of sea glass found on the beach after dark." },
+      { id: "milky-moonstone-pebbles", kind: "item", note: "Smooth creamy pebbles with a moonlit blue shimmer." },
+      { id: "ceramic-bell", kind: "item", note: "A tiny bell washed ashore at night, perfect for future wind chimes." },
+      { id: "moonwashed-shell", kind: "item", note: "A pale pearlescent shell found in the moonlit tide." },
+      { id: "tideglow-pebble", kind: "item", note: "A rare softly glowing pebble washed in by the night tide." },
+      { id: "glowing-sand-dollar", kind: "item", note: "An exceptionally rare luminous sand dollar; repeat finds can be saved for crafts." },
     ],
   },
   {
