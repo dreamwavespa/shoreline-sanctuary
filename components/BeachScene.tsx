@@ -27,12 +27,35 @@ function isBeachNight(date = new Date()): boolean {
   return hour >= 19 || hour < 6;
 }
 
+// Keep familiar beach finds common; special night finds remain repeatable.
+function rollNightBeachItem(): string {
+  const chance = Math.random();
+  if (chance < 0.08) return "star-wish-bottle";
+  if (chance >= 0.38) return rollSpawn();
+  const fullMoon = (() => {
+    const phase = ((Date.now() / 86400000 - 10957.5) % 29.530588853 + 29.530588853) % 29.530588853;
+    return Math.abs(phase - 14.7652944265) < 1.5;
+  })();
+  const pool: Array<[string, number]> = [
+    ["moonlit-sea-glass", 26], ["milky-moonstone-pebbles", 23],
+    ["ceramic-bell", 20], ["moonwashed-shell", 19],
+    ["tideglow-pebble", fullMoon ? 12 : 9],
+    ["glowing-sand-dollar", fullMoon ? 5 : 3],
+  ];
+  let roll = Math.random() * pool.reduce((sum, [, weight]) => sum + weight, 0);
+  for (const [id, weight] of pool) {
+    if (roll < weight) return id;
+    roll -= weight;
+  }
+  return "moonlit-sea-glass";
+}
+
 function randomSpots(n: number, night = false): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
     // Star Wish Bottles are a rare beach-after-dark discovery. Daytime
     // continues to use the existing beach spawn table unchanged.
-    const itemId = night && Math.random() < 0.08 ? "star-wish-bottle" : rollSpawn();
+    const itemId = night ? rollNightBeachItem() : rollSpawn();
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
       itemId,
