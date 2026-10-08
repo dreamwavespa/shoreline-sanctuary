@@ -92,6 +92,20 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     ],
   },
   {
+    id: "moonlit-beach-finds",
+    title: "Moonlit Beach Finds",
+    anchorVillagerId: "sunny",
+    completionReward: "A complete collection of nighttime beach treasures",
+    entries: [
+      { id: "moonlit-sea-glass", kind: "item", note: "A glowing piece of sea glass found on the beach after dark." },
+      { id: "milky-moonstone-pebbles", kind: "item", note: "Smooth creamy pebbles with a moonlit blue shimmer." },
+      { id: "ceramic-bell", kind: "item", note: "A tiny bell washed ashore at night, perfect for future wind chimes." },
+      { id: "moonwashed-shell", kind: "item", note: "A pale pearlescent shell found in the moonlit tide." },
+      { id: "tideglow-pebble", kind: "item", note: "A rare softly glowing pebble washed in by the night tide." },
+      { id: "glowing-sand-dollar", kind: "item", note: "An exceptionally rare luminous sand dollar; repeat finds can be saved for crafts." },
+    ],
+  },
+  {
     id: "lighthouse-lookout",
     title: "Lighthouse Lookout",
     anchorVillagerId: "marella",
