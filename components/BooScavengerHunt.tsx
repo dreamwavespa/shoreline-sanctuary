@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
+import { recordBooActivity } from "./BooFriendship";
 import { ITEMS } from "@/lib/items";
 import { localDateKey } from "@/lib/customSandArt";
 
@@ -50,7 +51,7 @@ export default function BooScavengerHunt() {
     const bonus = finished && !hunt.bonus;
     save({ ...hunt, found, bonus: hunt.bonus || bonus });
     collectItem(item);
-    if (bonus) collectItem("glowing-sand-dollar");
+    if (bonus) { collectItem("glowing-sand-dollar"); recordBooActivity("scavenger"); }
     setMessage("You found " + ITEMS[item].name + "! " + (bonus ? "All three clues solved! Boo gives you a bonus Glowing Sand Dollar." : "Boo has another clue for you."));
   };
   return (
