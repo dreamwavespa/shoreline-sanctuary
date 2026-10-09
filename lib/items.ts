@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "luna-moon-snail-shell": { id: "luna-moon-snail-shell", name: "Luna’s Moon Snail Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true, artDescription: "A pearly spiral shell with a soft silver glow, given by Luna after following her moonlit trail." },
   "moonlit-sea-glass": { id: "moonlit-sea-glass", name: "Moonlit Sea Glass", category: "glass", icon: "🩵", isEmoji: true, rarity: "uncommon", sfx: "pearl", glows: true },
   "milky-moonstone-pebbles": { id: "milky-moonstone-pebbles", name: "Milky Moonstone Pebbles", category: "raw", icon: "🤍", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
   "ceramic-bell": { id: "ceramic-bell", name: "Ceramic Bell", category: "raw", icon: "🔔", isEmoji: true, rarity: "uncommon", sfx: "ceramicBell" },
