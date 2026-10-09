@@ -13,6 +13,14 @@ function load(): Progress {
   } catch {}
   return fresh();
 }
+export function recordBooActivity(kind: "digging" | "scavenger") {
+  const data = load();
+  const today = localDateKey();
+  if (data.activityDays[kind] === today) return;
+  const next = { ...data, points: data.points + 1, activityDays: { ...data.activityDays, [kind]: today } };
+  localStorage.setItem(KEY, JSON.stringify(next));
+  window.dispatchEvent(new Event("boo-friendship-updated"));
+}
 const LEVELS = [0, 3, 7, 13, 21];
 const NAMES = ["New Acquaintance", "Sandbar Friend", "Trusted Treasure Hunter", "Keeper of Secrets", "Boo's Best Friend"];
 export default function BooFriendship() {
