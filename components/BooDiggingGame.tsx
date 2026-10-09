@@ -23,6 +23,7 @@ export default function BooDiggingGame() {
   const [message, setMessage] = useState("Choose one of the three sandy patches.");
   const patchesRef = useRef<Patch[]>(newPatches());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCache = useRef<Record<string, HTMLAudioElement>>({});
   const holdRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSwipe = useRef(0);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
@@ -31,12 +32,19 @@ export default function BooDiggingGame() {
     patchesRef.current = loaded;
     setPatches(loaded);
     setReady(true);
+    for (const file of ["shovel", "wet-sand", "sand-brush", "discovery"]) {
+      const audio = new Audio("/audio/boo-" + file + ".mp3");
+      audio.preload = "auto";
+      audioCache.current[file] = audio;
+    }
     return () => { if (holdRef.current) clearInterval(holdRef.current); audioRef.current?.pause(); };
   }, []);
   const play = (file: string) => {
     try {
       audioRef.current?.pause();
-      const audio = new Audio("/audio/boo-" + file + ".mp3");
+      const audio = audioCache.current[file] || new Audio("/audio/boo-" + file + ".mp3");
+      audioCache.current[file] = audio;
+      audio.currentTime = 0;
       audio.volume = 0.4;
       audioRef.current = audio;
       void audio.play().catch(() => {});
@@ -78,6 +86,7 @@ export default function BooDiggingGame() {
     if (!ready || patchesRef.current[index]?.depth === 4) return;
     pointerStart.current = { x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
+    dig(index);
     start(index);
   };
   const moveSand = (index: number, event: React.PointerEvent<HTMLDivElement>) => {
