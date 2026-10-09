@@ -56,7 +56,7 @@ export default function BooFriendship() {
       <p className="text-sm">{total} friendship points{next !== undefined ? " · Next level at " + next : " · Maximum level reached"}</p>
       <div role="progressbar" aria-label="Boo friendship progress" aria-valuemin={0} aria-valuemax={21} aria-valuenow={Math.min(total,21)} className="mt-2 h-3 overflow-hidden rounded-full bg-violet-950"><div className="h-full bg-amber-300" style={{width:Math.min(100,total/21*100)+"%"}} /></div>
       <button type="button" disabled={visited} onClick={visit} className="mt-3 min-h-12 w-full rounded-xl bg-violet-600 px-3 py-3 font-semibold text-white disabled:bg-violet-800 disabled:text-violet-200 focus:ring-4 focus:ring-amber-300">{visited ? "Today's visit recorded" : "Spend a Moment with Boo"}</button>
-      <p className="mt-2 text-sm text-violet-100">{level >= 2 ? "Boo trusts you with a secret: Luna the Moon Snail sometimes leaves a silver trail after dark. Her discovery adventure is coming soon." : "At friendship level 3, Boo will tell you about Luna the Moon Snail."}</p>
+      <p className="mt-2 text-sm text-violet-100">{level >= 2 ? "Boo trusts you with a secret: Luna the Moon Snail sometimes leaves a silver trail after dark. Follow her silver trail in the Treasure Corner to meet her." : "At friendship level 3, Boo will tell you about Luna the Moon Snail."}</p>
       <p className="mt-1 text-xs text-violet-200">Loved gifts already given: {giftCount}. Digging and scavenger hunt completions count once per day each.</p>
       <p role="status" aria-live="polite" className="mt-2 text-sm text-amber-100">{message}</p>
     </section>
