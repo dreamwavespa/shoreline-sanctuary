@@ -9,6 +9,7 @@ import VillagerCard from "./VillagerCard";
 import SandcastleArchitect from "./SandcastleArchitect";
 import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
+import BooTreasureCorner from "./BooTreasureCorner";
 
 interface Spot {
   key: string;
@@ -238,6 +239,7 @@ export default function SandbarsScene() {
 
       <div className="px-4 pt-4 space-y-3">
         <RaftCard />
+        <BooTreasureCorner />
 
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
           <div className="relative h-44">
@@ -270,7 +272,7 @@ export default function SandbarsScene() {
           </div>
         </section>
 
-        <div>
+        <div id="boo-gifts-heading">
           <p className="mb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-teal-100/80">Boo&apos;s ID Card &amp; Gifts</p>
           <VillagerCard villager={VILLAGERS.boo} />
         </div>
