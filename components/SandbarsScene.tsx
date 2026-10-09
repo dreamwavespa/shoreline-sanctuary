@@ -163,6 +163,8 @@ export default function SandbarsScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
   const [booMessage, setBooMessage] = useState("");
+  const [destination, setDestination] = useState<string | null>(null);
+  const destinationRef = useRef<HTMLButtonElement | null>(null);
   const sandcastleButtonRef = useRef<HTMLButtonElement>(null);
   const earlierSandcastles = Math.max(
     0,
@@ -210,7 +212,7 @@ export default function SandbarsScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#0e4a52]">
-      <div className="relative w-full h-[45%] min-h-[220px] overflow-hidden select-none">
+      {!destination && <div className="relative w-full h-[45%] min-h-[300px] overflow-hidden select-none">
         <Image src={SCENES.treasureCove} alt="Shifting Sandbars" fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-teal-900/25" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#0e4a52]" />
@@ -235,12 +237,23 @@ export default function SandbarsScene() {
             </button>
           );
         })}
-      </div>
+        <div className="absolute left-2 right-2 top-3 z-10 grid grid-cols-4 gap-2 sm:grid-cols-8" aria-label="Explore the Sandbar">
+          <button type="button" key="boo" onClick={() => setDestination("boo")} aria-label="Visit Boo" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">👻</span>Boo</button>
+          <button type="button" key="raft" onClick={() => setDestination("raft")} aria-label="Visit Raft" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🛟</span>Raft</button>
+          <button type="button" key="sandcastle" onClick={() => setDestination("sandcastle")} aria-label="Visit Sandcastle" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🏰</span>Sandcastle</button>
+          <button type="button" key="coral" onClick={() => setDestination("coral")} aria-label="Visit Coral" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐴</span>Coral</button>
+          <button type="button" key="mina" onClick={() => setDestination("mina")} aria-label="Visit Mina" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🌺</span>Mina</button>
+          <button type="button" key="bubbles" onClick={() => setDestination("bubbles")} aria-label="Visit Bubbles" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐬</span>Bubbles</button>
+          <button type="button" key="pearl" onClick={() => setDestination("pearl")} aria-label="Visit Pearl" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🦪</span>Pearl</button>
+          <button type="button" key="splash" onClick={() => setDestination("splash")} aria-label="Visit Splash" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐠</span>Splash</button>
+        </div>
+      </div>}
 
       <div className="px-4 pt-4 space-y-3">
-        <RaftCard />
-        <BooTreasureCorner />
+        {destination === "raft" && <RaftCard />}
+        {destination === "boo" && <BooTreasureCorner />}
 
+        {destination === "boo" && <>
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
           <div className="relative h-44">
             <Image src={SCENES.booSandArt} alt="Boo, a white ghost crab wearing an orange-and-black hat, beside colorful sand bottles at his moonlit Sandbar stall" fill unoptimized sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
@@ -277,6 +290,8 @@ export default function SandbarsScene() {
           <VillagerCard villager={VILLAGERS.boo} />
         </div>
 
+        </>}
+        {destination === "sandcastle" && <>
         <section aria-labelledby="sandcastle-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Sandbar Mini-Game</p>
           <h2 id="sandcastle-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🏖️ Sandcastle Architect</h2>
@@ -291,20 +306,24 @@ export default function SandbarsScene() {
           </button>
         </section>
 
+        </>}
+        {["coral","mina","bubbles","pearl","splash"].includes(destination || "") && <>
         <p className="text-xs font-semibold text-teal-100/70 uppercase tracking-wide pt-2">
           Underwater Village
         </p>
-        <VillagerCard villager={VILLAGERS.coral} />
-        <UnderwaterResidentActivity villagerId="coral" />
-        <VillagerCard villager={VILLAGERS.mina} />
-        <UnderwaterResidentActivity villagerId="mina" />
-        <VillagerCard villager={VILLAGERS.bubbles} />
-        <UnderwaterResidentActivity villagerId="bubbles" />
-        <VillagerCard villager={VILLAGERS.pearl} />
-        <UnderwaterResidentActivity villagerId="pearl" />
-        <VillagerCard villager={VILLAGERS.splash} />
-        <UnderwaterResidentActivity villagerId="splash" />
+        {destination === "coral" && <VillagerCard villager={VILLAGERS.coral} />}
+        {destination === "coral" && <UnderwaterResidentActivity villagerId="coral" />}
+        {destination === "mina" && <VillagerCard villager={VILLAGERS.mina} />}
+        {destination === "mina" && <UnderwaterResidentActivity villagerId="mina" />}
+        {destination === "bubbles" && <VillagerCard villager={VILLAGERS.bubbles} />}
+        {destination === "bubbles" && <UnderwaterResidentActivity villagerId="bubbles" />}
+        {destination === "pearl" && <VillagerCard villager={VILLAGERS.pearl} />}
+        {destination === "pearl" && <UnderwaterResidentActivity villagerId="pearl" />}
+        {destination === "splash" && <VillagerCard villager={VILLAGERS.splash} />}
+        {destination === "splash" && <UnderwaterResidentActivity villagerId="splash" />}
 
+        </>}
+        {destination === "sandcastle" && <>
         <section aria-labelledby="sandcastle-gallery-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-sky-100 p-4 shadow-md ring-1 ring-amber-200">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Saved Creations</p>
           <h2 id="sandcastle-gallery-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🏰 Sandcastle Gallery</h2>
@@ -356,7 +375,9 @@ export default function SandbarsScene() {
           )}
         </section>
 
-        <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>
+        </>}
+        {destination && <button type="button" onClick={() => setDestination(null)} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
+        {!destination && <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>}
       </div>
       {sandcastleOpen && <SandcastleArchitect onClose={closeSandcastle} />}
     </div>
