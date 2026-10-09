@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
+import { recordBooActivity } from "./BooFriendship";
 import { ITEMS } from "@/lib/items";
 import { localDateKey } from "@/lib/customSandArt";
 
@@ -75,6 +76,7 @@ export default function BooDiggingGame() {
     if (!patch || patch.claimed || patch.depth !== 4 || !patch.reward.length) return;
     save(current.map((p, i) => i === index ? { ...p, claimed: true } : p));
     patch.reward.forEach(id => collectItem(id));
+    recordBooActivity("digging");
     setMessage("Added to inventory: " + patch.reward.map(id => ITEMS[id].name).join(", ") + ".");
   };
   const stop = () => { if (holdRef.current) clearInterval(holdRef.current); holdRef.current = null; };
