@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useGame } from "@/lib/store";
 import BooDiggingGame from "./BooDiggingGame";
+import BooScavengerHunt from "./BooScavengerHunt";
 
 export default function BooTreasureCorner() {
   const { state } = useGame();
@@ -34,7 +35,8 @@ export default function BooTreasureCorner() {
           <p className="mt-2 text-xs text-indigo-100">More monthly sands and treasures will be added in a future update.</p>
         </div>}
         <BooDiggingGame />
-        <p className="text-xs text-indigo-200">Coming next: moonlight scavenger hunts and Boo's friendship adventures.</p>
+        <BooScavengerHunt />
+        <p className="text-xs text-indigo-200">Coming next: Boo's friendship adventures and secret nighttime visitors.</p>
       </div>
     </section>
   );
