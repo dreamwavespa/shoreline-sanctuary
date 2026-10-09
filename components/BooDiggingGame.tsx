@@ -25,6 +25,7 @@ export default function BooDiggingGame() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const holdRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSwipe = useRef(0);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
   useEffect(() => {
     const loaded = readPatches();
     patchesRef.current = loaded;
@@ -73,22 +74,34 @@ export default function BooDiggingGame() {
     stop();
     holdRef.current = setInterval(() => dig(index), 650);
   };
+  const beginSand = (index: number, event: React.PointerEvent<HTMLDivElement>) => {
+    if (!ready || patchesRef.current[index]?.depth === 4) return;
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    start(index);
+  };
+  const moveSand = (index: number, event: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointerStart.current) return;
+    const distance = Math.hypot(event.clientX - pointerStart.current.x, event.clientY - pointerStart.current.y);
+    if (distance < 24) return;
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+    const now = Date.now();
+    if (now - lastSwipe.current >= 350) { lastSwipe.current = now; dig(index); }
+  };
+  const endSand = () => { pointerStart.current = null; stop(); };
   return (
     <section aria-labelledby="boo-dig-heading" className="rounded-xl bg-indigo-950/80 p-3 ring-1 ring-indigo-300/40">
       <h3 id="boo-dig-heading" className="text-lg font-bold">Boo's Buried Treasure</h3>
-      <p className="mt-1 text-sm text-indigo-100">Dig at all three spots each day. Swipe over a sand patch, press and hold, or activate its button four times with Enter or Space. No timer.</p>
+      <p className="mt-1 text-sm text-indigo-100">Dig at all three spots each day. Swipe or hold directly on the sand, or activate its button four times with Enter or Space. No timer.</p>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {patches.map((patch, index) => (
           <div key={index} className="rounded-xl bg-amber-100 p-3 text-amber-950">
             <p className="font-semibold">Sand patch {index + 1}</p>
-            <div aria-hidden="true" className="relative my-2 h-36 overflow-hidden rounded-xl bg-amber-900 shadow-inner"><div className="absolute inset-0 flex items-center justify-center text-5xl">{patch.depth === 4 ? (patch.reward.length > 1 ? "🧰" : "✨") : index === 0 ? "🐚" : index === 1 ? "💎" : "🪙"}</div><div className="absolute inset-0 transition-all duration-500" style={{background:"repeating-radial-gradient(circle at 40% 50%,#f5d9a1 0px,#dfb577 12px,#ebc88b 25px)",clipPath:patch.depth===0?"inset(0)":patch.depth===1?"polygon(0 0,100% 0,100% 100%,0 100%,0 70%,30% 55%,55% 60%,75% 78%,0 85%)":patch.depth===2?"polygon(0 0,100% 0,100% 100%,85% 100%,70% 65%,80% 30%,55% 20%,25% 50%,0 75%)":patch.depth===3?"polygon(0 0,100% 0,100% 22%,78% 10%,55% 32%,25% 15%,0 28%)":"inset(0 0 100% 0)"}}/><span className="absolute bottom-2 left-2 right-2 rounded-lg bg-amber-50/90 p-1 text-center text-xs font-bold">{patch.depth===4?"Treasure uncovered":patch.depth+" of 4 layers brushed away"}</span></div>
+            <div aria-hidden="true" onPointerDown={event => beginSand(index, event)} onPointerMove={event => moveSand(index, event)} onPointerUp={endSand} onPointerCancel={endSand} onLostPointerCapture={endSand} className="relative my-2 h-36 overflow-hidden rounded-xl bg-amber-900 shadow-inner touch-none select-none cursor-grab"><div className="absolute inset-0 flex items-center justify-center text-5xl">{patch.depth === 4 ? (patch.reward.length > 1 ? "🧰" : "✨") : index === 0 ? "🐚" : index === 1 ? "💎" : "🪙"}</div><div className="absolute inset-0 transition-all duration-500" style={{background:"repeating-radial-gradient(circle at 40% 50%,#f5d9a1 0px,#dfb577 12px,#ebc88b 25px)",clipPath:patch.depth===0?"inset(0)":patch.depth===1?"polygon(0 0,100% 0,100% 100%,0 100%,0 70%,30% 55%,55% 60%,75% 78%,0 85%)":patch.depth===2?"polygon(0 0,100% 0,100% 100%,85% 100%,70% 65%,80% 30%,55% 20%,25% 50%,0 75%)":patch.depth===3?"polygon(0 0,100% 0,100% 22%,78% 10%,55% 32%,25% 15%,0 28%)":"inset(0 0 100% 0)"}}/><span className="absolute bottom-2 left-2 right-2 rounded-lg bg-amber-50/90 p-1 text-center text-xs font-bold">{patch.depth===4?"Treasure uncovered":patch.depth+" of 4 layers brushed away"}</span></div>
             <p className="text-sm">{patch.claimed ? "Collected today" : patch.depth === 4 ? (patch.reward.length > 1 ? "Treasure chest found!" : "Treasure found!") : patch.depth + " of 4 layers cleared"}</p>
             {patch.depth < 4 ? (
               <button type="button" disabled={!ready}
                 onClick={() => dig(index)}
-                onPointerDown={e => { if (e.pointerType === "touch" || e.pointerType === "pen") start(index); }}
-                onPointerUp={stop} onPointerCancel={stop} onPointerLeave={stop}
-                onTouchMove={() => { const now = Date.now(); if (now - lastSwipe.current > 450) { lastSwipe.current = now; stop(); dig(index); } }}
                 aria-label={"Dig sand patch " + (index + 1) + ", " + patch.depth + " of 4 layers cleared"}
                 className="mt-2 min-h-12 w-full touch-none rounded-lg bg-teal-800 px-2 py-3 font-semibold text-white focus:outline-none focus:ring-4 focus:ring-indigo-500 disabled:opacity-50">
                 Brush away sand
