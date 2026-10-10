@@ -4,6 +4,7 @@ import { useGame } from "@/lib/store";
 
 const KEY = "shoreline-luna-discovery-v1";
 const FRIEND_KEY = "shoreline-boo-friendship-v1";
+export const LUNA_PROGRESS_EVENT = "shoreline-luna-progress";
 const STAGES = [
   { label: "Look near the driftwood", clue: "Boo points to a silver shimmer beside his driftwood shelter.", success: "You find a faint trail of silver beneath the driftwood." },
   { label: "Follow the tide pool trail", clue: "The glowing trail curves toward a quiet tide pool.", success: "The trail brightens and winds around the tide pool." },
@@ -34,6 +35,7 @@ export default function LunaDiscovery() {
     const next = stage + 1;
     localStorage.setItem(KEY, String(next));
     setStage(next);
+    window.dispatchEvent(new Event(LUNA_PROGRESS_EVENT));
     if (next === 3) collectItem("luna-moon-snail-shell");
     setMessage(STAGES[stage].success);
   };
