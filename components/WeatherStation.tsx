@@ -155,7 +155,7 @@ export default function WeatherStation() {
                   <p role="status" className="mt-2 text-sm">{(state.weatherChartObservationDates || []).length} of 3 days recorded.</p>
                   <button type="button" onClick={() => {
                     if (recordWeatherChartObservation()) setAnnouncement("Weather observation recorded. " + ((state.weatherChartObservationDates || []).length + 1) + " of 3 days complete.");
-                  }} disabled={(state.weatherChartObservationDates || []).length >= 3 || (state.weatherChartObservationDates || []).includes(new Date().toLocaleDateString("en-CA"))}
+                  }} disabled={(state.weatherChartObservationDates || []).length >= 3 || (state.weatherChartObservationDates || []).includes([new Date().getFullYear(), String(new Date().getMonth() + 1).padStart(2, "0"), String(new Date().getDate()).padStart(2, "0")].join("-"))}
                     className="mt-2 w-full rounded-lg bg-sky-700 px-3 py-2 text-white disabled:opacity-50">Record Today's Observation</button>
                   <button type="button" onClick={() => { if (createWeatheredShipChart()) setAnnouncement("Weathered Ship Chart added to your inventory."); }}
                     disabled={(state.weatherChartObservationDates || []).length < 3}
