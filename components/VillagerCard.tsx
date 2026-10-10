@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
+import { SHELBY_SHIPPING_ORDERS, isPackageComplete } from "@/lib/shelbyShipping";
 import { VillagerDef } from "@/lib/villagers";
 import { ScheduleStatus } from "@/lib/schedule";
 import { getTravelingMerchantStock } from "@/lib/travelingMerchants";
@@ -20,7 +21,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor } = useGame();
+  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, packShelbyItem, sendShelbyShipment, claimShelbyShipment } = useGame();
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
@@ -72,6 +73,37 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                 })}
               </div>
               <p className="mt-3 text-xs font-semibold text-indigo-900" aria-live="polite">{nextSisterReward ? `Next reward at ${nextSisterReward.gifts} gifts: ${nextSisterReward.name}.` : "All current friendship milestones reached."}</p>
+            </section>
+          )}
+
+          {villager.id === "shelby" && (
+            <section aria-label="Shelby's Shipping Orders" className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200 space-y-3">
+              <h3 className="font-bold text-sky-950">📦 Shipping Orders</h3>
+              <p className="text-xs text-sky-800">Pack common Shoreline finds. Send a full crate and collect its return cargo on the next calendar day.</p>
+              <h4 className="font-semibold text-sm">{SHELBY_SHIPPING_ORDERS[0].title}</h4>
+              {SHELBY_SHIPPING_ORDERS[0].requires.map(({ itemId, count }) => {
+                const packed = (state.shelbyPacked || {})[itemId] || 0;
+                const available = state.inventory[itemId] || 0;
+                return <div key={itemId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span>{ITEMS[itemId]?.name || itemId}: {packed} of {count} packed; {available} available</span>
+                  <button type="button" disabled={!!state.shelbyShipmentDate || packed >= count || available < 1}
+                    onClick={() => packShelbyItem(itemId)}
+                    className="rounded-lg bg-sky-800 px-3 py-2 text-white disabled:opacity-40"
+                    aria-label={`Pack one ${ITEMS[itemId]?.name || itemId}`}>Pack one</button>
+                </div>;
+              })}
+              {state.shelbyShipmentDate ? (
+                <div role="status" className="space-y-2">
+                  <p>Crate sent on {state.shelbyShipmentDate}. Your return cargo will be ready the next day.</p>
+                  <button type="button" onClick={claimShelbyShipment}
+                    className="rounded-lg bg-emerald-800 px-3 py-2 text-white">Collect returning cargo (when ready)</button>
+                </div>
+              ) : (
+                <button type="button" disabled={!isPackageComplete(SHELBY_SHIPPING_ORDERS[0], state.shelbyPacked || {})}
+                  onClick={sendShelbyShipment}
+                  className="rounded-lg bg-emerald-800 px-3 py-2 text-white disabled:opacity-40">Send packed crate</button>
+              )}
+              <p className="text-xs text-sky-800">Return reward: 2 Blue Sea Glass and 5 Sand Dollars. Mystery cargo is coming in a later update.</p>
             </section>
           )}
 
