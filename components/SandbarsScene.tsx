@@ -244,7 +244,7 @@ export default function SandbarsScene() {
               key={spot.key}
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm shadow-lg ring-1 ring-white/60 transition-all duration-200 active:scale-90 ${
+              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/25 backdrop-blur-[1px] shadow-md ring-1 ring-white/35 transition-all duration-200 active:scale-90 ${
                 popping ? "opacity-0 scale-150" : "opacity-100 scale-100 animate-bob"
               }`}
               style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 50, height: 50 }}
@@ -258,12 +258,15 @@ export default function SandbarsScene() {
           );
         })}
         {lunaUnlocked && <div className="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
-            <path d="M24 78 Q34 69 44 75 T66 66 T81 89" fill="none" stroke="#b9f8ff" strokeWidth="1.5" strokeDasharray="2 3" opacity="0.85" />
-            {[{x:24,y:80},{x:44,y:76},{x:81,y:80}].slice(0,Math.min(lunaStage+1,3)).map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="3" fill="#e5fcff" stroke="#67e8f9" strokeWidth="1" />)}
-          </svg>
+          {[
+            { x: 32, y: 80 }, { x: 38, y: 77 }, { x: 45, y: 78 },
+            { x: 52, y: 75 }, { x: 60, y: 78 }, { x: 67, y: 81 },
+            { x: 73, y: 85 }, { x: 78, y: 88 },
+          ].map((point, index) => (
+            <span key={index} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90 shadow-[0_0_9px_3px_rgba(220,250,255,0.8)]" style={{ left: `${point.x}%`, top: `${point.y}%`, width: index % 3 === 0 ? 5 : 3, height: index % 3 === 0 ? 5 : 3 }} />
+          ))}
         </div>}
-        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[6%] right-[6%] z-20 flex min-h-20 w-28 flex-col items-center rounded-xl p-1 text-white drop-shadow-lg focus:ring-4 focus:ring-amber-300"><Image src="/images/Luna-snail.PNG" alt="" width={105} height={78} unoptimized className="h-20 w-24 rounded-lg object-cover object-center" /><span className="rounded-full bg-sky-950/90 px-2 py-1 text-xs font-bold ring-1 ring-cyan-200">{lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</span></button>}
+        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[6%] right-[6%] z-20 flex min-h-20 w-28 flex-col items-center rounded-xl p-1 text-white drop-shadow-lg focus:ring-4 focus:ring-amber-300"><Image src="/images/Luna-snail.PNG" alt="" width={105} height={78} unoptimized className="h-20 w-24 rounded-full object-cover object-center ring-2 ring-white/40" /><span className="rounded-full bg-sky-950/90 px-2 py-1 text-xs font-bold ring-1 ring-cyan-200">{lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</span></button>}
         <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
           {([
             { id: "boo", name: "Boo", art: "👻", left: 20, top: 12 },
@@ -272,18 +275,18 @@ export default function SandbarsScene() {
             { id: "bubbles", name: "Bubbles", art: "🐬", left: 76, top: 43 },
             { id: "pearl", name: "Pearl", art: "🦪", left: 21, top: 61 },
             { id: "splash", name: "Splash", art: "🐠", left: 76, top: 70 },
-            { id: "raft", name: "Raft", art: "🛟", left: 24, top: 83 },
-            { id: "sandcastle", name: "Sandcastle", art: "🏰", left: 75, top: 55 },
+            { id: "raft", name: "Raft", art: "🛟", left: 13, top: 45 },
+            { id: "sandcastle", name: "Sandcastle", art: "", left: 78, top: 55 },
           ] as const).map(({ id, name, art, left, top }) => (
             <button
               type="button"
               key={id}
               onClick={() => setDestination(id)}
-              aria-label={`Visit ${name}`}
+              aria-label={id === "sandcastle" ? "Build a sandcastle" : id === "raft" ? "Visit the raft" : `Visit ${name}`}
               className="pointer-events-auto absolute flex min-h-14 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl px-2 py-1 text-white drop-shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
               style={{ left: `${left}%`, top: `${top}%` }}
             >
-              <span aria-hidden="true" className="text-5xl leading-none drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)] sm:text-6xl">{art}</span>
+              {art && <span aria-hidden="true" className="text-5xl leading-none drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)] sm:text-6xl">{art}</span>}
               <span className="mt-1 rounded-full bg-slate-950/75 px-3 py-1 text-sm font-bold shadow">{name}</span>
             </button>
           ))}
