@@ -41,7 +41,7 @@ function randomSpots(n: number): Spot[] {
       key: `${Date.now()}-${i}-${Math.random()}`,
       itemId: rollSandbarSpawn(),
       x: 8 + Math.random() * 84,
-      y: 38 + Math.random() * 50,
+      y: 12 + Math.random() * 76,
     });
   }
   return spots;
@@ -232,9 +232,9 @@ export default function SandbarsScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#0e4a52]">
-      {!destination && <div className="relative w-full h-[45%] min-h-[300px] overflow-hidden select-none">
-        <Image src={SCENES.treasureCove} alt="Shifting Sandbars" fill unoptimized className="object-cover" />
-        <div className="absolute inset-0 bg-teal-900/25" />
+      {!destination && <div className="relative w-full min-h-[950px] sm:min-h-[1050px] lg:min-h-[1100px] overflow-hidden select-none">
+        <Image src={SCENES.treasureCove} alt="Shifting Sandbars" fill unoptimized className="object-cover object-center" />
+        <div className="absolute inset-0 bg-teal-900/15" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#0e4a52]" />
         {spots.map((spot) => {
           const def = ITEMS[spot.itemId];
@@ -263,16 +263,30 @@ export default function SandbarsScene() {
             {[{x:24,y:80},{x:44,y:76},{x:81,y:80}].slice(0,Math.min(lunaStage+1,3)).map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="3" fill="#e5fcff" stroke="#67e8f9" strokeWidth="1" />)}
           </svg>
         </div>}
-        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[8%] right-[8%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
-        <div className="absolute left-2 right-2 top-3 z-10 grid grid-cols-4 gap-2 sm:grid-cols-8" aria-label="Explore the Sandbar">
-          <button type="button" key="boo" onClick={() => setDestination("boo")} aria-label="Visit Boo" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">👻</span>Boo</button>
-          <button type="button" key="raft" onClick={() => setDestination("raft")} aria-label="Visit Raft" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🛟</span>Raft</button>
-          <button type="button" key="sandcastle" onClick={() => setDestination("sandcastle")} aria-label="Visit Sandcastle" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🏰</span>Sandcastle</button>
-          <button type="button" key="coral" onClick={() => setDestination("coral")} aria-label="Visit Coral" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐴</span>Coral</button>
-          <button type="button" key="mina" onClick={() => setDestination("mina")} aria-label="Visit Mina" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🌺</span>Mina</button>
-          <button type="button" key="bubbles" onClick={() => setDestination("bubbles")} aria-label="Visit Bubbles" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐬</span>Bubbles</button>
-          <button type="button" key="pearl" onClick={() => setDestination("pearl")} aria-label="Visit Pearl" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🦪</span>Pearl</button>
-          <button type="button" key="splash" onClick={() => setDestination("splash")} aria-label="Visit Splash" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐠</span>Splash</button>
+        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[3%] right-[4%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
+        <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
+          {([
+            { id: "boo", name: "Boo", art: "👻", left: 20, top: 12 },
+            { id: "coral", name: "Coral", art: "🐴", left: 76, top: 20 },
+            { id: "mina", name: "Mina", art: "🌺", left: 28, top: 35 },
+            { id: "bubbles", name: "Bubbles", art: "🐬", left: 76, top: 43 },
+            { id: "pearl", name: "Pearl", art: "🦪", left: 21, top: 61 },
+            { id: "splash", name: "Splash", art: "🐠", left: 76, top: 70 },
+            { id: "raft", name: "Raft", art: "🛟", left: 24, top: 83 },
+            { id: "sandcastle", name: "Sandcastle", art: "🏰", left: 73, top: 91 },
+          ] as const).map(({ id, name, art, left, top }) => (
+            <button
+              type="button"
+              key={id}
+              onClick={() => setDestination(id)}
+              aria-label={`Visit ${name}`}
+              className="pointer-events-auto absolute flex min-h-14 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl px-2 py-1 text-white drop-shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+              style={{ left: `${left}%`, top: `${top}%` }}
+            >
+              <span aria-hidden="true" className="text-5xl leading-none drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)] sm:text-6xl">{art}</span>
+              <span className="mt-1 rounded-full bg-slate-950/75 px-3 py-1 text-sm font-bold shadow">{name}</span>
+            </button>
+          ))}
         </div>
       </div>}
 
