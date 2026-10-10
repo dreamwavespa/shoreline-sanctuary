@@ -380,6 +380,7 @@ const SPLASH_STORIES = [
 interface Ctx {
   packShelbyItem: (itemId: string) => boolean;
   sendShelbyShipment: () => boolean;
+  claimShelbyShipment: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
   state: GameState;
   screen: Screen;
@@ -795,6 +796,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return { ...s, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
     });
     toast("Shelby's crate is on its way! Return tomorrow.");
+    return true;
+  };
+
+  const claimShelbyShipment = (): boolean => {
+    const current = stateRef.current;
+    const d = new Date();
+    const today = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+    if (!current.shelbyShipmentDate || current.shelbyShipmentDate >= today) return false;
+    setState((s) => {
+      if (!s.shelbyShipmentDate || s.shelbyShipmentDate >= today) return s;
+      const rewardId = "glass-blue";
+      return {
+        ...s,
+        inventory: { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + 2 },
+        sandDollars: s.sandDollars + 5,
+        shelbyShipmentDate: "",
+        shelbyPacked: {},
+      };
+    });
+    toast("Shelby's cargo arrived: 2 Blue Sea Glass and 5 Sand Dollars!");
     return true;
   };
 
@@ -2222,6 +2243,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       collectItem,
       packShelbyItem,
       sendShelbyShipment,
+      claimShelbyShipment,
       emptyBucket,
       craft,
       cook,
