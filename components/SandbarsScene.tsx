@@ -10,6 +10,7 @@ import SandcastleArchitect from "./SandcastleArchitect";
 import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
+import LunaDiscovery from "./LunaDiscovery";
 
 interface Spot {
   key: string;
@@ -164,6 +165,8 @@ export default function SandbarsScene() {
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
   const [booMessage, setBooMessage] = useState("");
   const [destination, setDestination] = useState<string | null>(null);
+  const [lunaStage, setLunaStage] = useState(0);
+  const [lunaUnlocked, setLunaUnlocked] = useState(false);
   const destinationRef = useRef<HTMLButtonElement | null>(null);
   const sandcastleButtonRef = useRef<HTMLButtonElement>(null);
   const earlierSandcastles = Math.max(
@@ -182,6 +185,23 @@ export default function SandbarsScene() {
   useEffect(() => {
     setSpots(randomSpots(6));
   }, []);
+  useEffect(() => {
+    const update = () => {
+      const value = Number(localStorage.getItem("shoreline-luna-discovery-v1") || "0");
+      setLunaStage(Number.isInteger(value) ? Math.max(0, Math.min(3, value)) : 0);
+      try {
+        const data = JSON.parse(localStorage.getItem("shoreline-boo-friendship-v1") || "null");
+        setLunaUnlocked(((data?.points || 0) + (state.villagerGiftCounts.boo || 0)) >= 7);
+      } catch { setLunaUnlocked(false); }
+    };
+    update();
+    window.addEventListener("shoreline-luna-progress", update);
+    window.addEventListener("boo-friendship-updated", update);
+    return () => {
+      window.removeEventListener("shoreline-luna-progress", update);
+      window.removeEventListener("boo-friendship-updated", update);
+    };
+  }, [state.villagerGiftCounts.boo]);
 
   if (!state.sandbarsUnlocked) {
     return (
@@ -237,6 +257,13 @@ export default function SandbarsScene() {
             </button>
           );
         })}
+        {lunaUnlocked && <div className="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+            <path d="M24 80 Q34 69 44 76 T66 62 T81 80" fill="none" stroke="#b9f8ff" strokeWidth="1.5" strokeDasharray="2 3" opacity="0.85" />
+            {[{x:24,y:80},{x:44,y:76},{x:81,y:80}].slice(0,Math.min(lunaStage+1,3)).map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="3" fill="#e5fcff" stroke="#67e8f9" strokeWidth="1" />)}
+          </svg>
+        </div>}
+        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[8%] right-[8%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
         <div className="absolute left-2 right-2 top-3 z-10 grid grid-cols-4 gap-2 sm:grid-cols-8" aria-label="Explore the Sandbar">
           <button type="button" key="boo" onClick={() => setDestination("boo")} aria-label="Visit Boo" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">👻</span>Boo</button>
           <button type="button" key="raft" onClick={() => setDestination("raft")} aria-label="Visit Raft" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🛟</span>Raft</button>
@@ -252,6 +279,7 @@ export default function SandbarsScene() {
       <div className="px-4 pt-4 space-y-3">
         {destination === "raft" && <RaftCard />}
         {destination === "boo" && <BooTreasureCorner />}
+        {destination === "luna" && <LunaDiscovery />}
 
         {destination === "boo" && <>
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
