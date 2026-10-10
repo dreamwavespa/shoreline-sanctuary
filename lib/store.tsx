@@ -2,6 +2,7 @@
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
+import { SHELBY_SHIPPING_ORDERS, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
@@ -93,6 +94,9 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  shelbyPacked: Record<string, number>;
+  shelbyShipmentDate: string;
+  shelbyShipmentCount: number;
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
   blueprints: string[];
@@ -201,6 +205,9 @@ interface GameState {
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  shelbyPacked: {},
+  shelbyShipmentDate: "",
+  shelbyShipmentCount: 0,
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
   blueprints: [],
@@ -371,6 +378,8 @@ const SPLASH_STORIES = [
 ];
 
 interface Ctx {
+  packShelbyItem: (itemId: string) => boolean;
+  sendShelbyShipment: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
   state: GameState;
   screen: Screen;
@@ -758,6 +767,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const deductCost = (inv: Record<string, number>, cost: { itemId: string; count: number }[]) => {
     for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
     return inv;
+  };
+
+  const packShelbyItem = (itemId: string): boolean => {
+    const order = SHELBY_SHIPPING_ORDERS[0];
+    const current = stateRef.current;
+    if (current.shelbyShipmentDate || !canPackItem(order, current.shelbyPacked || {}, current.inventory, itemId)) return false;
+    setState((s) => {
+      if (s.shelbyShipmentDate || !canPackItem(order, s.shelbyPacked || {}, s.inventory, itemId)) return s;
+      return {
+        ...s,
+        inventory: { ...s.inventory, [itemId]: s.inventory[itemId] - 1 },
+        shelbyPacked: { ...(s.shelbyPacked || {}), [itemId]: ((s.shelbyPacked || {})[itemId] || 0) + 1 },
+      };
+    });
+    toast("Added to Shelby's shipping crate.");
+    return true;
+  };
+
+  const sendShelbyShipment = (): boolean => {
+    const current = stateRef.current;
+    if (current.shelbyShipmentDate || !isPackageComplete(SHELBY_SHIPPING_ORDERS[0], current.shelbyPacked || {})) return false;
+    const date = new Date();
+    const today = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    setState((s) => {
+      if (s.shelbyShipmentDate || !isPackageComplete(SHELBY_SHIPPING_ORDERS[0], s.shelbyPacked || {})) return s;
+      return { ...s, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
+    });
+    toast("Shelby's crate is on its way! Return tomorrow.");
+    return true;
   };
 
   const craft = (recipeId: string, cost: { itemId: string; count: number }[]) => {
@@ -2182,6 +2220,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      packShelbyItem,
+      sendShelbyShipment,
       emptyBucket,
       craft,
       cook,
