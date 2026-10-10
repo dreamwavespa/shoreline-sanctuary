@@ -232,8 +232,8 @@ export default function SandbarsScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#0e4a52]">
-      {!destination && <div className="relative w-full min-h-[950px] sm:min-h-[1050px] lg:min-h-[1100px] overflow-hidden select-none">
-        <Image src={SCENES.treasureCove} alt="Shifting Sandbars" fill unoptimized className="object-cover object-center" />
+      {!destination && <div className="relative w-full min-h-[1450px] sm:min-h-[1650px] lg:min-h-[1800px] overflow-hidden select-none">
+        <Image src="/images/Sandbar-background-tall.PNG" alt="A sunset sandbar with shallow turquoise lagoons, winding sandy shores and a sandcastle" fill unoptimized className="object-cover object-top" />
         <div className="absolute inset-0 bg-teal-900/15" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#0e4a52]" />
         {spots.map((spot) => {
@@ -259,11 +259,11 @@ export default function SandbarsScene() {
         })}
         {lunaUnlocked && <div className="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
-            <path d="M24 80 Q34 69 44 76 T66 62 T81 80" fill="none" stroke="#b9f8ff" strokeWidth="1.5" strokeDasharray="2 3" opacity="0.85" />
+            <path d="M24 78 Q34 69 44 75 T66 66 T81 89" fill="none" stroke="#b9f8ff" strokeWidth="1.5" strokeDasharray="2 3" opacity="0.85" />
             {[{x:24,y:80},{x:44,y:76},{x:81,y:80}].slice(0,Math.min(lunaStage+1,3)).map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="3" fill="#e5fcff" stroke="#67e8f9" strokeWidth="1" />)}
           </svg>
         </div>}
-        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[3%] right-[4%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
+        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[6%] right-[6%] z-20 flex min-h-20 w-28 flex-col items-center rounded-xl p-1 text-white drop-shadow-lg focus:ring-4 focus:ring-amber-300"><Image src="/images/Luna-snail.PNG" alt="" width={105} height={78} unoptimized className="h-20 w-24 rounded-lg object-cover object-center" /><span className="rounded-full bg-sky-950/90 px-2 py-1 text-xs font-bold ring-1 ring-cyan-200">{lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</span></button>}
         <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
           {([
             { id: "boo", name: "Boo", art: "👻", left: 20, top: 12 },
@@ -273,7 +273,7 @@ export default function SandbarsScene() {
             { id: "pearl", name: "Pearl", art: "🦪", left: 21, top: 61 },
             { id: "splash", name: "Splash", art: "🐠", left: 76, top: 70 },
             { id: "raft", name: "Raft", art: "🛟", left: 24, top: 83 },
-            { id: "sandcastle", name: "Sandcastle", art: "🏰", left: 73, top: 91 },
+            { id: "sandcastle", name: "Sandcastle", art: "🏰", left: 75, top: 55 },
           ] as const).map(({ id, name, art, left, top }) => (
             <button
               type="button"
