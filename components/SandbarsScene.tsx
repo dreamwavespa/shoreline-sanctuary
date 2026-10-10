@@ -34,14 +34,42 @@ function RaftAirMeter({ level }: { level: number }) {
   );
 }
 
-function randomSpots(n: number): Spot[] {
+// Keep collection hotspots clear of characters and interactive landmarks.
+// Coordinates are percentages of the tall sandbar scene.
+const SANDBAR_HOTSPOTS = [
+  { x: 20, y: 12 }, { x: 76, y: 20 }, { x: 28, y: 35 },
+  { x: 76, y: 43 }, { x: 21, y: 61 }, { x: 76, y: 70 },
+  { x: 10, y: 42 }, { x: 78, y: 51.5 }, { x: 78, y: 88 },
+];
+
+function randomSpots(n: number, existing: Spot[] = []): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
+    let x = 50;
+    let y = 50;
+    let found = false;
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const candidateX = 8 + Math.random() * 84;
+      const candidateY = 12 + Math.random() * 76;
+      const clearOfHotspots = SANDBAR_HOTSPOTS.every((p) =>
+        Math.abs(candidateX - p.x) > 13 || Math.abs(candidateY - p.y) > 5
+      );
+      const clearOfCollectibles = [...existing, ...spots].every((p) =>
+        Math.abs(candidateX - p.x) > 12 || Math.abs(candidateY - p.y) > 4
+      );
+      if (clearOfHotspots && clearOfCollectibles) {
+        x = candidateX;
+        y = candidateY;
+        found = true;
+        break;
+      }
+    }
+    if (!found) continue;
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
       itemId: rollSandbarSpawn(),
-      x: 8 + Math.random() * 84,
-      y: 12 + Math.random() * 76,
+      x,
+      y,
     });
   }
   return spots;
@@ -221,7 +249,7 @@ export default function SandbarsScene() {
     collectItem(spot.itemId);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
-      setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1)] : cur));
+      setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1, cur)] : cur));
     }, 220);
   };
 
@@ -275,8 +303,8 @@ export default function SandbarsScene() {
             { id: "bubbles", name: "Bubbles", art: "🐬", left: 76, top: 43 },
             { id: "pearl", name: "Pearl", art: "🦪", left: 21, top: 61 },
             { id: "splash", name: "Splash", art: "🐠", left: 76, top: 70 },
-            { id: "raft", name: "Raft", art: "🛟", left: 13, top: 45 },
-            { id: "sandcastle", name: "Sandcastle", art: "", left: 78, top: 55 },
+            { id: "raft", name: "Raft", art: "🛟", left: 10, top: 42 },
+            { id: "sandcastle", name: "Sandcastle", art: "", left: 78, top: 51.5 },
           ] as const).map(({ id, name, art, left, top }) => (
             <button
               type="button"
@@ -286,7 +314,7 @@ export default function SandbarsScene() {
               className="pointer-events-auto absolute flex min-h-14 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl px-2 py-1 text-white drop-shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
               style={{ left: `${left}%`, top: `${top}%` }}
             >
-              {art && <span aria-hidden="true" className="text-5xl leading-none drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)] sm:text-6xl">{art}</span>}
+              {art && <span aria-hidden="true" className={`${id === "raft" ? "text-3xl sm:text-4xl" : "text-5xl sm:text-6xl"} leading-none drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)]`}>{art}</span>}
               <span className="mt-1 rounded-full bg-slate-950/75 px-3 py-1 text-sm font-bold shadow">{name}</span>
             </button>
           ))}
