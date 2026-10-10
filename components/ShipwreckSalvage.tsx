@@ -148,9 +148,11 @@ export default function ShipwreckSalvage({ onClose }: { onClose: () => void }) {
 
     if (nextFoundCount === requested.length) {
       window.setTimeout(() => {
+        const lensFound = Math.random() < 0.25;
+        if (lensFound) collectItem("spyglass-lens");
         setComplete(true);
         setPlaying(false);
-        setAnnouncement(`${level.name} search complete. All ${requested.length} artifacts were added to the museum collection with ${mistakes} ${mistakes === 1 ? "mistake" : "mistakes"}.`);
+        setAnnouncement(`${level.name} search complete. All ${requested.length} artifacts were added to the museum collection with ${mistakes} ${mistakes === 1 ? "mistake" : "mistakes"}.${lensFound ? " Bonus rare find: Spyglass Lens added to inventory!" : ""}`);
       }, 450);
       return;
     }

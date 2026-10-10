@@ -93,6 +93,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
   blueprints: string[];
@@ -201,6 +202,7 @@ interface GameState {
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
   blueprints: [],
@@ -371,6 +373,8 @@ const SPLASH_STORIES = [
 ];
 
 interface Ctx {
+  recordWeatherChartObservation: () => boolean;
+  createWeatheredShipChart: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
   state: GameState;
   screen: Screen;
@@ -758,6 +762,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const deductCost = (inv: Record<string, number>, cost: { itemId: string; count: number }[]) => {
     for (const c of cost) inv[c.itemId] = (inv[c.itemId] || 0) - c.count;
     return inv;
+  };
+
+  const recordWeatherChartObservation = (): boolean => {
+    const d = new Date();
+    const today = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+    const dates = stateRef.current.weatherChartObservationDates || [];
+    if (dates.includes(today) || dates.length >= 3) return false;
+    setState((s) => {
+      const previous = s.weatherChartObservationDates || [];
+      if (previous.includes(today) || previous.length >= 3) return s;
+      return { ...s, weatherChartObservationDates: [...previous, today] };
+    });
+    toast("Weather observation recorded.");
+    return true;
+  };
+
+  const createWeatheredShipChart = (): boolean => {
+    if ((stateRef.current.weatherChartObservationDates || []).length < 3) return false;
+    setState((s) => {
+      if ((s.weatherChartObservationDates || []).length < 3) return s;
+      return {
+        ...s,
+        weatherChartObservationDates: [],
+        inventory: { ...s.inventory, "ship-chart": (s.inventory["ship-chart"] || 0) + 1 },
+      };
+    });
+    toast("Weathered Ship Chart added to inventory!");
+    return true;
   };
 
   const craft = (recipeId: string, cost: { itemId: string; count: number }[]) => {
@@ -2182,6 +2214,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      recordWeatherChartObservation,
+      createWeatheredShipChart,
       emptyBucket,
       craft,
       cook,
