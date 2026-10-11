@@ -376,12 +376,12 @@ export default function BeachScene() {
     <div className="relative w-full h-full overflow-y-auto select-none">
       <div className="relative w-full h-[60%] min-h-[280px] overflow-hidden rounded-b-2xl">
         <Image
-          src={nighttime ? "/images/Nighttime-beach.PNG" : SCENES.beachMain}
+          src={nighttime ? "/images/Beach-background-night.PNG" : "/images/Beach-background-day.PNG"}
           alt={nighttime ? "Shoreline beach at night beneath a starry sky and bright moon" : "Shoreline beach during the day"}
           fill
           priority
           unoptimized
-          className="object-cover"
+          className="object-cover object-center"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
