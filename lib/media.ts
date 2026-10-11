@@ -71,6 +71,8 @@ export const PWA_ICONS = {
 const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  shelbyBox: "/audio/Shelby-box.mp3",
+  shelbyMailbox: "/audio/Shelby-mailbox.mp3",
   ceramicBell: "/audio/Ceramic-bell.mp3",
   dockFootsteps: "/audio/dock-footsteps.mp3",
   cameraFlash: "/audio/Camera-flash.mp3",
