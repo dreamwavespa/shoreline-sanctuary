@@ -2,7 +2,7 @@
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
-import { SHELBY_SHIPPING_ORDERS, canPackItem, isPackageComplete } from "./shelbyShipping";
+import { currentShelbyOrder, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
@@ -771,7 +771,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const packShelbyItem = (itemId: string): boolean => {
-    const order = SHELBY_SHIPPING_ORDERS[0];
+    const order = currentShelbyOrder(current.shelbyShipmentCount || 0);
     const current = stateRef.current;
     if (current.shelbyShipmentDate || !canPackItem(order, current.shelbyPacked || {}, current.inventory, itemId)) return false;
     setState((s) => {
@@ -788,11 +788,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const sendShelbyShipment = (): boolean => {
     const current = stateRef.current;
-    if (current.shelbyShipmentDate || !isPackageComplete(SHELBY_SHIPPING_ORDERS[0], current.shelbyPacked || {})) return false;
+    if (current.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(current.shelbyShipmentCount || 0), current.shelbyPacked || {})) return false;
     const date = new Date();
     const today = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
     setState((s) => {
-      if (s.shelbyShipmentDate || !isPackageComplete(SHELBY_SHIPPING_ORDERS[0], s.shelbyPacked || {})) return s;
+      if (s.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(s.shelbyShipmentCount || 0), s.shelbyPacked || {})) return s;
       return { ...s, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
     });
     toast("Shelby's crate is on its way! Return tomorrow.");
@@ -806,11 +806,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!current.shelbyShipmentDate || current.shelbyShipmentDate >= today) return false;
     setState((s) => {
       if (!s.shelbyShipmentDate || s.shelbyShipmentDate >= today) return s;
-      const rewardId = "glass-blue";
+      const order = currentShelbyOrder(Math.max(0, (s.shelbyShipmentCount || 1) - 1));
+      const rewardId = order.rewardItemId;
       return {
         ...s,
-        inventory: { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + 2 },
-        sandDollars: s.sandDollars + 5,
+        inventory: { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + order.rewardCount },
+        sandDollars: s.sandDollars + order.sandDollars,
         shelbyShipmentDate: "",
         shelbyPacked: {},
       };
