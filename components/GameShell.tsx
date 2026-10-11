@@ -121,7 +121,7 @@ export default function GameShell() {
         {screen === "grove" && <CoconutGrove />}
 
         {(lastToast || lockMsg) && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-20 text-center max-w-[85%]">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/85 text-white text-sm px-4 py-2 rounded-full shadow-lg animate-fade-in-out z-[100] text-center max-w-[85%] pointer-events-none" role="status" aria-live="polite">
             {lockMsg || lastToast}
           </div>
         )}
