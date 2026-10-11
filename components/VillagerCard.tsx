@@ -21,7 +21,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, packShelbyItem, sendShelbyShipment, claimShelbyShipment } = useGame();
+  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment } = useGame();
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
@@ -89,7 +89,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                 return <div key={itemId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <span>{ITEMS[itemId]?.name || itemId}: {packed} of {count} packed; {available} available</span>
                   <button type="button" disabled={!!state.shelbyShipmentDate || packed >= count || available < 1}
-                    onClick={() => packShelbyItem(itemId)}
+                    onClick={() => { if (packShelbyItem(itemId)) play("shelbyBox", 0.65); }}
                     className="rounded-lg bg-sky-800 px-3 py-2 text-white disabled:opacity-40"
                     aria-label={`Pack one ${ITEMS[itemId]?.name || itemId}`}>Pack one</button>
                 </div>;
@@ -98,7 +98,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
               {state.shelbyShipmentDate ? (
                 <div role="status" className="space-y-2">
                   <p>Crate sent on {state.shelbyShipmentDate}. Your return cargo will be ready the next day.</p>
-                  <button type="button" onClick={claimShelbyShipment}
+                  <button type="button" onClick={() => { if (claimShelbyShipment()) play("shelbyMailbox", 0.7); }}
                     className="rounded-lg bg-emerald-800 px-3 py-2 text-white">Collect returning cargo (when ready)</button>
                 </div>
               ) : (
