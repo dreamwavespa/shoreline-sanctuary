@@ -106,7 +106,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                   onClick={sendShelbyShipment}
                   className="rounded-lg bg-emerald-800 px-3 py-2 text-white disabled:opacity-40" aria-label={remainingItems > 0 ? `Send crate unavailable. Pack ${remainingItems} more items first.` : "Send packed crate"}>Send packed crate</button>
               )}
-              <p className="text-xs text-sky-800">Return reward: {shippingOrder.rewardCount} {ITEMS[shippingOrder.rewardItemId]?.name || shippingOrder.rewardItemId} and {shippingOrder.sandDollars} Sand Dollars. A new order appears after you collect the returning cargo.</p>
+              <p className="text-xs text-sky-800">Return reward: {shippingOrder.rewardCount} {ITEMS[shippingOrder.rewardItemId]?.name || shippingOrder.rewardItemId} and {shippingOrder.sandDollars} Sand Dollars. A new order appears after you collect the returning cargo. Some deliveries also contain mystery pearls; every third and fifth shipment earns a rarer treasure.</p>
             </section>
           )}
 
