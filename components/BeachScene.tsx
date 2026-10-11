@@ -386,12 +386,12 @@ export default function BeachScene() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
-        {/* Character markers are temporary until transparent artwork is added. */}
+        {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
-          { id: "sandy", name: "Sandy", icon: "🐦", x: 24, y: 33 },
-          { id: "kai", name: "Kai", icon: "🐚", x: 73, y: 79 },
-          { id: "sunny", name: "Sunny", icon: "⭐", x: 79, y: 60 },
-          { id: "penelope", name: "Penelope", icon: "🦢", x: 24, y: 68 },
+          { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
+          { id: "kai", name: "Kai", image: "/images/Beach-Kai-transparent.png", x: 73, y: 79 },
+          { id: "sunny", name: "Sunny", image: "/images/Beach-Sunny-transparent.png", x: 79, y: 60 },
+          { id: "penelope", name: "Penelope", image: "/images/Beach-Penelope-transparent.png", x: 24, y: 68 },
         ] as const).map((character) => (
           <button
             key={character.id}
@@ -402,11 +402,11 @@ export default function BeachScene() {
               card?.scrollIntoView({ behavior: "smooth", block: "center" });
               card?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
             }}
-            className="absolute z-10 flex min-h-14 min-w-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-xl bg-amber-50/80 p-1 text-3xl shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+            className="absolute z-10 flex min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-1 drop-shadow-lg focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
             style={{ left: `${character.x}%`, top: `${character.y}%` }}
           >
-            <span aria-hidden="true">{character.icon}</span>
-            <span aria-hidden="true" className="text-xs font-bold text-stone-900">{character.name}</span>
+            <Image src={character.image} alt="" aria-hidden="true" width={92} height={92} unoptimized className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
+            <span aria-hidden="true" className="rounded-full bg-amber-50/90 px-2 py-0.5 text-xs font-bold text-stone-900">{character.name}</span>
           </button>
         ))}
         {spots.map((spot) => {
