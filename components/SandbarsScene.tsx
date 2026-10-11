@@ -10,8 +10,8 @@ import SandcastleArchitect from "./SandcastleArchitect";
 import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
-import LunaDiscovery from "./LunaDiscovery";
-import TwinkleCorner from "./TwinkleCorner";
+import MoonlitSandbar from "./MoonlitSandbar";
+
 
 interface Spot {
   key: string;
@@ -258,16 +258,9 @@ export default function SandbarsScene() {
             </button>
           );
         })}
-        {lunaUnlocked && <div className="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
-            <path d="M24 80 Q34 69 44 76 T66 62 T81 80" fill="none" stroke="#b9f8ff" strokeWidth="1.5" strokeDasharray="2 3" opacity="0.85" />
-            {[{x:24,y:80},{x:44,y:76},{x:81,y:80}].slice(0,Math.min(lunaStage+1,3)).map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="3" fill="#e5fcff" stroke="#67e8f9" strokeWidth="1" />)}
-          </svg>
-        </div>}
-        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[8%] right-[8%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
+        <button type="button" onClick={() => setDestination("moonlit")} aria-label="Follow the glowing trail to Moonlit Sandbar" className="absolute bottom-[8%] right-[8%] z-20 min-h-12 rounded-xl bg-indigo-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 Moonlit Trail →</button>
         <div className="absolute left-2 right-2 top-3 z-10 grid grid-cols-4 gap-2 sm:grid-cols-8" aria-label="Explore the Sandbar">
           <button type="button" key="boo" onClick={() => setDestination("boo")} aria-label="Visit Boo" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">👻</span>Boo</button>
-          <button type="button" onClick={() => setDestination("twinkle")} aria-label="Visit Twinkle the Hermit Crab" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐚</span>Twinkle</button>
           <button type="button" key="raft" onClick={() => setDestination("raft")} aria-label="Visit Raft" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🛟</span>Raft</button>
           <button type="button" key="sandcastle" onClick={() => setDestination("sandcastle")} aria-label="Visit Sandcastle" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🏰</span>Sandcastle</button>
           <button type="button" key="coral" onClick={() => setDestination("coral")} aria-label="Visit Coral" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐴</span>Coral</button>
@@ -281,8 +274,8 @@ export default function SandbarsScene() {
       <div className="px-4 pt-4 space-y-3">
         {destination === "raft" && <RaftCard />}
         {destination === "boo" && <BooTreasureCorner />}
-        {destination === "luna" && <LunaDiscovery />}
-        {destination === "twinkle" && <TwinkleCorner />}
+        {destination === "moonlit" && <MoonlitSandbar onReturn={() => setDestination(null)} />}
+
 
         {destination === "boo" && <>
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
@@ -407,7 +400,7 @@ export default function SandbarsScene() {
         </section>
 
         </>}
-        {destination && <button type="button" onClick={() => setDestination(null)} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
+        {destination && destination !== "moonlit" && <button type="button" onClick={() => setDestination(null)} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
         {!destination && <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>}
       </div>
       {sandcastleOpen && <SandcastleArchitect onClose={closeSandcastle} />}
