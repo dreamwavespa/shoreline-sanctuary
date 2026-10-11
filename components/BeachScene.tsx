@@ -50,17 +50,31 @@ function rollNightBeachItem(): string {
   return "moonlit-sea-glass";
 }
 
-function randomSpots(n: number, night = false): Spot[] {
+const BEACH_RESIDENT_POSITIONS = [
+  { x: 24, y: 33 }, { x: 73, y: 79 }, { x: 79, y: 60 }, { x: 24, y: 68 },
+];
+
+function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
     // Star Wish Bottles are a rare beach-after-dark discovery. Daytime
     // continues to use the existing beach spawn table unchanged.
     const itemId = night ? rollNightBeachItem() : rollSpawn();
+    let x = 50, y = 50, found = false;
+    for (let attempt = 0; attempt < 120; attempt++) {
+      const candidateX = 8 + Math.random() * 84;
+      const candidateY = 38 + Math.random() * 52;
+      if (BEACH_RESIDENT_POSITIONS.every((p) => Math.abs(candidateX - p.x) > 15 || Math.abs(candidateY - p.y) > 10) &&
+          [...existing, ...spots].every((p) => Math.abs(candidateX - p.x) > 12 || Math.abs(candidateY - p.y) > 7)) {
+        x = candidateX; y = candidateY; found = true; break;
+      }
+    }
+    if (!found) continue;
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
       itemId,
-      x: 8 + Math.random() * 84,
-      y: 38 + Math.random() * 52,
+      x,
+      y,
     });
   }
   return spots;
@@ -308,6 +322,8 @@ function BeachBagCard() {
 export default function BeachScene() {
   const { state, collectItem, collectSeaWater, setScreen } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | null>(null);
+  const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
@@ -355,7 +371,7 @@ export default function BeachScene() {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => {
         if (cur.length < 6) {
-          return [...cur, ...randomSpots(1, nighttime)];
+          return [...cur, ...randomSpots(1, nighttime, cur)];
         }
         return cur;
       });
@@ -397,11 +413,7 @@ export default function BeachScene() {
             key={character.id}
             type="button"
             aria-label={`Visit ${character.name}`}
-            onClick={() => {
-              const card = document.getElementById(`beach-resident-${character.id}`);
-              card?.scrollIntoView({ behavior: "smooth", block: "center" });
-              card?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
-            }}
+            onClick={() => setSelectedResident(character.id)}
             className="absolute z-10 flex min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-1 drop-shadow-lg focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
             style={{ left: `${character.x}%`, top: `${character.y}%` }}
           >
@@ -584,6 +596,17 @@ export default function BeachScene() {
           </>
         )}
       </div>
+      {selectedResident && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={() => setSelectedResident(null)}>
+          <section role="dialog" aria-modal="true" aria-label={`${VILLAGERS[selectedResident].name} activities`} className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[#fbf3e3] p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
+            <button ref={residentCloseRef} type="button" autoFocus onClick={() => setSelectedResident(null)} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {VILLAGERS[selectedResident].name}</button>
+            <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} />
+            {selectedResident === "sandy" && <SandyStormHunt />}
+            {selectedResident === "kai" && <KaiBuriedTreasure />}
+            {selectedResident === "penelope" && <PenelopeCleanupHeart />}
+          </section>
+        </div>
+      )}
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
     </div>
