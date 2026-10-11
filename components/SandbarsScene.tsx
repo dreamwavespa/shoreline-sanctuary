@@ -285,7 +285,7 @@ export default function SandbarsScene() {
             </button>
           );
         })}
-        <button type="button" onClick={() => setDestination("moonlit")} aria-label="Follow the glowing trail to Moonlit Sandbar" className="absolute bottom-[6%] right-[6%] z-20 min-h-14 rounded-xl bg-indigo-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 Moonlit Trail →</button>
+        <button type="button" onClick={() => setDestination("moonlit")} aria-label="Follow the Moonlit Trail to the nighttime sandbar" title="Moonlit Trail" className="absolute bottom-[6%] right-[6%] z-20 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-950/65 text-4xl text-white shadow-lg ring-2 ring-cyan-200/80 backdrop-blur-sm transition-transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"><span aria-hidden="true">🌙</span></button>
         <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
           {([
             { id: "boo", name: "Boo", art: "👻", left: 20, top: 12 },
