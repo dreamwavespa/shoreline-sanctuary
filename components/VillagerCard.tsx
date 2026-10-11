@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
-import { SHELBY_SHIPPING_ORDERS, isPackageComplete } from "@/lib/shelbyShipping";
+import { currentShelbyOrder, isPackageComplete } from "@/lib/shelbyShipping";
 import { VillagerDef } from "@/lib/villagers";
 import { ScheduleStatus } from "@/lib/schedule";
 import { getTravelingMerchantStock } from "@/lib/travelingMerchants";
@@ -25,6 +25,8 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
   const [expanded, setExpanded] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
+  const shippingOrder = currentShelbyOrder(state.shelbyShipmentDate ? Math.max(0, (state.shelbyShipmentCount || 1) - 1) : (state.shelbyShipmentCount || 0));
+  const remainingItems = shippingOrder.requires.reduce((total, requirement) => total + Math.max(0, requirement.count - ((state.shelbyPacked || {})[requirement.itemId] || 0)), 0);
   const giftCount = state.villagerGiftCounts[villager.id] || 0;
   const sisterRewards = SEA_GLASS_SISTER_REWARDS[villager.id] || [];
   const nextSisterReward = getNextSeaGlassSisterReward(villager.id, giftCount);
@@ -80,8 +82,8 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
             <section aria-label="Shelby's Shipping Orders" className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200 space-y-3">
               <h3 className="font-bold text-sky-950">📦 Shipping Orders</h3>
               <p className="text-xs text-sky-800">Pack common Shoreline finds. Send a full crate and collect its return cargo on the next calendar day.</p>
-              <h4 className="font-semibold text-sm">{SHELBY_SHIPPING_ORDERS[0].title}</h4>
-              {SHELBY_SHIPPING_ORDERS[0].requires.map(({ itemId, count }) => {
+              <h4 className="font-semibold text-sm">{shippingOrder.title}</h4>
+              {shippingOrder.requires.map(({ itemId, count }) => {
                 const packed = (state.shelbyPacked || {})[itemId] || 0;
                 const available = state.inventory[itemId] || 0;
                 return <div key={itemId} className="flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -92,6 +94,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                     aria-label={`Pack one ${ITEMS[itemId]?.name || itemId}`}>Pack one</button>
                 </div>;
               })}
+              <p role="status" className="text-sm text-sky-900">{remainingItems === 0 ? "All required items packed. Crate ready to send." : `${remainingItems} items left to pack before sending.`}</p>
               {state.shelbyShipmentDate ? (
                 <div role="status" className="space-y-2">
                   <p>Crate sent on {state.shelbyShipmentDate}. Your return cargo will be ready the next day.</p>
@@ -99,11 +102,11 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                     className="rounded-lg bg-emerald-800 px-3 py-2 text-white">Collect returning cargo (when ready)</button>
                 </div>
               ) : (
-                <button type="button" disabled={!isPackageComplete(SHELBY_SHIPPING_ORDERS[0], state.shelbyPacked || {})}
+                <button type="button" disabled={!isPackageComplete(shippingOrder, state.shelbyPacked || {})}
                   onClick={sendShelbyShipment}
-                  className="rounded-lg bg-emerald-800 px-3 py-2 text-white disabled:opacity-40">Send packed crate</button>
+                  className="rounded-lg bg-emerald-800 px-3 py-2 text-white disabled:opacity-40" aria-label={remainingItems > 0 ? `Send crate unavailable. Pack ${remainingItems} more items first.` : "Send packed crate"}>Send packed crate</button>
               )}
-              <p className="text-xs text-sky-800">Return reward: 2 Blue Sea Glass and 5 Sand Dollars. Mystery cargo is coming in a later update.</p>
+              <p className="text-xs text-sky-800">Return reward: {shippingOrder.rewardCount} {ITEMS[shippingOrder.rewardItemId]?.name || shippingOrder.rewardItemId} and {shippingOrder.sandDollars} Sand Dollars. A new order appears after you collect the returning cargo.</p>
             </section>
           )}
 
