@@ -1,4 +1,4 @@
-// Shelby's shipping manifest — first test order.
+// Shelby's rotating shipping manifests and optional mystery return cargo.
 // Only IDs already present in lib/items.ts may be used.
 export interface ShippingRequirement { itemId: string; count: number }
 export interface ShippingOrder {
@@ -54,4 +54,14 @@ export function canPackItem(
 ): boolean {
   const requirement = remainingToPack(order, packed).find((r) => r.itemId === itemId);
   return !!requirement && requirement.count > 0 && (inventory[itemId] || 0) > 0;
+}
+
+export interface ShelbyMysteryCargo { itemId: string; count: number; description: string }
+/** Deterministic per completed shipment so a save/reload cannot reroll cargo. */
+export function shelbyMysteryCargo(shipmentNumber: number): ShelbyMysteryCargo | null {
+  if (shipmentNumber <= 0) return null;
+  if (shipmentNumber % 5 === 0) return { itemId: "pearl-purple", count: 1, description: "Rare captain's cargo" };
+  if (shipmentNumber % 3 === 0) return { itemId: "pearl-yellow", count: 1, description: "Rare trade treasure" };
+  if (shipmentNumber % 2 === 0) return { itemId: "pearl-orange", count: 1, description: "Mystery cargo" };
+  return null;
 }
