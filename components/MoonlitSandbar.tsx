@@ -14,14 +14,14 @@ export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
           <h2 id="moonlit-sandbar-heading" className="text-xl font-bold text-white">Moonlit Sandbar</h2>
           <p className="text-sm text-white">Follow the glowing shells to visit Boo's nighttime friends.</p>
         </div>
-        <div className="absolute inset-x-3 bottom-[5%] flex items-end justify-around gap-4">
-          <button type="button" onClick={() => setVisitor("luna")} aria-label="Visit Luna the Moon Snail" className="group relative flex h-28 w-28 flex-col items-center justify-end rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-36 sm:w-36">
-            <Image src="/images/Luna-snail.PNG" alt="" fill unoptimized sizes="144px" className="rounded-full object-cover drop-shadow-xl transition-transform group-active:scale-95" />
-            <span aria-hidden="true" className="relative mb-1 rounded-full bg-indigo-950/75 px-3 py-1 text-sm font-semibold text-white">Luna</span>
+        <div className="absolute inset-x-4 bottom-[4%] flex items-end justify-between gap-3">
+          <button type="button" onClick={() => setVisitor("luna")} aria-label="Visit Luna the Moon Snail" className="group relative flex h-32 w-32 flex-col items-center justify-end focus:outline-none focus-visible:rounded-xl focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-40 sm:w-40">
+            <Image src="/images/Luna-snail.PNG" alt="" fill unoptimized sizes="160px" className="object-contain drop-shadow-xl transition-transform group-active:scale-95" />
+            <span aria-hidden="true" className="relative mb-0.5 rounded-full bg-indigo-950/80 px-3 py-1 text-xs font-semibold text-white">Luna</span>
           </button>
-          <button type="button" onClick={() => setVisitor("twinkle")} aria-label="Visit Twinkle the Hermit Crab" className="group relative flex h-28 w-28 flex-col items-center justify-end overflow-hidden rounded-full ring-2 ring-amber-200/60 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-36 sm:w-36">
-            <Image src="/images/Twinkle-shell-nook.png" alt="" fill unoptimized sizes="144px" className="object-cover object-left transition-transform group-active:scale-95" />
-            <span aria-hidden="true" className="relative mb-1 rounded-full bg-indigo-950/75 px-3 py-1 text-sm font-semibold text-white">Twinkle</span>
+          <button type="button" onClick={() => setVisitor("twinkle")} aria-label="Visit Twinkle the Hermit Crab" className="group relative flex h-32 w-32 flex-col items-center justify-end focus:outline-none focus-visible:rounded-xl focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-40 sm:w-40">
+            <Image src="/images/Twinkle-hermit-crab.PNG" alt="" fill unoptimized sizes="160px" className="object-contain drop-shadow-xl transition-transform group-active:scale-95" />
+            <span aria-hidden="true" className="relative mb-0.5 rounded-full bg-indigo-950/80 px-3 py-1 text-xs font-semibold text-white">Twinkle</span>
           </button>
         </div>
       </div>
