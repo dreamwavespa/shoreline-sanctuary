@@ -374,7 +374,7 @@ export default function BeachScene() {
 
   return (
     <div className="relative w-full h-full overflow-y-auto select-none">
-      <div className="relative w-full h-[60%] min-h-[280px] overflow-hidden rounded-b-2xl">
+      <div className="relative w-full aspect-[2/3] min-h-[560px] overflow-hidden rounded-b-2xl">
         <Image
           src={nighttime ? "/images/Beach-background-night.PNG" : "/images/Beach-background-day.PNG"}
           alt={nighttime ? "Shoreline beach at night beneath a starry sky and bright moon" : "Shoreline beach during the day"}
@@ -386,6 +386,29 @@ export default function BeachScene() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
+        {/* Character markers are temporary until transparent artwork is added. */}
+        {([
+          { id: "sandy", name: "Sandy", icon: "🐦", x: 24, y: 33 },
+          { id: "kai", name: "Kai", icon: "🐚", x: 73, y: 79 },
+          { id: "sunny", name: "Sunny", icon: "⭐", x: 79, y: 60 },
+          { id: "penelope", name: "Penelope", icon: "🦢", x: 24, y: 68 },
+        ] as const).map((character) => (
+          <button
+            key={character.id}
+            type="button"
+            aria-label={`Visit ${character.name}`}
+            onClick={() => {
+              const card = document.getElementById(`beach-resident-${character.id}`);
+              card?.scrollIntoView({ behavior: "smooth", block: "center" });
+              card?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+            }}
+            className="absolute z-10 flex min-h-14 min-w-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-xl bg-amber-50/80 p-1 text-3xl shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+            style={{ left: `${character.x}%`, top: `${character.y}%` }}
+          >
+            <span aria-hidden="true">{character.icon}</span>
+            <span aria-hidden="true" className="text-xs font-bold text-stone-900">{character.name}</span>
+          </button>
+        ))}
         {spots.map((spot) => {
           const def = ITEMS[spot.itemId];
           const popping = poppingKeys[spot.key];
@@ -515,12 +538,12 @@ export default function BeachScene() {
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
           Shoreline Residents & Eco-Allies
         </p>
-        <VillagerCard villager={VILLAGERS.sandy} />
+        <div id="beach-resident-sandy"><VillagerCard villager={VILLAGERS.sandy} /></div>
         <SandyStormHunt />
-        <VillagerCard villager={VILLAGERS.kai} />
+        <div id="beach-resident-kai"><VillagerCard villager={VILLAGERS.kai} /></div>
         <KaiBuriedTreasure />
-        <VillagerCard villager={VILLAGERS.sunny} />
-        <VillagerCard villager={VILLAGERS.penelope} />
+        <div id="beach-resident-sunny"><VillagerCard villager={VILLAGERS.sunny} /></div>
+        <div id="beach-resident-penelope"><VillagerCard villager={VILLAGERS.penelope} /></div>
         <PenelopeCleanupHeart />
 
         <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
