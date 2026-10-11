@@ -2,6 +2,7 @@
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
+import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
@@ -93,6 +94,9 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  shelbyPacked: Record<string, number>;
+  shelbyShipmentDate: string;
+  shelbyShipmentCount: number;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -202,6 +206,9 @@ interface GameState {
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  shelbyPacked: {},
+  shelbyShipmentDate: "",
+  shelbyShipmentCount: 0,
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -373,6 +380,9 @@ const SPLASH_STORIES = [
 ];
 
 interface Ctx {
+  packShelbyItem: (itemId: string) => boolean;
+  sendShelbyShipment: () => boolean;
+  claimShelbyShipment: () => boolean;
   recordWeatherChartObservation: () => boolean;
   createWeatheredShipChart: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
@@ -789,6 +799,59 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       };
     });
     toast("Weathered Ship Chart added to inventory!");
+    return true;
+  };
+
+  const packShelbyItem = (itemId: string): boolean => {
+    const current = stateRef.current;
+    const order = currentShelbyOrder(current.shelbyShipmentCount || 0);
+    if (current.shelbyShipmentDate || !canPackItem(order, current.shelbyPacked || {}, current.inventory, itemId)) return false;
+    setState((s) => {
+      if (s.shelbyShipmentDate || !canPackItem(order, s.shelbyPacked || {}, s.inventory, itemId)) return s;
+      return {
+        ...s,
+        inventory: { ...s.inventory, [itemId]: s.inventory[itemId] - 1 },
+        shelbyPacked: { ...(s.shelbyPacked || {}), [itemId]: ((s.shelbyPacked || {})[itemId] || 0) + 1 },
+      };
+    });
+    toast("Added to Shelby's shipping crate.");
+    return true;
+  };
+
+  const sendShelbyShipment = (): boolean => {
+    const current = stateRef.current;
+    if (current.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(current.shelbyShipmentCount || 0), current.shelbyPacked || {})) return false;
+    const date = new Date();
+    const today = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    setState((s) => {
+      if (s.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(s.shelbyShipmentCount || 0), s.shelbyPacked || {})) return s;
+      return { ...s, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
+    });
+    toast("Shelby's crate is on its way! Return tomorrow.");
+    return true;
+  };
+
+  const claimShelbyShipment = (): boolean => {
+    const current = stateRef.current;
+    const d = new Date();
+    const today = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+    if (!current.shelbyShipmentDate || current.shelbyShipmentDate >= today) return false;
+    setState((s) => {
+      if (!s.shelbyShipmentDate || s.shelbyShipmentDate >= today) return s;
+      const order = currentShelbyOrder(Math.max(0, (s.shelbyShipmentCount || 1) - 1));
+      const rewardId = order.rewardItemId;
+      const mystery = shelbyMysteryCargo(s.shelbyShipmentCount || 0);
+      const inventory = { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + order.rewardCount };
+      if (mystery) inventory[mystery.itemId] = (inventory[mystery.itemId] || 0) + mystery.count;
+      return {
+        ...s,
+        inventory,
+        sandDollars: s.sandDollars + order.sandDollars,
+        shelbyShipmentDate: "",
+        shelbyPacked: {},
+      };
+    });
+    toast("Shelby's cargo arrived: 2 Blue Sea Glass and 5 Sand Dollars!");
     return true;
   };
 
@@ -2214,6 +2277,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      packShelbyItem,
+      sendShelbyShipment,
+      claimShelbyShipment,
       recordWeatherChartObservation,
       createWeatheredShipChart,
       emptyBucket,
