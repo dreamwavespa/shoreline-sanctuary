@@ -2,7 +2,7 @@
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
-import { currentShelbyOrder, canPackItem, isPackageComplete } from "./shelbyShipping";
+import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
@@ -808,9 +808,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (!s.shelbyShipmentDate || s.shelbyShipmentDate >= today) return s;
       const order = currentShelbyOrder(Math.max(0, (s.shelbyShipmentCount || 1) - 1));
       const rewardId = order.rewardItemId;
+      const mystery = shelbyMysteryCargo(s.shelbyShipmentCount || 0);
+      const inventory = { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + order.rewardCount };
+      if (mystery) inventory[mystery.itemId] = (inventory[mystery.itemId] || 0) + mystery.count;
       return {
         ...s,
-        inventory: { ...s.inventory, [rewardId]: (s.inventory[rewardId] || 0) + order.rewardCount },
+        inventory,
         sandDollars: s.sandDollars + order.sandDollars,
         shelbyShipmentDate: "",
         shelbyPacked: {},
