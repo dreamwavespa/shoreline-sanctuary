@@ -10,7 +10,7 @@ import SandcastleArchitect from "./SandcastleArchitect";
 import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
-import LunaDiscovery from "./LunaDiscovery";
+import MoonlitSandbar from "./MoonlitSandbar";
 
 interface Spot {
   key: string;
@@ -285,16 +285,7 @@ export default function SandbarsScene() {
             </button>
           );
         })}
-        {lunaUnlocked && <div className="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
-          {[
-            { x: 32, y: 80 }, { x: 38, y: 77 }, { x: 45, y: 78 },
-            { x: 52, y: 75 }, { x: 60, y: 78 }, { x: 67, y: 81 },
-            { x: 73, y: 85 }, { x: 78, y: 88 },
-          ].map((point, index) => (
-            <span key={index} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90 shadow-[0_0_9px_3px_rgba(220,250,255,0.8)]" style={{ left: `${point.x}%`, top: `${point.y}%`, width: index % 3 === 0 ? 5 : 3, height: index % 3 === 0 ? 5 : 3 }} />
-          ))}
-        </div>}
-        {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[6%] right-[6%] z-20 flex min-h-20 w-28 flex-col items-center rounded-xl p-1 text-white drop-shadow-lg focus:ring-4 focus:ring-amber-300"><Image src="/images/Luna-snail.PNG" alt="" width={105} height={78} unoptimized className="h-20 w-24 rounded-full object-cover object-center ring-2 ring-white/40" /><span className="rounded-full bg-sky-950/90 px-2 py-1 text-xs font-bold ring-1 ring-cyan-200">{lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</span></button>}
+        <button type="button" onClick={() => setDestination("moonlit")} aria-label="Follow the glowing trail to Moonlit Sandbar" className="absolute bottom-[6%] right-[6%] z-20 min-h-14 rounded-xl bg-indigo-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 Moonlit Trail →</button>
         <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
           {([
             { id: "boo", name: "Boo", art: "👻", left: 20, top: 12 },
@@ -324,7 +315,7 @@ export default function SandbarsScene() {
       <div className="px-4 pt-4 space-y-3">
         {destination === "raft" && <RaftCard />}
         {destination === "boo" && <BooTreasureCorner />}
-        {destination === "luna" && <LunaDiscovery />}
+        {destination === "moonlit" && <MoonlitSandbar onReturn={() => setDestination(null)} />}
 
         {destination === "boo" && <>
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
@@ -449,7 +440,7 @@ export default function SandbarsScene() {
         </section>
 
         </>}
-        {destination && <button type="button" onClick={() => setDestination(null)} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
+        {destination && destination !== "moonlit" && <button type="button" onClick={() => setDestination(null)} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
         {!destination && <p className="text-xs text-teal-200/70 text-center mt-4">Open-water sandbars, shifting with every tide.</p>}
       </div>
       {sandcastleOpen && <SandcastleArchitect onClose={closeSandcastle} />}
