@@ -11,6 +11,7 @@ import { isBooOctober, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
 import LunaDiscovery from "./LunaDiscovery";
+import TwinkleCorner from "./TwinkleCorner";
 
 interface Spot {
   key: string;
@@ -266,6 +267,7 @@ export default function SandbarsScene() {
         {lunaUnlocked && <button type="button" onClick={() => setDestination("luna")} aria-label={lunaStage >= 3 ? "Visit Luna the Moon Snail" : "Follow Luna's silver trail, step " + (lunaStage + 1) + " of 3"} className="absolute bottom-[8%] right-[8%] z-20 min-h-12 rounded-xl bg-sky-950/90 px-3 py-2 font-bold text-white ring-2 ring-cyan-200 shadow-lg focus:ring-4 focus:ring-amber-300">🌙 {lunaStage >= 3 ? "Visit Luna" : "Silver Trail"}</button>}
         <div className="absolute left-2 right-2 top-3 z-10 grid grid-cols-4 gap-2 sm:grid-cols-8" aria-label="Explore the Sandbar">
           <button type="button" key="boo" onClick={() => setDestination("boo")} aria-label="Visit Boo" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">👻</span>Boo</button>
+          <button type="button" onClick={() => setDestination("twinkle")} aria-label="Visit Twinkle the Hermit Crab" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐚</span>Twinkle</button>
           <button type="button" key="raft" onClick={() => setDestination("raft")} aria-label="Visit Raft" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🛟</span>Raft</button>
           <button type="button" key="sandcastle" onClick={() => setDestination("sandcastle")} aria-label="Visit Sandcastle" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🏰</span>Sandcastle</button>
           <button type="button" key="coral" onClick={() => setDestination("coral")} aria-label="Visit Coral" className="min-h-12 rounded-xl bg-slate-950/80 px-1 py-2 text-xs font-bold text-white shadow ring-1 ring-white/70 focus:outline-none focus:ring-4 focus:ring-amber-300"><span aria-hidden="true" className="block text-xl">🐴</span>Coral</button>
@@ -280,6 +282,7 @@ export default function SandbarsScene() {
         {destination === "raft" && <RaftCard />}
         {destination === "boo" && <BooTreasureCorner />}
         {destination === "luna" && <LunaDiscovery />}
+        {destination === "twinkle" && <TwinkleCorner />}
 
         {destination === "boo" && <>
         <section aria-labelledby="boo-sand-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
