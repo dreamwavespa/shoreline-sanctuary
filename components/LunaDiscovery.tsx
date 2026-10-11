@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
+import LunaPolishing from "./LunaPolishing";
 
 const KEY = "shoreline-luna-discovery-v1";
 const FRIEND_KEY = "shoreline-boo-friendship-v1";
@@ -47,6 +48,7 @@ export default function LunaDiscovery() {
         stage === 3 ? <>
           <p className="mt-2 text-sm text-sky-100">Luna has been discovered! Her Moon Snail Shell is a permanent keepsake in your inventory.</p>
           <p className="mt-2 text-sm text-cyan-100">Boo whispers: “Luna likes quiet nights. Look for her silver trail when you visit the sandbar.”</p>
+          <LunaPolishing />
         </> :
         <>
           <p className="mt-2 text-sm text-sky-100">Boo clicks his claws softly: “Follow the silver trail. My shy friend is waiting.”</p>
