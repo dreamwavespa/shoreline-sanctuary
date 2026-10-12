@@ -405,14 +405,14 @@ export default function BeachScene() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
-        {/* Beach destinations: subtle hotspots on the upper shore. */}
+        {/* Illustrated, keyboard-accessible destination signs. */}
         <button type="button" onClick={() => setScreen("grove")} aria-label="Follow the wooden path to Coconut Grove"
-          className="absolute left-[10%] top-[19%] z-20 flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-emerald-950/75 px-2 py-1 text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-          <span aria-hidden="true" className="text-xl">🌴</span><span className="text-[10px] font-bold">Grove</span>
+          className="absolute left-[10%] top-[19%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+          <Image src="/images/Coconut-grove-transparent.PNG" alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
         </button>
         <button type="button" onClick={() => setScreen("shop")} aria-label="Visit Seaweed and Salt shop"
-          className="absolute left-[38%] top-[24%] z-20 flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-amber-950/75 px-2 py-1 text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-          <span aria-hidden="true" className="text-xl">🏪</span><span className="text-[10px] font-bold">Shop</span>
+          className="absolute left-[38%] top-[24%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+          <Image src="/images/Seaweed-and-salt-transparent.PNG" alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
         </button>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
