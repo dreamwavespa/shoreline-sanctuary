@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+
+const versionedImage = (src: string) => src.startsWith("/images/") ? `${src}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}` : src;
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
@@ -64,7 +66,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
         setExpanded((v) => !v);
       }} aria-expanded={expanded} className="w-full text-left p-4 flex items-center gap-3">
         <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-amber-50 flex items-center justify-center">
-          {(BEACH_PORTRAITS[villager.id] || villager.imageUrl) ? <Image src={BEACH_PORTRAITS[villager.id] || villager.imageUrl!} alt={villager.name} fill unoptimized className="object-contain p-1" /> : <span className="text-3xl">{EMOJI_FALLBACK[villager.id] || "🐚"}</span>}
+          {(BEACH_PORTRAITS[villager.id] || villager.imageUrl) ? <Image src={versionedImage(BEACH_PORTRAITS[villager.id] || villager.imageUrl!)} alt={villager.name} fill unoptimized className="object-contain p-1" /> : <span className="text-3xl">{EMOJI_FALLBACK[villager.id] || "🐚"}</span>}
         </div>
         <div className="flex-1">
           <p className="font-bold text-amber-900">{villager.name} <span className="font-normal text-amber-700">{villager.title}</span></p>
