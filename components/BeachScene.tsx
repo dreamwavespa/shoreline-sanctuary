@@ -53,6 +53,7 @@ function rollNightBeachItem(): string {
 const BEACH_RESIDENT_POSITIONS = [
   { x: 24, y: 33 }, { x: 73, y: 79 }, { x: 79, y: 60 }, { x: 24, y: 68 },
   { x: 46, y: 48 }, { x: 88, y: 42 }, { x: 86, y: 25 },
+  { x: 41, y: 76 }, { x: 61, y: 43 },
 ];
 
 function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
@@ -323,7 +324,7 @@ function BeachBagCard() {
 export default function BeachScene() {
   const { state, collectItem, collectSeaWater, setScreen } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
-  const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | null>(null);
+  const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
@@ -412,6 +413,8 @@ export default function BeachScene() {
           { id: "olli", name: "Olli", image: "/images/Olli-transparent.PNG", x: 46, y: 48 },
           { id: "snappy", name: "Snappy", image: "/images/Snappy-transparent.PNG", x: 88, y: 42 },
           { id: "elly", name: "Elly", image: "/images/Elly-transparent.PNG", x: 86, y: 25 },
+          ...(travelerSchedule?.shelldon?.available ? [{ id: "shelldon" as const, name: "Shelldon", image: "/images/Sheldon-transparent.PNG", x: 41, y: 76 }] : []),
+          ...(travelerSchedule?.shelby?.available ? [{ id: "shelby" as const, name: "Shelby", image: "/images/Shelby-transparent.PNG", x: 61, y: 43 }] : []),
         ] as const).map((character) => (
           <button
             key={character.id}
@@ -604,7 +607,7 @@ export default function BeachScene() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={() => setSelectedResident(null)}>
           <section role="dialog" aria-modal="true" aria-label={`${selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name} activities`} className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[#fbf3e3] p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
             <button ref={residentCloseRef} type="button" autoFocus onClick={() => setSelectedResident(null)} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name}</button>
-            {selectedResident === "elly" ? <EllyCard /> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : (
+            {selectedResident === "elly" ? <EllyCard /> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : selectedResident === "shelldon" || selectedResident === "shelby" ? <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} schedule={travelerSchedule?.[selectedResident]} /> : (
               <>
                 <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} />
                 {selectedResident === "sandy" && <SandyStormHunt />}
