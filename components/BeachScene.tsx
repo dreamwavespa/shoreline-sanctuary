@@ -54,7 +54,7 @@ const BEACH_RESIDENT_POSITIONS = [
   { x: 24, y: 33 }, { x: 73, y: 79 }, { x: 79, y: 60 }, { x: 24, y: 68 },
   { x: 46, y: 48 }, { x: 88, y: 42 }, { x: 86, y: 25 },
   { x: 41, y: 76 }, { x: 61, y: 43 },
-  { x: 92, y: 12 }, { x: 12, y: 52 }, { x: 53, y: 16 }, { x: 66, y: 18 },
+  { x: 92, y: 12 }, { x: 12, y: 52 }, { x: 42, y: 11 }, { x: 72, y: 13 },
 ];
 
 function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
@@ -428,8 +428,8 @@ export default function BeachScene() {
           ...(travelerSchedule?.misty?.available ? [{ id: "misty" as const, name: "Misty", image: "/images/Misty-transparent.PNG", x: 92, y: 12 }] : []),
           { id: "angel", name: "Angel", image: "/images/Angel-transparent.PNG", x: 12, y: 52 },
           ...(nighttime && state.notebookRewardsClaimed.includes("lighthouse-lookout") ? [
-            { id: "celeste" as const, name: "Celeste", image: "/images/Celeste-transparent.PNG", x: 53, y: 16 },
-            { id: "orion" as const, name: "Orion", image: "/images/Orion-transparent.PNG", x: 66, y: 18 },
+            { id: "celeste" as const, name: "Celeste", image: "/images/Celeste-transparent.PNG", x: 42, y: 11 },
+            { id: "orion" as const, name: "Orion", image: "/images/Orion-transparent.PNG", x: 72, y: 13 },
           ] : []),
         ] as const).map((character) => (
           <button
@@ -440,7 +440,7 @@ export default function BeachScene() {
             className="absolute z-10 flex min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-1 drop-shadow-lg focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
             style={{ left: `${character.x}%`, top: `${character.y}%` }}
           >
-            <Image src={character.image} alt="" aria-hidden="true" width={92} height={92} unoptimized className="h-20 w-20 object-contain sm:h-24 sm:w-24" />
+            <Image src={character.image} alt="" aria-hidden="true" width={92} height={92} unoptimized className={character.id === "celeste" || character.id === "orion" ? "h-16 w-16 object-contain sm:h-20 sm:w-20" : "h-20 w-20 object-contain sm:h-24 sm:w-24"} />
             <span aria-hidden="true" className="rounded-full bg-amber-50/90 px-2 py-0.5 text-xs font-bold text-stone-900">{character.name}</span>
           </button>
         ))}
