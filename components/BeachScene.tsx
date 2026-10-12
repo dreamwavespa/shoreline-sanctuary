@@ -342,7 +342,7 @@ export default function BeachScene() {
   useEffect(() => {
     const night = isBeachNight();
     setNighttime(night);
-    setSpots(randomSpots(9, night));
+    setSpots(randomSpots(6, night));
     setTravelerSchedule({
       shelldon: getScheduleStatus("shelldon"),
       shelby: getScheduleStatus("shelby"),
@@ -405,6 +405,15 @@ export default function BeachScene() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
+        {/* Beach destinations: subtle hotspots on the upper shore. */}
+        <button type="button" onClick={() => setScreen("grove")} aria-label="Follow the wooden path to Coconut Grove"
+          className="absolute left-[10%] top-[19%] z-20 flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-emerald-950/75 px-2 py-1 text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+          <span aria-hidden="true" className="text-xl">🌴</span><span className="text-[10px] font-bold">Grove</span>
+        </button>
+        <button type="button" onClick={() => setScreen("shop")} aria-label="Visit Seaweed and Salt shop"
+          className="absolute left-[38%] top-[24%] z-20 flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-xl bg-amber-950/75 px-2 py-1 text-white shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+          <span aria-hidden="true" className="text-xl">🏪</span><span className="text-[10px] font-bold">Shop</span>
+        </button>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
@@ -443,15 +452,15 @@ export default function BeachScene() {
               key={spot.key}
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm shadow-lg ring-1 ring-white/60 transition-all duration-200 active:scale-90 ${
+              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/25 shadow-sm ring-1 ring-white/30 transition-all duration-200 active:scale-90 ${
                 popping ? "opacity-0 scale-150" : "opacity-100 scale-100 animate-bob"
               }`}
-              style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 56, height: 56 }}
+              style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 44, height: 44 }}
             >
               {def.isEmoji ? (
-                <span className="text-2xl">{def.icon}</span>
+                <span className="text-xl">{def.icon}</span>
               ) : (
-                <Image src={def.icon} alt={def.name} width={40} height={40} unoptimized className="object-contain drop-shadow" />
+                <Image src={def.icon} alt={def.name} width={34} height={34} unoptimized className="object-contain drop-shadow" />
               )}
             </button>
           );
