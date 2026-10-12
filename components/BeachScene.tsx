@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+
+const versionedImage = (src: string) => src.startsWith("/images/") ? `${src}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}` : src;
 import Image from "next/image";
 import { ITEMS, rollSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
@@ -395,7 +397,7 @@ export default function BeachScene() {
     <div className="relative w-full h-full overflow-y-auto select-none">
       <div className="relative w-full aspect-[2/3] min-h-[560px] overflow-hidden rounded-b-2xl">
         <Image
-          src={nighttime ? "/images/Beach-background-night.PNG" : "/images/Beach-background-day.PNG"}
+          src={versionedImage(nighttime ? "/images/Beach-background-night.PNG" : "/images/Beach-background-day.PNG")}
           alt={nighttime ? "Shoreline beach at night beneath a starry sky and bright moon" : "Shoreline beach during the day"}
           fill
           priority
@@ -408,11 +410,11 @@ export default function BeachScene() {
         {/* Illustrated, keyboard-accessible destination signs. */}
         <button type="button" onClick={() => setScreen("grove")} aria-label="Follow the wooden path to Coconut Grove"
           className="absolute left-[10%] top-[19%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-          <Image src="/images/Coconut-grove-transparent.PNG" alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
+          <Image src={versionedImage("/images/Coconut-grove-transparent.PNG")} alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
         </button>
         <button type="button" onClick={() => setScreen("shop")} aria-label="Visit Seaweed and Salt shop"
           className="absolute left-[38%] top-[24%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-          <Image src="/images/Seaweed-and-salt-transparent.PNG" alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
+          <Image src={versionedImage("/images/Seaweed-and-salt-transparent.PNG")} alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
         </button>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
@@ -440,7 +442,7 @@ export default function BeachScene() {
             className="absolute z-10 flex min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center p-1 drop-shadow-lg focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
             style={{ left: `${character.x}%`, top: `${character.y}%` }}
           >
-            <Image src={character.image} alt="" aria-hidden="true" width={92} height={92} unoptimized className={character.id === "celeste" || character.id === "orion" ? "h-16 w-16 object-contain sm:h-20 sm:w-20" : "h-20 w-20 object-contain sm:h-24 sm:w-24"} />
+            <Image src={versionedImage(character.image)} alt="" aria-hidden="true" width={92} height={92} unoptimized className={character.id === "celeste" || character.id === "orion" ? "h-16 w-16 object-contain sm:h-20 sm:w-20" : "h-20 w-20 object-contain sm:h-24 sm:w-24"} />
             <span aria-hidden="true" className="rounded-full bg-amber-50/90 px-2 py-0.5 text-xs font-bold text-stone-900">{character.name}</span>
           </button>
         ))}
@@ -460,7 +462,7 @@ export default function BeachScene() {
               {def.isEmoji ? (
                 <span className="text-xl">{def.icon}</span>
               ) : (
-                <Image src={def.icon} alt={def.name} width={34} height={34} unoptimized className="object-contain drop-shadow" />
+                <Image src={versionedImage(def.icon)} alt={def.name} width={34} height={34} unoptimized className="object-contain drop-shadow" />
               )}
             </button>
           );
