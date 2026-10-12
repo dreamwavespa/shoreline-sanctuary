@@ -16,6 +16,22 @@ const RING_BY_GROUP: Record<string, string> = {
   "traveling-special": "ring-amber-200",
 };
 
+const BEACH_PORTRAITS: Record<string, string> = {
+  sandy: "/images/Beach-Sandy-transparent.png",
+  kai: "/images/Beach-Kai-transparent.png",
+  sunny: "/images/Beach-Sunny-transparent.png",
+  penelope: "/images/Beach-Penelope-transparent.png",
+  olli: "/images/Olli-transparent.PNG",
+  snappy: "/images/Snappy-transparent.PNG",
+  elly: "/images/Elly-transparent.PNG",
+  shelldon: "/images/Sheldon-transparent.PNG",
+  shelby: "/images/Shelby-transparent.PNG",
+  misty: "/images/Misty-transparent.PNG",
+  angel: "/images/Angel-transparent.PNG",
+  celeste: "/images/Celeste-transparent.PNG",
+  orion: "/images/Orion-transparent.PNG",
+};
+
 const EMOJI_FALLBACK: Record<string, string> = {
   sandy: "🐦", olli: "🐙", kai: "🐚", sunny: "⭐", penelope: "🦢", coral: "🐴", mina: "🥭", bubbles: "🐬", pearl: "🪪", splash: "🥭", shelldon: "🐢", shelby: "🦀", misty: "🪼", angel: "🐠", melody: "💍", marella: "🔮", coralie: "🌿", kaiana: "🧭",
 };
@@ -48,7 +64,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
         setExpanded((v) => !v);
       }} aria-expanded={expanded} className="w-full text-left p-4 flex items-center gap-3">
         <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-amber-50 flex items-center justify-center">
-          {villager.imageUrl ? <Image src={villager.imageUrl} alt={villager.name} fill unoptimized className="object-cover" /> : <span className="text-3xl">{EMOJI_FALLBACK[villager.id] || "🐚"}</span>}
+          {(BEACH_PORTRAITS[villager.id] || villager.imageUrl) ? <Image src={BEACH_PORTRAITS[villager.id] || villager.imageUrl!} alt={villager.name} fill unoptimized className="object-contain p-1" /> : <span className="text-3xl">{EMOJI_FALLBACK[villager.id] || "🐚"}</span>}
         </div>
         <div className="flex-1">
           <p className="font-bold text-amber-900">{villager.name} <span className="font-normal text-amber-700">{villager.title}</span></p>
