@@ -323,7 +323,7 @@ function BeachBagCard() {
 }
 
 export default function BeachScene() {
-  const { state, collectItem, collectSeaWater, setScreen } = useGame();
+  const { state, collectItem, collectSeaWater, setScreen, lastToast } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
@@ -613,6 +613,8 @@ export default function BeachScene() {
       {selectedResident && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={() => setSelectedResident(null)}>
           <section role="dialog" aria-modal="true" aria-label={`${selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name} activities`} className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[#fbf3e3] p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
+            {/* Announce gift and reward results inside the active modal: aria-modal hides outside status regions from VoiceOver. */}
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{lastToast || ""}</div>
             <button ref={residentCloseRef} type="button" autoFocus onClick={() => setSelectedResident(null)} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name}</button>
             {selectedResident === "elly" ? <EllyCard /> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : selectedResident === "misty" ? <><VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} /><MistyMoonlitExchange /></> : selectedResident === "shelldon" || selectedResident === "shelby" ? <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} schedule={travelerSchedule?.[selectedResident]} /> : (
               <>
