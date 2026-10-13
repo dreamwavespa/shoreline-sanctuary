@@ -416,6 +416,25 @@ export default function BeachScene() {
           className="absolute left-[38%] top-[24%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
           <Image src={versionedImage("/images/Seaweed-and-salt-transparent.PNG")} alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-full w-full object-contain drop-shadow-lg" />
         </button>
+        {/* In-scene activities reuse the original handlers and game dialogs. */}
+        <button
+          type="button"
+          onClick={() => setTidePoolOpen(true)}
+          aria-label="Search the rocky tide pool"
+          className="absolute left-[90%] top-[88%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-teal-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
+        >
+          <span aria-hidden="true">🐚</span>
+        </button>
+        <button
+          type="button"
+          onClick={handleCollectSeaWater}
+          disabled={isCollectingWater}
+          aria-busy={isCollectingWater}
+          aria-label={`Collect one jar of sea water at the ocean's edge. You have ${state.inventory["sea-water"] || 0}.`}
+          className="absolute left-[95%] top-[53%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-cyan-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 disabled:opacity-60"
+        >
+          <span aria-hidden="true">🪣</span>
+        </button>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
