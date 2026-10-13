@@ -201,16 +201,10 @@ function SnappyCard() {
   );
 }
 
-function UmbrellaCard() {
-  const { state, play } = useGame();
-  const [open, setOpen] = useState(true);
+function UmbrellaCard({ open, toggle }: { open: boolean; toggle: () => void }) {
+  const { state } = useGame();
 
   if (!state.umbrellaPlaced) return null;
-
-  const toggle = () => {
-    setOpen((o) => !o);
-    play("umbrellaWhoof");
-  };
 
   return (
     <button
@@ -325,11 +319,13 @@ function BeachBagCard() {
 }
 
 export default function BeachScene() {
-  const { state, collectItem, collectSeaWater, setScreen, lastToast } = useGame();
+  const { state, collectItem, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
+  const [umbrellaOpen, setUmbrellaOpen] = useState(true);
+  const toggleUmbrella = () => { setUmbrellaOpen((wasOpen) => !wasOpen); play("umbrellaWhoof"); };
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
   // (schedule depends on real wall-clock time/date).
@@ -445,6 +441,16 @@ export default function BeachScene() {
         >
           <span aria-hidden="true">🌊</span>
         </button>
+        {state.umbrellaPlaced && (
+          <button
+            type="button"
+            onClick={toggleUmbrella}
+            aria-label={umbrellaOpen ? "Beach umbrella open. Fold the umbrella." : "Beach umbrella folded. Open the umbrella."}
+            className="absolute left-[66%] top-[66%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+          >
+            <span aria-hidden="true">{umbrellaOpen ? "⛱️" : "🎏"}</span>
+          </button>
+        )}
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
@@ -596,7 +602,7 @@ export default function BeachScene() {
             Ride the Current
           </button>
         </section>
-        <UmbrellaCard />
+        <UmbrellaCard open={umbrellaOpen} toggle={toggleUmbrella} />
         <SeagullCard />
         <BeachBagCard />
 
