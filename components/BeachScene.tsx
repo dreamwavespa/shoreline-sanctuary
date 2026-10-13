@@ -460,7 +460,7 @@ export default function BeachScene() {
             aria-label={umbrellaOpen ? "Beach umbrella open. Fold the umbrella." : "Beach umbrella folded. Open the umbrella."}
             className="absolute left-[66%] top-[66%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
           >
-            <span aria-hidden="true">{umbrellaOpen ? "⛱️" : "🎏"}</span>
+            <span aria-hidden="true" className={umbrellaOpen ? "inline-block origin-bottom transition-transform duration-700 ease-in-out scale-100 rotate-0 motion-reduce:transition-none" : "inline-block origin-bottom transition-transform duration-700 ease-in-out scale-50 -rotate-12 motion-reduce:transition-none"}>⛱️</span>
           </button>
         )}
         <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">{umbrellaAnnouncement}</span>
