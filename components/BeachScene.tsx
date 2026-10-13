@@ -435,7 +435,7 @@ export default function BeachScene() {
           type="button"
           onClick={() => setTidePoolOpen(true)}
           aria-label="Search the rocky tide pool"
-          className="absolute left-[90%] top-[88%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-teal-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
+          className="absolute left-[83%] top-[88%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-teal-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
         >
           <Image src={versionedImage("/images/Beach-tide-pool.PNG")} alt="" aria-hidden="true" width={90} height={90} unoptimized className="h-20 w-20 max-w-none object-contain drop-shadow-lg" />
         </button>
@@ -445,7 +445,7 @@ export default function BeachScene() {
           disabled={isCollectingWater}
           aria-busy={isCollectingWater}
           aria-label={`Collect one jar of sea water at the ocean's edge. You have ${state.inventory["sea-water"] || 0}.`}
-          className="absolute left-[95%] top-[53%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-cyan-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 disabled:opacity-60"
+          className="absolute left-[88%] top-[53%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-cyan-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 disabled:opacity-60"
         >
           <Image src={versionedImage("/images/Beach-bucket.PNG")} alt="" aria-hidden="true" width={70} height={70} unoptimized className={isCollectingWater ? "h-16 w-16 max-w-none object-contain drop-shadow-lg origin-bottom transition-transform duration-500 ease-in-out rotate-[28deg] translate-y-2 scale-95 motion-reduce:transition-none" : "h-16 w-16 max-w-none object-contain drop-shadow-lg origin-bottom transition-transform duration-500 ease-in-out rotate-0 translate-y-0 scale-100 motion-reduce:transition-none"} />
         </button>
@@ -465,7 +465,7 @@ export default function BeachScene() {
             type="button"
             onClick={toggleUmbrella}
             aria-label={umbrellaOpen ? "Beach umbrella open. Fold the umbrella." : "Beach umbrella folded. Open the umbrella."}
-            className="absolute left-[66%] top-[66%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+            className="absolute left-[62%] top-[63%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
           >
             <Image src={versionedImage(umbrellaOpen ? "/images/Beach-umbrella-open.PNG" : "/images/Beach-umbrella-closed.PNG")} alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-24 w-24 max-w-none object-contain drop-shadow-lg transition-transform duration-700 ease-in-out motion-reduce:transition-none" />
           </button>
