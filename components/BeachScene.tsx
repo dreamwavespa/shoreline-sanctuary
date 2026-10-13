@@ -331,7 +331,12 @@ export default function BeachScene() {
     const nextOpen = !umbrellaOpen;
     setUmbrellaOpen(nextOpen);
     setUmbrellaAnnouncement(nextOpen ? "Beach umbrella opened." : "Beach umbrella folded.");
-    play("umbrellaWhoof", 1);
+    // Use the two local umbrella effects rather than the unreliable external clip.
+    try {
+      const sound = new Audio(nextOpen ? "/audio/Umbrella-open.mp3" : "/audio/Umbrella-close.mp3");
+      sound.volume = 1;
+      void sound.play().catch(() => {});
+    } catch {}
   };
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
