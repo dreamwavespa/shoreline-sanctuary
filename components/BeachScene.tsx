@@ -325,6 +325,12 @@ export default function BeachScene() {
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
+  const [seagullDialogOpen, setSeagullDialogOpen] = useState(false);
+  const picnicBasketButtonRef = useRef<HTMLButtonElement>(null);
+  const closeSeagullDialog = () => {
+    setSeagullDialogOpen(false);
+    window.setTimeout(() => picnicBasketButtonRef.current?.focus(), 0);
+  };
   const [umbrellaOpen, setUmbrellaOpen] = useState(true);
   const [umbrellaAnnouncement, setUmbrellaAnnouncement] = useState("");
   const toggleUmbrella = () => {
@@ -464,6 +470,20 @@ export default function BeachScene() {
           </button>
         )}
         <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">{umbrellaAnnouncement}</span>
+        {state.picnicBasketPlaced && (
+          <button
+            ref={picnicBasketButtonRef}
+            type="button"
+            onClick={() => setSeagullDialogOpen(true)}
+            aria-label={state.seagullDismissedDate === localDateKey() ? "Picnic basket. The seagull has flown away until tomorrow." : "Picnic basket. Visit the seagull to trade or shoo him away."}
+            className="absolute left-[55%] top-[71%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-amber-50/30 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+          >
+            <span aria-hidden="true">🧺</span>
+            {state.seagullDismissedDate !== localDateKey() && (
+              <span aria-hidden="true" className="absolute -right-2 -top-3 text-3xl drop-shadow-lg">🕊️</span>
+            )}
+          </button>
+        )}
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
@@ -682,6 +702,15 @@ export default function BeachScene() {
                 {selectedResident === "penelope" && <PenelopeCleanupHeart />}
               </>
             )}
+          </section>
+        </div>
+      )}
+      {seagullDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={closeSeagullDialog}>
+          <section role="dialog" aria-modal="true" aria-label="Picnic basket and seagull" className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[#fbf3e3] p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{lastToast || ""}</div>
+            <button type="button" autoFocus onClick={closeSeagullDialog} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close Picnic Basket</button>
+            <SeagullCard />
           </section>
         </div>
       )}
