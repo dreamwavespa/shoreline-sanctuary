@@ -447,8 +447,9 @@ export default function BeachScene() {
           aria-label={`Collect one jar of sea water at the ocean's edge. You have ${state.inventory["sea-water"] || 0}.`}
           className="absolute left-[95%] top-[53%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-cyan-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 disabled:opacity-60"
         >
-          <Image src={versionedImage("/images/Beach-bucket.PNG")} alt="" aria-hidden="true" width={70} height={70} unoptimized className="h-16 w-16 max-w-none object-contain drop-shadow-lg" />
+          <Image src={versionedImage("/images/Beach-bucket.PNG")} alt="" aria-hidden="true" width={70} height={70} unoptimized className={isCollectingWater ? "h-16 w-16 max-w-none object-contain drop-shadow-lg origin-bottom transition-transform duration-500 ease-in-out rotate-[28deg] translate-y-2 scale-95 motion-reduce:transition-none" : "h-16 w-16 max-w-none object-contain drop-shadow-lg origin-bottom transition-transform duration-500 ease-in-out rotate-0 translate-y-0 scale-100 motion-reduce:transition-none"} />
         </button>
+        <span role="status" aria-live="polite" className="sr-only">{isCollectingWater ? "Dipping the bucket into the sea and filling it with water." : ""}</span>
         {/* Snappy's existing mini-game, accessible directly beside the turtle. */}
         <button
           ref={currentRideButtonRef}
