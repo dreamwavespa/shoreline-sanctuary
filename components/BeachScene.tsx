@@ -435,6 +435,16 @@ export default function BeachScene() {
         >
           <span aria-hidden="true">🪣</span>
         </button>
+        {/* Snappy's existing mini-game, accessible directly beside the turtle. */}
+        <button
+          ref={currentRideButtonRef}
+          type="button"
+          onClick={() => setCurrentRideOpen(true)}
+          aria-label="Play Snappy's Current Ride mini-game"
+          className="absolute left-[89%] top-[43%] z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-teal-950/65 text-2xl shadow-md ring-1 ring-white/60 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
+        >
+          <span aria-hidden="true">🌊</span>
+        </button>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
@@ -579,7 +589,6 @@ export default function BeachScene() {
           <h2 id="current-ride-heading" className="mt-1 font-serif text-lg font-bold text-emerald-950">🐢 Snappy’s Current Ride</h2>
           <p className="mt-1 text-sm text-emerald-800">Guide Snappy through gentle currents, collect bubbles, and avoid seaweed, rocks, and floating debris. Every choice is untimed.</p>
           <button
-            ref={currentRideButtonRef}
             type="button"
             onClick={() => setCurrentRideOpen(true)}
             className="mt-3 w-full rounded-xl bg-emerald-700 py-3 font-bold text-white shadow active:bg-emerald-800"
