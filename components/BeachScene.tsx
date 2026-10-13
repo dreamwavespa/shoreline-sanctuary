@@ -210,6 +210,7 @@ function UmbrellaCard({ open, toggle }: { open: boolean; toggle: () => void }) {
     <button
       type="button"
       onClick={toggle}
+      aria-label={open ? "Beach umbrella is open. Fold umbrella." : "Beach umbrella is folded. Open umbrella."}
       className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-sky-200 flex items-center gap-3 active:scale-[0.98] transition"
     >
       <div className="w-16 h-16 shrink-0 rounded-xl bg-sky-50 flex items-center justify-center text-4xl">
@@ -325,7 +326,13 @@ export default function BeachScene() {
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
   const [umbrellaOpen, setUmbrellaOpen] = useState(true);
-  const toggleUmbrella = () => { setUmbrellaOpen((wasOpen) => !wasOpen); play("umbrellaWhoof"); };
+  const [umbrellaAnnouncement, setUmbrellaAnnouncement] = useState("");
+  const toggleUmbrella = () => {
+    const nextOpen = !umbrellaOpen;
+    setUmbrellaOpen(nextOpen);
+    setUmbrellaAnnouncement(nextOpen ? "Beach umbrella opened." : "Beach umbrella folded.");
+    play("umbrellaWhoof", 1);
+  };
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   // Computed client-side, post-mount, so server and first client render match
   // (schedule depends on real wall-clock time/date).
@@ -451,6 +458,7 @@ export default function BeachScene() {
             <span aria-hidden="true">{umbrellaOpen ? "⛱️" : "🎏"}</span>
           </button>
         )}
+        <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">{umbrellaAnnouncement}</span>
         {/* Interactive resident artwork, with accessible links to existing interactions. */}
         {([
           { id: "sandy", name: "Sandy", image: "/images/Beach-Sandy-transparent.png", x: 24, y: 33 },
