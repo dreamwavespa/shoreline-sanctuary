@@ -480,7 +480,7 @@ export default function BeachScene() {
           >
             <span aria-hidden="true">🧺</span>
             {state.seagullDismissedDate !== localDateKey() && (
-              <span aria-hidden="true" className="absolute -right-2 -top-3 text-3xl drop-shadow-lg">🕊️</span>
+              <span aria-hidden="true" className="absolute -right-4 -top-5 flex h-11 w-11 items-center justify-center rounded-full bg-sky-800/90 text-3xl shadow-lg ring-2 ring-white">🕊️</span>
             )}
           </button>
         )}
