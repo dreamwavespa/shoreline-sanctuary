@@ -465,7 +465,7 @@ export default function BeachScene() {
             type="button"
             onClick={toggleUmbrella}
             aria-label={umbrellaOpen ? "Beach umbrella open. Fold the umbrella." : "Beach umbrella folded. Open the umbrella."}
-            className="absolute left-[62%] top-[63%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+            className="absolute left-[53%] top-[61%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
           >
             <Image src={versionedImage(umbrellaOpen ? "/images/Beach-umbrella-open.PNG" : "/images/Beach-umbrella-closed.PNG")} alt="" aria-hidden="true" width={110} height={110} unoptimized className="h-24 w-24 max-w-none object-contain drop-shadow-lg transition-transform duration-700 ease-in-out motion-reduce:transition-none" />
           </button>
@@ -477,11 +477,11 @@ export default function BeachScene() {
             type="button"
             onClick={() => setSeagullDialogOpen(true)}
             aria-label={state.seagullDismissedDate === localDateKey() ? "Picnic basket. The seagull has flown away until tomorrow." : "Picnic basket. Visit the seagull to trade or shoo him away."}
-            className="absolute left-[55%] top-[71%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-amber-50/30 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
+            className="absolute left-[48%] top-[73%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-amber-50/30 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
           >
             <Image src={versionedImage("/images/Beach-picnic-basket.PNG")} alt="" aria-hidden="true" width={86} height={86} unoptimized className="h-20 w-20 max-w-none object-contain drop-shadow-lg" />
             {state.seagullDismissedDate !== localDateKey() && (
-              <Image src={versionedImage("/images/Beach-seagull.PNG")} alt="" aria-hidden="true" width={72} height={72} unoptimized className="absolute -right-7 -top-9 h-16 w-16 max-w-none object-contain drop-shadow-lg" />
+              <Image src={versionedImage("/images/Beach-seagull.PNG")} alt="" aria-hidden="true" width={72} height={72} unoptimized className="absolute -right-8 -top-7 h-14 w-14 max-w-none object-contain drop-shadow-lg" />
             )}
           </button>
         )}
