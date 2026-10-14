@@ -542,54 +542,7 @@ export default function BeachScene() {
         {/* Beach scenery provides the water bucket, grove, shop, tide pool, Snappy ride, umbrella, and picnic interactions. */}
         <BeachBagCard />
 
-        <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
-          Shoreline Residents & Eco-Allies
-        </p>
-        <div id="beach-resident-sandy"><VillagerCard villager={VILLAGERS.sandy} /></div>
-        <SandyStormHunt />
-        <div id="beach-resident-kai"><VillagerCard villager={VILLAGERS.kai} /></div>
-        <KaiBuriedTreasure />
-        <div id="beach-resident-sunny"><VillagerCard villager={VILLAGERS.sunny} /></div>
-        <div id="beach-resident-penelope"><VillagerCard villager={VILLAGERS.penelope} /></div>
-        <PenelopeCleanupHeart />
-
-        <p className="text-xs font-semibold text-amber-800/70 uppercase tracking-wide pt-2">
-          Traveling & Special Characters
-        </p>
-        {travelerSchedule && (
-          <div className="rounded-2xl bg-indigo-50 ring-1 ring-indigo-200 p-3">
-            <p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">
-              Today's Visitors
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {(["shelldon", "shelby", "misty"] as const).map((id) => (
-                <span
-                  key={id}
-                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
-                    travelerSchedule[id].available ? "bg-emerald-500 text-white" : "bg-white text-slate-400 ring-1 ring-slate-200"
-                  }`}
-                >
-                  {travelerSchedule[id].available ? "🟢" : "🌘"} {VILLAGERS[id].name}
-                </span>
-              ))}
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white">
-                🟢 Angel
-              </span>
-            </div>
-          </div>
-        )}
-        <VillagerCard villager={VILLAGERS.shelldon} schedule={travelerSchedule?.shelldon} />
-        <VillagerCard villager={VILLAGERS.shelby} schedule={travelerSchedule?.shelby} />
-        <VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} />
-        <MistyMoonlitExchange />
-        <VillagerCard villager={VILLAGERS.angel} />
-        {nighttime && state.notebookRewardsClaimed.includes("lighthouse-lookout") && (
-          <>
-            <p className="text-xs font-semibold text-cyan-800/80 uppercase tracking-wide pt-2">Master Lookout · Secret Night Visitors</p>
-            <VillagerCard villager={VILLAGERS.celeste} />
-            <VillagerCard villager={VILLAGERS.orion} />
-          </>
-        )}
+        {/* Resident interactions, special quests, and visitor exchanges live in the accessible character dialogs above. */}
       </div>
       {selectedResident && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={() => setSelectedResident(null)}>
