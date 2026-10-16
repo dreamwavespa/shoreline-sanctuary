@@ -1772,6 +1772,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!listing || !item || stateRef.current.sandDollars < listing.price) return false;
     if (listing.kind === "blueprint" && (stateRef.current.blueprints.includes(itemId) || (villagerId === "shelby" && !isShelbyBlueprintNeeded(itemId, stateRef.current)))) return false;
     if (itemId === "seaside-air-pump" && (stateRef.current.inventory[itemId] || 0) > 0) return false;
+    if (villagerId === "shelby" && ["antique-captains-compass", "ship-in-a-bottle", "captains-coin", "shelby-sealed-cargo"].includes(itemId) &&
+      ((stateRef.current.inventory[itemId] || 0) > 0 || stateRef.current.notebookDiscovered[itemId])) return false;
 
     setState((s) => ({
       ...s,
