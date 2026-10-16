@@ -11,7 +11,7 @@ import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
 import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
 import { getScheduleStatus } from "./schedule";
-import { getTravelingMerchantStock } from "./travelingMerchants";
+import { getTravelingMerchantStock, isShelbyBlueprintNeeded } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
 import { NOTEBOOK_SECTIONS } from "./notebook";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
@@ -1767,10 +1767,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const buyFromTraveler = (villagerId: "shelldon" | "shelby", itemId: string) => {
     if (!getScheduleStatus(villagerId).available) return false;
-    const listing = getTravelingMerchantStock(villagerId).find((candidate) => candidate.itemId === itemId);
+    const listing = getTravelingMerchantStock(villagerId, new Date(), stateRef.current).find((candidate) => candidate.itemId === itemId);
     const item = ITEMS[itemId];
     if (!listing || !item || stateRef.current.sandDollars < listing.price) return false;
-    if (listing.kind === "blueprint" && stateRef.current.blueprints.includes(itemId)) return false;
+    if (listing.kind === "blueprint" && (stateRef.current.blueprints.includes(itemId) || (villagerId === "shelby" && !isShelbyBlueprintNeeded(itemId, stateRef.current)))) return false;
     if (itemId === "seaside-air-pump" && (stateRef.current.inventory[itemId] || 0) > 0) return false;
 
     setState((s) => ({
