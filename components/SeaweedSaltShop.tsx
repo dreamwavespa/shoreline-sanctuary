@@ -6,8 +6,10 @@ import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { getShopDateKey, getTodaysDiscovery, SELL_PRICES, SHOP_STOCK } from "@/lib/shop";
 import { useGame } from "@/lib/store";
+import VillagerCard from "@/components/VillagerCard";
+import { VILLAGERS } from "@/lib/villagers";
 
-type ShopSection = "buy" | "sell" | "discoveries" | "talk";
+type ShopSection = "buy" | "sell" | "discoveries" | "talk" | "shipping";
 
 const SEAWEED_LINES = [
   "Every object the tide returns has another life in it. Sometimes it only needs the right pair of paws.",
@@ -92,6 +94,15 @@ export default function SeaweedSaltShop() {
       </section>
 
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
+        <section aria-label="Explore Seaweed and Salt" className="relative overflow-hidden rounded-2xl shadow-lg">
+          <div className="relative aspect-[4/3] min-h-[290px]">
+            <Image src={SCENES.seaweedShopInterior} alt="Cozy wooden interior of Seaweed and Salt with shelves and a counter" fill unoptimized sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-stone-950/20" aria-hidden="true" />
+            <button type="button" onClick={() => setSection("buy")} aria-label="Browse shop shelves and buy goods" className="absolute left-[4%] top-[30%] z-10 rounded-xl bg-amber-50/95 px-3 py-3 text-sm font-bold text-stone-900 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">Shop Shelves</button>
+            <button type="button" onClick={() => setSection("shipping")} aria-label="Open Shelby's Shipping Counter to pack orders and collect returning cargo" className="absolute left-[30%] bottom-[13%] z-10 rounded-xl bg-sky-50/95 px-3 py-3 text-sm font-bold text-sky-950 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">📦 Shelby's Shipping Counter</button>
+            <button type="button" onClick={() => setSection("discoveries")} aria-label="Explore today's special discovery" className="absolute right-[4%] top-[30%] z-10 rounded-xl bg-amber-50/95 px-3 py-3 text-sm font-bold text-stone-900 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">Today's Discovery</button>
+          </div>
+        </section>
         <section className="flex items-center gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 shadow-sm">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
             <Image src={SCENES.seaweedPortrait} alt="Seaweed the otter wearing her blue work apron" fill unoptimized sizes="80px" className="object-cover" />
@@ -105,12 +116,13 @@ export default function SeaweedSaltShop() {
           </div>
         </section>
 
-        <nav aria-label="Seaweed and Salt shop sections" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <nav aria-label="Seaweed and Salt shop sections" className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {([
             ["buy", "Buy Goods"],
             ["sell", "Sell & Trade"],
             ["discoveries", "Discoveries"],
             ["talk", "Talk to Seaweed"],
+            ["shipping", "Shelby’s Shipping Counter"],
           ] as [ShopSection, string][]).map(([id, label]) => (
             <button
               type="button"
@@ -125,6 +137,14 @@ export default function SeaweedSaltShop() {
             </button>
           ))}
         </nav>
+
+        {section === "shipping" && (
+          <section aria-label="Shelby's Shipping Counter" className="space-y-3">
+            <h2 className="font-serif text-2xl font-bold">Shelby's Shipping Counter</h2>
+            <p className="text-sm text-stone-700">Pack orders, send crates and collect returning cargo here every day, even when Shelby is away from the beach. Open the shipping card below to work on your order.</p>
+            <VillagerCard villager={VILLAGERS.shelby} />
+          </section>
+        )}
 
         {section === "buy" && (
           <section aria-labelledby="shop-buy-heading">
