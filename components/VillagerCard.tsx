@@ -49,7 +49,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
   const sisterRewards = SEA_GLASS_SISTER_REWARDS[villager.id] || [];
   const nextSisterReward = getNextSeaGlassSisterReward(villager.id, giftCount);
   const merchantId: "shelldon" | "shelby" | null = villager.id === "shelldon" || villager.id === "shelby" ? villager.id : null;
-  const merchantStock = merchantId ? getTravelingMerchantStock(merchantId) : [];
+  const merchantStock = merchantId ? getTravelingMerchantStock(merchantId, new Date(), state) : [];
   const nightVisitorId: "celeste" | "orion" | null = villager.id === "celeste" || villager.id === "orion" ? villager.id : null;
   const nightVisits = nightVisitorId ? (state.nightVisitorVisits[nightVisitorId] || 0) : 0;
 
@@ -142,7 +142,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
           {merchantId && !isAway && (
             <section aria-label={`${villager.name}'s current stock`} className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
               <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-sm font-bold text-amber-950">Current Traveling Stock</h3><span className="text-xs font-semibold text-amber-800">🪙 {state.sandDollars}</span></div>
-              <p className="mb-3 text-xs text-amber-700">{villager.id === "shelldon" ? "This selection changes each Shelldon Sunday." : "Shelby unloads one rare expansion blueprint each time the Trading Ship docks."}</p>
+              <p className="mb-3 text-xs text-amber-700">{villager.id === "shelldon" ? "This selection changes each Shelldon Sunday." : "Shelby brings four rotating cargo items and any blueprints still needed for future locked areas."}</p>
               <div className="space-y-2">
                 {merchantStock.map((listing) => {
                   const item = ITEMS[listing.itemId]; if (!item) return null;
