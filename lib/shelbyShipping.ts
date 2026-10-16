@@ -23,7 +23,7 @@ export const SHELBY_SHIPPING_ORDERS: ShippingOrder[] = [
     ],
   },
   { id: "craft-supplies", title: "Seaside Craft Supplies", description: "Send colorful materials to a coastal workshop.", rewardItemId: "glass-green", rewardCount: 2, sandDollars: 6,
-    requires: [{ itemId: "glass-blue", count: 2 }, { itemId: "shell-clam", count: 2 }, { itemId: "driftwood", count: 2 }] },
+    requires: [{ itemId: "glass-blue", count: 2 }, { itemId: "shell-clam", count: 2 }, { itemId: "raw-driftwood-arch", count: 2 }] },
   { id: "tropical-produce", title: "Tropical Produce Delivery", description: "Stock a neighboring island's fruit stand.", rewardItemId: "glass-blue", rewardCount: 3, sandDollars: 7,
     requires: [{ itemId: "banana", count: 2 }, { itemId: "coconut", count: 3 }] },
   { id: "ocean-research", title: "Ocean Research Supplies", description: "Deliver samples to an island marine research team.", rewardItemId: "glass-green", rewardCount: 3, sandDollars: 8,
