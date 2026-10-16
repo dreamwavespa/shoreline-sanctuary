@@ -97,7 +97,6 @@ export default function SeaweedSaltShop() {
               { id: "shipping", label: "Open Shelby's Shipping Counter", x: "35%", y: "40%", w: "31%", h: "40%" },
               { id: "discoveries", label: "Explore the seasonal and specialty display", x: "72%", y: "25%", w: "26%", h: "42%" },
               { id: "sell", label: "Sell and trade at the counter", x: "3%", y: "75%", w: "27%", h: "22%" },
-              { id: "talk", label: "Talk to Seaweed", x: "73%", y: "70%", w: "25%", h: "27%" },
             ] as const).map((area) => (
               <button key={area.id} type="button" aria-label={area.label} title={area.label}
                 onClick={(event) => openArea(area.id, event.currentTarget)}
@@ -106,6 +105,11 @@ export default function SeaweedSaltShop() {
                 <span className="sr-only">{area.label}</span>
               </button>
             ))}
+            <button type="button" aria-label="Talk to Seaweed the otter" title="Talk to Seaweed"
+              onClick={(event) => openArea("talk", event.currentTarget)}
+              className="absolute bottom-[3%] right-[2%] z-20 h-[43%] w-[24%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">
+              <Image src={`/images/Shop-Seaweed-transparent.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="" aria-hidden="true" fill unoptimized sizes="(max-width: 640px) 25vw, 160px" className="object-contain object-bottom drop-shadow-lg" />
+            </button>
           </div>
         </section>
         {section && (
