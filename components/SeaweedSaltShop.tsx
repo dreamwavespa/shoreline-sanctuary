@@ -30,14 +30,24 @@ function ItemIcon({ itemId }: { itemId: string }) {
 
 export default function SeaweedSaltShop() {
   const { state, setScreen, setMusicOverride, play, buyFromSeaweed, sellToSeaweed, sellCustomJewelry, toggleCustomJewelryFavorite, sellCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
-  const [section, setSection] = useState<ShopSection>("buy");
+  const [section, setSection] = useState<ShopSection | null>(null);
   const [discoveryRevealed, setDiscoveryRevealed] = useState(false);
   const [talkIndex, setTalkIndex] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const activityRef = useRef<HTMLDivElement>(null);
-  const openArea = (area: ShopSection) => {
-    setSection(area);
-    window.setTimeout(() => activityRef.current?.focus(), 0);
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const openArea = (area: ShopSection, trigger: HTMLButtonElement) => { triggerRef.current = trigger; setSection(area); };
+  const closeArea = () => { setSection(null); window.setTimeout(() => triggerRef.current?.focus(), 0); };
+  useEffect(() => { if (section) closeRef.current?.focus(); }, [section]);
+  const handleDialogKeys = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === "Escape") { event.preventDefault(); closeArea(); return; }
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])') || []);
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   };
   const discovery = useMemo(() => getTodaysDiscovery(), []);
   const dateKey = useMemo(() => getShopDateKey(), []);
@@ -74,31 +84,11 @@ export default function SeaweedSaltShop() {
 
   return (
     <div className="h-full overflow-y-auto bg-[#f3e4c8] pb-24 text-stone-900">
-      <section className="relative h-52 overflow-hidden sm:h-64">
-        <Image
-          src={SCENES.seaweedShopExterior}
-          alt="Seaweed and Salt, a weathered cedar shop beside the shoreline"
-          fill
-          priority
-          unoptimized
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-900/15 to-transparent" />
-        <button
-          type="button"
-          onClick={() => setScreen("beach")}
-          className="absolute left-3 top-3 rounded-full bg-stone-950/75 px-4 py-2 text-sm font-bold text-white shadow-lg backdrop-blur-sm focus:outline-none focus:ring-4 focus:ring-cyan-200"
-        >
-          ← Return to Beach
-        </button>
-        <div className="absolute bottom-4 left-4 right-4 text-white">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-100">Provisions Crafts and Tidal Curios</p>
-          <h1 ref={titleRef} tabIndex={-1} className="font-serif text-3xl font-bold outline-none">Seaweed &amp; Salt</h1>
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
+      <header className="flex items-center justify-between gap-3 px-4 pt-4">
+        <h1 ref={titleRef} tabIndex={-1} className="font-serif text-2xl font-bold outline-none">Seaweed &amp; Salt</h1>
+        <button type="button" onClick={() => setScreen("beach")} className="min-h-11 rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Return to Beach</button>
+      </header>
+      <div className="mx-auto max-w-3xl px-4 py-4">
         <section aria-label="Explore Seaweed and Salt" className="relative overflow-hidden rounded-2xl shadow-lg">
           <div className="relative aspect-[3/2] min-h-0">
             <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Seaweed and Salt general store interior, with shelves to the left, Shelby's shipping counter in the center, and specialty displays to the right" fill unoptimized sizes="100vw" className="object-contain object-center" />
@@ -110,7 +100,7 @@ export default function SeaweedSaltShop() {
               { id: "talk", label: "Talk to Seaweed", x: "73%", y: "70%", w: "25%", h: "27%" },
             ] as const).map((area) => (
               <button key={area.id} type="button" aria-label={area.label} title={area.label}
-                onClick={() => openArea(area.id)}
+                onClick={(event) => openArea(area.id, event.currentTarget)}
                 className="absolute z-10 rounded-xl bg-transparent focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300 focus-visible:bg-white/20"
                 style={{ left: area.x, top: area.y, width: area.w, height: area.h }}>
                 <span className="sr-only">{area.label}</span>
@@ -118,8 +108,10 @@ export default function SeaweedSaltShop() {
             ))}
           </div>
         </section>
-        <div ref={activityRef} tabIndex={-1} className="outline-none" aria-live="off">
-          <p className="mb-2 text-sm font-semibold text-teal-950">Selected area: {section === "buy" ? "Shop Shelves" : section === "sell" ? "Sell & Trade" : section === "shipping" ? "Shelby's Shipping Counter" : section === "discoveries" ? "Special Discoveries" : "Talk to Seaweed"}</p>
+        {section && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-3 sm:p-6" role="presentation" onClick={closeArea}>
+            <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={section === "buy" ? "Shop Shelves" : section === "sell" ? "Sell and Trade" : section === "shipping" ? "Shelby's Shipping Counter" : section === "discoveries" ? "Special Discoveries" : "Talk to Seaweed"} onKeyDown={handleDialogKeys} onClick={(event) => event.stopPropagation()} className="max-h-[85dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-[#f3e4c8] p-4 text-stone-900 shadow-xl">
+              <button ref={closeRef} type="button" onClick={closeArea} className="mb-4 min-h-11 rounded-xl bg-teal-900 px-4 py-2 font-bold text-white">Close and return to shop</button>
         {section === "shipping" && (
           <section aria-label="Shelby's Shipping Counter" className="space-y-3">
             <h2 className="font-serif text-2xl font-bold">Shelby's Shipping Counter</h2>
@@ -312,7 +304,9 @@ export default function SeaweedSaltShop() {
             </div>
           </section>
         )}
-        </div>
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );
