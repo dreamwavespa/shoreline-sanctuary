@@ -15,6 +15,16 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "pearl-silk-thread": { id: "pearl-silk-thread", name: "Pearl Silk Thread", category: "raw", icon: "🧵", isEmoji: true, rarity: "rare", sfx: "bagRustle", artDescription: "Silvery silk thread from an island trading vessel, suited to delicate jewelry." },
+  "polished-driftwood": { id: "polished-driftwood", name: "Polished Driftwood", category: "raw", icon: "🪵", isEmoji: true, rarity: "uncommon", sfx: "driftwood", artDescription: "Smooth pale driftwood polished for fine coastal crafts." },
+  "colored-glass-pieces": { id: "colored-glass-pieces", name: "Colored Glass Pieces", category: "glass", icon: "🔷", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
+  "silver-jewelry-wire": { id: "silver-jewelry-wire", name: "Silver Jewelry Wire", category: "raw", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "driftwood" },
+  "imported-island-herb-seeds": { id: "imported-island-herb-seeds", name: "Imported Island Herb Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "rare", sfx: "bagRustle", artDescription: "A sealed packet of seeds from a distant island; future garden planting material." },
+  "antique-captains-compass": { id: "antique-captains-compass", name: "Antique Captain's Compass", category: "special", icon: "🧭", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "ship-in-a-bottle": { id: "ship-in-a-bottle", name: "Ship in a Bottle", category: "decor", icon: "⛵", isEmoji: true, rarity: "rare", sfx: "glassClink" },
+  "captains-coin": { id: "captains-coin", name: "Captain's Coin", category: "special", icon: "🪙", isEmoji: true, rarity: "rare", sfx: "sandDollarCoin" },
+  "shelby-sealed-cargo": { id: "shelby-sealed-cargo", name: "Sealed Trading Cargo", category: "special", icon: "📦", isEmoji: true, rarity: "rare", sfx: "bagRustle", artDescription: "A sealed collectible parcel from Shelby's distant trading route." },
+
   "luna-moon-snail-shell": { id: "luna-moon-snail-shell", name: "Luna’s Moon Snail Shell", category: "shell", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "pearl", glows: true, artDescription: "A pearly spiral shell with a soft silver glow, given by Luna after following her moonlit trail." },
   "moonlit-sea-glass": { id: "moonlit-sea-glass", name: "Moonlit Sea Glass", category: "glass", icon: "🩵", isEmoji: true, rarity: "uncommon", sfx: "pearl", glows: true },
   "milky-moonstone-pebbles": { id: "milky-moonstone-pebbles", name: "Milky Moonstone Pebbles", category: "raw", icon: "🤍", isEmoji: true, rarity: "uncommon", sfx: "pearl" },
