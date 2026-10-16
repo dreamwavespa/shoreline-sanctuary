@@ -58,6 +58,16 @@ export interface ShelbyProgress {
 }
 
 const SHELBY_CARGO: TravelingMerchantListing[] = [
+  { itemId: "pearl-silk-thread", price: 16, kind: "item", note: "Imported silk thread for delicate jewelry." },
+  { itemId: "polished-driftwood", price: 10, kind: "item", note: "Beautifully smoothed wood from a distant beach." },
+  { itemId: "colored-glass-pieces", price: 11, kind: "item", note: "Bright glass fragments for creative projects." },
+  { itemId: "silver-jewelry-wire", price: 18, kind: "item", note: "Fine silver wire for special crafts." },
+  { itemId: "imported-island-herb-seeds", price: 15, kind: "item", note: "A rare seed packet to save for a future garden expansion." },
+  { itemId: "antique-captains-compass", price: 38, kind: "item", note: "A collectible navigational treasure from an old ship." },
+  { itemId: "ship-in-a-bottle", price: 34, kind: "item", note: "A miniature sailing ship preserved in glass." },
+  { itemId: "captains-coin", price: 29, kind: "item", note: "A rare commemorative coin from a trading captain." },
+  { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "A sealed keepsake parcel for your collection; not yet openable." },
+
   { itemId: "hemp-thread", price: 5, kind: "item", note: "Sturdy thread for shoreline crafts." },
   { itemId: "copper-wire", price: 7, kind: "item", note: "Salvaged wire for jewelry and repairs." },
   { itemId: "raw-driftwood-planks", price: 8, kind: "item", note: "Weathered timber for repairs and special requests." },
@@ -85,7 +95,7 @@ function rotate<T>(items: T[], start: number, count: number): T[] {
   return Array.from({ length: Math.min(count, items.length) }, (_, index) => items[(start + index) % items.length]);
 }
 
-/** Shelldon brings a varied Sunday market; Shelby unloads one rare plan per docking. */
+/** Shelldon brings a Sunday market; Shelby rotates imported cargo and any still-needed plans. */
 export function getTravelingMerchantStock(villagerId: string, date = new Date(), progress?: ShelbyProgress): TravelingMerchantListing[] {
   const day = localDayNumber(date);
   if (villagerId === "shelldon") {
@@ -101,7 +111,10 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date(),
     const docking = Math.floor(day / 4);
     const needed = SHELBY_BLUEPRINTS.filter((listing) => isShelbyBlueprintNeeded(listing.itemId, progress));
     // All still-needed plans are offered on every visit; the cargo slots rotate separately.
-    return [...needed, ...rotate(SHELBY_CARGO, docking % SHELBY_CARGO.length, 4)];
+    const unique = new Set(["antique-captains-compass", "ship-in-a-bottle", "captains-coin", "shelby-sealed-cargo"]);
+    const eligibleCargo = SHELBY_CARGO.filter((listing) => !unique.has(listing.itemId) ||
+      !progress || ((progress.inventory[listing.itemId] || 0) === 0 && !progress.notebookDiscovered[listing.itemId]));
+    return [...needed, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
   }
   return [];
 }
