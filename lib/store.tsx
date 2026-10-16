@@ -458,6 +458,7 @@ interface Ctx {
   visitGroveBees: () => { ok: boolean; wax: boolean; honey: boolean; minutesLeft?: number };
   buyFromSeaweed: (itemId: string, discoveryDate?: string) => boolean;
   buyFromTraveler: (villagerId: "shelldon" | "shelby", itemId: string) => boolean;
+  openShelbyCargo: () => string | null;
   cultivateWithCoral: () => string | null;
   bakeWithMina: () => boolean;
   claimBubblesDelivery: () => { bottleItemId: string; bonusItemId: string } | null;
@@ -1765,6 +1766,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const openShelbyCargo = (): string | null => {
+    if ((stateRef.current.inventory["shelby-sealed-cargo"] || 0) < 1) return null;
+    const common = ["pearl-silk-thread", "polished-driftwood", "colored-glass-pieces", "silver-jewelry-wire", "vanilla", "sea-lavender"];
+    const rare = ["glass-rainbow", "pearl-blue", "shell-nautilus", "star-sand"];
+    const exceptional = ["antique-captains-compass", "ship-in-a-bottle", "captains-coin"];
+    const roll = Math.random();
+    const pool = roll < 0.06 ? exceptional.filter(id => !stateRef.current.notebookDiscovered[id] && !(stateRef.current.inventory[id] > 0)) : roll < 0.30 ? rare : common;
+    const actual = pool.length ? pool : rare;
+    const reward = actual[Math.floor(Math.random() * actual.length)];
+    setState(current => {
+      if ((current.inventory["shelby-sealed-cargo"] || 0) < 1) return current;
+      return { ...current,
+        inventory: { ...current.inventory, "shelby-sealed-cargo": current.inventory["shelby-sealed-cargo"] - 1, [reward]: (current.inventory[reward] || 0) + 1 },
+        notebookDiscovered: { ...current.notebookDiscovered, [reward]: true, "shelby-sealed-cargo": true },
+      };
+    });
+    play("shelbyBox", 0.65);
+    toast(`Mystery cargo opened: ${ITEMS[reward].name}!`);
+    return reward;
+  };
+
   const buyFromTraveler = (villagerId: "shelldon" | "shelby", itemId: string) => {
     if (!getScheduleStatus(villagerId).available) return false;
     const listing = getTravelingMerchantStock(villagerId, new Date(), stateRef.current).find((candidate) => candidate.itemId === itemId);
@@ -2351,6 +2373,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       visitGroveBees,
       buyFromSeaweed,
       buyFromTraveler,
+      openShelbyCargo,
       cultivateWithCoral,
       bakeWithMina,
       claimBubblesDelivery,
