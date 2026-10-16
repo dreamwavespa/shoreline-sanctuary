@@ -100,14 +100,14 @@ export default function SeaweedSaltShop() {
 
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
         <section aria-label="Explore Seaweed and Salt" className="relative overflow-hidden rounded-2xl shadow-lg">
-          <div className="relative aspect-[3/4] sm:aspect-[4/3] min-h-[390px]">
-            <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Seaweed and Salt general store interior, with shelves to the left, Shelby's shipping counter in the center, and specialty displays to the right" fill unoptimized sizes="100vw" className="object-cover object-center" />
+          <div className="relative aspect-[3/2] min-h-0">
+            <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Seaweed and Salt general store interior, with shelves to the left, Shelby's shipping counter in the center, and specialty displays to the right" fill unoptimized sizes="100vw" className="object-contain object-center" />
             {([
-              { id: "buy", label: "Browse the shop shelves", x: "4%", y: "26%", w: "27%", h: "45%" },
-              { id: "shipping", label: "Open Shelby's Shipping Counter", x: "33%", y: "36%", w: "34%", h: "39%" },
-              { id: "discoveries", label: "Explore the seasonal and specialty display", x: "70%", y: "25%", w: "28%", h: "42%" },
-              { id: "sell", label: "Sell and trade at the counter", x: "4%", y: "73%", w: "28%", h: "23%" },
-              { id: "talk", label: "Talk to Seaweed", x: "72%", y: "70%", w: "26%", h: "27%" },
+              { id: "buy", label: "Browse the shop shelves", x: "2%", y: "29%", w: "27%", h: "48%" },
+              { id: "shipping", label: "Open Shelby's Shipping Counter", x: "35%", y: "40%", w: "31%", h: "40%" },
+              { id: "discoveries", label: "Explore the seasonal and specialty display", x: "72%", y: "25%", w: "26%", h: "42%" },
+              { id: "sell", label: "Sell and trade at the counter", x: "3%", y: "75%", w: "27%", h: "22%" },
+              { id: "talk", label: "Talk to Seaweed", x: "73%", y: "70%", w: "25%", h: "27%" },
             ] as const).map((area) => (
               <button key={area.id} type="button" aria-label={area.label} title={area.label}
                 onClick={() => openArea(area.id)}
