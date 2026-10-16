@@ -1788,7 +1788,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const buyFromTraveler = (villagerId: "shelldon" | "shelby", itemId: string) => {
-    if (!getScheduleStatus(villagerId).available) return false;
+    // Shelby sells through her permanent shop counter even when she is away from the beach.
+    if (villagerId !== "shelby" && !getScheduleStatus(villagerId).available) return false;
     const listing = getTravelingMerchantStock(villagerId, new Date(), stateRef.current).find((candidate) => candidate.itemId === itemId);
     const item = ITEMS[itemId];
     if (!listing || !item || stateRef.current.sandDollars < listing.price) return false;
