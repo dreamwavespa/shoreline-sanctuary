@@ -34,6 +34,11 @@ export default function SeaweedSaltShop() {
   const [discoveryRevealed, setDiscoveryRevealed] = useState(false);
   const [talkIndex, setTalkIndex] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const activityRef = useRef<HTMLDivElement>(null);
+  const openArea = (area: ShopSection) => {
+    setSection(area);
+    window.setTimeout(() => activityRef.current?.focus(), 0);
+  };
   const discovery = useMemo(() => getTodaysDiscovery(), []);
   const dateKey = useMemo(() => getShopDateKey(), []);
   const discoveryPurchased = state.seaweedDiscoveryPurchases.includes(dateKey);
@@ -95,49 +100,26 @@ export default function SeaweedSaltShop() {
 
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
         <section aria-label="Explore Seaweed and Salt" className="relative overflow-hidden rounded-2xl shadow-lg">
-          <div className="relative aspect-[4/3] min-h-[290px]">
-            <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Illustrated Seaweed and Salt general store with shop shelves, Shelby’s shipping counter, and specialty displays" fill unoptimized sizes="100vw" className="object-cover" />
-            <div className="absolute inset-0 bg-stone-950/20" aria-hidden="true" />
-            <button type="button" onClick={() => setSection("buy")} aria-label="Browse shop shelves and buy goods" className="absolute left-[4%] top-[30%] z-10 rounded-xl bg-amber-50/95 px-3 py-3 text-sm font-bold text-stone-900 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">Shop Shelves</button>
-            <button type="button" onClick={() => setSection("shipping")} aria-label="Open Shelby's Shipping Counter to pack orders and collect returning cargo" className="absolute left-[30%] bottom-[13%] z-10 rounded-xl bg-sky-50/95 px-3 py-3 text-sm font-bold text-sky-950 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">📦 Shelby's Shipping Counter</button>
-            <button type="button" onClick={() => setSection("discoveries")} aria-label="Explore today's special discovery" className="absolute right-[4%] top-[30%] z-10 rounded-xl bg-amber-50/95 px-3 py-3 text-sm font-bold text-stone-900 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">Today's Discovery</button>
+          <div className="relative aspect-[3/4] sm:aspect-[4/3] min-h-[390px]">
+            <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Seaweed and Salt general store interior, with shelves to the left, Shelby's shipping counter in the center, and specialty displays to the right" fill unoptimized sizes="100vw" className="object-cover object-center" />
+            {([
+              { id: "buy", label: "Browse the shop shelves", x: "4%", y: "26%", w: "27%", h: "45%" },
+              { id: "shipping", label: "Open Shelby's Shipping Counter", x: "33%", y: "36%", w: "34%", h: "39%" },
+              { id: "discoveries", label: "Explore the seasonal and specialty display", x: "70%", y: "25%", w: "28%", h: "42%" },
+              { id: "sell", label: "Sell and trade at the counter", x: "4%", y: "73%", w: "28%", h: "23%" },
+              { id: "talk", label: "Talk to Seaweed", x: "72%", y: "70%", w: "26%", h: "27%" },
+            ] as const).map((area) => (
+              <button key={area.id} type="button" aria-label={area.label} title={area.label}
+                onClick={() => openArea(area.id)}
+                className="absolute z-10 rounded-xl bg-transparent focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300 focus-visible:bg-white/20"
+                style={{ left: area.x, top: area.y, width: area.w, height: area.h }}>
+                <span className="sr-only">{area.label}</span>
+              </button>
+            ))}
           </div>
         </section>
-        <section className="flex items-center gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-3 shadow-sm">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
-            <Image src={SCENES.seaweedPortrait} alt="Seaweed the otter wearing her blue work apron" fill unoptimized sizes="80px" className="object-cover" />
-          </div>
-          <div>
-            <h2 className="font-serif text-xl font-bold text-stone-900">Seaweed</h2>
-            <p className="text-sm text-stone-700">“Come in! The morning tide brought a few surprises.”</p>
-            <p className="mt-1 font-bold text-teal-800" aria-label={`${state.sandDollars} Sand Dollars`}>
-              🪙 {state.sandDollars} Sand Dollars
-            </p>
-          </div>
-        </section>
-
-        <nav aria-label="Seaweed and Salt shop sections" className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-          {([
-            ["buy", "Buy Goods"],
-            ["sell", "Sell & Trade"],
-            ["discoveries", "Discoveries"],
-            ["talk", "Talk to Seaweed"],
-            ["shipping", "Shelby’s Shipping Counter"],
-          ] as [ShopSection, string][]).map(([id, label]) => (
-            <button
-              type="button"
-              key={id}
-              aria-pressed={section === id}
-              onClick={() => setSection(id)}
-              className={`min-h-12 rounded-xl px-3 py-2 text-sm font-bold shadow-sm focus:outline-none focus:ring-4 focus:ring-cyan-300 ${
-                section === id ? "bg-teal-800 text-white" : "border border-stone-300 bg-white text-stone-800"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-
+        <div ref={activityRef} tabIndex={-1} className="outline-none" aria-live="off">
+          <p className="mb-2 text-sm font-semibold text-teal-950">Selected area: {section === "buy" ? "Shop Shelves" : section === "sell" ? "Sell & Trade" : section === "shipping" ? "Shelby's Shipping Counter" : section === "discoveries" ? "Special Discoveries" : "Talk to Seaweed"}</p>
         {section === "shipping" && (
           <section aria-label="Shelby's Shipping Counter" className="space-y-3">
             <h2 className="font-serif text-2xl font-bold">Shelby's Shipping Counter</h2>
@@ -330,6 +312,7 @@ export default function SeaweedSaltShop() {
             </div>
           </section>
         )}
+        </div>
       </div>
     </div>
   );
