@@ -43,6 +43,40 @@ const SHELBY_BLUEPRINTS: TravelingMerchantListing[] = [
   { itemId: "blueprint-cadence-nursery", price: 28, kind: "blueprint", note: "Future expansion plan for baby Cadence's cozy nursery." },
 ];
 
+/** The three original plans describe rooms that are already accessible in the current game.
+ * Keep this registry explicit so future genuinely gated expansions can retain their plans. */
+const ALREADY_ACCESSIBLE_AREAS = new Set([
+  "blueprint-marine-biology-lab",
+  "blueprint-smoothie-bar",
+  "blueprint-cadence-nursery",
+]);
+
+export interface ShelbyProgress {
+  blueprints: string[];
+  notebookDiscovered: Record<string, boolean>;
+  inventory: Record<string, number>;
+}
+
+const SHELBY_CARGO: TravelingMerchantListing[] = [
+  { itemId: "hemp-thread", price: 5, kind: "item", note: "Sturdy thread for shoreline crafts." },
+  { itemId: "copper-wire", price: 7, kind: "item", note: "Salvaged wire for jewelry and repairs." },
+  { itemId: "raw-driftwood-planks", price: 8, kind: "item", note: "Weathered timber for repairs and special requests." },
+  { itemId: "glass-rainbow", price: 14, kind: "item", note: "Rare multicolored sea glass from distant shores." },
+  { itemId: "sea-lavender", price: 7, kind: "item", note: "Fragrant flowers for coastal recipes." },
+  { itemId: "vanilla", price: 5, kind: "item", note: "Imported vanilla for the cottage kitchen." },
+  { itemId: "star-sand", price: 18, kind: "item", note: "A sparkling ingredient for unusual crafts." },
+  { itemId: "shell-nautilus", price: 13, kind: "item", note: "An uncommon spiral shell from the trading route." },
+  { itemId: "pearl-blue", price: 17, kind: "item", note: "A luminous blue pearl for the collection." },
+];
+
+export function isShelbyBlueprintNeeded(itemId: string, progress?: ShelbyProgress): boolean {
+  if (ALREADY_ACCESSIBLE_AREAS.has(itemId)) return false;
+  if (!progress) return true;
+  return !progress.blueprints.includes(itemId) &&
+    !progress.notebookDiscovered[itemId] &&
+    (progress.inventory[itemId] || 0) === 0;
+}
+
 function localDayNumber(date: Date): number {
   return Math.floor(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 86400000);
 }
@@ -52,7 +86,7 @@ function rotate<T>(items: T[], start: number, count: number): T[] {
 }
 
 /** Shelldon brings a varied Sunday market; Shelby unloads one rare plan per docking. */
-export function getTravelingMerchantStock(villagerId: string, date = new Date()): TravelingMerchantListing[] {
+export function getTravelingMerchantStock(villagerId: string, date = new Date(), progress?: ShelbyProgress): TravelingMerchantListing[] {
   const day = localDayNumber(date);
   if (villagerId === "shelldon") {
     const sunday = Math.floor(day / 7);
@@ -65,7 +99,9 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date())
   }
   if (villagerId === "shelby") {
     const docking = Math.floor(day / 4);
-    return rotate(SHELBY_BLUEPRINTS, docking % SHELBY_BLUEPRINTS.length, 1);
+    const needed = SHELBY_BLUEPRINTS.filter((listing) => isShelbyBlueprintNeeded(listing.itemId, progress));
+    // All still-needed plans are offered on every visit; the cargo slots rotate separately.
+    return [...needed, ...rotate(SHELBY_CARGO, docking % SHELBY_CARGO.length, 4)];
   }
   return [];
 }
