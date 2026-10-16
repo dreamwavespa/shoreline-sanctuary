@@ -103,6 +103,11 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
               <div className="rounded-lg border border-sky-200 bg-white p-3 space-y-2">
                 <h4 className="font-bold text-sky-950">🎁 Sealed Mystery Cargo</h4>
                 <p className="text-sm">Sealed parcels owned: {state.inventory["shelby-sealed-cargo"] || 0}. Open one for a surprise imported supply, rare material, or exceptional maritime treasure.</p>
+                <p className="text-sm font-semibold text-sky-900">Your Sand Dollars: {state.sandDollars} · Price: 24</p>
+                <button type="button" disabled={state.sandDollars < 24}
+                  onClick={() => { if (buyFromTraveler("shelby", "shelby-sealed-cargo")) setCargoResult(null); }}
+                  className="rounded-lg bg-amber-700 px-3 py-2 text-white disabled:opacity-40"
+                  aria-label="Buy one sealed mystery cargo box for 24 Sand Dollars">Buy Sealed Mystery Cargo — 24 Sand Dollars</button>
                 <button type="button" disabled={(state.inventory["shelby-sealed-cargo"] || 0) < 1}
                   onClick={() => { const reward = openShelbyCargo(); if (reward) setCargoResult(reward); }}
                   className="rounded-lg bg-sky-800 px-3 py-2 text-white disabled:opacity-40">Open one mystery cargo box</button>
