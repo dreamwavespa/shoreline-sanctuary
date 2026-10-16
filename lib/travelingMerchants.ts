@@ -66,7 +66,7 @@ const SHELBY_CARGO: TravelingMerchantListing[] = [
   { itemId: "antique-captains-compass", price: 38, kind: "item", note: "A collectible navigational treasure from an old ship." },
   { itemId: "ship-in-a-bottle", price: 34, kind: "item", note: "A miniature sailing ship preserved in glass." },
   { itemId: "captains-coin", price: 29, kind: "item", note: "A rare commemorative coin from a trading captain." },
-  { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "A sealed keepsake parcel for your collection; not yet openable." },
+  { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "Open at Shelby’s counter for a mystery supply or rare treasure." },
 
   { itemId: "hemp-thread", price: 5, kind: "item", note: "Sturdy thread for shoreline crafts." },
   { itemId: "copper-wire", price: 7, kind: "item", note: "Salvaged wire for jewelry and repairs." },
@@ -111,7 +111,7 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date(),
     const docking = Math.floor(day / 4);
     const needed = SHELBY_BLUEPRINTS.filter((listing) => isShelbyBlueprintNeeded(listing.itemId, progress));
     // All still-needed plans are offered on every visit; the cargo slots rotate separately.
-    const unique = new Set(["antique-captains-compass", "ship-in-a-bottle", "captains-coin", "shelby-sealed-cargo"]);
+    const unique = new Set(["antique-captains-compass", "ship-in-a-bottle", "captains-coin"]);
     const eligibleCargo = SHELBY_CARGO.filter((listing) => !unique.has(listing.itemId) ||
       !progress || ((progress.inventory[listing.itemId] || 0) === 0 && !progress.notebookDiscovered[listing.itemId]));
     return [...needed, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
