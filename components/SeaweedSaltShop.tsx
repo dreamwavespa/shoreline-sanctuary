@@ -96,7 +96,7 @@ export default function SeaweedSaltShop() {
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-4">
         <section aria-label="Explore Seaweed and Salt" className="relative overflow-hidden rounded-2xl shadow-lg">
           <div className="relative aspect-[4/3] min-h-[290px]">
-            <Image src={SCENES.seaweedShopInterior} alt="Cozy wooden interior of Seaweed and Salt with shelves and a counter" fill unoptimized sizes="100vw" className="object-cover" />
+            <Image src={`/images/Shop-background.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="Illustrated Seaweed and Salt general store with shop shelves, Shelby’s shipping counter, and specialty displays" fill unoptimized sizes="100vw" className="object-cover" />
             <div className="absolute inset-0 bg-stone-950/20" aria-hidden="true" />
             <button type="button" onClick={() => setSection("buy")} aria-label="Browse shop shelves and buy goods" className="absolute left-[4%] top-[30%] z-10 rounded-xl bg-amber-50/95 px-3 py-3 text-sm font-bold text-stone-900 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">Shop Shelves</button>
             <button type="button" onClick={() => setSection("shipping")} aria-label="Open Shelby's Shipping Counter to pack orders and collect returning cargo" className="absolute left-[30%] bottom-[13%] z-10 rounded-xl bg-sky-50/95 px-3 py-3 text-sm font-bold text-sky-950 shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">📦 Shelby's Shipping Counter</button>
