@@ -39,8 +39,9 @@ const EMOJI_FALLBACK: Record<string, string> = {
 };
 
 export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
-  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment } = useGame();
+  const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment, openShelbyCargo } = useGame();
   const [expanded, setExpanded] = useState(false);
+  const [cargoResult, setCargoResult] = useState<string | null>(null);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
   const shippingOrder = currentShelbyOrder(state.shelbyShipmentDate ? Math.max(0, (state.shelbyShipmentCount || 1) - 1) : (state.shelbyShipmentCount || 0));
@@ -99,6 +100,15 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
           {villager.id === "shelby" && (
             <section aria-label="Shelby's Shipping Orders" className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200 space-y-3">
               <h3 className="font-bold text-sky-950">📦 Shipping Orders</h3>
+              <div className="rounded-lg border border-sky-200 bg-white p-3 space-y-2">
+                <h4 className="font-bold text-sky-950">🎁 Sealed Mystery Cargo</h4>
+                <p className="text-sm">Sealed parcels owned: {state.inventory["shelby-sealed-cargo"] || 0}. Open one for a surprise imported supply, rare material, or exceptional maritime treasure.</p>
+                <button type="button" disabled={(state.inventory["shelby-sealed-cargo"] || 0) < 1}
+                  onClick={() => { const reward = openShelbyCargo(); if (reward) setCargoResult(reward); }}
+                  className="rounded-lg bg-sky-800 px-3 py-2 text-white disabled:opacity-40">Open one mystery cargo box</button>
+                {cargoResult && <p role="status" className="font-semibold text-emerald-900">You discovered: {ITEMS[cargoResult]?.name || cargoResult}! Added to inventory.</p>}
+              </div>
+
               <p className="text-xs text-sky-800">Pack common Shoreline finds. Send a full crate and collect its return cargo on the next calendar day.</p>
               <h4 className="font-semibold text-sm">{shippingOrder.title}</h4>
               {shippingOrder.requires.map(({ itemId, count }) => {
