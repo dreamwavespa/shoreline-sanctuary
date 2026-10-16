@@ -107,7 +107,7 @@ export default function SeaweedSaltShop() {
             ))}
             <button type="button" aria-label="Talk to Seaweed the otter" title="Talk to Seaweed"
               onClick={(event) => openArea("talk", event.currentTarget)}
-              className="absolute bottom-[3%] right-[2%] z-20 h-[43%] w-[24%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">
+              className="absolute bottom-[3%] right-[19%] z-20 h-[43%] w-[24%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">
               <Image src={`/images/Shop-Seaweed-transparent.PNG?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`} alt="" aria-hidden="true" fill unoptimized sizes="(max-width: 640px) 25vw, 160px" className="object-contain object-bottom drop-shadow-lg" />
             </button>
           </div>
