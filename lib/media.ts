@@ -30,7 +30,7 @@ export const SCENES = {
   seaweedShopInterior: "/images/seaweed-and-salt-interior.jpeg",
   seaweedShopCounter: "/images/seaweed-and-salt-counter.jpeg",
   seaweedPortrait: "/images/seaweed-the-otter.jpeg",
-  coconutGrove: "/images/coconut-grove.jpeg",
+  coconutGrove: "/images/coconut-grove-garden.PNG",
   coconutGroveRecipes: "/images/coconut-grove-recipe-cards.jpeg",
   hiddenGroveNursery: "/images/hidden-grove-nursery.png",
   jewelryCounter: "/images/jewelry-counter.jpeg",
