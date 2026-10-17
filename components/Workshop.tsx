@@ -246,6 +246,34 @@ function RoseMilkBottling() {
   );
 }
 
+function ShorelineCookbook() {
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
+  return (
+    <section aria-labelledby="shoreline-cookbook-heading" className="mb-5 rounded-2xl bg-amber-50 p-4 shadow-md ring-1 ring-amber-300">
+      <h2 id="shoreline-cookbook-heading" className="font-serif text-2xl font-bold text-amber-950">📖 The Shoreline Cookbook</h2>
+      <p className="mt-1 text-sm text-amber-900">Open a recipe card to check ingredients and prepare a dish. Recipes can be made again whenever ingredients are available.</p>
+      {selectedRecipe ? (
+        <div className="mt-4">
+          <button type="button" onClick={() => setSelectedRecipeId(null)} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Recipe Book</button>
+          <CookCard recipe={selectedRecipe} />
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {KITCHEN_RECIPES.map((recipe) => (
+            <button key={recipe.id} type="button" onClick={() => setSelectedRecipeId(recipe.id)}
+              aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
+              className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+              <span className="block font-serif text-base font-bold text-amber-950">{recipe.name}</span>
+              <span className="mt-1 block text-xs text-amber-800">{recipe.season} · {recipe.station}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const { state, cook, hasEnough } = useGame();
   const canCook = hasEnough(recipe.cost);
@@ -712,9 +740,7 @@ export default function Workshop() {
                 Pack a Picnic Basket
               </button>
             </section>
-            {KITCHEN_RECIPES.map((r) => (
-              <CookCard key={r.id} recipe={r} />
-            ))}
+            <ShorelineCookbook />
           </>
         ) : tab === "jewelry" ? (
           <>
