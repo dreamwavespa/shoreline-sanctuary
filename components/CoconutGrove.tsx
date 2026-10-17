@@ -56,6 +56,12 @@ export default function CoconutGrove() {
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
   const season = month >= 2 && month <= 4 ? "spring" : month >= 5 && month <= 7 ? "summer" : month >= 8 && month <= 10 ? "autumn" : "winter";
+  const seasonalGardenImage = {
+    spring: "/images/coconut-grove-spring.png",
+    summer: "/images/coconut-grove-summer.png",
+    autumn: "/images/coconut-grove-autumn.png",
+    winter: "/images/coconut-grove-winter.png",
+  }[season];
   const beeClueFound = state.foundBottleMessages.includes("sea-rose-bees") || state.honeybellStage > 0;
   const beesUnlocked = state.honeybellStage >= 3;
   const beeVisitRemaining = Math.max(0, state.beeLastVisitAt + BEE_VISIT_COOLDOWN_MS - now);
@@ -229,6 +235,10 @@ export default function CoconutGrove() {
         <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover object-[center_35%] sm:object-center" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
+        {/* Seasonal plants are decorative; the existing garden hotspot handles all interaction. */}
+        <div className="pointer-events-none absolute left-[67%] top-[66%] z-[5] h-[29%] w-[30%]" aria-hidden="true">
+          <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 30vw, 20vw" className="object-contain object-bottom" />
+        </div>
         {NODES.map((node) => {
           // Hotspots align with the artwork: palms upper left, berries left,
           // herb flowers center, coastal edibles lower left, fruit right,
