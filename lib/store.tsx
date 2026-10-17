@@ -898,7 +898,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           : s.notebookDiscovered,
       };
     });
-    play("craftSuccess");
+    // Play the cooking effect without competing with a simultaneous success sound.
+    play("kitchenSizzle", 0.8);
     const def = ITEMS[outputItemId];
     toast(def ? `Cooked ${def.name}!` : "Cooked!");
     return true;
