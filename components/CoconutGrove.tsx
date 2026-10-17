@@ -48,8 +48,11 @@ export default function CoconutGrove() {
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
+  const [beePanelOpen, setBeePanelOpen] = useState(false);
   const [leafSandReady, setLeafSandReady] = useState(false);
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
+  const beeHotspotRef = useRef<HTMLButtonElement>(null);
+  const nurseryHotspotRef = useRef<HTMLButtonElement>(null);
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
   const season = month >= 2 && month <= 4 ? "spring" : month >= 5 && month <= 7 ? "summer" : month >= 8 && month <= 10 ? "autumn" : "winter";
@@ -193,7 +196,7 @@ export default function CoconutGrove() {
 
   const closeNursery = () => {
     setNurseryOpen(false);
-    window.setTimeout(() => nurseryButtonRef.current?.focus(), 0);
+    window.setTimeout(() => nurseryHotspotRef.current?.focus(), 0);
   };
 
   const tendHoneybell = () => {
@@ -251,8 +254,8 @@ export default function CoconutGrove() {
             </button>
           );
         })}
-        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute right-[1%] top-[8%] z-10 h-[21%] w-[17%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
-        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[53%] top-[7%] z-10 h-[28%] w-[27%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
+        <button type="button" ref={beeHotspotRef} onClick={() => setBeePanelOpen(true)} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute right-[1%] top-[8%] z-10 h-[21%] w-[17%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
+        <button type="button" ref={nurseryHotspotRef} onClick={() => state.groveNurseryAvailable ? setNurseryOpen(true) : setMessage("The Hidden Grove Nursery is resting. A new coastal storm will uncover more materials.")} aria-label={state.groveNurseryAvailable ? "Open Hidden Grove Nursery" : "Explore Hidden Grove Nursery; unavailable until the next storm"} className="absolute left-[53%] top-[7%] z-10 h-[28%] w-[27%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
         {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
@@ -270,31 +273,22 @@ export default function CoconutGrove() {
           </section>
         )}
 
-        <section aria-labelledby="nursery-launch-heading" className="rounded-2xl bg-gradient-to-br from-emerald-900 to-teal-800 p-5 text-white shadow-md ring-1 ring-emerald-700">
-          <div className="flex items-center gap-4">
-            <button
-              ref={nurseryButtonRef}
-              type="button"
-              disabled={!state.groveNurseryAvailable}
-              onClick={() => setNurseryOpen(true)}
-              aria-label={state.groveNurseryAvailable ? "Open Hidden Grove Nursery" : "Hidden Grove Nursery unavailable until the next storm"}
-              className="group flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-lime-100 text-emerald-800 shadow-lg ring-4 ring-lime-300 transition active:scale-95 disabled:bg-emerald-700 disabled:text-emerald-300 disabled:ring-emerald-600"
-            >
-              <WateringCanIcon className="h-14 w-14 transition-transform group-enabled:hover:-rotate-6" />
-            </button>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-lime-200">Storm-Grown Activity</p>
-              <h2 id="nursery-launch-heading" className="font-serif text-xl font-bold">Hidden Grove Nursery</h2>
-              <p className="mt-1 text-sm text-emerald-50">
-                {state.groveNurseryAvailable
-                  ? "Rain has carried rare materials into the grove. Select the watering can to begin."
-                  : "The nursery is resting. A new coastal storm will uncover more materials."}
-              </p>
-            </div>
+        <p className="rounded-xl bg-white/90 p-3 text-sm text-emerald-950">Select plants in the garden image to harvest. Regrowing patches remain selectable so you can check their timers. The seasonal patch produces crops all year.</p>
+
+        <section aria-labelledby="recipes-heading" className="overflow-hidden rounded-2xl bg-amber-50 shadow-sm ring-1 ring-amber-300">
+          <Image src={SCENES.coconutGroveRecipes} alt="Recipe cards for Golden Pumpkin Bisque, Sea Rose Pumpkin Tart, Island Spiced Gingerbread, and Frothy Coastal Spiced Cocoa" width={1408} height={768} unoptimized className="h-auto w-full" />
+          <div className="p-4">
+            <h2 id="recipes-heading" className="font-serif text-xl font-bold text-amber-950">Grove Recipe Collection</h2>
+            <p className="mt-1 text-sm text-amber-800">Your four new seasonal recipes are available in the Workshop Kitchen. Harvest here, then bring the ingredients to the hearth.</p>
           </div>
-          <p className="mt-3 text-center text-xs font-semibold text-lime-100">Nursery rounds completed: {state.groveNurseryCompletions}</p>
         </section>
 
+        <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
+      </div>
+      {beePanelOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3" role="presentation">
+          <div role="dialog" aria-modal="true" aria-labelledby="honeybell-heading" className="max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-amber-50 p-3 shadow-2xl">
+            <button type="button" onClick={() => { setBeePanelOpen(false); window.setTimeout(() => beeHotspotRef.current?.focus(), 0); }} className="mb-3 min-h-12 rounded-xl bg-amber-900 px-4 py-2 font-bold text-white">← Back to Coconut Grove</button>
         <section aria-labelledby="honeybell-heading" className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-yellow-50 to-rose-50 p-5 shadow-md ring-1 ring-amber-300">
           <p className="text-xs font-bold uppercase tracking-wide text-amber-700">Frosted Bottle Secret</p>
           <h2 id="honeybell-heading" className="mt-1 font-serif text-xl font-bold text-amber-950">Golden Honeybell &amp; Coastal Hive</h2>
@@ -348,18 +342,10 @@ export default function CoconutGrove() {
           )}
         </section>
 
-        <p className="rounded-xl bg-white/90 p-3 text-sm text-emerald-950">Select plants in the garden image to harvest. Regrowing patches remain selectable so you can check their timers. The seasonal patch produces crops all year.</p>
 
-        <section aria-labelledby="recipes-heading" className="overflow-hidden rounded-2xl bg-amber-50 shadow-sm ring-1 ring-amber-300">
-          <Image src={SCENES.coconutGroveRecipes} alt="Recipe cards for Golden Pumpkin Bisque, Sea Rose Pumpkin Tart, Island Spiced Gingerbread, and Frothy Coastal Spiced Cocoa" width={1408} height={768} unoptimized className="h-auto w-full" />
-          <div className="p-4">
-            <h2 id="recipes-heading" className="font-serif text-xl font-bold text-amber-950">Grove Recipe Collection</h2>
-            <p className="mt-1 text-sm text-amber-800">Your four new seasonal recipes are available in the Workshop Kitchen. Harvest here, then bring the ingredients to the hearth.</p>
           </div>
-        </section>
-
-        <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
-      </div>
+        </div>
+      )}
       {nurseryOpen && <HiddenGroveNursery onClose={closeNursery} />}
     </div>
   );
