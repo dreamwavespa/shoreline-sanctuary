@@ -236,8 +236,8 @@ export default function CoconutGrove() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
         {/* Seasonal plants are decorative; the existing garden hotspot handles all interaction. */}
-        <div className="pointer-events-none absolute left-[67%] top-[66%] z-[5] h-[29%] w-[30%]" aria-hidden="true">
-          <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 30vw, 20vw" className="object-contain object-bottom" />
+        <div className="pointer-events-none absolute left-[60%] top-[57%] z-[5] h-[36%] w-[39%]" aria-hidden="true">
+          <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 40vw, 25vw" className="object-contain object-bottom" />
         </div>
         {NODES.map((node) => {
           // Hotspots align with the artwork: palms upper left, berries left,
