@@ -264,7 +264,7 @@ function ShorelineCookbook() {
   const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
   return (
     <section aria-labelledby="shoreline-cookbook-heading" className="mb-5 rounded-2xl bg-amber-50 p-4 shadow-md ring-1 ring-amber-300">
-      <h2 id="shoreline-cookbook-heading" className="font-serif text-2xl font-bold text-amber-950">📖 The Shoreline Cookbook</h2>
+      <h2 id="shoreline-cookbook-heading" tabIndex={-1} className="font-serif text-2xl font-bold text-amber-950">📖 The Shoreline Cookbook</h2>
       <p className="mt-1 text-sm text-amber-900">Open a recipe card to check ingredients and prepare a dish. Recipes can be made again whenever ingredients are available.</p>
       {selectedRecipe ? (
         <div className="mt-4">
@@ -744,7 +744,24 @@ export default function Workshop() {
           </>
         ) : tab === "kitchen" ? (
           <>
-            <p className="text-xs text-orange-800/70 mb-3 text-center">The Hearth Stove crackles warmly — cook up cozy treats for your sanctuary friends.</p>
+            <section aria-label="Cozy cottage kitchen" className="mb-4">
+              <div className="relative w-full overflow-hidden rounded-2xl shadow-md ring-1 ring-amber-300" style={{ aspectRatio: "3 / 2" }}>
+                <Image src="/images/Kitchen-background.PNG" alt="Sunlit coastal cottage kitchen with sea-glass refrigerator, stove, wooden cabinets, ocean-view window, and an open cookbook on the center island" fill unoptimized sizes="100vw" className="object-cover" />
+                <button
+                  type="button"
+                  aria-label="Open the cookbook on the kitchen island"
+                  onClick={() => {
+                    const cookbook = document.getElementById("shoreline-cookbook-heading");
+                    cookbook?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    cookbook?.focus({ preventScroll: true });
+                  }}
+                  className="absolute left-[59%] top-[42%] h-[24%] w-[25%] rounded-xl border-2 border-transparent bg-transparent focus-visible:border-amber-300 focus-visible:bg-amber-100/30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-950"
+                >
+                  <span className="sr-only">Open cookbook</span>
+                </button>
+              </div>
+              <p className="mt-2 text-center text-sm text-amber-950">Select the cookbook on the island to browse and prepare recipes.</p>
+            </section>
             <section aria-labelledby="picnic-packing-heading" className="rounded-2xl bg-gradient-to-br from-rose-50 to-amber-100 p-4 mb-4 shadow-md ring-1 ring-rose-200">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-800">Kitchen Mini-Game</p>
               <h2 id="picnic-packing-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🧺 Picnic Packing</h2>
