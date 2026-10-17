@@ -246,6 +246,19 @@ function RoseMilkBottling() {
   );
 }
 
+function RecipeThumbnail({ recipeId }: { recipeId: string }) {
+  const visual = FOOD_VISUALS[recipeId];
+  const recipe = KITCHEN_RECIPES.find((entry) => entry.id === recipeId);
+  const fallback = ITEMS[recipe?.outputItemId || ""]?.icon || "🍽️";
+  return (
+    <span aria-hidden="true" className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-amber-100 text-3xl ring-1 ring-amber-200">
+      {visual?.kind === "scene" ? <Image src={SCENES[visual.scene]} alt="" fill unoptimized sizes="64px" className="object-cover" />
+        : visual?.kind === "grove" ? <span className="h-full w-full bg-no-repeat" style={{ backgroundImage: `url(${SCENES.coconutGroveRecipes})`, backgroundPosition: visual.position, backgroundSize: "400% auto" }} />
+        : <span>{visual?.kind === "illustration" ? visual.main : fallback}</span>}
+    </span>
+  );
+}
+
 function ShorelineCookbook() {
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
@@ -264,8 +277,13 @@ function ShorelineCookbook() {
             <button key={recipe.id} type="button" onClick={() => setSelectedRecipeId(recipe.id)}
               aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
               className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
-              <span className="block font-serif text-base font-bold text-amber-950">{recipe.name}</span>
-              <span className="mt-1 block text-xs text-amber-800">{recipe.season} · {recipe.station}</span>
+              <span className="flex items-center gap-3">
+                <RecipeThumbnail recipeId={recipe.id} />
+                <span className="min-w-0">
+                  <span className="block font-serif text-base font-bold text-amber-950">{recipe.name}</span>
+                  <span className="mt-1 block text-xs text-amber-800">{recipe.season} · {recipe.station}</span>
+                </span>
+              </span>
             </button>
           ))}
         </div>
