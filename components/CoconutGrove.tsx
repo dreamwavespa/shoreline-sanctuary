@@ -226,19 +226,34 @@ export default function CoconutGrove() {
         <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
-        {NODES.map((node, index) => {
-          const positions = ["left-[13%] top-[24%]", "left-[23%] top-[49%]", "left-[48%] top-[70%]", "left-[69%] top-[71%]", "left-[47%] top-[30%]", "left-[15%] top-[77%]", "left-[76%] top-[44%]"];
+        {NODES.map((node) => {
+          // Hotspots align with the artwork: palms upper left, berries left,
+          // herb flowers center, coastal edibles lower left, fruit right,
+          // roots in the foreground, seasonal patch lower right.
+          const spots: Record<NodeId, { left: string; top: string; width: string; height: string }> = {
+            palms: { left: "1%", top: "1%", width: "28%", height: "30%" },
+            berries: { left: "1%", top: "32%", width: "26%", height: "24%" },
+            herbs: { left: "27%", top: "40%", width: "24%", height: "24%" },
+            coastal: { left: "2%", top: "64%", width: "31%", height: "25%" },
+            fruit: { left: "54%", top: "34%", width: "25%", height: "27%" },
+            roots: { left: "35%", top: "70%", width: "24%", height: "22%" },
+            seasonal: { left: "67%", top: "66%", width: "30%", height: "29%" },
+          };
+          const spot = spots[node.id];
           const waiting = remaining(node.id) > 0;
-          return <button key={node.id} type="button" title={node.title}
-            aria-label={`${node.title}. ${waitLabel(node.id)}. ${node.instruction}`}
-            onClick={() => waiting ? setMessage(`${node.title}: ${waitLabel(node.id)}.`) : harvest(node.id)}
-            className={`absolute ${positions[index]} z-10 flex min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2 text-2xl shadow-lg ring-2 ring-emerald-700 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300`}>
-            <span aria-hidden="true">{node.icon}</span>
-          </button>;
+          return (
+            <button key={node.id} type="button" title={node.title}
+              style={{ left: spot.left, top: spot.top, width: spot.width, height: spot.height }}
+              aria-label={`${node.title}. ${waitLabel(node.id)}. ${waiting ? "Select to check regrowth." : node.instruction}`}
+              onClick={() => waiting ? setMessage(`${node.title}: ${waitLabel(node.id)}.`) : harvest(node.id)}
+              className="group absolute z-10 cursor-pointer rounded-xl bg-transparent transition-colors hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300 active:bg-white/20">
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-1 left-1 rounded-full bg-emerald-950/75 px-2 py-1 text-xs font-semibold text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{node.title}</span>
+            </button>
+          );
         })}
-        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute left-[90%] top-[20%] z-10 min-h-12 min-w-12 rounded-full bg-white/90 text-2xl shadow-lg ring-2 ring-amber-700">🐝</button>
-        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[86%] top-[82%] z-10 min-h-12 min-w-12 rounded-full bg-white/90 text-2xl shadow-lg ring-2 ring-emerald-700">🪴</button>
-        {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[30%] top-[82%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100 text-2xl shadow-lg ring-2 ring-lime-500">✨</button>}
+        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute left-[89%] top-[8%] z-10 h-[21%] w-[11%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
+        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[49%] top-[5%] z-10 h-[31%] w-[25%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
+        {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
       <div className="space-y-3 px-4 py-4">
