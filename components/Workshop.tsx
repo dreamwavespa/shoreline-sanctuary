@@ -550,6 +550,9 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 export default function Workshop() {
   const { state, setMusicOverride } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
+  const [cookbookOpen, setCookbookOpen] = useState(false);
+  const cookbookButtonRef = useRef<HTMLButtonElement>(null);
+  const closeCookbook = () => { setCookbookOpen(false); window.setTimeout(() => cookbookButtonRef.current?.focus(), 0); };
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
@@ -748,13 +751,10 @@ export default function Workshop() {
               <div className="relative w-full overflow-hidden rounded-2xl shadow-md ring-1 ring-amber-300" style={{ aspectRatio: "3 / 2" }}>
                 <Image src="/images/Kitchen-background.PNG" alt="Sunlit coastal cottage kitchen with sea-glass refrigerator, stove, wooden cabinets, ocean-view window, and an open cookbook on the center island" fill unoptimized sizes="100vw" className="object-cover" />
                 <button
+                  ref={cookbookButtonRef}
                   type="button"
                   aria-label="Open the cookbook on the kitchen island"
-                  onClick={() => {
-                    const cookbook = document.getElementById("shoreline-cookbook-heading");
-                    cookbook?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    cookbook?.focus({ preventScroll: true });
-                  }}
+                  onClick={() => setCookbookOpen(true)}
                   className="absolute left-[59%] top-[42%] h-[24%] w-[25%] rounded-xl border-2 border-transparent bg-transparent focus-visible:border-amber-300 focus-visible:bg-amber-100/30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-950"
                 >
                   <span className="sr-only">Open cookbook</span>
@@ -775,7 +775,6 @@ export default function Workshop() {
                 Pack a Picnic Basket
               </button>
             </section>
-            <ShorelineCookbook />
           </>
         ) : tab === "jewelry" ? (
           <>
@@ -843,6 +842,16 @@ export default function Workshop() {
         )}
       </div>
 
+      {cookbookOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-3" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCookbook(); }}>
+          <div role="dialog" aria-modal="true" aria-labelledby="shoreline-cookbook-heading" className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-amber-50 shadow-2xl">
+            <div className="flex shrink-0 justify-end border-b border-amber-200 p-3">
+              <button type="button" onClick={closeCookbook} className="min-h-11 rounded-xl bg-teal-900 px-5 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">Close Cookbook</button>
+            </div>
+            <div className="overflow-y-auto p-3"><ShorelineCookbook /></div>
+          </div>
+        </div>
+      )}
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
