@@ -5,6 +5,7 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { VILLAGERS } from "@/lib/villagers";
 import { NOTEBOOK_SECTIONS, NotebookSection } from "@/lib/notebook";
+import { KITCHEN_RECIPES } from "@/lib/recipes";
 
 const ANCHOR_EMOJI: Record<string, string> = {
   kaiana: "🧭",
@@ -98,6 +99,31 @@ function SectionPage({ section }: { section: NotebookSection }) {
   );
 }
 
+function RecipeCollectionPage() {
+  const { state } = useGame();
+  const completed = KITCHEN_RECIPES.filter((recipe) => state.notebookDiscovered[`recipe:${recipe.id}`]).length;
+  return (
+    <section aria-labelledby="recipe-collection-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
+      <h3 id="recipe-collection-heading" className="font-serif text-xl font-bold">🍲 Shoreline Recipe Collection</h3>
+      <p className="mt-1 text-sm font-semibold" role="status">{completed} of {KITCHEN_RECIPES.length} recipes prepared</p>
+      <p className="mt-2 text-xs">Recipes are permanently marked after you successfully prepare them in the Workshop Kitchen, even if the food is later used or gifted.</p>
+      <ul className="mt-4 space-y-2">
+        {KITCHEN_RECIPES.map((recipe) => {
+          const prepared = !!state.notebookDiscovered[`recipe:${recipe.id}`];
+          return (
+            <li key={recipe.id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
+              <p className="font-semibold">{prepared ? "✓" : "○"} {recipe.name} — {prepared ? "Prepared" : "Not yet prepared"}</p>
+              <p className="text-xs text-amber-800">{recipe.season} · {recipe.station}</p>
+              {prepared && <p className="mt-1 text-xs text-amber-700">{recipe.description}</p>}
+            </li>
+          );
+        })}
+      </ul>
+      {completed === KITCHEN_RECIPES.length && <p className="mt-4 font-bold text-emerald-800">✦ Recipe collection complete! ✦</p>}
+    </section>
+  );
+}
+
 export default function Notebook({ onClose }: { onClose: () => void }) {
   const { play, markNotebookSeen } = useGame();
   const [sectionId, setSectionId] = useState(NOTEBOOK_SECTIONS[0].id);
@@ -119,6 +145,7 @@ export default function Notebook({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-1.5 mb-3 px-1 overflow-x-auto">
+          <button type="button" onClick={() => { setSectionId("recipes"); play("notebookPage", .45); }} aria-pressed={sectionId === "recipes"} className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${sectionId === "recipes" ? "bg-amber-400 text-amber-950" : "bg-white/10 text-amber-100"}`}>🍲 Recipes</button>
           {NOTEBOOK_SECTIONS.map((s) => (
             <button key={s.id} type="button" onClick={() => { setSectionId(s.id); play("notebookPage", .45); }} aria-pressed={s.id === sectionId} className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${s.id === sectionId ? "bg-amber-400 text-amber-950" : "bg-white/10 text-amber-100"}`}>
               {s.title}
@@ -127,7 +154,7 @@ export default function Notebook({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="overflow-y-auto px-1 pb-1" style={{ touchAction: "pan-y" }}>
-          <SectionPage key={section.id} section={section} />
+          {sectionId === "recipes" ? <RecipeCollectionPage /> : <SectionPage key={section.id} section={section} />}
         </div>
       </div>
     </div>
