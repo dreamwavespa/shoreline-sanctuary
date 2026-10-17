@@ -260,6 +260,7 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
 }
 
 function ShorelineCookbook() {
+  const { play } = useGame();
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
   return (
@@ -268,13 +269,13 @@ function ShorelineCookbook() {
       <p className="mt-1 text-sm text-amber-900">Open a recipe card to check ingredients and prepare a dish. Recipes can be made again whenever ingredients are available.</p>
       {selectedRecipe ? (
         <div className="mt-4">
-          <button type="button" onClick={() => setSelectedRecipeId(null)} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Recipe Book</button>
+          <button type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(null); }} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Recipe Book</button>
           <CookCard recipe={selectedRecipe} />
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {KITCHEN_RECIPES.map((recipe) => (
-            <button key={recipe.id} type="button" onClick={() => setSelectedRecipeId(recipe.id)}
+            <button key={recipe.id} type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(recipe.id); }}
               aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
               className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
               <span className="flex items-center gap-3">
@@ -293,7 +294,7 @@ function ShorelineCookbook() {
 }
 
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
-  const { state, cook, hasEnough } = useGame();
+  const { state, cook, hasEnough, play } = useGame();
   const canCook = hasEnough(recipe.cost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
@@ -339,7 +340,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       <button
         type="button"
         disabled={!canCook}
-        onClick={() => cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1)}
+        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); play("kitchenSizzle", 0.45); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
@@ -550,6 +551,7 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 export default function Workshop() {
   const { state, setMusicOverride } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
+  const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
   const closeCookbook = () => { setCookbookOpen(false); window.setTimeout(() => cookbookButtonRef.current?.focus(), 0); };
@@ -754,7 +756,7 @@ export default function Workshop() {
                   ref={cookbookButtonRef}
                   type="button"
                   aria-label="Open the cookbook on the kitchen island"
-                  onClick={() => setCookbookOpen(true)}
+                  onClick={() => { play("kitchenPageTurn", 0.4); setCookbookOpen(true); }}
                   className="absolute left-[59%] top-[42%] h-[24%] w-[25%] rounded-xl border-2 border-transparent bg-transparent focus-visible:border-amber-300 focus-visible:bg-amber-100/30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-950"
                 >
                   <span className="sr-only">Open cookbook</span>
