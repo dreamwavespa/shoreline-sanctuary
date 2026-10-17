@@ -52,7 +52,7 @@ export default function CoconutGrove() {
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
   const postStorm = state.currentForecast?.id === "storm" || state.stormCleanupAvailable;
   const month = new Date().getMonth();
-  const season = month >= 8 && month <= 10 ? "autumn" : month === 11 || month <= 1 ? "winter" : "growing";
+  const season = month >= 2 && month <= 4 ? "spring" : month >= 5 && month <= 7 ? "summer" : month >= 8 && month <= 10 ? "autumn" : "winter";
   const beeClueFound = state.foundBottleMessages.includes("sea-rose-bees") || state.honeybellStage > 0;
   const beesUnlocked = state.honeybellStage >= 3;
   const beeVisitRemaining = Math.max(0, state.beeLastVisitAt + BEE_VISIT_COOLDOWN_MS - now);
@@ -158,11 +158,14 @@ export default function CoconutGrove() {
       rewards.push({ itemId: Math.random() < 0.75 ? "golden-island-pumpkin" : "miniature-sugar-squash", count: 1 });
       play("groveHerbSnip");
     } else if (season === "winter") {
-      rewards.push({ itemId: "winter-spice-bark", count: 1 });
+      rewards.push({ itemId: choose([{ value: "winter-spice-bark", weight: 30 }, { value: "winterberry-holly", weight: 25 }, { value: "christmas-rose", weight: 25 }, { value: "snowdrop-flowers", weight: 20 }]), count: 1 });
       play("groveLeafRustle");
+    } else if (season === "spring") {
+      rewards.push({ itemId: choose([{ value: "strawberry", weight: 30 }, { value: "spring-pea-shoots", weight: 30 }, { value: "spring-edible-blossoms", weight: 25 }, { value: "snowdrop-flowers", weight: 15 }]), count: 1 });
+      play("groveHerbSnip");
     } else {
-      setMessage("The seasonal garden is growing quietly. Autumn and winter crops will appear later in the year.");
-      return;
+      rewards.push({ itemId: choose([{ value: "watermelon", weight: 35 }, { value: "passion-fruit", weight: 35 }, { value: "summer-hibiscus", weight: 30 }]), count: 1 });
+      play("groveBerryPick");
     }
 
     rewards.forEach(({ itemId, count }) => add(itemId, count));
@@ -325,13 +328,13 @@ export default function CoconutGrove() {
           <h2 id="harvest-heading" className="mb-2 font-serif text-xl font-bold text-emerald-950">Foraging Patches</h2>
           <div className="space-y-3">
             {NODES.map((node) => {
-              const unavailable = node.id === "seasonal" && season === "growing";
+              const unavailable = false;
               const waiting = remaining(node.id) > 0;
               return (
                 <div key={node.id} className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-emerald-200">
                   <h3 className="font-bold text-emerald-950">{node.icon} {node.title}</h3>
                   <p className="mt-1 text-sm text-emerald-800">{node.instruction}</p>
-                  <p className="mt-2 text-xs font-semibold text-emerald-700">{unavailable ? "Growing until autumn" : waitLabel(node.id)}</p>
+                  <p className="mt-2 text-xs font-semibold text-emerald-700">{waitLabel(node.id)}</p>
                   <button type="button" disabled={waiting || unavailable} onClick={() => harvest(node.id)} className="mt-3 min-h-12 w-full rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white shadow disabled:bg-emerald-200 disabled:text-emerald-600 active:bg-emerald-800">
                     {node.id === "palms" ? "Shake Palm and Gather" : node.id === "berries" ? "Pick Berry Bundle" : node.id === "herbs" ? "Snip Fresh Herbs" : node.id === "coastal" ? "Gather Coastal Edibles" : node.id === "fruit" ? "Harvest Tropical Fruit" : node.id === "roots" ? "Pull a Root Crop" : "Harvest Seasonal Crop"}
                   </button>
