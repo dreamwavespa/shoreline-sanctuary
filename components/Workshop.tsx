@@ -294,7 +294,7 @@ function ShorelineCookbook() {
 }
 
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
-  const { state, cook, hasEnough, play } = useGame();
+  const { state, cook, hasEnough } = useGame();
   const canCook = hasEnough(recipe.cost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
@@ -340,7 +340,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       <button
         type="button"
         disabled={!canCook}
-        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); play("kitchenSizzle", 0.45); }}
+        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
