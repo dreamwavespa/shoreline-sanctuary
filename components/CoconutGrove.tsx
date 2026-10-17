@@ -222,16 +222,25 @@ export default function CoconutGrove() {
 
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
-      <div className="relative h-[42%] min-h-[260px] w-full overflow-hidden">
-        <Image src={SCENES.coconutGrove} alt="A sun-dappled coconut grove with palms, berry brambles, coastal herbs, tropical fruit, sandy root beds, flowers, and a path back to the beach" fill priority unoptimized sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/75 via-transparent to-black/10" />
-        <div className="absolute bottom-4 left-4 right-4 text-white drop-shadow">
-          <p className="text-xs font-bold uppercase tracking-widest text-lime-100">Beach Sub-Area</p>
-          <h1 className="font-serif text-3xl font-bold">Coconut Grove</h1>
-          <p className="mt-1 text-sm">Golden light, rustling palms, coastal greens, berries, herbs, and tropical fruit.</p>
-        </div>
-      </div>
-
+      <section aria-label="Interactive Coconut Grove" className="relative min-h-[480px] w-full overflow-hidden bg-emerald-900 sm:min-h-[540px]">
+        <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
+        <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
+        {NODES.map((node, index) => {
+          const positions = ["left-[13%] top-[24%]", "left-[23%] top-[49%]", "left-[48%] top-[70%]", "left-[69%] top-[71%]", "left-[47%] top-[30%]", "left-[15%] top-[77%]", "left-[76%] top-[44%]"];
+          const waiting = remaining(node.id) > 0;
+          return <button key={node.id} type="button" title={node.title}
+            aria-label={`${node.title}. ${waitLabel(node.id)}. ${node.instruction}`}
+            onClick={() => waiting ? setMessage(`${node.title}: ${waitLabel(node.id)}.`) : harvest(node.id)}
+            className={`absolute ${positions[index]} z-10 flex min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 p-2 text-2xl shadow-lg ring-2 ring-emerald-700 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300`}>
+            <span aria-hidden="true">{node.icon}</span>
+          </button>;
+        })}
+        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute left-[90%] top-[20%] z-10 min-h-12 min-w-12 rounded-full bg-white/90 text-2xl shadow-lg ring-2 ring-amber-700">🐝</button>
+        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[86%] top-[82%] z-10 min-h-12 min-w-12 rounded-full bg-white/90 text-2xl shadow-lg ring-2 ring-emerald-700">🪴</button>
+        {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[30%] top-[82%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100 text-2xl shadow-lg ring-2 ring-lime-500">✨</button>}
+        <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
+      </section>
       <div className="space-y-3 px-4 py-4">
         {postStorm && (
           <p className="rounded-xl bg-sky-100 p-3 text-sm font-semibold text-sky-950 ring-1 ring-sky-300">🌦️ Post-storm growth is active: rare plants may appear and every grove patch regrows twice as fast.</p>
@@ -324,25 +333,7 @@ export default function CoconutGrove() {
           )}
         </section>
 
-        <section aria-labelledby="harvest-heading">
-          <h2 id="harvest-heading" className="mb-2 font-serif text-xl font-bold text-emerald-950">Foraging Patches</h2>
-          <div className="space-y-3">
-            {NODES.map((node) => {
-              const unavailable = false;
-              const waiting = remaining(node.id) > 0;
-              return (
-                <div key={node.id} className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-emerald-200">
-                  <h3 className="font-bold text-emerald-950">{node.icon} {node.title}</h3>
-                  <p className="mt-1 text-sm text-emerald-800">{node.instruction}</p>
-                  <p className="mt-2 text-xs font-semibold text-emerald-700">{waitLabel(node.id)}</p>
-                  <button type="button" disabled={waiting || unavailable} onClick={() => harvest(node.id)} className="mt-3 min-h-12 w-full rounded-xl bg-emerald-700 px-4 py-3 font-bold text-white shadow disabled:bg-emerald-200 disabled:text-emerald-600 active:bg-emerald-800">
-                    {node.id === "palms" ? "Shake Palm and Gather" : node.id === "berries" ? "Pick Berry Bundle" : node.id === "herbs" ? "Snip Fresh Herbs" : node.id === "coastal" ? "Gather Coastal Edibles" : node.id === "fruit" ? "Harvest Tropical Fruit" : node.id === "roots" ? "Pull a Root Crop" : "Harvest Seasonal Crop"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        <p className="rounded-xl bg-white/90 p-3 text-sm text-emerald-950">Select plants in the garden image to harvest. Regrowing patches remain selectable so you can check their timers. The seasonal patch produces crops all year.</p>
 
         <section aria-labelledby="recipes-heading" className="overflow-hidden rounded-2xl bg-amber-50 shadow-sm ring-1 ring-amber-300">
           <Image src={SCENES.coconutGroveRecipes} alt="Recipe cards for Golden Pumpkin Bisque, Sea Rose Pumpkin Tart, Island Spiced Gingerbread, and Frothy Coastal Spiced Cocoa" width={1408} height={768} unoptimized className="h-auto w-full" />
