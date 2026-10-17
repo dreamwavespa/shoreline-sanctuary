@@ -259,6 +259,44 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
   );
 }
 
+function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
+  const { state } = useGame();
+  const [section, setSection] = useState<"prepared" | "fresh" | "supplies">("prepared");
+  const preparedIds = new Set(KITCHEN_RECIPES.map((recipe) => recipe.outputItemId));
+  const cookingIds = new Set(KITCHEN_RECIPES.flatMap((recipe) => recipe.cost.map((ingredient) => ingredient.itemId)));
+  const entries = Object.entries(state.inventory)
+    .filter(([id, count]) => count > 0 && ITEMS[id] && (ITEMS[id].category === "food" || cookingIds.has(id)))
+    .filter(([id]) => section === "prepared" ? preparedIds.has(id) : section === "fresh" ? !preparedIds.has(id) && /fruit|berry|coconut|pumpkin|lettuce|mint|lemon|herb|fish|flower|milk/i.test(id + " " + ITEMS[id].name) : !preparedIds.has(id) && !/fruit|berry|coconut|pumpkin|lettuce|mint|lemon|herb|fish|flower|milk/i.test(id + " " + ITEMS[id].name))
+    .sort(([a], [b]) => ITEMS[a].name.localeCompare(ITEMS[b].name));
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/75 p-3" role="presentation">
+      <div role="dialog" aria-modal="true" aria-labelledby="kitchen-fridge-heading" className="flex max-h-[90dvh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-sky-50 shadow-2xl">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-sky-200 p-4">
+          <h2 id="kitchen-fridge-heading" className="font-serif text-xl font-bold text-teal-950">🧊 Cottage Refrigerator</h2>
+          <button type="button" onClick={onClose} className="min-h-11 rounded-xl bg-teal-900 px-4 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">Close Refrigerator</button>
+        </div>
+        <div className="flex flex-wrap gap-2 border-b border-sky-200 p-3" aria-label="Refrigerator categories">
+          {([{ id: "prepared", label: "Prepared Foods" }, { id: "fresh", label: "Fresh Ingredients" }, { id: "supplies", label: "Cooking Supplies" }] as const).map((tab) => (
+            <button key={tab.id} type="button" aria-pressed={section === tab.id} onClick={() => setSection(tab.id)} className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${section === tab.id ? "bg-teal-900 text-white" : "bg-white text-teal-950 ring-1 ring-teal-200"}`}>{tab.label}</button>
+          ))}
+        </div>
+        <div className="overflow-y-auto p-4">
+          <p className="mb-3 text-sm text-teal-900">Showing your current inventory. Items remain available for cooking and other activities.</p>
+          {entries.length === 0 ? <p className="rounded-xl bg-white p-4 text-teal-900">Nothing in this section yet. Gather ingredients or prepare recipes to fill your refrigerator.</p> : (
+            <ul className="space-y-2">
+              {entries.map(([id, count]) => <li key={id} className="flex items-center gap-3 rounded-xl bg-white p-3 text-teal-950 ring-1 ring-sky-200">
+                <span aria-hidden="true" className="text-2xl">{ITEMS[id].isEmoji ? ITEMS[id].icon : "🍽️"}</span>
+                <span className="flex-1 font-medium">{ITEMS[id].name}</span>
+                <span className="font-bold" aria-label={`Quantity ${count}`}>×{count}</span>
+              </li>)}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ShorelineCookbook() {
   const { play } = useGame();
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
@@ -553,6 +591,9 @@ export default function Workshop() {
   const [tab, setTab] = useState<Tab>("crafting");
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
+  const [fridgeOpen, setFridgeOpen] = useState(false);
+  const fridgeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeFridge = () => { play("kitchenFridge", 0.65); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
   const closeCookbook = () => { setCookbookOpen(false); window.setTimeout(() => cookbookButtonRef.current?.focus(), 0); };
   const [notebookOpen, setNotebookOpen] = useState(false);
@@ -753,6 +794,15 @@ export default function Workshop() {
               <div className="relative w-full overflow-hidden rounded-2xl shadow-md ring-1 ring-amber-300" style={{ aspectRatio: "3 / 2" }}>
                 <Image src="/images/Kitchen-background.PNG" alt="Sunlit coastal cottage kitchen with sea-glass refrigerator, stove, wooden cabinets, ocean-view window, and an open cookbook on the center island" fill unoptimized sizes="100vw" className="object-cover" />
                 <button
+                  ref={fridgeButtonRef}
+                  type="button"
+                  aria-label="Open the blue kitchen refrigerator"
+                  onClick={() => { play("kitchenFridge", 0.65); setFridgeOpen(true); }}
+                  className="absolute left-[1%] top-[16%] h-[75%] w-[18%] rounded-xl border-2 border-transparent bg-transparent focus-visible:border-amber-300 focus-visible:bg-amber-100/30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-950"
+                >
+                  <span className="sr-only">Open refrigerator</span>
+                </button>
+                <button
                   ref={cookbookButtonRef}
                   type="button"
                   aria-label="Open the cookbook on the kitchen island"
@@ -844,6 +894,7 @@ export default function Workshop() {
         )}
       </div>
 
+      {fridgeOpen && <KitchenRefrigerator onClose={closeFridge} />}
       {cookbookOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-3" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCookbook(); }}>
           <div role="dialog" aria-modal="true" aria-labelledby="shoreline-cookbook-heading" className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-amber-50 shadow-2xl">
