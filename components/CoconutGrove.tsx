@@ -275,23 +275,7 @@ export default function CoconutGrove() {
         )}
         <p role="status" aria-live="polite" className="rounded-xl bg-white/90 p-3 text-sm font-medium text-emerald-950 shadow-sm ring-1 ring-emerald-200">{message}</p>
 
-        {leafSandReady && (
-          <section aria-labelledby="leaf-sand-heading" className="rounded-2xl bg-lime-50 p-4 shadow-sm ring-1 ring-lime-300">
-            <h2 id="leaf-sand-heading" className="font-serif text-lg font-bold text-emerald-950">✨ Something sparkles beneath the leaves</h2>
-            <p className="mt-1 text-sm text-emerald-900">A faint green shimmer catches your attention near the plants.</p>
-            <button type="button" onClick={investigateLeafSand} className="mt-3 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white shadow">Investigate the sparkle</button>
-          </section>
-        )}
-
-        <p className="rounded-xl bg-white/90 p-3 text-sm text-emerald-950">Select plants in the garden image to harvest. Regrowing patches remain selectable so you can check their timers. The seasonal patch produces crops all year.</p>
-
-        <section aria-labelledby="recipes-heading" className="overflow-hidden rounded-2xl bg-amber-50 shadow-sm ring-1 ring-amber-300">
-          <Image src={SCENES.coconutGroveRecipes} alt="Recipe cards for Golden Pumpkin Bisque, Sea Rose Pumpkin Tart, Island Spiced Gingerbread, and Frothy Coastal Spiced Cocoa" width={1408} height={768} unoptimized className="h-auto w-full" />
-          <div className="p-4">
-            <h2 id="recipes-heading" className="font-serif text-xl font-bold text-amber-950">Grove Recipe Collection</h2>
-            <p className="mt-1 text-sm text-amber-800">Your four new seasonal recipes are available in the Workshop Kitchen. Harvest here, then bring the ingredients to the hearth.</p>
-          </div>
-        </section>
+        <p className="text-sm text-emerald-950">Select plants in the garden to harvest or check regrowth. The seasonal patch produces crops all year. Recipes and cooking are in the Workshop Kitchen’s Shoreline Cookbook; completed recipes appear in the Explorer’s Notebook.</p>
 
         <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
       </div>
