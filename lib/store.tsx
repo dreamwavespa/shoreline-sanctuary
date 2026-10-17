@@ -14,6 +14,7 @@ import { getScheduleStatus } from "./schedule";
 import { getTravelingMerchantStock, isShelbyBlueprintNeeded } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
 import { NOTEBOOK_SECTIONS } from "./notebook";
+import { KITCHEN_RECIPES } from "./recipes";
 import { BASIC_SHELL_PATTERNS, defaultPaintedShellName, NOTEBOOK_SHELL_PATTERNS, PAINTABLE_SHELL_IDS, SHELL_PAINT_COLORS, SUNNY_QUEST_PATTERN } from "./shellPainting";
 import { AQUARIUM_SHELL_MILESTONES, aquariumDateKey, getAquariumSpecies, type AquariumResident } from "./aquarium";
 import { getEarnedSeaGlassSisterRewards, getSeaGlassSisterItemGiftPool, sisterRewardClaimId } from "./seaGlassSisterRewards";
@@ -888,7 +889,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
       inv[outputItemId] = (inv[outputItemId] || 0) + outputCount;
-      return { ...s, inventory: inv };
+      const recipe = KITCHEN_RECIPES.find((entry) => entry.outputItemId === outputItemId);
+      return {
+        ...s,
+        inventory: inv,
+        notebookDiscovered: recipe
+          ? { ...s.notebookDiscovered, [`recipe:${recipe.id}`]: true }
+          : s.notebookDiscovered,
+      };
     });
     play("craftSuccess");
     const def = ITEMS[outputItemId];
