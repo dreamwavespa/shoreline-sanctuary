@@ -232,12 +232,12 @@ export default function CoconutGrove() {
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
       <section aria-label="Interactive Coconut Grove" className="relative min-h-[540px] w-full overflow-hidden bg-emerald-900 sm:min-h-[540px]">
-        <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover object-[center_35%] sm:object-center" />
+        <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover object-[43%_35%] sm:object-center" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
         {/* Seasonal plants are decorative; the existing garden hotspot handles all interaction. */}
-        <div className="pointer-events-none absolute left-[60%] top-[57%] z-[5] h-[36%] w-[39%]" aria-hidden="true">
-          <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 40vw, 25vw" className="object-contain object-bottom" />
+        <div className="pointer-events-none absolute left-[59%] top-[53%] z-[5] h-[40%] w-[41%]" aria-hidden="true">
+          <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 42vw, 25vw" className="object-contain object-bottom" />
         </div>
         {NODES.map((node) => {
           // Hotspots align with the artwork: palms upper left, berries left,
