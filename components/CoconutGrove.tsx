@@ -222,8 +222,8 @@ export default function CoconutGrove() {
 
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
-      <section aria-label="Interactive Coconut Grove" className="relative min-h-[480px] w-full overflow-hidden bg-emerald-900 sm:min-h-[540px]">
-        <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover" />
+      <section aria-label="Interactive Coconut Grove" className="relative min-h-[540px] w-full overflow-hidden bg-emerald-900 sm:min-h-[540px]">
+        <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover object-[center_35%] sm:object-center" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
         {NODES.map((node) => {
@@ -231,7 +231,7 @@ export default function CoconutGrove() {
           // herb flowers center, coastal edibles lower left, fruit right,
           // roots in the foreground, seasonal patch lower right.
           const spots: Record<NodeId, { left: string; top: string; width: string; height: string }> = {
-            palms: { left: "1%", top: "1%", width: "28%", height: "30%" },
+            palms: { left: "1%", top: "1%", width: "26%", height: "25%" },
             berries: { left: "1%", top: "32%", width: "26%", height: "24%" },
             herbs: { left: "27%", top: "40%", width: "24%", height: "24%" },
             coastal: { left: "2%", top: "64%", width: "31%", height: "25%" },
@@ -251,8 +251,8 @@ export default function CoconutGrove() {
             </button>
           );
         })}
-        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute left-[89%] top-[8%] z-10 h-[21%] w-[11%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
-        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[49%] top-[5%] z-10 h-[31%] w-[25%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
+        <button type="button" onClick={() => document.getElementById("honeybell-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute right-[1%] top-[8%] z-10 h-[21%] w-[17%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
+        <button type="button" onClick={() => document.getElementById("nursery-launch-heading")?.scrollIntoView({ behavior: "smooth" })} aria-label="Explore Hidden Grove Nursery" className="absolute left-[53%] top-[7%] z-10 h-[28%] w-[27%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
         {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
