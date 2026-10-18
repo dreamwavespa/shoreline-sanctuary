@@ -834,7 +834,7 @@ export default function Workshop() {
                 <Image src="/images/Kitchen-background.PNG" alt="Sunlit coastal cottage kitchen with sea-glass refrigerator, stove, wooden cabinets, ocean-view window, and an open cookbook on the center island" fill unoptimized sizes="100vw" className="object-cover" />
                 {state.notebookDiscovered["kitchen-reward:baby"] && (
                   <button type="button" aria-label="Examine the Seashell Baby Bottle reward" onClick={() => setKitchenRewardOpen("baby")}
-                    className="absolute left-[31%] top-[46%] z-10 h-[23%] w-[13%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+                    className="absolute left-[39%] top-[43%] z-10 h-[20%] w-[11%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
                     <Image src="/images/Kitchen-baby-bottle.PNG" alt="" fill unoptimized sizes="140px" className="object-contain" />
                   </button>
                 )}
