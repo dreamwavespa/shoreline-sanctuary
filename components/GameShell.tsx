@@ -37,6 +37,11 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
 export default function GameShell() {
   const { screen, setScreen, lastToast, state, notebookOpen, setNotebookOpen } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [destination, setDestination] = useState<"kitchen" | "nursery" | null>(null);
+  const goTo = (target: "kitchen" | "nursery") => {
+    setDestination(target);
+    setScreen(target === "kitchen" ? "workshop" : "cottage");
+  };
 
   const villagerMetCount = Object.values(state.villagerGiftCounts).filter((c) => c > 0).length;
   const notebookDiscoveredCount = Object.keys(state.notebookDiscovered).length + villagerMetCount + state.lookoutSightings.length + state.tidePoolDiscoveries.length;
@@ -67,6 +72,7 @@ export default function GameShell() {
       window.setTimeout(() => setLockMsg((m) => (m ? null : m)), 2200);
       return;
     }
+    setDestination(null);
     setScreen(id);
   };
 
@@ -109,14 +115,14 @@ export default function GameShell() {
         <OlliHuntOverlay />
         {screen === "beach" && <BeachScene />}
         {screen === "bucket" && <BucketPanel />}
-        {screen === "workshop" && <Workshop />}
+        {screen === "workshop" && <Workshop openKitchen={destination === "kitchen"} onGoToNursery={() => goTo("nursery")} />}
         {screen === "bottles" && <BottleQuests />}
         {screen === "cove" && <CoveScene />}
         {screen === "lighthouse" && <><LighthouseScreen /><MarshmallowCarePanel /></>}
         {screen === "reef" && <ReefScene />}
         {screen === "ship" && <ShipScene />}
         {screen === "sandbars" && <SandbarsScene />}
-        {screen === "cottage" && <Cottage />}
+        {screen === "cottage" && <Cottage openNursery={destination === "nursery"} onGoToKitchen={() => goTo("kitchen")} />}
         {screen === "shop" && <SeaweedSaltShop />}
         {screen === "grove" && <CoconutGrove />}
 
