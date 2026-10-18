@@ -27,7 +27,7 @@ const BABY_FOODS = [
 const PIANO = ["/audio/Piano1.mp3", "/audio/Piano3.mp3", "/audio/Piano-cheerful.mp3"];
 const LULLABIES = ["cadence1", "cadence2", "cadence3"] as const;
 
-export default function CadenceNursery({ onClose }: { onClose: () => void }) {
+export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
   const { state, craft, cook, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
   const [discovered, setDiscovered] = useState<string[]>([]);
@@ -79,6 +79,7 @@ export default function CadenceNursery({ onClose }: { onClose: () => void }) {
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-music"><h2 id="cadence-music" className="font-serif text-lg font-bold text-rose-900">Nursery Lullabies</h2><p className="mt-1 text-sm">Choose one of Cadence's three background lullabies.</p><div className="mt-3 grid grid-cols-3 gap-2">{LULLABIES.map((key, i) => <button key={key} type="button" aria-pressed={lullaby === key} onClick={() => { setLullaby(key); announce(`Lullaby ${i + 1} is now playing.`); }} className="rounded-xl bg-violet-100 p-3 font-semibold">Lullaby {i + 1}{lullaby === key ? " • Playing" : ""}</button>)}</div></section>
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-feeding"><h2 id="cadence-feeding" className="font-serif text-lg font-bold text-rose-900">Cadence's Snack Time</h2><p className="mt-1 text-sm text-slate-700">Prepare baby foods in the Kitchen, then bring them here for Cadence. Each feeding uses one serving.</p>{state.notebookDiscovered["kitchen-reward:baby"] && <div className="mt-3 rounded-xl bg-rose-50 p-3 ring-1 ring-rose-200">
         <h3 className="font-semibold text-rose-900">Seashell Baby Bottle</h3>
+        {onGoToKitchen && <button type="button" onClick={onGoToKitchen} className="mt-2 min-h-11 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white">Go to Kitchen to Fill Bottle</button>}
         <p className="mt-1 text-sm">{state.notebookDiscovered["kitchen-bottle:rose"] ? "Filled with Warm Rose Milk" : state.notebookDiscovered["kitchen-bottle:berry"] ? "Filled with Berry Juice" : "Empty — fill the bottle in the kitchen"}</p>
         <button type="button" disabled={!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"]} onClick={feedBottle} className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 py-2 font-bold text-white disabled:opacity-50">Offer Filled Bottle to Cadence</button>
       </div>}<div className="mt-3 grid gap-2 sm:grid-cols-2">{BABY_FOODS.map(food => { const count = state.inventory[food.id] ?? 0; return <button key={food.id} type="button" onClick={() => feed(food)} aria-label={`${food.name}. ${count} servings ready.`} className="rounded-xl border border-pink-200 bg-pink-50 p-3 text-left"><span className="text-2xl" aria-hidden="true">{food.icon}</span><strong className="ml-2">{food.name}</strong><span className="mt-1 block text-xs text-slate-700">Servings ready: {count}</span><span className="mt-2 block text-sm font-semibold text-rose-800">{count > 0 ? "Feed Cadence" : "Cook in Kitchen first"}</span></button>; })}</div></section>
