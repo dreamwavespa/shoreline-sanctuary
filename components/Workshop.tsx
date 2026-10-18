@@ -624,9 +624,9 @@ function SandArtStudio() {
 
 type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
-export default function Workshop() {
+export default function Workshop({ openKitchen = false, onGoToNursery }: { openKitchen?: boolean; onGoToNursery?: () => void }) {
   const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
-  const [tab, setTab] = useState<Tab>("crafting");
+  const [tab, setTab] = useState<Tab>(openKitchen ? "kitchen" : "crafting");
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
@@ -961,6 +961,7 @@ export default function Workshop() {
               <p>Collect three servings of crushed ice each day for future frozen recipes.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-ice")} className="mt-3 min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`] ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>
             </>}
+            {kitchenRewardOpen === "baby" && onGoToNursery && <button type="button" onClick={() => { setKitchenRewardOpen(null); onGoToNursery(); }} className="mt-3 min-h-11 w-full rounded-xl bg-rose-800 px-3 py-2 font-bold text-white">Go to Cadence's Nursery</button>}
             <button type="button" onClick={() => setKitchenRewardOpen(null)} className="mt-3 min-h-11 w-full rounded-xl border border-teal-700 px-3 py-2 font-semibold">Close</button>
           </div>
         </div>
