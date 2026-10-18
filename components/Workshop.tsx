@@ -625,7 +625,7 @@ function SandArtStudio() {
 type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
 export default function Workshop() {
-  const { state, setMusicOverride, claimKitchenReward } = useGame();
+  const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
@@ -950,7 +950,14 @@ export default function Workshop() {
           <div role="dialog" aria-modal="true" aria-labelledby="kitchen-equipment-title" className="w-full max-w-sm rounded-2xl bg-amber-50 p-5 text-teal-950 shadow-xl">
             <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : "Coastal Ice Maker"}</h2>
             <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
-            {kitchenRewardOpen === "baby" ? <p>Your permanent baby recipe collection reward! Special feeding activities for Cadence are coming soon.</p> : <>
+            {kitchenRewardOpen === "baby" ? <div className="space-y-3">
+              <p>Your reusable Seashell Baby Bottle holds one serving. Fill it here, then visit Cadence's nursery.</p>
+              <p role="status" className="font-semibold">{state.notebookDiscovered["kitchen-bottle:rose"] ? "Filled with Warm Rose Milk" : state.notebookDiscovered["kitchen-bottle:berry"] ? "Filled with Berry Juice" : "Bottle is empty"}</p>
+              {!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"] && <div className="grid gap-2">
+                <button type="button" disabled={(state.inventory["food-cadence-warm-rose-milk"] || 0) < 1} onClick={() => useBabyBottle("rose")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Fill with Warm Rose Milk (1 prepared serving)</button>
+                <button type="button" disabled={(state.inventory["coastal-brambleberry"] || 0) < 2} onClick={() => useBabyBottle("berry")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Make Berry Juice (2 coastal brambleberries)</button>
+              </div>}
+            </div> : <>
               <p>Collect three servings of crushed ice each day for future frozen recipes.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-ice")} className="mt-3 min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`] ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>
             </>}
