@@ -27,14 +27,14 @@ const COTTAGE_MOSAICS = [
   { itemId: "mosaic-seaglass-flower", name: "Sea Glass Flower", icon: "🌸" },
 ];
 
-export default function Cottage() {
+export default function Cottage({ openNursery = false, onGoToKitchen }: { openNursery?: boolean; onGoToKitchen?: () => void }) {
   const { state, setMusicOverride, collectItem } = useGame();
   const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
   const [mosaicOpen, setMosaicOpen] = useState(false);
   const [gardenOpen, setGardenOpen] = useState(false);
-  const [cadenceOpen, setCadenceOpen] = useState(false);
+  const [cadenceOpen, setCadenceOpen] = useState(openNursery);
   const [marellaDiscoveries, setMarellaDiscoveries] = useState<string[]>([]);
   const [marellaLastObservation, setMarellaLastObservation] = useState("");
   const [marellaResult, setMarellaResult] = useState<string>("");
@@ -144,7 +144,7 @@ export default function Cottage() {
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
       {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}
       {gardenOpen && <CoralieUnderwaterGarden onClose={closeGarden} />}
-      {cadenceOpen && <CadenceNursery onClose={closeCadence} />}
+      {cadenceOpen && <CadenceNursery onClose={closeCadence} onGoToKitchen={onGoToKitchen} />}
     </div>
   );
 }
