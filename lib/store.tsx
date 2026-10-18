@@ -906,6 +906,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const claimKitchenReward = (kind: "baby" | "ice" | "daily-ice") => {
+    const babyKeys = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
+    const smoothieKeys = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
+    const current = stateRef.current;
+    const babyReady = babyKeys.every(id => current.notebookDiscovered[`recipe:${id}`]);
+    const iceReady = smoothieKeys.every(id => current.notebookDiscovered[`smoothie:${id}`]);
+    const date = new Date().toLocaleDateString("en-CA");
+    if (kind === "baby" && !babyReady) return false;
+    if (kind !== "baby" && !iceReady) return false;
+    if (kind === "baby" && current.notebookDiscovered["kitchen-reward:baby"]) return false;
+    if (kind === "ice" && current.notebookDiscovered["kitchen-reward:ice"]) return false;
+    if (kind === "daily-ice" && (!current.notebookDiscovered["kitchen-reward:ice"] || current.notebookDiscovered[`kitchen-daily-ice:${date}`])) return false;
+    const itemId = kind === "baby" ? "kitchen-baby-bottle" : kind === "ice" ? "kitchen-ice-maker" : "kitchen-crushed-ice";
+    const count = kind === "daily-ice" ? 3 : 1;
+    const key = kind === "daily-ice" ? `kitchen-daily-ice:${date}` : `kitchen-reward:${kind}`;
+    setState(prev => ({
+      ...prev,
+      inventory: { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) + count },
+      notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [itemId]: true },
+    }));
+    play(kind === "daily-ice" ? "kitchenFridge" : "sparkle");
+    toast(kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : "Coastal Ice Maker unlocked!");
+    return true;
+  };
+
   const bottleRoseMilk = () => {
     if ((stateRef.current.inventory["food-sea-rose-milk"] || 0) < 1) return false;
     setState((s) => {
@@ -2320,6 +2345,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       emptyBucket,
       craft,
       cook,
+      claimKitchenReward,
       bottleRoseMilk,
       claimQuest,
       openChest,
