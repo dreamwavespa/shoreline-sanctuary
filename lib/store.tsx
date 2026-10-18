@@ -927,7 +927,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       inventory: { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) + count },
       notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [itemId]: true },
     }));
-    play(kind === "daily-ice" ? "kitchenFridge" : "sparkle");
+    play(kind === "daily-ice" ? "kitchenIceDispenser" : "sparkle");
     toast(kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : "Coastal Ice Maker unlocked!");
     return true;
   };
