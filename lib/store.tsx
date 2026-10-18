@@ -395,6 +395,7 @@ interface Ctx {
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
+  claimKitchenReward: (kind: "baby" | "ice" | "daily-ice") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
