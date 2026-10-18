@@ -99,15 +99,26 @@ function SectionPage({ section }: { section: NotebookSection }) {
   );
 }
 
+const SHIP_SMOOTHIE_RECIPES = [
+  { id: "strawberry-banana", name: "Strawberry Banana Smoothie" },
+  { id: "tropical-pineapple", name: "Tropical Pineapple Smoothie" },
+  { id: "mixed-berry", name: "Mixed Berry Smoothie" },
+  { id: "coastal-berry-mint", name: "Coastal Berry Mint Smoothie" },
+] as const;
+
 function RecipeCollectionPage() {
   const { state } = useGame();
-  const completed = KITCHEN_RECIPES.filter((recipe) => state.notebookDiscovered[`recipe:${recipe.id}`]).length;
+  const kitchenCompleted = KITCHEN_RECIPES.filter((recipe) => state.notebookDiscovered[`recipe:${recipe.id}`]).length;
+  const smoothieCompleted = SHIP_SMOOTHIE_RECIPES.filter((recipe) => state.notebookDiscovered[`smoothie:${recipe.id}`]).length;
+  const total = KITCHEN_RECIPES.length + SHIP_SMOOTHIE_RECIPES.length;
+  const completed = kitchenCompleted + smoothieCompleted;
   return (
     <section aria-labelledby="recipe-collection-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
       <h3 id="recipe-collection-heading" className="font-serif text-xl font-bold">🍲 Shoreline Recipe Collection</h3>
-      <p className="mt-1 text-sm font-semibold" role="status">{completed} of {KITCHEN_RECIPES.length} recipes prepared</p>
-      <p className="mt-2 text-xs">Recipes are permanently marked after you successfully prepare them in the Workshop Kitchen, even if the food is later used or gifted.</p>
-      <ul className="mt-4 space-y-2">
+      <p className="mt-1 text-sm font-semibold" role="status">{completed} of {total} recipes prepared</p>
+      <p className="mt-2 text-xs">Recipes stay marked as prepared after cooking them in the Workshop Kitchen or blending them at the Community Ship Smoothie Bar, even if you later use or gift the food.</p>
+      <h4 className="mt-4 font-serif font-bold">Cottage Kitchen Recipes — {kitchenCompleted} of {KITCHEN_RECIPES.length}</h4>
+      <ul className="mt-2 space-y-2">
         {KITCHEN_RECIPES.map((recipe) => {
           const prepared = !!state.notebookDiscovered[`recipe:${recipe.id}`];
           return (
@@ -119,7 +130,19 @@ function RecipeCollectionPage() {
           );
         })}
       </ul>
-      {completed === KITCHEN_RECIPES.length && <p className="mt-4 font-bold text-emerald-800">✦ Recipe collection complete! ✦</p>}
+      <h4 className="mt-5 font-serif font-bold">Community Ship Smoothies — {smoothieCompleted} of {SHIP_SMOOTHIE_RECIPES.length}</h4>
+      <ul className="mt-2 space-y-2">
+        {SHIP_SMOOTHIE_RECIPES.map((recipe) => {
+          const prepared = !!state.notebookDiscovered[`smoothie:${recipe.id}`];
+          return (
+            <li key={recipe.id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
+              <p className="font-semibold">{prepared ? "✓" : "○"} {recipe.name} — {prepared ? "Prepared" : "Not yet prepared"}</p>
+              <p className="text-xs text-amber-800">Community Ship · Smoothie Bar</p>
+            </li>
+          );
+        })}
+      </ul>
+      {completed === total && <p className="mt-4 font-bold text-emerald-800">✦ Recipe collection complete! ✦</p>}
     </section>
   );
 }
