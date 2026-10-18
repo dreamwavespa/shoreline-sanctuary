@@ -265,7 +265,7 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
   const preparedIds = new Set(KITCHEN_RECIPES.map((recipe) => recipe.outputItemId));
   const cookingIds = new Set(KITCHEN_RECIPES.flatMap((recipe) => recipe.cost.map((ingredient) => ingredient.itemId)));
   const entries = Object.entries(state.inventory)
-    .filter(([id, count]) => count > 0 && ITEMS[id] && (ITEMS[id].category === "food" || cookingIds.has(id)))
+    .filter(([id, count]) => count > 0 && id !== "orange-glaze" && ITEMS[id] && (ITEMS[id].category === "food" || cookingIds.has(id)))
     .filter(([id]) => section === "prepared" ? preparedIds.has(id) : section === "fresh" ? !preparedIds.has(id) && /fruit|berry|coconut|pumpkin|lettuce|mint|lemon|herb|fish|flower|milk/i.test(id + " " + ITEMS[id].name) : !preparedIds.has(id) && !/fruit|berry|coconut|pumpkin|lettuce|mint|lemon|herb|fish|flower|milk/i.test(id + " " + ITEMS[id].name))
     .sort(([a], [b]) => ITEMS[a].name.localeCompare(ITEMS[b].name));
   return (
@@ -593,7 +593,7 @@ export default function Workshop() {
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
-  const closeFridge = () => { play("kitchenFridge", 0.65); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
+  const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
   const closeCookbook = () => { setCookbookOpen(false); window.setTimeout(() => cookbookButtonRef.current?.focus(), 0); };
   const [notebookOpen, setNotebookOpen] = useState(false);
@@ -797,7 +797,7 @@ export default function Workshop() {
                   ref={fridgeButtonRef}
                   type="button"
                   aria-label="Open the blue kitchen refrigerator"
-                  onClick={() => { play("kitchenFridge", 0.65); setFridgeOpen(true); }}
+                  onClick={() => { play("kitchenFridge", 1); setFridgeOpen(true); }}
                   className="absolute left-[1%] top-[16%] h-[75%] w-[18%] rounded-xl border-2 border-transparent bg-transparent focus-visible:border-amber-300 focus-visible:bg-amber-100/30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-950"
                 >
                   <span className="sr-only">Open refrigerator</span>
