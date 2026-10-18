@@ -74,6 +74,7 @@ export const SFX_FILES: Record<string, string> = {
   kitchenSizzle: "/audio/Kitchen-sizzle.mp3",
   kitchenPageTurn: "/audio/Kitchen-page-turn.mp3",
   kitchenFridge: "/audio/Kitchen-fridge.mp3",
+  kitchenIceDispenser: "/audio/Kitchen-ice-dispenser.mp3",
   shelbyBox: "/audio/Shelby-box.mp3",
   shelbyMailbox: "/audio/Shelby-mailbox.mp3",
   ceramicBell: "/audio/Ceramic-bell.mp3",
