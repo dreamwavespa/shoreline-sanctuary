@@ -260,7 +260,7 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
 }
 
 function KitchenRecipeRewards() {
-  const { state } = useGame();
+  const { state, claimKitchenReward } = useGame();
   const baby = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
@@ -279,7 +279,17 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
-            <p className="text-xs text-slate-700">{unlocked ? "Permanently earned!" : "Complete the collection to unlock."}</p>
+            <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
+            {unlocked && (() => {
+              const kind = group.name === "Baby Food" ? "baby" : "ice";
+              const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
+              const today = new Date().toLocaleDateString("en-CA");
+              const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
+              return <div className="mt-2 space-y-2">
+                {!claimed ? <button type="button" onClick={() => claimKitchenReward(kind)} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 text-sm font-bold text-white">Claim {group.reward}</button> : <p className="text-sm font-semibold text-teal-800">Equipment permanently unlocked</p>}
+                {kind === "ice" && claimed && <button type="button" disabled={collectedToday} onClick={() => claimKitchenReward("daily-ice")} className="min-h-11 rounded-lg bg-sky-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">{collectedToday ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>}
+              </div>;
+            })()}
           </div>;
         })}
       </div>
