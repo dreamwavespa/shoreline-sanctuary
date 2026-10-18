@@ -625,11 +625,12 @@ function SandArtStudio() {
 type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
 export default function Workshop() {
-  const { state, setMusicOverride } = useGame();
+  const { state, setMusicOverride, claimKitchenReward } = useGame();
   const [tab, setTab] = useState<Tab>("crafting");
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
+  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
@@ -831,6 +832,18 @@ export default function Workshop() {
             <section aria-label="Cozy cottage kitchen" className="mb-4">
               <div className="relative w-full overflow-hidden rounded-2xl shadow-md ring-1 ring-amber-300" style={{ aspectRatio: "3 / 2" }}>
                 <Image src="/images/Kitchen-background.PNG" alt="Sunlit coastal cottage kitchen with sea-glass refrigerator, stove, wooden cabinets, ocean-view window, and an open cookbook on the center island" fill unoptimized sizes="100vw" className="object-cover" />
+                {state.notebookDiscovered["kitchen-reward:baby"] && (
+                  <button type="button" aria-label="Examine the Seashell Baby Bottle reward" onClick={() => setKitchenRewardOpen("baby")}
+                    className="absolute left-[31%] top-[46%] z-10 h-[23%] w-[13%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+                    <Image src="/images/Kitchen-baby-bottle.PNG" alt="" fill unoptimized sizes="140px" className="object-contain" />
+                  </button>
+                )}
+                {state.notebookDiscovered["kitchen-reward:ice"] && (
+                  <button type="button" aria-label="Use the Coastal Ice Maker" onClick={() => setKitchenRewardOpen("ice")}
+                    className="absolute left-[82%] top-[32%] z-10 h-[30%] w-[17%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+                    <Image src="/images/Kitchen-ice-maker.PNG" alt="" fill unoptimized sizes="170px" className="object-contain" />
+                  </button>
+                )}
                 <button
                   ref={fridgeButtonRef}
                   type="button"
@@ -932,6 +945,19 @@ export default function Workshop() {
         )}
       </div>
 
+      {kitchenRewardOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/75 p-3">
+          <div role="dialog" aria-modal="true" aria-labelledby="kitchen-equipment-title" className="w-full max-w-sm rounded-2xl bg-amber-50 p-5 text-teal-950 shadow-xl">
+            <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : "Coastal Ice Maker"}</h2>
+            <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
+            {kitchenRewardOpen === "baby" ? <p>Your permanent baby recipe collection reward! Special feeding activities for Cadence are coming soon.</p> : <>
+              <p>Collect three servings of crushed ice each day for future frozen recipes.</p>
+              <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-ice")} className="mt-3 min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`] ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>
+            </>}
+            <button type="button" onClick={() => setKitchenRewardOpen(null)} className="mt-3 min-h-11 w-full rounded-xl border border-teal-700 px-3 py-2 font-semibold">Close</button>
+          </div>
+        </div>
+      )}
       {fridgeOpen && <KitchenRefrigerator onClose={closeFridge} />}
       {cookbookOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/75 p-3" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCookbook(); }}>
