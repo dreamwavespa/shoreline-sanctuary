@@ -259,6 +259,34 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
   );
 }
 
+function KitchenRecipeRewards() {
+  const { state } = useGame();
+  const baby = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
+  const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
+  const groups = [
+    { name: "Baby Food", reward: "Seashell Baby Bottle", keys: baby.map((id) => `recipe:${id}`) },
+    { name: "Smoothies", reward: "Coastal Ice Maker", keys: smoothies.map((id) => `smoothie:${id}`) },
+  ];
+  return (
+    <section aria-labelledby="kitchen-rewards-heading" className="mt-4 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-300">
+      <h3 id="kitchen-rewards-heading" className="font-serif text-xl font-bold text-amber-950">Kitchen Collection Rewards</h3>
+      <p className="mt-1 text-sm text-amber-900">Prepare each recipe once to permanently unlock its collection reward. Ingredients are still required each time you cook.</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {groups.map((group) => {
+          const completed = group.keys.filter((key) => state.notebookDiscovered[key]).length;
+          const unlocked = completed === group.keys.length;
+          return <div key={group.name} className="rounded-xl bg-white p-3 ring-1 ring-amber-200">
+            <h4 className="font-bold text-teal-950">{group.name}</h4>
+            <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
+            <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            <p className="text-xs text-slate-700">{unlocked ? "Permanently earned!" : "Complete the collection to unlock."}</p>
+          </div>;
+        })}
+      </div>
+    </section>
+  );
+}
+
 function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
   const { state } = useGame();
   const [section, setSection] = useState<"prepared" | "fresh" | "supplies">("prepared");
@@ -901,7 +929,7 @@ export default function Workshop() {
             <div className="flex shrink-0 justify-end border-b border-amber-200 p-3">
               <button type="button" onClick={closeCookbook} className="min-h-11 rounded-xl bg-teal-900 px-5 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">Close Cookbook</button>
             </div>
-            <div className="overflow-y-auto p-3"><ShorelineCookbook /></div>
+            <div className="overflow-y-auto p-3"><ShorelineCookbook /><KitchenRecipeRewards /></div>
           </div>
         </div>
       )}
