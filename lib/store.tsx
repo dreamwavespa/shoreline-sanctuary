@@ -890,12 +890,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const inv = deductCost({ ...s.inventory }, cost);
       inv[outputItemId] = (inv[outputItemId] || 0) + outputCount;
       const recipe = KITCHEN_RECIPES.find((entry) => entry.outputItemId === outputItemId);
+      const smoothieId = outputItemId.startsWith("food-smoothie-") ? outputItemId.slice("food-smoothie-".length) : null;
       return {
         ...s,
         inventory: inv,
         notebookDiscovered: recipe
           ? { ...s.notebookDiscovered, [`recipe:${recipe.id}`]: true }
-          : s.notebookDiscovered,
+          : smoothieId ? { ...s.notebookDiscovered, [`smoothie:${smoothieId}`]: true } : s.notebookDiscovered,
       };
     });
     // Play the cooking effect without competing with a simultaneous success sound.
