@@ -396,6 +396,7 @@ interface Ctx {
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice") => boolean;
+  useBabyBottle: (action: "rose" | "berry" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
@@ -904,6 +905,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("kitchenSizzle", 0.8);
     const def = ITEMS[outputItemId];
     toast(def ? `Cooked ${def.name}!` : "Cooked!");
+    return true;
+  };
+
+  const useBabyBottle = (action: "rose" | "berry" | "feed") => {
+    const current = stateRef.current;
+    if (!current.notebookDiscovered["kitchen-reward:baby"]) return false;
+    const roseKey = "kitchen-bottle:rose";
+    const berryKey = "kitchen-bottle:berry";
+    const filled = !!current.notebookDiscovered[roseKey] || !!current.notebookDiscovered[berryKey];
+    if (action === "feed" ? !filled : filled) return false;
+    const cost = action === "rose" ? [{ itemId: "food-cadence-warm-rose-milk", count: 1 }] : action === "berry" ? [{ itemId: "coastal-brambleberry", count: 2 }] : [];
+    if (cost.some(item => (current.inventory[item.itemId] || 0) < item.count)) return false;
+    setState(prev => {
+      const inventory = { ...prev.inventory };
+      for (const item of cost) inventory[item.itemId] -= item.count;
+      return { ...prev, inventory, notebookDiscovered: {
+        ...prev.notebookDiscovered,
+        [roseKey]: action === "rose",
+        [berryKey]: action === "berry",
+      }};
+    });
+    play(action === "feed" ? "babyBottle" : "oceanWaterSplash", .5);
     return true;
   };
 
@@ -2347,6 +2370,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       cook,
       claimKitchenReward,
+      useBabyBottle,
       bottleRoseMilk,
       claimQuest,
       openChest,
