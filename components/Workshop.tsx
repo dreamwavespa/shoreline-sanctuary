@@ -335,6 +335,29 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
   );
 }
 
+// Recipe-card artwork uses the filenames already committed to public/.
+// Cooking costs and progress remain defined by KITCHEN_RECIPES.
+const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "golden-pumpkin-bisque": "/Recipe-golden-pumpkin-bisque.PNG",
+  "sea-rose-pumpkin-tart": "/Recipe-sea-rose-pumpkin-tart.PNG",
+  "island-spiced-gingerbread": "/Recipe-island-spice-gingerbread.PNG",
+  "coastal-spiced-cocoa": "/Recipe-coastal-cocoa.PNG",
+  "dry-sugar-berries": "/Recipe-dried-sugar-berries.PNG",
+  "coconut-cream": "/coconut-cream-recipe-card.png",
+  "beach-plum-jelly": "/Recipe-beach-plum-jelly.PNG",
+  "sea-rose-milk": "/Recipe-sea-rose-milk.PNG",
+  "seaweed-chips": "/Recipe-seaweed-chips.PNG",
+  "campfire-marshmallow": "/Recipe-campfire-marshmallow.PNG",
+  "sea-lettuce-wrap": "/Recipe-sea-lettuce-wrap.PNG",
+  "sweet-sugar-berry-tea": "/Recipe-tea-berry.JPG",
+  "lemon-tea": "/Recipe-tea-lemon.JPG",
+  "mint-tea": "/Recipe-tea-mint.JPG",
+  "cadence-warm-rose-milk": "/Recipe-warm-rose-milk.PNG",
+  "cadence-sea-pea-puree": "/Recipe-steamed-sea-pea-puree.PNG",
+  "cadence-sun-berry-mash": "/Recipe-sun-berry-fruit-mash.PNG",
+  "cadence-teething-kelp-cookies": "/Recipe-teething-kelp-cookies.PNG",
+};
+
 function ShorelineCookbook() {
   const { play } = useGame();
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
@@ -395,6 +418,11 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
 
       <p className="mt-3 text-sm leading-relaxed text-amber-900">{recipe.description}</p>
 
+      {KITCHEN_RECIPE_CARD_IMAGES[recipe.id] && (
+        <div className="relative mt-4 mx-auto w-full max-w-sm overflow-hidden rounded-xl ring-1 ring-amber-200">
+          <Image src={KITCHEN_RECIPE_CARD_IMAGES[recipe.id]} alt={`Illustrated recipe card for ${recipe.name}; ingredients and quantities are listed accessibly below`} width={1024} height={1536} unoptimized className="h-auto w-full" />
+        </div>
+      )}
       <FoodVisual recipeId={recipe.id} />
 
       <h3 className="mt-4 text-xs font-bold uppercase tracking-wide text-amber-800">Ingredients</h3>
