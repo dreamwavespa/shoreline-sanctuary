@@ -72,6 +72,7 @@ const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
   kitchenSizzle: "/audio/Kitchen-sizzle.mp3",
+  kitchenCoffeeBrewing: "/audio/Kitchen-coffee-brewing.mp3",
   kitchenPageTurn: "/audio/Kitchen-page-turn.mp3",
   kitchenFridge: "/audio/Kitchen-fridge.mp3",
   kitchenIceDispenser: "/audio/Kitchen-ice-dispenser.mp3",
