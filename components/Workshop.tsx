@@ -265,6 +265,8 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Baking", reward: "Kitchen Cooling Rack", keys: ["sea-rose-pumpkin-tart", "island-spiced-gingerbread"].map((id) => `recipe:${id}`) },
+    { name: "Pumpkin Recipes", reward: "Pumpkin Spice Jar", keys: ["golden-pumpkin-bisque", "sea-rose-pumpkin-tart", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
     { name: "Teas", reward: "Coffee Pot and Creamer", keys: teas.map((id) => `recipe:${id}`) },
     { name: "Baby Food", reward: "Seashell Baby Bottle", keys: baby.map((id) => `recipe:${id}`) },
     { name: "Smoothies", reward: "Coastal Ice Maker", keys: smoothies.map((id) => `smoothie:${id}`) },
@@ -281,15 +283,18 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            {group.name === "Baking" && <Image src="/images/Kitchen-cooling-rack.PNG" alt="Kitchen cooling rack reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
+            {group.name === "Pumpkin Recipes" && <Image src="/images/Kitchen-pumpkin-spice.PNG" alt="Pumpkin spice reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Teas" && <Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="Coffee pot and creamer reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
             {unlocked && (() => {
-              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : "ice";
+              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Pumpkin Recipes" ? "pumpkin" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
               const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
               return <div className="mt-2 space-y-2">
                 {!claimed ? <button type="button" onClick={() => claimKitchenReward(kind)} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 text-sm font-bold text-white">Claim {group.reward}</button> : <p className="text-sm font-semibold text-teal-800">Equipment permanently unlocked</p>}
+                {kind === "pumpkin" && claimed && <button type="button" disabled={Boolean(state.notebookDiscovered[`kitchen-daily-pumpkin:${today}`])} onClick={() => claimKitchenReward("daily-pumpkin")} className="min-h-11 rounded-lg bg-amber-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-pumpkin:${today}`] ? "Pumpkin Spice collected today" : "Collect Pumpkin Spice"}</button>}
                 {kind === "ice" && claimed && <button type="button" disabled={collectedToday} onClick={() => claimKitchenReward("daily-ice")} className="min-h-11 rounded-lg bg-sky-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">{collectedToday ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>}
               </div>;
             })()}
