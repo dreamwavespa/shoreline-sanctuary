@@ -246,7 +246,7 @@ export default function CoconutGrove() {
           <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 42vw, 25vw" className="object-contain object-bottom" />
         </div>
         {/* Vegetable beds are decorative; the existing accessible hotspot handles harvesting. */}
-        <div className="pointer-events-none absolute left-[27%] top-[18%] z-[5] h-[20%] w-[24%]" aria-hidden="true">
+        <div className="pointer-events-none absolute left-[18%] top-[34%] z-[5] h-[34%] w-[43%]" aria-hidden="true">
           <Image src="/images/Coconut-grove-vegetable-garden.PNG" alt="" fill unoptimized sizes="(max-width: 640px) 30vw, 20vw" className="object-contain object-bottom" />
         </div>
         {NODES.map((node) => {
@@ -260,7 +260,7 @@ export default function CoconutGrove() {
             coastal: { left: "2%", top: "64%", width: "31%", height: "25%" },
             fruit: { left: "54%", top: "34%", width: "25%", height: "27%" },
             roots: { left: "35%", top: "70%", width: "24%", height: "22%" },
-            vegetables: { left: "27%", top: "18%", width: "24%", height: "20%" },
+            vegetables: { left: "18%", top: "34%", width: "43%", height: "34%" },
             seasonal: { left: "67%", top: "66%", width: "30%", height: "29%" },
           };
           const spot = spots[node.id];
