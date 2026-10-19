@@ -238,6 +238,26 @@ export default function CoconutGrove() {
     try { localStorage.removeItem(FLOWER_BED_KEY); } catch {}
   };
 
+  const plantMysteryHerb = () => {
+    if (mysteryHerb || !state.inventory["imported-island-herb-seeds"]) return;
+    if (!craft("grove-mystery-herb-plant", [{ itemId: "imported-island-herb-seeds", count: 1 }])) return;
+    const planted: MysteryHerb = { result: MYSTERY_HERBS[Math.floor(Math.random() * MYSTERY_HERBS.length)], plantedAt: Date.now() };
+    setMysteryHerb(planted);
+    try { localStorage.setItem(MYSTERY_HERB_KEY, JSON.stringify(planted)); } catch {}
+    setMessage("Mystery island seeds planted. The plant will be revealed at harvest.");
+    play("groveHerbSnip");
+  };
+
+  const harvestMysteryHerb = () => {
+    if (!mysteryHerb || Date.now() - mysteryHerb.plantedAt < MYSTERY_HERB_GROW_MS) return;
+    collectItem(mysteryHerb.result, { silent: true });
+    if (mysteryHerb.result === "island-vanilla-orchid") collectItem("vanilla", { silent: true });
+    setMessage("Mystery revealed! You grew " + ITEMS[mysteryHerb.result].name + "! Added to inventory.");
+    play("groveHerbSnip");
+    setMysteryHerb(null);
+    try { localStorage.removeItem(MYSTERY_HERB_KEY); } catch {}
+  };
+
   const investigateLeafSand = () => {
     if (!leafSandReady) return;
     collectItem("sand-green-leaf", { silent: true });
