@@ -18,6 +18,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "kitchen-crushed-ice": { id: "kitchen-crushed-ice", name: "Crushed Ice", category: "food", icon: "🧊", isEmoji: true, rarity: "common", sfx: "kitchenFridge" },
   "kitchen-baby-bottle": { id: "kitchen-baby-bottle", name: "Seashell Baby Bottle", category: "special", icon: "🍼", isEmoji: true, rarity: "rare", sfx: "sparkle" },
   "kitchen-coffee-pot-creamer": { id: "kitchen-coffee-pot-creamer", name: "Coffee Pot and Creamer", category: "special", icon: "☕", isEmoji: true, rarity: "rare", sfx: "sparkle" },
+  "food-coastal-berry-muffins": { id: "food-coastal-berry-muffins", name: "Coastal Berry Muffins", category: "food", icon: "🧁", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-chocolate-cake": { id: "food-chocolate-cake", name: "Chocolate Cake", category: "food", icon: "🍰", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "kitchen-cooling-rack": { id: "kitchen-cooling-rack", name: "Kitchen Cooling Rack", category: "special", icon: "🍪", isEmoji: true, rarity: "rare", sfx: "sparkle" },
   "kitchen-pumpkin-spice-jar": { id: "kitchen-pumpkin-spice-jar", name: "Pumpkin Spice Jar", category: "special", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "sparkle" },
   "kitchen-ice-maker": { id: "kitchen-ice-maker", name: "Coastal Ice Maker", category: "special", icon: "🧊", isEmoji: true, rarity: "rare", sfx: "sparkle" },
