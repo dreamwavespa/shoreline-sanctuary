@@ -493,7 +493,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
           </p>
           <div aria-hidden="true" className="relative mx-auto h-36 w-52">
             {coffeeStage === "pour" && (
-              <div className="shoreline-coffee-motion absolute left-2 top-3 text-6xl" style={{transformOrigin:"70% 70%",animation:"shorelinePour 1.8s ease-in-out forwards"}}>🫖</div>
+              <div className="shoreline-coffee-motion absolute left-0 top-0 h-24 w-28" style={{transformOrigin:"65% 65%",animation:"shorelinePour 1.8s ease-in-out forwards"}}><Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="" fill unoptimized sizes="112px" className="object-contain" /></div>
             )}
             <div className="absolute bottom-3 right-7 h-20 w-24 overflow-hidden rounded-b-3xl rounded-t-md border-[5px] border-white bg-amber-50 shadow-md">
               <div className="shoreline-coffee-motion absolute bottom-0 left-0 right-0 rounded-t-full bg-amber-800" style={{height:coffeeStage === "pour" ? "65%" : "65%",animation:coffeeStage === "pour" ? "shorelineFill 1.8s ease-out both" : undefined}} />
