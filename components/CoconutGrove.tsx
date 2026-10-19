@@ -162,8 +162,8 @@ export default function CoconutGrove() {
     } else if (id === "roots") {
       const itemId = postStorm && Math.random() < 0.35
         ? "storm-fiddlehead"
-        : choose([{ value: "dune-ginger", weight: 65 }, { value: "sweet-island-cane", weight: 30 }]);
-      rewards.push({ itemId, count: itemId === "sweet-island-cane" ? 1 : 1 + Math.floor(Math.random() * 2) });
+        : choose([{ value: "dune-ginger", weight: 55 }, { value: "sweet-island-cane", weight: 45 }]);
+      rewards.push({ itemId, count: itemId === "sweet-island-cane" ? 2 + Math.floor(Math.random() * 2) : 1 + Math.floor(Math.random() * 2) });
       play("groveRootPull");
     } else if (id === "vegetables") {
       const itemId = choose([{ value: "carrot", weight: 35 }, { value: "potato", weight: 35 }, { value: "broccoli", weight: 30 }]);
