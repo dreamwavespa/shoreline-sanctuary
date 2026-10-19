@@ -15,6 +15,11 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "shelldon-botanical-journal": { id: "shelldon-botanical-journal", name: "Traveler's Botanical Journal", category: "special", icon: "/images/Sheldon-botanical-journal.png", rarity: "rare", sfx: "sparkle" },
+  "shelldon-verdant-tide-shell": { id: "shelldon-verdant-tide-shell", name: "Verdant Tide Shell", category: "shell", icon: "/images/Sheldon-verdant-tide-shell.png", rarity: "rare", sfx: "sparkle" },
+  "shelldon-turtle-watering-can": { id: "shelldon-turtle-watering-can", name: "Turtle's Watering Can", category: "special", icon: "/images/Sheldon-turtle-watering-can.png", rarity: "rare", sfx: "sparkle" },
+  "shelldon-moon-tide-seed": { id: "shelldon-moon-tide-seed", name: "Moon Tide Seed", category: "special", icon: "/images/Sheldon-moon-tide-seed.png", rarity: "rare", sfx: "sparkle" },
+  "shelldon-moon-tide-blossom": { id: "shelldon-moon-tide-blossom", name: "Moon Tide Blossom", category: "special", icon: "/images/Sheldon-moon-tide-seed.png", rarity: "rare", sfx: "sparkle" },
   "kitchen-crushed-ice": { id: "kitchen-crushed-ice", name: "Crushed Ice", category: "food", icon: "🧊", isEmoji: true, rarity: "common", sfx: "kitchenFridge" },
   "kitchen-baby-bottle": { id: "kitchen-baby-bottle", name: "Seashell Baby Bottle", category: "special", icon: "🍼", isEmoji: true, rarity: "rare", sfx: "sparkle" },
   "kitchen-coffee-pot-creamer": { id: "kitchen-coffee-pot-creamer", name: "Coffee Pot and Creamer", category: "special", icon: "☕", isEmoji: true, rarity: "rare", sfx: "sparkle" },
