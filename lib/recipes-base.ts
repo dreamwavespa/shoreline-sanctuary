@@ -11,6 +11,13 @@ export interface CookRecipe {
 }
 
 export const KITCHEN_RECIPES: CookRecipe[] = [
+  { id: "garden-vegetable-soup", name: "Garden Vegetable Soup", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "carrot", count: 1 }, { itemId: "potato", count: 1 }, { itemId: "broccoli", count: 1 }, { itemId: "soothing-sea-salt", count: 1 }], outputItemId: "food-garden-vegetable-soup", station: "Soup Pot", season: "Year-round" },
+  { id: "seaside-fish-chowder", name: "Seaside Fish Chowder", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "fresh-reef-fish", count: 1 }, { itemId: "potato", count: 1 }, { itemId: "coconut-cream", count: 1 }], outputItemId: "food-seaside-fish-chowder", station: "Soup Pot", season: "Year-round" },
+  { id: "harvest-pumpkin-soup", name: "Harvest Pumpkin Soup", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "golden-island-pumpkin", count: 1 }, { itemId: "carrot", count: 1 }, { itemId: "coconut-cream", count: 1 }], outputItemId: "food-harvest-pumpkin-soup", station: "Soup Pot", season: "Year-round" },
+  { id: "chocolate-seashell-mocha", name: "Chocolate Seashell Mocha", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "coffee-beans", count: 1 }, { itemId: "chocolate-seashells", count: 1 }, { itemId: "coconut-cream", count: 1 }], outputItemId: "food-chocolate-seashell-mocha", station: "Coffee Pot", season: "Year-round" },
+  { id: "vanilla-cream-coffee", name: "Vanilla Cream Coffee", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "coffee-beans", count: 1 }, { itemId: "vanilla", count: 1 }, { itemId: "coconut-cream", count: 1 }], outputItemId: "food-vanilla-cream-coffee", station: "Coffee Pot", season: "Year-round" },
+  { id: "toasted-marshmallow-coffee", name: "Toasted Marshmallow Coffee", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "coffee-beans", count: 1 }, { itemId: "food-campfire-marshmallow", count: 1 }, { itemId: "coconut-cream", count: 1 }], outputItemId: "food-toasted-marshmallow-coffee", station: "Coffee Pot", season: "Year-round" },
+  { id: "black-iced-coffee", name: "Black Iced Coffee", description: "A freshly prepared Shoreline kitchen favorite.", cost: [{ itemId: "coffee-beans", count: 1 }, { itemId: "kitchen-crushed-ice", count: 1 }], outputItemId: "food-black-iced-coffee", station: "Coffee Pot", season: "Year-round" },
   {
     id: "golden-pumpkin-bisque",
     name: "Golden Pumpkin Bisque",
