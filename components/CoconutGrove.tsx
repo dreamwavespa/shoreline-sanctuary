@@ -13,7 +13,9 @@ type HarvestTimes = Partial<Record<NodeId, number>>;
 
 const FLOWER_BED_KEY = "shoreline-grove-flowerbed-v1";
 const FLOWER_GROW_MS = 30 * 60_000;
+const flowerGrowMs = (hasTurtleCan: boolean) => hasTurtleCan ? 20 * 60_000 : FLOWER_GROW_MS;
 const FLOWERS = [
+  { seed: "shelldon-moon-tide-seed", flower: "shelldon-moon-tide-blossom" },
   { seed: "seed-beach-rose", flower: "flower-beach-rose" },
   { seed: "seed-sea-holly", flower: "flower-sea-holly" },
   { seed: "seed-seaside-daisy", flower: "flower-seaside-daisy" },
@@ -220,7 +222,7 @@ export default function CoconutGrove() {
   };
 
   const harvestFlower = () => {
-    if (!flowerPlant || Date.now() - flowerPlant.plantedAt < FLOWER_GROW_MS) return;
+    if (!flowerPlant || Date.now() - flowerPlant.plantedAt < flowerGrowMs(!!state.inventory["shelldon-turtle-watering-can"])) return;
     collectItem(flowerPlant.flower, { silent: true });
     play("groveHerbSnip");
     setMessage(`Harvested ${ITEMS[flowerPlant.flower]?.name || "a flower"}! It is now in your inventory.`);
@@ -330,11 +332,11 @@ export default function CoconutGrove() {
         <section role="dialog" aria-modal="true" aria-labelledby="grove-flowerbed-heading" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-3">
           <div className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-rose-50 p-5 shadow-2xl">
             <h2 id="grove-flowerbed-heading" className="font-serif text-2xl font-bold text-rose-950">Sheldon's Flowerbed</h2>
-            <p className="my-2 text-sm text-rose-900">Plant one packet of land flower seeds. Flowers grow in 30 minutes, even while you explore elsewhere.</p>
+            <p className="my-2 text-sm text-rose-900">Plant one packet of land flower seeds. Flowers grow in {state.inventory["shelldon-turtle-watering-can"] ? "20" : "30"} minutes, even while you explore elsewhere.</p>
             {flowerPlant ? (
               <div className="space-y-3">
-                <p role="status">{ITEMS[flowerPlant.flower]?.name} — {now - flowerPlant.plantedAt >= FLOWER_GROW_MS ? "Ready to harvest" : `Growing, about ${Math.ceil((FLOWER_GROW_MS - (now - flowerPlant.plantedAt)) / 60_000)} minutes remaining`}</p>
-                <button type="button" disabled={now - flowerPlant.plantedAt < FLOWER_GROW_MS} onClick={harvestFlower} className="min-h-11 rounded-lg bg-emerald-800 px-4 py-2 font-bold text-white disabled:opacity-50">Harvest Flower</button>
+                <p role="status">{ITEMS[flowerPlant.flower]?.name} — {now - flowerPlant.plantedAt >= flowerGrowMs(!!state.inventory["shelldon-turtle-watering-can"]) ? "Ready to harvest" : `Growing, about ${Math.ceil((flowerGrowMs(!!state.inventory["shelldon-turtle-watering-can"]) - (now - flowerPlant.plantedAt)) / 60_000)} minutes remaining`}</p>
+                <button type="button" disabled={now - flowerPlant.plantedAt < flowerGrowMs(!!state.inventory["shelldon-turtle-watering-can"])} onClick={harvestFlower} className="min-h-11 rounded-lg bg-emerald-800 px-4 py-2 font-bold text-white disabled:opacity-50">Harvest Flower</button>
               </div>
             ) : (
               <div className="space-y-2">
