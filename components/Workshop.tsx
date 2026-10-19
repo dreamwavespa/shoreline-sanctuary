@@ -403,7 +403,7 @@ function ShorelineCookbook() {
 }
 
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
-  const { state, cook, hasEnough } = useGame();
+  const { state, cook, hasEnough, play } = useGame();
   const canCook = hasEnough(recipe.cost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
@@ -454,7 +454,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       <button
         type="button"
         disabled={!canCook}
-        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); }}
+        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); if (recipe.station === "Coffee Pot") play("kitchenCoffeeBrewing", 0.75); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
@@ -668,7 +668,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
-  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | null>(null);
+  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | "coffee" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
@@ -876,6 +876,12 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                     <Image src="/images/Kitchen-baby-bottle.PNG" alt="" fill unoptimized sizes="140px" className="object-contain" />
                   </button>
                 )}
+                {state.notebookDiscovered["kitchen-reward:coffee"] && (
+                  <button type="button" aria-label="Use the unlocked Coffee Pot and Creamer" onClick={() => setKitchenRewardOpen("coffee")}
+                    className="absolute left-[23%] top-[40%] z-10 h-[25%] w-[17%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+                    <Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="" fill unoptimized sizes="170px" className="object-contain" />
+                  </button>
+                )}
                 {state.notebookDiscovered["kitchen-reward:ice"] && (
                   <button type="button" aria-label="Use the Coastal Ice Maker" onClick={() => setKitchenRewardOpen("ice")}
                     className="absolute left-[82%] top-[32%] z-10 h-[30%] w-[17%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
@@ -986,8 +992,8 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
       {kitchenRewardOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/75 p-3">
           <div role="dialog" aria-modal="true" aria-labelledby="kitchen-equipment-title" className="w-full max-w-sm rounded-2xl bg-amber-50 p-5 text-teal-950 shadow-xl">
-            <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : "Coastal Ice Maker"}</h2>
-            <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
+            <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : kitchenRewardOpen === "coffee" ? "Coffee Pot and Creamer" : "Coastal Ice Maker"}</h2>
+            <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : kitchenRewardOpen === "coffee" ? "/images/Kitchen-coffee-pot-creamer.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : kitchenRewardOpen === "coffee" ? "Coffee pot with matching creamer" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
             {kitchenRewardOpen === "baby" ? <div className="space-y-3">
               <p>Your reusable Seashell Baby Bottle holds one serving. Fill it here, then visit Cadence's nursery.</p>
               <p role="status" className="font-semibold">{state.notebookDiscovered["kitchen-bottle:rose"] ? "Filled with Warm Rose Milk" : state.notebookDiscovered["kitchen-bottle:berry"] ? "Filled with Berry Juice" : "Bottle is empty"}</p>
@@ -995,6 +1001,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                 <button type="button" disabled={(state.inventory["food-cadence-warm-rose-milk"] || 0) < 1} onClick={() => useBabyBottle("rose")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Fill with Warm Rose Milk (1 prepared serving)</button>
                 <button type="button" disabled={(state.inventory["coastal-brambleberry"] || 0) < 2} onClick={() => useBabyBottle("berry")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Make Berry Juice (2 coastal brambleberries)</button>
               </div>}
+            </div> : kitchenRewardOpen === "coffee" ? <div className="space-y-3">
+              <p>Your coffee station is unlocked! Choose a coffee recipe in the cookbook. Brewing plays the new coffee sound after you prepare it.</p>
+              <button type="button" onClick={() => { setKitchenRewardOpen(null); setCookbookOpen(true); }} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Open Coffee Recipes in Cookbook</button>
             </div> : <>
               <p>Collect three servings of crushed ice each day for future frozen recipes.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-ice")} className="mt-3 min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`] ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>
