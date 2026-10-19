@@ -245,6 +245,10 @@ export default function CoconutGrove() {
         <div className="pointer-events-none absolute left-[62%] top-[49%] z-[5] h-[40%] w-[38%]" aria-hidden="true">
           <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 42vw, 25vw" className="object-contain object-bottom" />
         </div>
+        {/* Vegetable beds are decorative; the existing accessible hotspot handles harvesting. */}
+        <div className="pointer-events-none absolute left-[27%] top-[18%] z-[5] h-[20%] w-[24%]" aria-hidden="true">
+          <Image src="/images/Coconut-grove-vegetable-garden.PNG" alt="" fill unoptimized sizes="(max-width: 640px) 30vw, 20vw" className="object-contain object-bottom" />
+        </div>
         {NODES.map((node) => {
           // Hotspots align with the artwork: palms upper left, berries left,
           // herb flowers center, coastal edibles lower left, fruit right,
