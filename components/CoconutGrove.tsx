@@ -11,6 +11,10 @@ import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
+const MYSTERY_HERB_KEY = "shoreline-imported-herb-v1";
+const MYSTERY_HERB_GROW_MS = 45 * 60_000;
+const MYSTERY_HERBS = ["island-vanilla-orchid", "moonmint-leaves", "tropical-hibiscus"] as const;
+type MysteryHerb = { result: typeof MYSTERY_HERBS[number]; plantedAt: number };
 const FLOWER_BED_KEY = "shoreline-grove-flowerbed-v1";
 const FLOWER_GROW_MS = 30 * 60_000;
 const flowerGrowMs = (hasTurtleCan: boolean) => hasTurtleCan ? 20 * 60_000 : FLOWER_GROW_MS;
@@ -65,6 +69,8 @@ export default function CoconutGrove() {
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
   const [flowerBedOpen, setFlowerBedOpen] = useState(false);
+  const [mysteryHerbOpen, setMysteryHerbOpen] = useState(false);
+  const [mysteryHerb, setMysteryHerb] = useState<MysteryHerb | null>(null);
   const [flowerPlant, setFlowerPlant] = useState<FlowerPlant | null>(null);
   const [beePanelOpen, setBeePanelOpen] = useState(false);
   const [leafSandReady, setLeafSandReady] = useState(false);
@@ -94,6 +100,8 @@ export default function CoconutGrove() {
       if (saved) setHarvestedAt(JSON.parse(saved));
       const flowerSaved = localStorage.getItem(FLOWER_BED_KEY);
       if (flowerSaved) setFlowerPlant(JSON.parse(flowerSaved));
+      const herbSaved = localStorage.getItem(MYSTERY_HERB_KEY);
+      if (herbSaved) { const planted = JSON.parse(herbSaved) as MysteryHerb; if (MYSTERY_HERBS.includes(planted.result) && Number.isFinite(planted.plantedAt)) setMysteryHerb(planted); }
     } catch {}
     const timer = window.setInterval(() => setNow(Date.now()), 15_000);
     return () => {
