@@ -265,6 +265,7 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Soups", reward: "Kitchen Soup Pot", keys: ["garden-vegetable-soup", "seaside-fish-chowder", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
     { name: "Baking", reward: "Kitchen Cooling Rack", keys: ["sea-rose-pumpkin-tart", "island-spiced-gingerbread", "coastal-berry-muffins", "chocolate-cake"].map((id) => `recipe:${id}`) },
     { name: "Pumpkin Recipes", reward: "Pumpkin Spice Jar", keys: ["golden-pumpkin-bisque", "sea-rose-pumpkin-tart", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
     { name: "Teas", reward: "Coffee Pot and Creamer", keys: teas.map((id) => `recipe:${id}`) },
@@ -283,12 +284,13 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            {group.name === "Soups" && <Image src="/images/Kitchen-soup-pot.PNG" alt="Kitchen soup pot reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Baking" && <Image src="/images/Kitchen-cooling-rack.PNG" alt="Kitchen cooling rack reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Pumpkin Recipes" && <Image src="/images/Kitchen-pumpkin-spice.PNG" alt="Pumpkin spice reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Teas" && <Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="Coffee pot and creamer reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
             {unlocked && (() => {
-              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Pumpkin Recipes" ? "pumpkin" : "ice";
+              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Pumpkin Recipes" ? "pumpkin" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
               const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
@@ -725,7 +727,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
-  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | "coffee" | "cooling" | "pumpkin" | null>(null);
+  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | "coffee" | "cooling" | "pumpkin" | "soup" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
@@ -945,6 +947,12 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                     <Image src="/images/Kitchen-ice-maker.PNG" alt="" fill unoptimized sizes="170px" className="object-contain" />
                   </button>
                 )}
+                {state.notebookDiscovered["kitchen-reward:soup"] && (
+                  <button type="button" aria-label="Use the Kitchen Soup Pot" onClick={() => setKitchenRewardOpen("soup")}
+                    className="absolute left-[48%] top-[42%] z-10 h-[24%] w-[19%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+                    <Image src="/images/Kitchen-soup-pot.PNG" alt="" fill unoptimized sizes="170px" className="object-contain" />
+                  </button>
+                )}
                 {state.notebookDiscovered["kitchen-reward:cooling"] && (
                   <button type="button" aria-label="Use the Kitchen Cooling Rack" onClick={() => setKitchenRewardOpen("cooling")}
                     className="absolute left-[58%] top-[67%] z-10 h-[21%] w-[21%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
@@ -1062,8 +1070,8 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
       {kitchenRewardOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/75 p-3">
           <div role="dialog" aria-modal="true" aria-labelledby="kitchen-equipment-title" className="w-full max-w-sm rounded-2xl bg-amber-50 p-5 text-teal-950 shadow-xl">
-            <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : kitchenRewardOpen === "coffee" ? "Coffee Pot and Creamer" : kitchenRewardOpen === "cooling" ? "Kitchen Cooling Rack" : kitchenRewardOpen === "pumpkin" ? "Pumpkin Spice Jar" : "Coastal Ice Maker"}</h2>
-            <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : kitchenRewardOpen === "coffee" ? "/images/Kitchen-coffee-pot-creamer.PNG" : kitchenRewardOpen === "cooling" ? "/images/Kitchen-cooling-rack.PNG" : kitchenRewardOpen === "pumpkin" ? "/images/Kitchen-pumpkin-spice.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : kitchenRewardOpen === "coffee" ? "Coffee pot with matching creamer" : kitchenRewardOpen === "cooling" ? "Cooling rack for baked treats" : kitchenRewardOpen === "pumpkin" ? "Pumpkin spice jar" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
+            <h2 id="kitchen-equipment-title" className="font-serif text-xl font-bold">{kitchenRewardOpen === "baby" ? "Seashell Baby Bottle" : kitchenRewardOpen === "coffee" ? "Coffee Pot and Creamer" : kitchenRewardOpen === "soup" ? "Kitchen Soup Pot" : kitchenRewardOpen === "cooling" ? "Kitchen Cooling Rack" : kitchenRewardOpen === "pumpkin" ? "Pumpkin Spice Jar" : "Coastal Ice Maker"}</h2>
+            <Image src={kitchenRewardOpen === "baby" ? "/images/Kitchen-baby-bottle.PNG" : kitchenRewardOpen === "coffee" ? "/images/Kitchen-coffee-pot-creamer.PNG" : kitchenRewardOpen === "soup" ? "/images/Kitchen-soup-pot.PNG" : kitchenRewardOpen === "cooling" ? "/images/Kitchen-cooling-rack.PNG" : kitchenRewardOpen === "pumpkin" ? "/images/Kitchen-pumpkin-spice.PNG" : "/images/Kitchen-ice-maker.PNG"} alt={kitchenRewardOpen === "baby" ? "Seashell-decorated baby bottle" : kitchenRewardOpen === "coffee" ? "Coffee pot with matching creamer" : kitchenRewardOpen === "soup" ? "Decorative soup pot" : kitchenRewardOpen === "cooling" ? "Cooling rack for baked treats" : kitchenRewardOpen === "pumpkin" ? "Pumpkin spice jar" : "Sea-glass ice maker with crushed ice"} width={210} height={190} unoptimized className="mx-auto my-3 h-40 w-auto object-contain" />
             {kitchenRewardOpen === "baby" ? <div className="space-y-3">
               <p>Your reusable Seashell Baby Bottle holds one serving. Fill it here, then visit Cadence's nursery.</p>
               <p role="status" className="font-semibold">{state.notebookDiscovered["kitchen-bottle:rose"] ? "Filled with Warm Rose Milk" : state.notebookDiscovered["kitchen-bottle:berry"] ? "Filled with Berry Juice" : "Bottle is empty"}</p>
@@ -1074,6 +1082,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
             </div> : kitchenRewardOpen === "coffee" ? <div className="space-y-3">
               <p>Your coffee station is unlocked! Choose a coffee recipe in the cookbook. Brewing plays the new coffee sound after you prepare it.</p>
               <button type="button" onClick={() => { setKitchenRewardOpen(null); setCookbookOpen(true); }} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Open Coffee Recipes in Cookbook</button>
+            </div> : kitchenRewardOpen === "soup" ? <div className="space-y-3">
+              <p>Your soup pot is unlocked! Prepare soup recipes in the cookbook, then enjoy an optional stirring activity.</p>
+              <button type="button" onClick={() => { setKitchenRewardOpen(null); setCookbookOpen(true); }} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Open Soup Recipes</button>
             </div> : kitchenRewardOpen === "cooling" ? <div className="space-y-3">
               <p>Cooling baked treats is optional. Use your rack once each day for a small bonus of 2 Sand Dollars. Baking works normally without it.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-cooling:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-cooling")} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-cooling:${new Date().toLocaleDateString("en-CA")}`] ? "Cooling bonus collected today" : "Cool Baked Treats (+2 Sand Dollars)"}</button>
