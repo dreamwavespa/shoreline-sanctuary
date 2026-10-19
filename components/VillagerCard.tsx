@@ -83,6 +83,23 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
           <p className="text-xs text-amber-700">{villager.personality}</p>
           <p className="text-xs text-amber-700">{villager.gameplay}</p>
 
+          {villager.id === "shelldon" && (
+            <section aria-label="Sheldon's friendship progress" className="rounded-xl bg-emerald-50 p-3 ring-1 ring-emerald-200 space-y-2">
+              <h3 className="font-bold text-emerald-950">Sheldon's Treasures from the Tides</h3>
+              <p className="text-sm font-semibold text-emerald-900" aria-live="polite">Friendship Progress: {giftCount} {giftCount === 1 ? "gift" : "gifts"} given</p>
+              <p className="text-xs text-emerald-800">Rare Enriched Soil and Deep-Sea Seeds are his favorite gifts.</p>
+              {([
+                [3, "Traveler's Botanical Journal"],
+                [5, "Verdant Tide Shell"],
+                [8, "Turtle's Watering Can"],
+                [12, "Moon Tide Seed"],
+              ] as const).map(([needed, name]) => (
+                <p key={needed} className="text-sm text-emerald-950">{giftCount >= needed ? "✓ Unlocked" : `${Math.max(0, needed - giftCount)} more to unlock`}: {name} ({needed} gifts)</p>
+              ))}
+              <p className="text-sm font-semibold text-emerald-900" aria-live="polite">{([3, 5, 8, 12].find((needed) => giftCount < needed) !== undefined) ? `Next reward at ${[3, 5, 8, 12].find((needed) => giftCount < needed)} gifts.` : "All friendship milestones reached!"}</p>
+            </section>
+          )}
+
           {sisterRewards.length > 0 && (
             <section aria-label={`${villager.name} friendship rewards`} className="rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-200">
               <div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-bold text-indigo-950">Sea Glass Sister Friendship</h3><p className="mt-0.5 text-xs text-indigo-800">{giftCount} loved {giftCount === 1 ? "gift" : "gifts"} given</p></div><span className="rounded-full bg-white px-2 py-1 text-[11px] font-bold text-indigo-800 ring-1 ring-indigo-200">{Math.min(giftCount, 12)}/12</span></div>
