@@ -408,6 +408,26 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
   const headingId = `recipe-${recipe.id}`;
+  const [coffeeStage, setCoffeeStage] = useState<"pour" | "stir" | "ready" | null>(null);
+  const coffeeTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => coffeeTimers.current.forEach(clearTimeout), []);
+  const startCoffee = () => {
+    if (!hasEnough(recipe.cost) || coffeeStage) return;
+    cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1);
+    play("kitchenCoffeeBrewing", 0.75);
+    setCoffeeStage("pour");
+    coffeeTimers.current.forEach(clearTimeout);
+    coffeeTimers.current = [
+      setTimeout(() => setCoffeeStage("stir"), 1800),
+      setTimeout(() => setCoffeeStage("ready"), 3800),
+    ];
+  };
+  const skipCoffee = () => {
+    coffeeTimers.current.forEach(clearTimeout);
+    coffeeTimers.current = [];
+    setCoffeeStage("ready");
+  };
+
 
   return (
     <article
@@ -453,12 +473,42 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
 
       <button
         type="button"
-        disabled={!canCook}
-        onClick={() => { if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); if (recipe.station === "Coffee Pot") play("kitchenCoffeeBrewing", 0.75); }}
+        disabled={!canCook || coffeeStage !== null}
+        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
       </button>
+      {recipe.station === "Coffee Pot" && coffeeStage && (
+        <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-100 p-4 text-center">
+          <style>{`
+            @keyframes shorelinePour { 0%,100% {transform:rotate(0)} 30%,80% {transform:rotate(-30deg)} }
+            @keyframes shorelineFill { from {height:0} to {height:65%} }
+            @keyframes shorelineStir { to {transform:rotate(360deg)} }
+            @keyframes shorelineSteam { 0% {opacity:0;transform:translateY(9px)} 50% {opacity:1} 100% {opacity:0;transform:translateY(-12px)} }
+            @media (prefers-reduced-motion:reduce) { .shoreline-coffee-motion {animation:none!important} }
+          `}</style>
+          <p role="status" aria-live="polite" className="mb-3 font-semibold text-amber-950">
+            {coffeeStage === "pour" ? "Pouring coffee…" : coffeeStage === "stir" ? "Stirring your coffee…" : `${recipe.name} is ready!`}
+          </p>
+          <div aria-hidden="true" className="relative mx-auto h-36 w-52">
+            {coffeeStage === "pour" && (
+              <div className="shoreline-coffee-motion absolute left-2 top-3 text-6xl" style={{transformOrigin:"70% 70%",animation:"shorelinePour 1.8s ease-in-out forwards"}}>🫖</div>
+            )}
+            <div className="absolute bottom-3 right-7 h-20 w-24 overflow-hidden rounded-b-3xl rounded-t-md border-[5px] border-white bg-amber-50 shadow-md">
+              <div className="shoreline-coffee-motion absolute bottom-0 left-0 right-0 rounded-t-full bg-amber-800" style={{height:coffeeStage === "pour" ? "65%" : "65%",animation:coffeeStage === "pour" ? "shorelineFill 1.8s ease-out both" : undefined}} />
+            </div>
+            <div className="absolute bottom-8 right-1 h-10 w-8 rounded-full border-[6px] border-white" />
+            {coffeeStage === "stir" && <div className="shoreline-coffee-motion absolute bottom-9 right-[70px] text-4xl" style={{animation:"shorelineStir 0.8s linear infinite"}}>🥄</div>}
+            {coffeeStage === "ready" && <div className="shoreline-coffee-motion absolute bottom-24 right-14 text-3xl" style={{animation:"shorelineSteam 1.8s ease-in-out infinite"}}>♨️</div>}
+          </div>
+          {coffeeStage === "ready" ? (
+            <button type="button" onClick={() => setCoffeeStage(null)} className="mt-2 min-h-11 rounded-xl bg-teal-900 px-5 py-2 font-semibold text-white">Done</button>
+          ) : (
+            <button type="button" onClick={skipCoffee} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-5 py-2 font-semibold text-teal-950">Skip Animation</button>
+          )}
+        </div>
+      )}
       <p className="mt-2 text-center text-xs font-medium text-amber-700">In pantry: {madeCount}</p>
       {recipe.id === "sea-rose-milk" && <RoseMilkBottling />}
     </article>
