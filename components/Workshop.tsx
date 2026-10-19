@@ -265,7 +265,7 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
-    { name: "Baking", reward: "Kitchen Cooling Rack", keys: ["sea-rose-pumpkin-tart", "island-spiced-gingerbread"].map((id) => `recipe:${id}`) },
+    { name: "Baking", reward: "Kitchen Cooling Rack", keys: ["sea-rose-pumpkin-tart", "island-spiced-gingerbread", "coastal-berry-muffins", "chocolate-cake"].map((id) => `recipe:${id}`) },
     { name: "Pumpkin Recipes", reward: "Pumpkin Spice Jar", keys: ["golden-pumpkin-bisque", "sea-rose-pumpkin-tart", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
     { name: "Teas", reward: "Coffee Pot and Creamer", keys: teas.map((id) => `recipe:${id}`) },
     { name: "Baby Food", reward: "Seashell Baby Bottle", keys: baby.map((id) => `recipe:${id}`) },
@@ -346,6 +346,8 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "coastal-berry-muffins": "/Recipe-coastal-berry-muffins.PNG",
+  "chocolate-cake": "/Recipes-chocolate-cake.PNG",
   "golden-pumpkin-bisque": "/Recipe-golden-pumpkin-bisque.PNG",
   "sea-rose-pumpkin-tart": "/Recipe-sea-rose-pumpkin-tart.PNG",
   "island-spiced-gingerbread": "/Recipe-island-spice-gingerbread.PNG",
