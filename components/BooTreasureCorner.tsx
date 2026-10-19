@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import BooDiggingGame from "./BooDiggingGame";
 import BooScavengerHunt from "./BooScavengerHunt";
@@ -8,7 +8,21 @@ import BooFriendship from "./BooFriendship";
 import LunaDiscovery from "./LunaDiscovery";
 
 export default function BooTreasureCorner() {
-  const { state } = useGame();
+  const { state, collectItem } = useGame();
+  const [lastTreatDate, setLastTreatDate] = useState("");
+  const [treatMessage, setTreatMessage] = useState("");
+  useEffect(() => {
+    try { setLastTreatDate(localStorage.getItem("shoreline-boo-kitchen-gift-date") || ""); } catch {}
+  }, []);
+  const today = new Date().toLocaleDateString("en-CA");
+  const claimKitchenGift = () => {
+    if (lastTreatDate === today) return;
+    const itemId = Math.random() < 0.5 ? "chocolate-seashells" : "golden-island-pumpkin";
+    collectItem(itemId);
+    try { localStorage.setItem("shoreline-boo-kitchen-gift-date", today); } catch {}
+    setLastTreatDate(today);
+    setTreatMessage(itemId === "chocolate-seashells" ? "Boo gifted you Chocolate Seashells!" : "Boo gifted you a Golden Island Pumpkin!");
+  };
   const [view, setView] = useState<"home" | "collection">("home");
   const sands = [
     ["sand-pumpkin-orange", "Pumpkin Orange"],
@@ -36,6 +50,12 @@ export default function BooTreasureCorner() {
           </ul>
           <p className="mt-2 text-xs text-indigo-100">More monthly sands and treasures will be added in a future update.</p>
         </div>}
+        <section aria-label="Boo's kitchen gifts" className="rounded-xl bg-indigo-900/70 p-4 ring-1 ring-indigo-300/40">
+          <h3 className="font-bold">Boo's Kitchen Gifts</h3>
+          <p className="mt-1 text-sm text-indigo-100">Boo shares a surprise cooking ingredient each day, year-round: Chocolate Seashells or a Golden Island Pumpkin.</p>
+          <button type="button" disabled={lastTreatDate === today} onClick={claimKitchenGift} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 px-3 py-3 font-bold text-white disabled:opacity-60 focus-visible:ring-4 focus-visible:ring-amber-300">{lastTreatDate === today ? "Today's gift collected" : "Accept Boo's Kitchen Gift"}</button>
+          <p role="status" aria-live="polite" className="mt-2 text-sm">{treatMessage}</p>
+        </section>
         <BooFriendship />
         <LunaDiscovery />
         <BooDiggingGame />
