@@ -909,19 +909,18 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
               </div>
               <p className="mt-2 text-center text-sm text-amber-950">Select the cookbook on the island to browse and prepare recipes.</p>
             </section>
-            <section aria-labelledby="picnic-packing-heading" className="rounded-2xl bg-gradient-to-br from-rose-50 to-amber-100 p-4 mb-4 shadow-md ring-1 ring-rose-200">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-rose-800">Kitchen Mini-Game</p>
-              <h2 id="picnic-packing-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🧺 Picnic Packing</h2>
-              <p className="mt-1 text-sm text-amber-800">Fit food, a blanket, dishes, flowers, drinks, and treats into the picnic basket without squishing anything.</p>
+            <section aria-labelledby="picnic-packing-heading" className="mb-4 text-center">
+              <h2 id="picnic-packing-heading" className="font-serif text-lg font-bold text-amber-950">Picnic Packing</h2>
+              <p className="mt-1 text-sm text-amber-800">Pack food, a blanket, dishes, flowers, drinks, and treats for a seaside picnic.</p>
               <button
                 ref={picnicPackingButtonRef}
                 type="button"
                 onClick={() => setPicnicPackingOpen(true)}
-                aria-label="Open Picnic Packing game"
-                className="mt-3 flex min-h-44 w-full flex-col items-center justify-center gap-2 rounded-xl bg-amber-50 p-3 text-amber-950 shadow ring-2 ring-rose-300 hover:bg-rose-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"
+                aria-label="Pack a Picnic Basket, open Picnic Packing game"
+                className="mx-auto mt-2 flex min-h-44 min-w-44 flex-col items-center justify-center gap-1 rounded-xl p-2 text-amber-950 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"
               >
                 <Image src="/images/Beach-picnic-basket.PNG" alt="" width={240} height={180} unoptimized className="max-h-44 w-auto max-w-full object-contain" />
-                <span className="font-bold">Pack a Picnic Basket</span>
+                <span className="font-semibold">Pack a Picnic Basket</span>
               </button>
             </section>
           </>
