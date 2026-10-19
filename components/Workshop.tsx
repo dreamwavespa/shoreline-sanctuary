@@ -969,7 +969,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                 aria-label="Pack a Picnic Basket, open Picnic Packing game"
                 className="mx-auto mt-2 flex min-h-44 min-w-44 flex-col items-center justify-center gap-1 rounded-xl p-2 text-amber-950 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"
               >
-                <Image src="/images/Beach-picnic-basket.PNG" alt="" width={240} height={180} unoptimized className="max-h-44 w-auto max-w-full object-contain" />
+                <Image src="/images/Picnic-basket-transparent.PNG" alt="" width={240} height={180} unoptimized className="max-h-44 w-auto max-w-full object-contain" />
                 <span className="font-semibold">Pack a Picnic Basket</span>
               </button>
             </section>
