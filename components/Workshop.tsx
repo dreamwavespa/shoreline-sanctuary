@@ -727,6 +727,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
+  const [soupStirring, setSoupStirring] = useState(false);
   const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | "coffee" | "cooling" | "pumpkin" | "soup" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
@@ -1083,7 +1084,14 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
               <p>Your coffee station is unlocked! Choose a coffee recipe in the cookbook. Brewing plays the new coffee sound after you prepare it.</p>
               <button type="button" onClick={() => { setKitchenRewardOpen(null); setCookbookOpen(true); }} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Open Coffee Recipes in Cookbook</button>
             </div> : kitchenRewardOpen === "soup" ? <div className="space-y-3">
-              <p>Your soup pot is unlocked! Prepare soup recipes in the cookbook, then enjoy an optional stirring activity.</p>
+              <p>Your soup pot is unlocked! Stir the bubbling pot for a small daily bonus, or prepare more soups in the cookbook.</p>
+              <div className="relative mx-auto h-20 w-36 overflow-hidden rounded-xl bg-orange-100" aria-hidden="true">
+                <style>{`@keyframes soupBubble { 0%,100% {transform:translateY(5px);opacity:.3} 50% {transform:translateY(-10px);opacity:1} } @keyframes soupStir {from {transform:rotate(-22deg)} to {transform:rotate(22deg)}}`}</style>
+                <span className="absolute bottom-2 left-8 text-5xl">🍲</span>
+                {soupStirring && <><span className="absolute left-12 top-2 text-xl" style={{animation:"soupBubble .6s ease-in-out infinite"}}>◦ ◦ ◦</span><span className="absolute left-20 top-1 text-3xl" style={{animation:"soupStir .35s ease-in-out infinite alternate",transformOrigin:"bottom center"}}>🥄</span></>}
+              </div>
+              <p role="status">{soupStirring ? "Stirring and bubbling soup…" : state.notebookDiscovered[`kitchen-daily-soup:${new Date().toLocaleDateString("en-CA")}`] ? "Today's stirring bonus collected." : "Ready to stir."}</p>
+              <button type="button" disabled={soupStirring || !!state.notebookDiscovered[`kitchen-daily-soup:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => { setSoupStirring(true); window.setTimeout(() => { claimKitchenReward("daily-soup"); setSoupStirring(false); }, 1800); }} className="min-h-11 w-full rounded-xl bg-orange-700 px-3 py-2 font-bold text-white disabled:opacity-60">{soupStirring ? "Stirring…" : "Stir Soup (+2 Sand Dollars)"}</button>
               <button type="button" onClick={() => { setKitchenRewardOpen(null); setCookbookOpen(true); }} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white">Open Soup Recipes</button>
             </div> : kitchenRewardOpen === "cooling" ? <div className="space-y-3">
               <p>Cooling baked treats is optional. Use your rack once each day for a small bonus of 2 Sand Dollars. Baking works normally without it.</p>
