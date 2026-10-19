@@ -30,6 +30,7 @@ const SHELLDON_GOODS: TravelingMerchantListing[] = [
 ];
 
 const SHELLDON_PANTRY_STAPLES: TravelingMerchantListing[] = [
+  { itemId: "winter-spice-bark", price: 5, kind: "item", note: "A bundle of fragrant winter spice bark for gingerbread and cozy cocoa, available year-round at the Sunday market." },
   { itemId: "coffee-beans", price: 4, kind: "item", note: "Freshly roasted coffee beans for the Shoreline coffee recipes. Available at Sheldon’s Sunday market." },
   { itemId: "tea-bags", price: 2, kind: "item", note: "A small packet of tea bags for warming shoreline blends." },
   { itemId: "vanilla", price: 4, kind: "item", note: "Fragrant vanilla for cakes, cookies, and other baked treats." },
