@@ -917,9 +917,11 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                 ref={picnicPackingButtonRef}
                 type="button"
                 onClick={() => setPicnicPackingOpen(true)}
-                className="mt-3 w-full rounded-xl bg-rose-700 py-3 font-bold text-white shadow active:bg-rose-800"
+                aria-label="Open Picnic Packing game"
+                className="mt-3 flex min-h-44 w-full flex-col items-center justify-center gap-2 rounded-xl bg-amber-50 p-3 text-amber-950 shadow ring-2 ring-rose-300 hover:bg-rose-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"
               >
-                Pack a Picnic Basket
+                <Image src="/images/Beach-picnic-basket.PNG" alt="" width={240} height={180} unoptimized className="max-h-44 w-auto max-w-full object-contain" />
+                <span className="font-bold">Pack a Picnic Basket</span>
               </button>
             </section>
           </>
