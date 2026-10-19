@@ -15,6 +15,10 @@ const SHELLDON_SEEDS: TravelingMerchantListing[] = [
   { itemId: "seed-sea-morning-glory", price: 6, kind: "seed", note: "A trailing vine with delicate morning blooms." },
 ];
 
+// Shelby carries reliable everyday flower seeds alongside her rotating cargo.
+// Reuse Sheldon's catalog entries so purchases work in the existing Coconut Grove flowerbed.
+const SHELBY_FLOWER_SEEDS: TravelingMerchantListing[] = SHELLDON_SEEDS.slice(0, 4);
+
 const SHELLDON_FURNITURE: TravelingMerchantListing[] = [
   { itemId: "furniture-beach-chair", price: 12, kind: "furniture", note: "A comfortable chair for quiet afternoons by the water." },
   { itemId: "furniture-bird-bath", price: 15, kind: "furniture", note: "A shallow stone basin for the sanctuary birds." },
@@ -115,7 +119,7 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date(),
     const unique = new Set(["antique-captains-compass", "ship-in-a-bottle", "captains-coin"]);
     const eligibleCargo = SHELBY_CARGO.filter((listing) => !unique.has(listing.itemId) ||
       !progress || ((progress.inventory[listing.itemId] || 0) === 0 && !progress.notebookDiscovered[listing.itemId]));
-    return [...needed, { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "Open at Shelby’s counter for a mystery supply or rare treasure." }, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
+    return [...needed, ...SHELBY_FLOWER_SEEDS, { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "Open at Shelby’s counter for a mystery supply or rare treasure." }, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
   }
   return [];
 }
