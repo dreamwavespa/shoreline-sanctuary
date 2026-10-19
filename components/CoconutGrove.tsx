@@ -11,6 +11,18 @@ import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
+const FLOWER_BED_KEY = "shoreline-grove-flowerbed-v1";
+const FLOWER_GROW_MS = 30 * 60_000;
+const FLOWERS = [
+  { seed: "seed-beach-rose", flower: "flower-beach-rose" },
+  { seed: "seed-sea-holly", flower: "flower-sea-holly" },
+  { seed: "seed-seaside-daisy", flower: "flower-seaside-daisy" },
+  { seed: "seed-coastal-sunflower", flower: "flower-coastal-sunflower" },
+  { seed: "seed-dune-evening-primrose", flower: "flower-dune-evening-primrose" },
+  { seed: "seed-saltmarsh-mallow", flower: "flower-saltmarsh-mallow" },
+  { seed: "seed-sea-morning-glory", flower: "flower-sea-morning-glory" },
+] as const;
+type FlowerPlant = { seed: string; flower: string; plantedAt: number };
 const STORAGE_KEY = "shoreline-coconut-grove-harvests";
 const BASE_COOLDOWN: Record<NodeId, number> = {
   palms: 30 * 60_000,
@@ -45,11 +57,13 @@ function choose<T>(weighted: { value: T; weight: number }[]): T {
 }
 
 export default function CoconutGrove() {
-  const { state, collectItem, play, setMusicOverride, setScreen, advanceHoneybell, visitGroveBees } = useGame();
+  const { state, collectItem, craft, play, setMusicOverride, setScreen, advanceHoneybell, visitGroveBees } = useGame();
   const [harvestedAt, setHarvestedAt] = useState<HarvestTimes>({});
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
+  const [flowerBedOpen, setFlowerBedOpen] = useState(false);
+  const [flowerPlant, setFlowerPlant] = useState<FlowerPlant | null>(null);
   const [beePanelOpen, setBeePanelOpen] = useState(false);
   const [leafSandReady, setLeafSandReady] = useState(false);
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
@@ -76,6 +90,8 @@ export default function CoconutGrove() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setHarvestedAt(JSON.parse(saved));
+      const flowerSaved = localStorage.getItem(FLOWER_BED_KEY);
+      if (flowerSaved) setFlowerPlant(JSON.parse(flowerSaved));
     } catch {}
     const timer = window.setInterval(() => setNow(Date.now()), 15_000);
     return () => {
@@ -193,6 +209,25 @@ export default function CoconutGrove() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
   };
 
+  const plantFlower = (seed: string, flower: string) => {
+    if (flowerPlant || !state.inventory[seed]) return;
+    if (!craft(`grove-flower-planting:${seed}`, [{ itemId: seed, count: 1 }])) return;
+    const planted = { seed, flower, plantedAt: Date.now() };
+    setFlowerPlant(planted);
+    try { localStorage.setItem(FLOWER_BED_KEY, JSON.stringify(planted)); } catch {}
+    setMessage(`Planted ${ITEMS[seed]?.name || "flower seeds"} in the flowerbed.`);
+    play("groveHerbSnip");
+  };
+
+  const harvestFlower = () => {
+    if (!flowerPlant || Date.now() - flowerPlant.plantedAt < FLOWER_GROW_MS) return;
+    collectItem(flowerPlant.flower, { silent: true });
+    play("groveHerbSnip");
+    setMessage(`Harvested ${ITEMS[flowerPlant.flower]?.name || "a flower"}! It is now in your inventory.`);
+    setFlowerPlant(null);
+    try { localStorage.removeItem(FLOWER_BED_KEY); } catch {}
+  };
+
   const investigateLeafSand = () => {
     if (!leafSandReady) return;
     collectItem("sand-green-leaf", { silent: true });
@@ -277,6 +312,7 @@ export default function CoconutGrove() {
         })}
         <button type="button" ref={beeHotspotRef} onClick={() => setBeePanelOpen(true)} aria-label="Explore Golden Honeybell and Coastal Hive" className="absolute right-[1%] top-[8%] z-10 h-[21%] w-[17%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Beehive</span></button>
         <button type="button" ref={nurseryHotspotRef} onClick={() => state.groveNurseryAvailable ? setNurseryOpen(true) : setMessage("The Hidden Grove Nursery is resting. A new coastal storm will uncover more materials.")} aria-label={state.groveNurseryAvailable ? "Open Hidden Grove Nursery" : "Explore Hidden Grove Nursery; unavailable until the next storm"} className="absolute left-[53%] top-[7%] z-10 h-[28%] w-[27%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
+        <button type="button" onClick={() => setFlowerBedOpen(true)} aria-label="Open Sheldon's flowerbed for planting land flower seeds" className="absolute left-[35%] top-[91%] z-20 min-h-11 rounded-lg bg-rose-100 px-3 py-2 text-sm font-bold text-rose-950 shadow ring-2 ring-rose-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌷 Flowerbed</button>
         {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
@@ -290,6 +326,29 @@ export default function CoconutGrove() {
 
         <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
       </div>
+      {flowerBedOpen && (
+        <section role="dialog" aria-modal="true" aria-labelledby="grove-flowerbed-heading" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-3">
+          <div className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-rose-50 p-5 shadow-2xl">
+            <h2 id="grove-flowerbed-heading" className="font-serif text-2xl font-bold text-rose-950">Sheldon's Flowerbed</h2>
+            <p className="my-2 text-sm text-rose-900">Plant one packet of land flower seeds. Flowers grow in 30 minutes, even while you explore elsewhere.</p>
+            {flowerPlant ? (
+              <div className="space-y-3">
+                <p role="status">{ITEMS[flowerPlant.flower]?.name} — {now - flowerPlant.plantedAt >= FLOWER_GROW_MS ? "Ready to harvest" : `Growing, about ${Math.ceil((FLOWER_GROW_MS - (now - flowerPlant.plantedAt)) / 60_000)} minutes remaining`}</p>
+                <button type="button" disabled={now - flowerPlant.plantedAt < FLOWER_GROW_MS} onClick={harvestFlower} className="min-h-11 rounded-lg bg-emerald-800 px-4 py-2 font-bold text-white disabled:opacity-50">Harvest Flower</button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {FLOWERS.map(({ seed, flower }) => (
+                  <button key={seed} type="button" disabled={!state.inventory[seed]} onClick={() => plantFlower(seed, flower)} className="block min-h-11 w-full rounded-lg bg-white p-3 text-left font-semibold text-rose-950 ring-1 ring-rose-200 disabled:opacity-50">
+                    Plant {ITEMS[seed]?.name} — owned: {state.inventory[seed] || 0}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button type="button" onClick={() => setFlowerBedOpen(false)} className="mt-4 min-h-11 rounded-lg bg-rose-900 px-4 py-2 font-bold text-white">Return to Coconut Grove</button>
+          </div>
+        </section>
+      )}
       {beePanelOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3" role="presentation">
           <div role="dialog" aria-modal="true" aria-labelledby="honeybell-heading" className="max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-amber-50 p-3 shadow-2xl">
