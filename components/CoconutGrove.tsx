@@ -357,6 +357,23 @@ export default function CoconutGrove() {
 
         <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
       </div>
+      {mysteryHerbOpen && (
+        <section role="dialog" aria-modal="true" aria-labelledby="mystery-herb-title" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-3">
+          <div className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-emerald-50 p-5 text-emerald-950 shadow-2xl">
+            <h2 id="mystery-herb-title" className="font-serif text-2xl font-bold">Imported Mystery Herbs</h2>
+            <p className="my-2">Plant Shelby's imported seeds. The mystery plant grows for 45 minutes. Regular herbs can still be harvested.</p>
+            {mysteryHerb ? (
+              <div className="space-y-3">
+                <p role="status">{now - mysteryHerb.plantedAt >= MYSTERY_HERB_GROW_MS ? "Unknown Island Plant — ready to reveal!" : "Unknown Island Plant — about " + Math.ceil((MYSTERY_HERB_GROW_MS - (now - mysteryHerb.plantedAt)) / 60000) + " minutes remaining"}</p>
+                <button type="button" disabled={now - mysteryHerb.plantedAt < MYSTERY_HERB_GROW_MS} onClick={harvestMysteryHerb} className="min-h-11 rounded-lg bg-emerald-800 px-4 py-2 font-bold text-white disabled:opacity-50">Reveal and Harvest</button>
+              </div>
+            ) : (
+              <button type="button" disabled={!state.inventory["imported-island-herb-seeds"]} onClick={plantMysteryHerb} className="min-h-11 rounded-lg bg-white p-3 font-bold ring-1 ring-emerald-300 disabled:opacity-50">Plant Mystery Packet — owned: {state.inventory["imported-island-herb-seeds"] || 0}</button>
+            )}
+            <button type="button" onClick={() => setMysteryHerbOpen(false)} className="mt-4 block min-h-11 rounded-lg bg-emerald-900 px-4 py-2 font-bold text-white">Return to Coconut Grove</button>
+          </div>
+        </section>
+      )}
       {flowerBedOpen && (
         <section role="dialog" aria-modal="true" aria-labelledby="grove-flowerbed-heading" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-3">
           <div className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-rose-50 p-5 shadow-2xl">
