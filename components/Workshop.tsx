@@ -262,8 +262,10 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
 function KitchenRecipeRewards() {
   const { state, claimKitchenReward } = useGame();
   const baby = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
+  const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Teas", reward: "Coffee Pot and Creamer", keys: teas.map((id) => `recipe:${id}`) },
     { name: "Baby Food", reward: "Seashell Baby Bottle", keys: baby.map((id) => `recipe:${id}`) },
     { name: "Smoothies", reward: "Coastal Ice Maker", keys: smoothies.map((id) => `smoothie:${id}`) },
   ];
@@ -279,9 +281,10 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            {group.name === "Teas" && <Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="Coffee pot and creamer reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
             {unlocked && (() => {
-              const kind = group.name === "Baby Food" ? "baby" : "ice";
+              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
               const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
