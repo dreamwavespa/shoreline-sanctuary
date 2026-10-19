@@ -1365,6 +1365,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const nextGiftCount = (s.villagerGiftCounts[villagerId] || 0) + 1;
       const villagerGiftCounts = { ...s.villagerGiftCounts, [villagerId]: nextGiftCount };
       const crafted = [...s.crafted];
+      // Shelldon's favorite nursery materials build a permanent friendship.
+      // Claim markers prevent duplicate milestones, including on repeated visits.
+      if (villagerId === "shelldon" && loved) {
+        const milestones: [number, string][] = [
+          [3, "shelldon-botanical-journal"],
+          [5, "shelldon-verdant-tide-shell"],
+          [8, "shelldon-turtle-watering-can"],
+          [12, "shelldon-moon-tide-seed"],
+        ];
+        for (const [count, reward] of milestones) {
+          const marker = `shelldon-friendship:${count}`;
+          if (nextGiftCount >= count && !crafted.includes(marker)) {
+            inv[reward] = (inv[reward] || 0) + 1;
+            crafted.push(marker);
+          }
+        }
+        if (Math.random() < 0.4) {
+          const surprisePool = ["seed-beach-rose", "seed-sea-holly", "seed-seaside-daisy", "rare-soil", "flower-seaside-daisy"];
+          const surprise = surprisePool[Math.floor(Math.random() * surprisePool.length)];
+          inv[surprise] = (inv[surprise] || 0) + 1;
+        }
+      }
 
       // Sea Glass Sister milestone rewards are granted in the same state update
       // as the loved gift, so inventory/unlocks cannot be lost between renders.
