@@ -8,7 +8,7 @@ import { getShopDateKey } from "@/lib/shop";
 import { BEE_VISIT_COOLDOWN_MS, useGame } from "@/lib/store";
 import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 
-type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal";
+type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
 const STORAGE_KEY = "shoreline-coconut-grove-harvests";
@@ -20,6 +20,7 @@ const BASE_COOLDOWN: Record<NodeId, number> = {
   fruit: 30 * 60_000,
   roots: 35 * 60_000,
   seasonal: 24 * 60 * 60_000,
+  vegetables: 30 * 60_000,
 };
 
 const NODES: { id: NodeId; icon: string; title: string; instruction: string }[] = [
@@ -29,6 +30,7 @@ const NODES: { id: NodeId; icon: string; title: string; instruction: string }[] 
   { id: "coastal", icon: "🫛", title: "Coastal Edibles Patch", instruction: "Gather sea peas with tender sea parsley or flowering sea lavender." },
   { id: "fruit", icon: "🍍", title: "Tropical Fruit Garden", instruction: "Harvest pineapple, bananas, grapes from the vine, or lemons from the tree." },
   { id: "roots", icon: "🫚", title: "Sandy Root Patch", instruction: "Pull a fresh root from the soft, dark island soil." },
+  { id: "vegetables", icon: "🥕", title: "Vegetable Garden", instruction: "Harvest carrots, potatoes, and broccoli from the year-round vegetable beds." },
   { id: "seasonal", icon: "🎃", title: "Seasonal Garden", instruction: "Harvest the crop growing in the stone-ringed garden." },
 ];
 
@@ -163,6 +165,10 @@ export default function CoconutGrove() {
         : choose([{ value: "dune-ginger", weight: 65 }, { value: "sweet-island-cane", weight: 30 }]);
       rewards.push({ itemId, count: itemId === "sweet-island-cane" ? 1 : 1 + Math.floor(Math.random() * 2) });
       play("groveRootPull");
+    } else if (id === "vegetables") {
+      const itemId = choose([{ value: "carrot", weight: 35 }, { value: "potato", weight: 35 }, { value: "broccoli", weight: 30 }]);
+      rewards.push({ itemId, count: 2 });
+      play("groveRootPull");
     } else if (season === "autumn") {
       rewards.push({ itemId: Math.random() < 0.75 ? "golden-island-pumpkin" : "miniature-sugar-squash", count: 1 });
       play("groveHerbSnip");
@@ -250,6 +256,7 @@ export default function CoconutGrove() {
             coastal: { left: "2%", top: "64%", width: "31%", height: "25%" },
             fruit: { left: "54%", top: "34%", width: "25%", height: "27%" },
             roots: { left: "35%", top: "70%", width: "24%", height: "22%" },
+            vegetables: { left: "27%", top: "18%", width: "24%", height: "20%" },
             seasonal: { left: "67%", top: "66%", width: "30%", height: "29%" },
           };
           const spot = spots[node.id];
@@ -275,7 +282,7 @@ export default function CoconutGrove() {
         )}
         <p role="status" aria-live="polite" className="rounded-xl bg-white/90 p-3 text-sm font-medium text-emerald-950 shadow-sm ring-1 ring-emerald-200">{message}</p>
 
-        <p className="text-sm text-emerald-950">Select plants in the garden to harvest or check regrowth. The seasonal patch produces crops all year. Recipes and cooking are in the Workshop Kitchen’s Shoreline Cookbook; completed recipes appear in the Explorer’s Notebook.</p>
+        <p className="text-sm text-emerald-950">Select plants in the garden to harvest or check regrowth. The seasonal patch and vegetable garden produce crops all year. Recipes and cooking are in the Workshop Kitchen’s Shoreline Cookbook; completed recipes appear in the Explorer’s Notebook.</p>
 
         <button type="button" onClick={leave} className="min-h-12 w-full rounded-xl bg-amber-800 px-4 py-3 font-bold text-white shadow active:bg-amber-900">🪧 Follow the “To Shore” Sign</button>
       </div>
