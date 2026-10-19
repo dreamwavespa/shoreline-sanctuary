@@ -526,6 +526,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           }
         }
         const crafted = Array.isArray(parsed.crafted) ? parsed.crafted : [];
+        // Repair friendship milestones earned before physical rewards were introduced.
+        const shelldonMilestones: [number, string][] = [
+          [3, "shelldon-botanical-journal"],
+          [5, "shelldon-verdant-tide-shell"],
+          [8, "shelldon-turtle-watering-can"],
+          [12, "shelldon-moon-tide-seed"],
+        ];
+        const shelldonGifts = Number(parsed.villagerGiftCounts?.shelldon || 0);
+        for (const [required, reward] of shelldonMilestones) {
+          const claim = `shelldon-friendship:${required}`;
+          if (shelldonGifts >= required && !crafted.includes(claim)) {
+            inventory[reward] = (inventory[reward] || 0) + 1;
+            crafted.push(claim);
+          }
+        }
+
         // Earlier versions marked the Tidal Pearl Choker as crafted without
         // creating an inventory item. Restore it once so existing players can
         // give Snappy the gift without spending rare materials again.
@@ -560,6 +576,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           booToolSetDelivered: parsed.booToolSetDelivered ?? (Array.isArray(parsed.customSandBottles) && parsed.customSandBottles.length > 0),
           notebookDiscovered: {
             ...(parsed.notebookDiscovered || {}),
+            ...Object.fromEntries(shelldonMilestones.filter(([required]) => shelldonGifts >= required).map(([, reward]) => [reward, true])),
             ...(collectedSandDollars > 0 ? { "shell-sanddollar": true } : {}),
             ...([
               "seed-beach-rose", "seed-sea-holly", "seed-seaside-daisy", "seed-coastal-sunflower",
@@ -1423,7 +1440,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      return { ...s, inventory: inv, villagerGiftCounts, crafted };
+      const notebookDiscovered = { ...s.notebookDiscovered };
+      if (villagerId === "shelldon") {
+        for (const [required, reward] of ([[3, "shelldon-botanical-journal"], [5, "shelldon-verdant-tide-shell"], [8, "shelldon-turtle-watering-can"], [12, "shelldon-moon-tide-seed"]] as const)) {
+          if (nextGiftCount >= required) notebookDiscovered[reward] = true;
+        }
+      }
+      return { ...s, inventory: inv, villagerGiftCounts, crafted, notebookDiscovered };
     });
 
     const def = ITEMS[itemId];
