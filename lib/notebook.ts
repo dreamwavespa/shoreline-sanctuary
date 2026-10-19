@@ -22,6 +22,17 @@ export interface NotebookSection {
 
 export const NOTEBOOK_SECTIONS: NotebookSection[] = [
   {
+    id: "imported-botanicals",
+    title: "Shelby's Imported Botanicals",
+    anchorVillagerId: "shelby",
+    completionReward: "Discover all three imported mystery plants",
+    entries: [
+      { id: "island-vanilla-orchid", kind: "item", note: "Grown from Shelby's imported island seed packet." },
+      { id: "moonmint-leaves", kind: "item", note: "Grown from Shelby's imported island seed packet." },
+      { id: "tropical-hibiscus", kind: "item", note: "Grown from Shelby's imported island seed packet." },
+    ],
+  },
+  {
     id: "shelldon-treasures",
     title: "Sheldon's Treasures from the Tides",
     anchorVillagerId: "shelldon",
