@@ -395,7 +395,7 @@ interface Ctx {
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
-  claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "pumpkin" | "daily-pumpkin" | "coffee") => boolean;
+  claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "coffee") => boolean;
   useBabyBottle: (action: "rose" | "berry" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
@@ -947,7 +947,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const claimKitchenReward = (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "pumpkin" | "daily-pumpkin") => {
+  const claimKitchenReward = (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin") => {
     const babyKeys = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
     const smoothieKeys = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
     const teaKeys = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
@@ -962,6 +962,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const babyReady = babyKeys.every(id => current.notebookDiscovered[`recipe:${id}`]);
     const iceReady = smoothieKeys.every(id => current.notebookDiscovered[`smoothie:${id}`]);
     const date = new Date().toLocaleDateString("en-CA");
+    if (kind === "daily-soup" && (!current.notebookDiscovered["kitchen-reward:soup"] || current.notebookDiscovered[`kitchen-daily-soup:${date}`])) return false;
     if (kind === "soup" && (!soupReady || current.notebookDiscovered["kitchen-reward:soup"])) return false;
     if (kind === "baby" && !babyReady) return false;
     if (kind === "coffee" && !teaReady) return false;
@@ -976,6 +977,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (kind === "baby" && current.notebookDiscovered["kitchen-reward:baby"]) return false;
     if (kind === "ice" && current.notebookDiscovered["kitchen-reward:ice"]) return false;
     if (kind === "daily-ice" && (!current.notebookDiscovered["kitchen-reward:ice"] || current.notebookDiscovered[`kitchen-daily-ice:${date}`])) return false;
+    if (kind === "daily-soup") {
+      setState(prev => ({ ...prev, sandDollars: prev.sandDollars + 2, notebookDiscovered: { ...prev.notebookDiscovered, [`kitchen-daily-soup:${date}`]: true } }));
+      play("kitchenSizzle", 0.5);
+      toast("Soup stirred! Earned 2 Sand Dollars.");
+      return true;
+    }
     if (kind === "daily-cooling") {
       setState(prev => ({ ...prev, sandDollars: prev.sandDollars + 2, notebookDiscovered: { ...prev.notebookDiscovered, [`kitchen-daily-cooling:${date}`]: true } }));
       play("sparkle");
