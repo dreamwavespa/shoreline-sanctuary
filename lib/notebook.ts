@@ -22,6 +22,18 @@ export interface NotebookSection {
 
 export const NOTEBOOK_SECTIONS: NotebookSection[] = [
   {
+    id: "shelldon-treasures",
+    title: "Sheldon's Treasures from the Tides",
+    anchorVillagerId: "shelldon",
+    completionReward: "Complete Sheldon's four friendship milestones",
+    entries: [
+      { id: "shelldon-botanical-journal", kind: "item", note: "Friendship reward for 3 loved gifts. An illustrated record of Shelldon's coastal travels." },
+      { id: "shelldon-verdant-tide-shell", kind: "item", note: "Friendship reward for 5 loved gifts. An iridescent shell patterned with golden leaves." },
+      { id: "shelldon-turtle-watering-can", kind: "item", note: "Friendship reward for 8 loved gifts. Reduces Coconut Grove flowerbed growing time to 20 minutes." },
+      { id: "shelldon-moon-tide-seed", kind: "item", note: "Friendship reward for 12 loved gifts. Plant it in the Coconut Grove to grow a Moon Tide Blossom." },
+    ],
+  },
+  {
     id: "gems-restorations",
     title: "Gems & Restorations",
     anchorVillagerId: "kaiana",
