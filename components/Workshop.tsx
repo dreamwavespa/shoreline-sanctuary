@@ -408,7 +408,8 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
   const headingId = `recipe-${recipe.id}`;
-  const [coffeeStage, setCoffeeStage] = useState<"pour" | "stir" | "ready" | null>(null);
+  const [coffeeStage, setCoffeeStage] = useState<"pour" | "cream" | "stir" | "ready" | null>(null);
+  const coffeeUsesCream = recipe.cost.some(ingredient => /cream|milk/i.test(ingredient.itemId));
   const coffeeTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => coffeeTimers.current.forEach(clearTimeout), []);
   const startCoffee = () => {
@@ -418,8 +419,9 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
     setCoffeeStage("pour");
     coffeeTimers.current.forEach(clearTimeout);
     coffeeTimers.current = [
-      setTimeout(() => setCoffeeStage("stir"), 1800),
-      setTimeout(() => setCoffeeStage("ready"), 3800),
+      ...(coffeeUsesCream ? [setTimeout(() => setCoffeeStage("cream"), 1800)] : []),
+      setTimeout(() => setCoffeeStage("stir"), coffeeUsesCream ? 3000 : 1800),
+      setTimeout(() => setCoffeeStage("ready"), coffeeUsesCream ? 5000 : 3800),
     ];
   };
   const skipCoffee = () => {
@@ -489,11 +491,16 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
             @media (prefers-reduced-motion:reduce) { .shoreline-coffee-motion {animation:none!important} }
           `}</style>
           <p role="status" aria-live="polite" className="mb-3 font-semibold text-amber-950">
-            {coffeeStage === "pour" ? "Pouring coffee…" : coffeeStage === "stir" ? "Stirring your coffee…" : `${recipe.name} is ready!`}
+            {coffeeStage === "pour" ? "Pouring coffee…" : coffeeStage === "cream" ? "Adding cream…" : coffeeStage === "stir" ? "Stirring your coffee…" : `${recipe.name} is ready!`}
           </p>
           <div aria-hidden="true" className="relative mx-auto h-36 w-52">
             {coffeeStage === "pour" && (
-              <div className="shoreline-coffee-motion absolute left-0 top-0 h-24 w-28" style={{transformOrigin:"65% 65%",animation:"shorelinePour 1.8s ease-in-out forwards"}}><Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="" fill unoptimized sizes="112px" className="object-contain" /></div>
+              <div className="shoreline-coffee-motion absolute left-0 top-0 h-24 w-28" style={{transformOrigin:"65% 65%",animation:"shorelinePour 1.8s ease-in-out forwards"}}><Image src="/images/Kitchen-coffee-pot.PNG" alt="" fill unoptimized sizes="112px" className="object-contain" /></div>
+            )}
+            {coffeeStage === "cream" && (
+              <div className="shoreline-coffee-motion absolute left-5 top-5 h-20 w-20" style={{transformOrigin:"65% 65%",animation:"shorelinePour 1.2s ease-in-out forwards"}}>
+                <Image src="/images/Kitchen-creamer.PNG" alt="" fill unoptimized sizes="80px" className="object-contain" />
+              </div>
             )}
             <div className="absolute bottom-3 right-7 h-20 w-24 overflow-hidden rounded-b-3xl rounded-t-md border-[5px] border-white bg-amber-50 shadow-md">
               <div className="shoreline-coffee-motion absolute bottom-0 left-0 right-0 rounded-t-full bg-amber-800" style={{height:coffeeStage === "pour" ? "65%" : "65%",animation:coffeeStage === "pour" ? "shorelineFill 1.8s ease-out both" : undefined}} />
