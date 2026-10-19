@@ -934,7 +934,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const babyKeys = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
     const smoothieKeys = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
     const teaKeys = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
-    const bakingKeys = ["sea-rose-pumpkin-tart", "island-spiced-gingerbread"];
+    const bakingKeys = ["sea-rose-pumpkin-tart", "island-spiced-gingerbread", "coastal-berry-muffins", "chocolate-cake"];
     const pumpkinKeys = ["golden-pumpkin-bisque", "sea-rose-pumpkin-tart", "harvest-pumpkin-soup"];
     const current = stateRef.current;
     const bakingReady = bakingKeys.every(id => current.notebookDiscovered[`recipe:${id}`]);
