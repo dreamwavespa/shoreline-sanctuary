@@ -105,7 +105,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     location: "Coralie's Bioluminescent Grotto (Cottage — Sunken Level)",
     cottageRoomId: "bioluminescent-grotto",
     gift: {
-      lovedGiftIds: ["coral-bulb", "sea-berry", "fertilizer"],
+      lovedGiftIds: ["coral-bulb", "sea-berry", "fertilizer", "food-spring-herb-salad", "food-garden-vegetable-salad"],
       reactionSfx: "shhh-splash water",
       reactionVisual: "Emerald Leaves",
       redirectTo: ["melody"],
@@ -127,7 +127,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     location: "Kaiana's Antique Restoration Studio (Cottage — Attic Level)",
     cottageRoomId: "restoration-studio",
     gift: {
-      lovedGiftIds: ["tarnished-compass", "locket", "carnelian"],
+      lovedGiftIds: ["tarnished-compass", "locket", "carnelian", "food-tropical-fruit-salad", "food-frozen-pineapple-drink"],
       reactionSfx: "glide-shimmer chimes",
       reactionVisual: "Diamond Flashes",
       redirectTo: ["coralie"],
@@ -221,7 +221,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     location: "Shifting Sandbars",
     imageUrl: "/images/boo-sand-art.jpeg",
     gift: {
-      lovedGiftIds: ["dried-sugar-berries", "sealed-frosted-bottle"],
+      lovedGiftIds: ["dried-sugar-berries", "sealed-frosted-bottle", "food-toasted-marshmallow-hot-chocolate", "food-seashell-chocolate-cocoa"],
       reactionSfx: "Soft sand pour and happy claw taps",
       reactionVisual: "Orange and white sand spirals",
       redirectTo: ["kaiana"],
@@ -274,7 +274,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       "Bakes seaweed breads and kelp cookies using gathered ocean ingredients; hosts celebratory ship parties.",
     location: "Underwater Village — Mina's Kitchen",
     gift: {
-      lovedGiftIds: ["sea-berry", "kelp", "coconut-cream"],
+      lovedGiftIds: ["sea-berry", "kelp", "coconut-cream", "food-coastal-berry-salad"],
       reactionSfx: "Oven Chime, Heart Flour Bubbles",
       reactionVisual: "Heart Flour Bubbles",
       redirectTo: ["melody", "pearl"],
@@ -341,7 +341,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Sells exotic seeds, rare furniture, and deep-sea shells.",
     location: "Trading Dock",
     gift: {
-      lovedGiftIds: ["deep-sea-seed", "rare-soil"],
+      lovedGiftIds: ["deep-sea-seed", "rare-soil", "food-garden-vegetable-salad", "food-rainbow-vegetable-salad"],
       reactionSfx: "Shell Gold Sparkle, Resonant Wood-Chime",
       reactionVisual: "Shell Gold Sparkle",
       redirectTo: ["mina"],
@@ -358,7 +358,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Rotates rare goods, master structural blueprints, and foreign trinkets.",
     location: "Trading Dock",
     gift: {
-      lovedGiftIds: ["ship-chart", "spyglass-lens"],
+      lovedGiftIds: ["ship-chart", "spyglass-lens", "food-chocolate-cake", "food-iced-mint-tea"],
       reactionSfx: 'Claw Clicks ("Clack!"), Brass Ship Bell',
       reactionVisual: "Claw Clicks",
       redirectTo: ["coralie"],
@@ -375,7 +375,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Trades bioluminescent shards and glowing crafting materials.",
     location: "Open Water, Full Moon nights only",
     gift: {
-      lovedGiftIds: ["bioluminescent-shard", "moonstone"],
+      lovedGiftIds: ["bioluminescent-shard", "moonstone", "food-iced-berry-drink"],
       reactionSfx: "Neon-Cyan Pulse, Glass Harmonica",
       reactionVisual: "Neon-Cyan Pulse",
       redirectTo: ["kaiana", "kai"],
