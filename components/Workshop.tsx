@@ -261,6 +261,7 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
 
 function KitchenRecipeRewards() {
   const { state, claimKitchenReward } = useGame();
+  const [showFinalVideo, setShowFinalVideo] = useState(false);
   const baby = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
@@ -312,6 +313,20 @@ function KitchenRecipeRewards() {
           </div>;
         })}
       </div>
+      {(() => {
+        const finalKeys = groups.flatMap(group => group.keys);
+        const ready = finalKeys.every(key => state.notebookDiscovered[key]);
+        const claimed = !!state.notebookDiscovered["kitchen-reward:cookbook-stand"];
+        return <div className="mt-4 rounded-xl bg-white p-3 ring-1 ring-teal-300">
+          <h4 className="font-bold text-teal-950">Final Kitchen Reward: Seashell Cookbook Stand</h4>
+          <Image src="/images/Kitchen-seashell-cookbook-stand.PNG" alt="Open seashell cookbook on a decorative seaside stand" width={230} height={180} unoptimized className="mx-auto my-2 h-auto max-w-full" />
+          <p className="text-sm">Complete all kitchen recipe collections to earn the cookbook stand and its celebration video.</p>
+          <p className="text-sm font-semibold">{ready ? "All collections complete!" : `${finalKeys.filter(key => state.notebookDiscovered[key]).length} of ${finalKeys.length} collection requirements completed`}</p>
+          {ready && !claimed && <button type="button" className="mt-2 min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-bold text-white" onClick={() => { if (claimKitchenReward("cookbook-stand")) setShowFinalVideo(true); }}>Claim Seashell Cookbook Stand</button>}
+          {claimed && <button type="button" className="mt-2 min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-bold text-white" onClick={() => setShowFinalVideo(true)}>Replay Cookbook Stand Celebration</button>}
+          {showFinalVideo && <div className="mt-3"><video src="/images/Seashell-stand-reward-video.MP4" controls autoPlay playsInline className="w-full rounded-lg" aria-label="Seashell Cookbook Stand reward celebration video" /><button type="button" className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2" onClick={() => setShowFinalVideo(false)}>Close Video</button></div>}
+        </div>;
+      })()}
     </section>
   );
 }
