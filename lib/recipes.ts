@@ -12,6 +12,10 @@ export {
 
 export const KITCHEN_RECIPES = [
   ...BASE_KITCHEN_RECIPES,
+  { id: "iced-berry-drink", name: "Iced Berry Drink", description: "Fresh berries shaken with crushed ice.", cost: [{ itemId: "strawberry", count: 1 }, { itemId: "blueberry", count: 1 }, { itemId: "kitchen-crushed-ice", count: 1 }], outputItemId: "food-iced-berry-drink", station: "Chilled Drinks", season: "Year-round" as const },
+  { id: "frozen-pineapple-drink", name: "Frozen Pineapple Drink", description: "Sweet pineapple blended into an icy island refreshment.", cost: [{ itemId: "pineapple", count: 1 }, { itemId: "coconut-cream", count: 1 }, { itemId: "kitchen-crushed-ice", count: 1 }], outputItemId: "food-frozen-pineapple-drink", station: "Chilled Drinks", season: "Year-round" as const },
+  { id: "frosted-coconut-drink", name: "Frosted Coconut Drink", description: "Creamy coconut chilled with crushed ice.", cost: [{ itemId: "coconut-cream", count: 2 }, { itemId: "kitchen-crushed-ice", count: 1 }], outputItemId: "food-frosted-coconut-drink", station: "Chilled Drinks", season: "Year-round" as const },
+  { id: "iced-mint-tea", name: "Iced Mint Tea", description: "Cooling mint tea served over crushed ice.", cost: [{ itemId: "coastal-beach-mint", count: 2 }, { itemId: "pure-water", count: 1 }, { itemId: "kitchen-crushed-ice", count: 1 }], outputItemId: "food-iced-mint-tea", station: "Chilled Drinks", season: "Year-round" as const },
   {
     id: "cadence-warm-rose-milk",
     name: "Cadence's Warm Rose Milk",
