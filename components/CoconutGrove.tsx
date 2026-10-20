@@ -46,9 +46,9 @@ const NODES: { id: NodeId; icon: string; title: string; instruction: string }[] 
   { id: "berries", icon: "🫐", title: "Berry Bramble", instruction: "Pick a bundle of coastal berries, strawberries, blueberries, or raspberries." },
   { id: "herbs", icon: "🌿", title: "Botanical Herb Thicket", instruction: "Snip fragrant lemongrass, beach mint, or rosemary beside the mossy log." },
   { id: "coastal", icon: "🫛", title: "Coastal Edibles Patch", instruction: "Gather sea peas with tender sea parsley or flowering sea lavender." },
-  { id: "fruit", icon: "🍍", title: "Tropical Fruit Garden", instruction: "Harvest pineapple, bananas, grapes from the vine, or lemons from the tree." },
+  { id: "fruit", icon: "🍍", title: "Tropical Fruit Garden", instruction: "Harvest pineapple, mangoes, bananas, grapes from the vine, or lemons from the tree." },
   { id: "roots", icon: "🫚", title: "Sandy Root Patch", instruction: "Pull a fresh root from the soft, dark island soil." },
-  { id: "vegetables", icon: "🥕", title: "Vegetable Garden", instruction: "Harvest carrots, potatoes, and broccoli from the year-round vegetable beds." },
+  { id: "vegetables", icon: "🥕", title: "Vegetable Garden", instruction: "Harvest carrots, potatoes, broccoli, cucumbers, and tomatoes from the year-round vegetable beds." },
   { id: "seasonal", icon: "🎃", title: "Seasonal Garden", instruction: "Harvest the crop growing in the stone-ringed garden." },
 ];
 
@@ -178,8 +178,9 @@ export default function CoconutGrove() {
     } else if (id === "fruit") {
       const itemId = choose([
         { value: "pineapple", weight: 20 },
-        { value: "banana", weight: 30 },
-        { value: "grapes", weight: 30 },
+        { value: "mango", weight: 20 },
+        { value: "banana", weight: 20 },
+        { value: "grapes", weight: 20 },
         { value: "lemon", weight: 20 },
       ]);
       rewards.push({ itemId, count: itemId === "grapes" || itemId === "banana" ? 2 : 1 });
@@ -192,7 +193,7 @@ export default function CoconutGrove() {
       rewards.push({ itemId, count: itemId === "sweet-island-cane" ? 2 + Math.floor(Math.random() * 2) : 1 + Math.floor(Math.random() * 2) });
       play("groveRootPull");
     } else if (id === "vegetables") {
-      const itemId = choose([{ value: "carrot", weight: 35 }, { value: "potato", weight: 35 }, { value: "broccoli", weight: 30 }]);
+      const itemId = choose([{ value: "carrot", weight: 25 }, { value: "potato", weight: 20 }, { value: "broccoli", weight: 20 }, { value: "cucumber", weight: 18 }, { value: "tomato", weight: 17 }]);
       rewards.push({ itemId, count: 2 });
       play("groveRootPull");
     } else if (season === "autumn") {
