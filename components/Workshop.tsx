@@ -353,6 +353,8 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "seashell-chocolate-cocoa": "/images/Recipe-hot-chocolate-seashell.PNG",
+  "toasted-marshmallow-hot-chocolate": "/images/Recipe-hot-chocolate-toasted-marshmallow.PNG",
   "iced-berry-drink": "/Recipe-iced-berry-drink.PNG",
   "frozen-pineapple-drink": "/Recipe-frozen-pineapple-drink.PNG",
   "frosted-coconut-drink": "/Recipe-frosted-coconut-drink.PNG",
