@@ -1021,7 +1021,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [itemId]: true },
     }));
     play(kind === "daily-ice" ? "kitchenIceDispenser" : "sparkle");
-    toast(kind === "daily-pumpkin" ? "Collected Pumpkin Spice!" : kind === "cooling" ? "Cooling Rack unlocked!" : kind === "soup" ? "Soup Pot unlocked!" : kind === "pumpkin" ? "Pumpkin Spice Jar unlocked!" : kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : kind === "coffee" ? "Coffee Pot and Creamer unlocked!" : "Coastal Ice Maker unlocked!");
+    toast(kind === "mug" ? "Hot Chocolate Mug unlocked!" : kind === "daily-pumpkin" ? "Collected Pumpkin Spice!" : kind === "cooling" ? "Cooling Rack unlocked!" : kind === "soup" ? "Soup Pot unlocked!" : kind === "pumpkin" ? "Pumpkin Spice Jar unlocked!" : kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : kind === "coffee" ? "Coffee Pot and Creamer unlocked!" : "Coastal Ice Maker unlocked!");
     return true;
   };
 
