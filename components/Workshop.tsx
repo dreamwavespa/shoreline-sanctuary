@@ -266,6 +266,7 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Ice Cream", reward: "Seashell Ice Cream Scoop", keys: ["coconut-ice-cream", "strawberry-ice-cream", "pineapple-ice-cream", "chocolate-seashell-ice-cream"].map(id => `recipe:${id}`) },
     { name: "Vegetable Salads", reward: "Vegetable Salad Bowl", keys: ["garden-vegetable-salad", "spring-herb-salad", "rainbow-vegetable-salad"].map(id => `recipe:${id}`) },
     { name: "Fruit Salads", reward: "Fruit Salad Bowl", keys: ["tropical-fruit-salad", "coastal-berry-salad", "spring-fruit-medley"].map(id => `recipe:${id}`) },
     { name: "Chilled Drinks", reward: "Fresh Water Bottle", keys: ["iced-berry-drink", "frozen-pineapple-drink", "frosted-coconut-drink", "iced-mint-tea"].map(id => `recipe:${id}`) },
@@ -290,6 +291,7 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            {group.name === "Ice Cream" && <Image src="/images/Kitchen-ice-cream-scoop.PNG" alt="Seashell ice cream scoop reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full object-contain" />}
             {group.name === "Coffees" && <Image src="/Recipe-iced-berry-drink.PNG" alt="Iced berry drink, one of four unlocked recipes" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Hot Chocolates" && <Image src="/images/Kitchen-hot-chocolate-mug.PNG" alt="Hot Chocolate Mug reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Soups" && <Image src="/images/Kitchen-soup-pot.PNG" alt="Kitchen soup pot reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
@@ -299,7 +301,7 @@ function KitchenRecipeRewards() {
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
             {group.name === "Coffees" && <p className="text-sm font-semibold text-teal-800">{unlocked ? "All four chilled drink recipes are now available in the cookbook!" : "Chilled drink recipes unlock automatically when all four coffees are prepared."}</p>}
             {unlocked && group.name !== "Coffees" && (() => {
-              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Hot Chocolates" ? "mug" : group.name === "Pumpkin Recipes" ? "pumpkin" : group.name === "Vegetable Salads" ? "vegetable-salad" : group.name === "Fruit Salads" ? "fruit-salad" : group.name === "Chilled Drinks" ? "water-bottle" : "ice";
+              const kind = group.name === "Ice Cream" ? "ice-cream-scoop" : group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Hot Chocolates" ? "mug" : group.name === "Pumpkin Recipes" ? "pumpkin" : group.name === "Vegetable Salads" ? "vegetable-salad" : group.name === "Fruit Salads" ? "fruit-salad" : group.name === "Chilled Drinks" ? "water-bottle" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
               const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
@@ -372,6 +374,10 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "coconut-ice-cream": "/images/Recipe-Coconut-Ice-Cream.png",
+  "strawberry-ice-cream": "/images/Recipe-Strawberry-Ice-Cream.png",
+  "pineapple-ice-cream": "/images/Recipe-Pineapple-Ice-Cream.png",
+  "chocolate-seashell-ice-cream": "/images/Recipe-Chocolate-Seashell-Ice-Cream.png",
   "garden-vegetable-salad": "/images/Recipe-Garden-Vegetable-Salad.png",
   "spring-herb-salad": "/images/Recipe-Spring-Herb-Salad.png",
   "rainbow-vegetable-salad": "/images/Recipe-Rainbow-Vegetable-Salad.png",
