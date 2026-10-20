@@ -933,7 +933,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const waterKey = "kitchen-bottle:water";
     const filled = !!current.notebookDiscovered[roseKey] || !!current.notebookDiscovered[berryKey] || !!current.notebookDiscovered[waterKey];
     if (action === "feed" ? !filled : filled) return false;
-    const cost = action === "rose" ? [{ itemId: "food-cadence-warm-rose-milk", count: 1 }] : action === "berry" ? [{ itemId: "coastal-brambleberry", count: 2 }] : action === "water" ? [{ itemId: "pure-water", count: 1 }] : [];
+    const cost = action === "rose" ? [{ itemId: "food-cadence-warm-rose-milk", count: 1 }] : action === "berry" ? [{ itemId: "coastal-brambleberry", count: 2 }] : action === "water" ? [{ itemId: "fresh-water-serving", count: 1 }] : [];
     if (cost.some(item => (current.inventory[item.itemId] || 0) < item.count)) return false;
     setState(prev => {
       const inventory = { ...prev.inventory };
@@ -982,7 +982,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const dailyRewards: Record<string, { reward: string; item: string; label: string }> = {
       "daily-vegetable": { reward: "vegetable-salad", item: "cucumber", label: "Fresh cucumber" },
       "daily-fruit": { reward: "fruit-salad", item: "mango", label: "Fresh mango" },
-      "daily-water": { reward: "water-bottle", item: "pure-water", label: "Fresh water" },
+      "daily-water": { reward: "water-bottle", item: "fresh-water-serving", label: "Fresh water serving" },
     };
     if (dailyRewards[kind]) {
       const { reward, item, label } = dailyRewards[kind];
