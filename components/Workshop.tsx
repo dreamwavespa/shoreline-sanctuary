@@ -443,7 +443,12 @@ function ShorelineCookbook() {
 
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const { state, cook, hasEnough, play } = useGame();
-  const canCook = hasEnough(recipe.cost);
+  // Once the Fresh Water Bottle is unlocked, prefer its renewable servings.
+  // Before that, and when servings run out, rare Pure Water Vials still work.
+  const usesWater = recipe.cost.some(ingredient => ingredient.itemId === "pure-water");
+  const useFreshWater = usesWater && !!state.notebookDiscovered["kitchen-reward:water-bottle"] && (state.inventory["fresh-water-serving"] || 0) >= (recipe.cost.find(ingredient => ingredient.itemId === "pure-water")?.count || 0);
+  const effectiveCost = recipe.cost.map(ingredient => useFreshWater && ingredient.itemId === "pure-water" ? { ...ingredient, itemId: "fresh-water-serving" } : ingredient);
+  const canCook = hasEnough(effectiveCost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
   const headingId = `recipe-${recipe.id}`;
@@ -452,8 +457,8 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const coffeeTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => coffeeTimers.current.forEach(clearTimeout), []);
   const startCoffee = () => {
-    if (!hasEnough(recipe.cost) || coffeeStage) return;
-    cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1);
+    if (!hasEnough(effectiveCost) || coffeeStage) return;
+    cook(effectiveCost, recipe.outputItemId, recipe.outputCount || 1);
     play("kitchenCoffeeBrewing", 0.75);
     setCoffeeStage("pour");
     coffeeTimers.current.forEach(clearTimeout);
@@ -498,7 +503,7 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
 
       <h3 className="mt-4 text-xs font-bold uppercase tracking-wide text-amber-800">Ingredients</h3>
       <ul className="mt-2 space-y-2">
-        {recipe.cost.map((ingredient) => {
+        {effectiveCost.map((ingredient) => {
           const def = ITEMS[ingredient.itemId];
           const have = state.inventory[ingredient.itemId] || 0;
           const enough = have >= ingredient.count;
@@ -511,11 +516,12 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
           );
         })}
       </ul>
+      {usesWater && <p className="mt-2 text-sm text-teal-900">{useFreshWater ? "Using renewable Fresh Water Serving; your Pure Water Vials are saved." : state.notebookDiscovered["kitchen-reward:water-bottle"] ? "No Fresh Water Servings available. This recipe can still use a Pure Water Vial, or collect fresh water from the kitchen bottle." : "Before unlocking the Fresh Water Bottle, this recipe uses a Pure Water Vial."}</p>}
 
       <button
         type="button"
         disabled={!canCook || coffeeStage !== null}
-        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(recipe.cost)) return; cook(recipe.cost, recipe.outputItemId, recipe.outputCount || 1); }}
+        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(effectiveCost)) return; cook(effectiveCost, recipe.outputItemId, recipe.outputCount || 1); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
