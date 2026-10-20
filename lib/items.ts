@@ -378,6 +378,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "glitter": { id: "glitter", name: "Sea Glitter", category: "decor", icon: "✨", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "rescue-balloon": { id: "rescue-balloon", name: "Rescue Balloon", category: "trash", icon: "🎈", isEmoji: true, rarity: "common", sfx: "plastic" },
   "kelp-resin": { id: "kelp-resin", name: "Kelp Resin", category: "raw", icon: "🟩", isEmoji: true, rarity: "uncommon", sfx: "seaweedCollect" },
+  "fresh-water-serving": { id: "fresh-water-serving", name: "Fresh Water Serving", category: "special", icon: "💧", isEmoji: true, rarity: "common", sfx: "liquidBottle" },
   "pure-water": { id: "pure-water", name: "Pure Water Vial", category: "special", icon: "💧", isEmoji: true, rarity: "uncommon", sfx: "liquidBottle" },
   "food-kelp-cookie": { id: "food-kelp-cookie", name: "Warm Kelp Cookie", category: "food", icon: "🍪", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "fresh-reef-fish": { id: "fresh-reef-fish", name: "Fresh Reef Fish", category: "food", icon: "🐟", isEmoji: true, rarity: "common", sfx: "oceanWaterSplash" },
