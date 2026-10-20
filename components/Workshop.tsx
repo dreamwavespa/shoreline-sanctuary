@@ -265,6 +265,7 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Coffees", reward: "Four Chilled Drink Recipes", keys: ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"].map((id) => `recipe:${id}`) },
     { name: "Soups", reward: "Kitchen Soup Pot", keys: ["garden-vegetable-soup", "seaside-fish-chowder", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
     { name: "Baking", reward: "Kitchen Cooling Rack", keys: ["sea-rose-pumpkin-tart", "island-spiced-gingerbread", "coastal-berry-muffins", "chocolate-cake"].map((id) => `recipe:${id}`) },
     { name: "Pumpkin Recipes", reward: "Pumpkin Spice Jar", keys: ["golden-pumpkin-bisque", "sea-rose-pumpkin-tart", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
@@ -284,12 +285,14 @@ function KitchenRecipeRewards() {
             <h4 className="font-bold text-teal-950">{group.name}</h4>
             <p className="text-sm text-teal-900">{completed} of {group.keys.length} recipes prepared</p>
             <p className="mt-1 text-sm font-semibold text-amber-950">{unlocked ? "Unlocked: " : "Reward: "}{group.reward}</p>
+            {group.name === "Coffees" && <Image src="/Recipe-iced-berry-drink.PNG" alt="Iced berry drink, one of four unlocked recipes" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Soups" && <Image src="/images/Kitchen-soup-pot.PNG" alt="Kitchen soup pot reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Baking" && <Image src="/images/Kitchen-cooling-rack.PNG" alt="Kitchen cooling rack reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Pumpkin Recipes" && <Image src="/images/Kitchen-pumpkin-spice.PNG" alt="Pumpkin spice reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             {group.name === "Teas" && <Image src="/images/Kitchen-coffee-pot-creamer.PNG" alt="Coffee pot and creamer reward" width={180} height={130} unoptimized className="my-2 h-auto max-w-full" />}
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
-            {unlocked && (() => {
+            {group.name === "Coffees" && <p className="text-sm font-semibold text-teal-800">{unlocked ? "All four chilled drink recipes are now available in the cookbook!" : "Chilled drink recipes unlock automatically when all four coffees are prepared."}</p>}
+            {unlocked && group.name !== "Coffees" && (() => {
               const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Pumpkin Recipes" ? "pumpkin" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
@@ -348,6 +351,10 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "iced-berry-drink": "/Recipe-iced-berry-drink.PNG",
+  "frozen-pineapple-drink": "/Recipe-frozen-pineapple-drink.PNG",
+  "frosted-coconut-drink": "/Recipe-frosted-coconut-drink.PNG",
+  "iced-mint-tea": "/Recipe-iced-mint-tea.PNG",
   "coastal-berry-muffins": "/Recipe-coastal-berry-muffins.PNG",
   "chocolate-cake": "/Recipes-chocolate-cake.PNG",
   "golden-pumpkin-bisque": "/Recipe-golden-pumpkin-bisque.PNG",
@@ -371,7 +378,8 @@ const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
 };
 
 function ShorelineCookbook() {
-  const { play } = useGame();
+  const { play, state } = useGame();
+  const chilledUnlocked = ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"].every(id => state.notebookDiscovered[`recipe:${id}`]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
   return (
@@ -385,7 +393,7 @@ function ShorelineCookbook() {
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {KITCHEN_RECIPES.map((recipe) => (
+          {KITCHEN_RECIPES.filter(recipe => recipe.station !== "Chilled Drinks" || chilledUnlocked).map((recipe) => (
             <button key={recipe.id} type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(recipe.id); }}
               aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
               className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
