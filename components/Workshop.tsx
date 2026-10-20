@@ -265,6 +265,9 @@ function KitchenRecipeRewards() {
   const teas = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
   const smoothies = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
   const groups = [
+    { name: "Vegetable Salads", reward: "Vegetable Salad Bowl", keys: ["garden-vegetable-salad", "spring-herb-salad", "rainbow-vegetable-salad"].map(id => `recipe:${id}`) },
+    { name: "Fruit Salads", reward: "Fruit Salad Bowl", keys: ["tropical-fruit-salad", "coastal-berry-salad", "spring-fruit-medley"].map(id => `recipe:${id}`) },
+    { name: "Chilled Drinks", reward: "Fresh Water Bottle", keys: ["iced-berry-drink", "frozen-pineapple-drink", "frosted-coconut-drink", "iced-mint-tea"].map(id => `recipe:${id}`) },
     { name: "Coffees", reward: "Four Chilled Drink Recipes", keys: ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"].map((id) => `recipe:${id}`) },
     { name: "Hot Chocolates", reward: "Hot Chocolate Mug", keys: ["coastal-spiced-cocoa", "seashell-chocolate-cocoa", "toasted-marshmallow-hot-chocolate"].map(id => `recipe:${id}`) },
     { name: "Soups", reward: "Kitchen Soup Pot", keys: ["garden-vegetable-soup", "seaside-fish-chowder", "harvest-pumpkin-soup"].map((id) => `recipe:${id}`) },
@@ -295,12 +298,13 @@ function KitchenRecipeRewards() {
             <p className="text-xs text-slate-700">{unlocked ? "Collection complete!" : "Complete the collection to unlock."}</p>
             {group.name === "Coffees" && <p className="text-sm font-semibold text-teal-800">{unlocked ? "All four chilled drink recipes are now available in the cookbook!" : "Chilled drink recipes unlock automatically when all four coffees are prepared."}</p>}
             {unlocked && group.name !== "Coffees" && (() => {
-              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Hot Chocolates" ? "mug" : group.name === "Pumpkin Recipes" ? "pumpkin" : "ice";
+              const kind = group.name === "Baby Food" ? "baby" : group.name === "Teas" ? "coffee" : group.name === "Baking" ? "cooling" : group.name === "Soups" ? "soup" : group.name === "Hot Chocolates" ? "mug" : group.name === "Pumpkin Recipes" ? "pumpkin" : group.name === "Vegetable Salads" ? "vegetable-salad" : group.name === "Fruit Salads" ? "fruit-salad" : group.name === "Chilled Drinks" ? "water-bottle" : "ice";
               const claimed = Boolean(state.notebookDiscovered[`kitchen-reward:${kind}`]);
               const today = new Date().toLocaleDateString("en-CA");
               const collectedToday = Boolean(state.notebookDiscovered[`kitchen-daily-ice:${today}`]);
               return <div className="mt-2 space-y-2">
                 {!claimed ? <button type="button" onClick={() => claimKitchenReward(kind)} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 text-sm font-bold text-white">Claim {group.reward}</button> : <p className="text-sm font-semibold text-teal-800">Equipment permanently unlocked</p>}
+                {(["vegetable-salad", "fruit-salad", "water-bottle"] as string[]).includes(kind) && claimed && <button type="button" disabled={Boolean(state.notebookDiscovered[`kitchen-daily-${kind === "vegetable-salad" ? "vegetable" : kind === "fruit-salad" ? "fruit" : "water"}:${today}`])} onClick={() => claimKitchenReward(kind === "vegetable-salad" ? "daily-vegetable" : kind === "fruit-salad" ? "daily-fruit" : "daily-water")} className="min-h-11 rounded-lg bg-teal-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">Collect Daily {kind === "vegetable-salad" ? "Cucumber" : kind === "fruit-salad" ? "Mango" : "Fresh Water"}</button>}
                 {kind === "pumpkin" && claimed && <button type="button" disabled={Boolean(state.notebookDiscovered[`kitchen-daily-pumpkin:${today}`])} onClick={() => claimKitchenReward("daily-pumpkin")} className="min-h-11 rounded-lg bg-amber-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-pumpkin:${today}`] ? "Pumpkin Spice collected today" : "Collect Pumpkin Spice"}</button>}
                 {kind === "ice" && claimed && <button type="button" disabled={collectedToday} onClick={() => claimKitchenReward("daily-ice")} className="min-h-11 rounded-lg bg-sky-800 px-3 py-2 text-sm font-bold text-white disabled:opacity-60">{collectedToday ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>}
               </div>;
@@ -353,6 +357,12 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "garden-vegetable-salad": "/images/Recipe-Garden-Vegetable-Salad.png",
+  "spring-herb-salad": "/images/Recipe-Spring-Herb-Salad.png",
+  "rainbow-vegetable-salad": "/images/Recipe-Rainbow-Vegetable-Salad.png",
+  "tropical-fruit-salad": "/images/Recipe-Tropical-Fruit-Salad.png",
+  "coastal-berry-salad": "/images/Recipe-Coastal-Berry-Salad.png",
+  "spring-fruit-medley": "/images/Recipe-Spring-Fruit-Medley.png",
   "seashell-chocolate-cocoa": "/images/Recipe-hot-chocolate-seashell.PNG",
   "toasted-marshmallow-hot-chocolate": "/images/Recipe-hot-chocolate-toasted-marshmallow.PNG",
   "iced-berry-drink": "/Recipe-iced-berry-drink.PNG",
@@ -740,7 +750,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
   const [soupStirring, setSoupStirring] = useState(false);
-  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"baby" | "ice" | "coffee" | "cooling" | "pumpkin" | "soup" | "mug" | null>(null);
+  const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"water-bottle" | "vegetable-salad" | "fruit-salad" | "cookbook-stand" | "baby" | "ice" | "coffee" | "cooling" | "pumpkin" | "soup" | "mug" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
   const cookbookButtonRef = useRef<HTMLButtonElement>(null);
