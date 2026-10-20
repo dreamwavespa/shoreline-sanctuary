@@ -988,9 +988,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const { reward, item, label } = dailyRewards[kind];
       const key = `kitchen-${kind}:${date}`;
       if (!current.notebookDiscovered[`kitchen-reward:${reward}`] || current.notebookDiscovered[key]) return false;
-      setState(prev => ({ ...prev, inventory: { ...prev.inventory, [item]: (prev.inventory[item] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [item]: true } }));
+      setState(prev => ({ ...prev, inventory: { ...prev.inventory, [item]: (prev.inventory[item] || 0) + (kind === "daily-water" ? 3 : 1) }, notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [item]: true } }));
       play("sparkle");
-      toast(`Collected ${label}!`);
+      toast(kind === "daily-water" ? "Collected 3 Fresh Water Servings!" : `Collected ${label}!`);
       return true;
     }
     if (kind === "mug" && (!cocoaReady || current.notebookDiscovered["kitchen-reward:mug"])) return false;
