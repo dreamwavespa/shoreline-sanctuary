@@ -395,7 +395,7 @@ interface Ctx {
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
-  claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "cookbook-stand") => boolean;
+  claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand") => boolean;
   useBabyBottle: (action: "rose" | "berry" | "water" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
@@ -949,7 +949,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const claimKitchenReward = (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "cookbook-stand") => {
+  const claimKitchenReward = (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand") => {
     const babyKeys = ["cadence-warm-rose-milk", "cadence-sea-pea-puree", "cadence-sun-berry-mash", "cadence-teething-kelp-cookies"];
     const smoothieKeys = ["strawberry-banana", "tropical-pineapple", "mixed-berry", "coastal-berry-mint"];
     const teaKeys = ["sweet-sugar-berry-tea", "lemon-tea", "mint-tea"];
@@ -960,6 +960,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const vegetableSalads = ["garden-vegetable-salad", "spring-herb-salad", "rainbow-vegetable-salad"];
     const fruitSalads = ["tropical-fruit-salad", "coastal-berry-salad", "spring-fruit-medley"];
     const chilledDrinks = ["iced-berry-drink", "frozen-pineapple-drink", "frosted-coconut-drink", "iced-mint-tea"];
+    const iceCreamKeys = ["coconut-ice-cream", "strawberry-ice-cream", "pineapple-ice-cream", "chocolate-seashell-ice-cream"];
     const coffees = ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"];
     const current = stateRef.current;
     const completed = (ids: string[]) => ids.every(id => current.notebookDiscovered[`recipe:${id}`]);
@@ -975,6 +976,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const babyReady = babyKeys.every(id => current.notebookDiscovered[`recipe:${id}`]);
     const iceReady = smoothieKeys.every(id => current.notebookDiscovered[`smoothie:${id}`]);
     const date = new Date().toLocaleDateString("en-CA");
+    if (kind === "ice-cream-scoop" && (!completed(iceCreamKeys) || current.notebookDiscovered["kitchen-reward:ice-cream-scoop"])) return false;
     if (kind === "vegetable-salad" && (!vegetableReady || current.notebookDiscovered["kitchen-reward:vegetable-salad"])) return false;
     if (kind === "fruit-salad" && (!fruitReady || current.notebookDiscovered["kitchen-reward:fruit-salad"])) return false;
     if (kind === "water-bottle" && (!waterReady || current.notebookDiscovered["kitchen-reward:water-bottle"])) return false;
@@ -1041,7 +1043,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       toast("Baking cooled! Earned 2 bonus Sand Dollars.");
       return true;
     }
-    const itemId = kind === "vegetable-salad" ? "kitchen-vegetable-salad-bowl" : kind === "fruit-salad" ? "kitchen-fruit-salad-bowl" : kind === "water-bottle" ? "kitchen-fresh-water-bottle" : kind === "cookbook-stand" ? "kitchen-seashell-cookbook-stand" : kind === "mug" ? "kitchen-hot-chocolate-mug" : kind === "baby" ? "kitchen-baby-bottle" : kind === "coffee" ? "kitchen-coffee-pot-creamer" : kind === "cooling" ? "kitchen-cooling-rack" : kind === "soup" ? "kitchen-soup-pot" : kind === "pumpkin" ? "kitchen-pumpkin-spice-jar" : kind === "daily-pumpkin" ? "pumpkin-spice" : kind === "ice" ? "kitchen-ice-maker" : "kitchen-crushed-ice";
+    const itemId = kind === "ice-cream-scoop" ? "kitchen-ice-cream-scoop" : kind === "vegetable-salad" ? "kitchen-vegetable-salad-bowl" : kind === "fruit-salad" ? "kitchen-fruit-salad-bowl" : kind === "water-bottle" ? "kitchen-fresh-water-bottle" : kind === "cookbook-stand" ? "kitchen-seashell-cookbook-stand" : kind === "mug" ? "kitchen-hot-chocolate-mug" : kind === "baby" ? "kitchen-baby-bottle" : kind === "coffee" ? "kitchen-coffee-pot-creamer" : kind === "cooling" ? "kitchen-cooling-rack" : kind === "soup" ? "kitchen-soup-pot" : kind === "pumpkin" ? "kitchen-pumpkin-spice-jar" : kind === "daily-pumpkin" ? "pumpkin-spice" : kind === "ice" ? "kitchen-ice-maker" : "kitchen-crushed-ice";
     const count = kind === "daily-ice" ? 3 : 1;
     const key = kind === "daily-ice" ? `kitchen-daily-ice:${date}` : kind === "daily-pumpkin" ? `kitchen-daily-pumpkin:${date}` : `kitchen-reward:${kind}`;
     setState(prev => ({
@@ -1050,7 +1052,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [itemId]: true },
     }));
     play(kind === "daily-ice" ? "kitchenIceDispenser" : "sparkle");
-    toast(kind === "mug" ? "Hot Chocolate Mug unlocked!" : kind === "daily-pumpkin" ? "Collected Pumpkin Spice!" : kind === "cooling" ? "Cooling Rack unlocked!" : kind === "soup" ? "Soup Pot unlocked!" : kind === "pumpkin" ? "Pumpkin Spice Jar unlocked!" : kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : kind === "coffee" ? "Coffee Pot and Creamer unlocked!" : "Coastal Ice Maker unlocked!");
+    toast(kind === "ice-cream-scoop" ? "Seashell Ice Cream Scoop unlocked!" : kind === "mug" ? "Hot Chocolate Mug unlocked!" : kind === "daily-pumpkin" ? "Collected Pumpkin Spice!" : kind === "cooling" ? "Cooling Rack unlocked!" : kind === "soup" ? "Soup Pot unlocked!" : kind === "pumpkin" ? "Pumpkin Spice Jar unlocked!" : kind === "daily-ice" ? "Collected 3 crushed ice!" : kind === "baby" ? "Seashell Baby Bottle unlocked!" : kind === "coffee" ? "Coffee Pot and Creamer unlocked!" : "Coastal Ice Maker unlocked!");
     return true;
   };
 
