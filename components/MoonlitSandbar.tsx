@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import LunaDiscovery from "./LunaDiscovery";
 import TwinkleCorner from "./TwinkleCorner";
+import GlimmerSandArt from "./GlimmerSandArt";
 
 export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
   const [visitor, setVisitor] = useState<"luna" | "twinkle" | "glimmer" | "mothie" | null>(null);
@@ -51,9 +52,10 @@ export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
         </div>
         <h3 className="text-xl font-bold">{visitor === "glimmer" ? "Glimmer’s Luminous Sand Art" : "Mothie’s Firefly Lights"}</h3>
         <p className="mt-2">{visitor === "glimmer"
-          ? "Glimmer dreams of painting the shore with glowing sand patterns. Her sand-art activity is coming soon."
+          ? "Glimmer dreams of painting the shore with glowing sand patterns. Help her paint luminous designs in the moonlit sand."
           : "Mothie watches over the fireflies that light up Shoreline. Her firefly-jar activity is coming soon."}</p>
       </div>}
+      {visitor === "glimmer" && <GlimmerSandArt />}
     </>}
     {!visitor && <button type="button" onClick={onReturn} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
   </section>;
