@@ -1419,6 +1419,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const goldenWishReturned = villagerId === "angel" && itemId === "golden-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     let sisterReturnGiftName: string | null = null;
+    const sunnyReturnGiftId = villagerId === "sunny" && loved
+      ? (() => { const roll = Math.random(); return roll < 0.65 ? "paint-pigment" : roll < 0.9 ? "clear-pottery-glaze" : roll < 0.97 ? "pearl-pottery-glaze" : "iridescent-pottery-glaze"; })()
+      : null;
     let angelWishRewardItemId: string | null = null;
     if (starWishReturned) {
       // Choose the reward before the React state updater so the toast and
@@ -1443,6 +1446,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, [{ itemId, count: 1 }]);
+      if (sunnyReturnGiftId) inv[sunnyReturnGiftId] = (inv[sunnyReturnGiftId] || 0) + 1;
       if (angelWishRewardItemId) {
         inv[angelWishRewardItemId] = (inv[angelWishRewardItemId] || 0) + 1;
       }
@@ -1528,6 +1532,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         ? "Angel carries your Golden Feather Wish across the sea and returns with a Gold Pearl, Rainbow Pearl, and Angel’s Tide Geode!"
         : starWishReturned
         ? `Angel carries your Star Wish out to sea and returns with ${angelWishGiftName || "a rare treasure"}!`
+        : sunnyReturnGiftId
+        ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ Sunny gives you ${ITEMS[sunnyReturnGiftId].name} in return!`
         : sisterReturnGiftName
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ ${villager.name} gives you ${sisterReturnGiftName} in return!`
         : loved
