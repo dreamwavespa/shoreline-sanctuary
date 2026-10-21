@@ -17,7 +17,7 @@ export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
         {/* Each friend has a distinct place in the scenery; labels remain readable and VoiceOver controls stay native buttons. */}
         <div className="absolute inset-x-2 bottom-[2%] grid grid-cols-4 items-end gap-1 sm:gap-3">
           {([
-            ["luna", "Luna", "the Moon Snail", "/images/Luna-snail.PNG"],
+            ["luna", "Luna", "the Moon Snail", "/images/Luna-transparent.PNG"],
             ["twinkle", "Twinkle", "the Hermit Crab", "/images/Twinkle-hermit-crab.PNG"],
             ["glimmer", "Glimmer", "the Luminous Sea Slug", "/images/Glimmer-transparent.PNG"],
             ["mothie", "Mothie", "the Moon Moth", "/images/Mothie-transparent.PNG"],
