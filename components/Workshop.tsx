@@ -259,6 +259,37 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
   );
 }
 
+function IceCreamStation() {
+  const { state, iceCreamAction } = useGame();
+  const [first, setFirst] = useState("coconut");
+  const [second, setSecond] = useState("strawberry");
+  const [fruit, setFruit] = useState("none");
+  const flavors = [["coconut", "Coconut"], ["strawberry", "Strawberry"], ["pineapple", "Pineapple"], ["chocolate-seashell", "Chocolate Seashell"]];
+  const toppings = [["chocolate-seashells", "Chocolate Seashells"], ["candy-seashells", "Candy Seashells"], ["dried-sugar-berries", "Dried Sugar Berries"], ["marshmallows", "Marshmallows"], ["coconut-flakes", "Coconut Flakes"], ["melted-chocolate", "Melted Chocolate"]];
+  const fruits = [["none", "No extra fruit"], ["strawberry", "Strawberry"], ["blueberry", "Blueberry"], ["raspberry", "Raspberry"], ["pineapple", "Pineapple"], ["mango", "Mango"], ["wild-beach-plum", "Beach Plum"]];
+  const date = new Date().toLocaleDateString("en-CA");
+  const flavorCount = Number(!!state.notebookDiscovered[`ice-cream-daily:${date}:flavor:1`]) + Number(!!state.notebookDiscovered[`ice-cream-daily:${date}:flavor:2`]);
+  const toppingTaken = !!state.notebookDiscovered[`ice-cream-daily:${date}:topping:1`];
+  if (!state.notebookDiscovered["kitchen-reward:ice-cream-scoop"]) return null;
+  return <section aria-labelledby="ice-cream-station-heading" className="my-4 rounded-2xl bg-sky-50 p-4 text-teal-950 ring-1 ring-sky-300">
+    <h3 id="ice-cream-station-heading" className="font-serif text-xl font-bold">Seashell Ice Cream Station</h3>
+    <Image src="/images/Kitchen-ice-cream-scoop.PNG" alt="Decorative seashell ice cream scoop" width={160} height={150} unoptimized className="my-2 h-28 w-auto object-contain" />
+    <p>Collect two flavor portions and one topping portion each day. Unused portions remain in your inventory.</p>
+    <h4 className="mt-4 font-bold">Daily flavors: {flavorCount} of 2 collected</h4>
+    <div className="mt-2 grid gap-2 sm:grid-cols-2">{flavors.map(([id,name]) => <button key={id} type="button" disabled={flavorCount >= 2} onClick={() => iceCreamAction("flavor",id)} className="min-h-11 rounded-lg bg-teal-800 p-2 text-white disabled:opacity-50">Collect {name} portion</button>)}</div>
+    <h4 className="mt-4 font-bold">Daily topping: {toppingTaken ? "collected" : "available"}</h4>
+    <div className="mt-2 grid gap-2 sm:grid-cols-2">{toppings.map(([id,name]) => <button key={id} type="button" disabled={toppingTaken} onClick={() => iceCreamAction("topping",id)} className="min-h-11 rounded-lg bg-teal-800 p-2 text-white disabled:opacity-50">Collect {name}</button>)}</div>
+    <h4 className="mt-4 font-bold">Saved portions</h4>
+    <ul>{flavors.map(([id,name]) => <li key={id}>{name}: {state.inventory[`ice-cream-portion-${id}`] || 0}</li>)}{toppings.map(([id,name]) => <li key={id}>{name} topping: {state.inventory[`ice-cream-topping-${id}`] || 0}</li>)}</ul>
+    <h4 className="mt-4 font-bold">Assemble a custom dessert</h4>
+    <label className="mt-2 block">First flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={first} onChange={e => setFirst(e.target.value)}>{flavors.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+    <label className="mt-2 block">Second flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={second} onChange={e => setSecond(e.target.value)}>{flavors.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+    <label className="mt-2 block">Optional fresh fruit<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={fruit} onChange={e => setFruit(e.target.value)}>{fruits.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+    <p className="mt-2 text-sm">Assembly uses the first available saved topping, two flavor portions, and any selected fresh fruit.</p>
+    <button type="button" onClick={() => iceCreamAction("assemble",first,second,fruit)} className="mt-3 min-h-12 rounded-xl bg-amber-700 px-4 py-2 font-bold text-white">Make Custom Ice Cream</button>
+  </section>;
+}
+
 function KitchenRecipeRewards() {
   const { state, claimKitchenReward } = useGame();
   const [showFinalVideo, setShowFinalVideo] = useState(false);
@@ -1198,7 +1229,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
             <div className="flex shrink-0 justify-end border-b border-amber-200 p-3">
               <button type="button" onClick={closeCookbook} className="min-h-11 rounded-xl bg-teal-900 px-5 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">Close Cookbook</button>
             </div>
-            <div className="overflow-y-auto p-3"><ShorelineCookbook /><KitchenRecipeRewards /></div>
+            <div className="overflow-y-auto p-3"><ShorelineCookbook /><IceCreamStation /><KitchenRecipeRewards /></div>
           </div>
         </div>
       )}
