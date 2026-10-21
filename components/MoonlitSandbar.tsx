@@ -5,7 +5,7 @@ import LunaDiscovery from "./LunaDiscovery";
 import TwinkleCorner from "./TwinkleCorner";
 
 export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
-  const [visitor, setVisitor] = useState<"luna" | "twinkle" | null>(null);
+  const [visitor, setVisitor] = useState<"luna" | "twinkle" | "glimmer" | "mothie" | null>(null);
   return <section aria-labelledby="moonlit-sandbar-heading" className="space-y-3">
     {!visitor ? <>
       <div className="relative h-[52vh] min-h-[340px] max-h-[650px] overflow-hidden rounded-2xl ring-1 ring-indigo-200">
@@ -14,28 +14,39 @@ export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
           <h2 id="moonlit-sandbar-heading" className="text-xl font-bold text-white">Moonlit Sandbar</h2>
           <p className="text-sm text-white">Follow the glowing shells to visit Boo's nighttime friends.</p>
         </div>
-        <div className="absolute inset-x-4 bottom-[4%] flex items-end justify-between gap-3">
-          <button type="button" onClick={() => setVisitor("luna")} aria-label="Visit Luna the Moon Snail" className="group relative flex h-32 w-32 flex-col items-center justify-end focus:outline-none focus-visible:rounded-xl focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-40 sm:w-40">
-            <Image src="/images/Luna-snail.PNG" alt="" fill unoptimized sizes="160px" className="object-contain drop-shadow-xl transition-transform group-active:scale-95" />
-            <span aria-hidden="true" className="relative mb-0.5 rounded-full bg-indigo-950/80 px-3 py-1 text-xs font-semibold text-white">Luna</span>
-          </button>
-          <button type="button" onClick={() => setVisitor("twinkle")} aria-label="Visit Twinkle the Hermit Crab" className="group relative flex h-32 w-32 flex-col items-center justify-end focus:outline-none focus-visible:rounded-xl focus-visible:ring-4 focus-visible:ring-amber-300 sm:h-40 sm:w-40">
-            <Image src="/images/Twinkle-hermit-crab.PNG" alt="" fill unoptimized sizes="160px" className="object-contain drop-shadow-xl transition-transform group-active:scale-95" />
-            <span aria-hidden="true" className="relative mb-0.5 rounded-full bg-indigo-950/80 px-3 py-1 text-xs font-semibold text-white">Twinkle</span>
-          </button>
+        <div className="absolute inset-x-3 bottom-[3%] grid grid-cols-4 items-end gap-1 sm:gap-3">
+          {([
+            ["luna", "Luna", "the Moon Snail", "/images/Luna-snail.PNG"],
+            ["twinkle", "Twinkle", "the Hermit Crab", "/images/Twinkle-hermit-crab.PNG"],
+            ["glimmer", "Glimmer", "the Luminous Sea Slug", "/images/Glimmer-transparent.PNG"],
+            ["mothie", "Mothie", "the Moon Moth", "/images/Mothie-transparent.PNG"],
+          ] as const).map(([id, name, description, src]) => (
+            <button key={id} type="button" onClick={() => setVisitor(id)} aria-label={`Visit ${name} ${description}`} className="group relative flex min-h-24 flex-col items-center justify-end rounded-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300 sm:min-h-36">
+              <span className="relative block h-20 w-full sm:h-32"><Image src={src} alt="" fill unoptimized sizes="(max-width: 640px) 25vw, 150px" className="object-contain drop-shadow-xl transition-transform group-active:scale-95" /></span>
+              <span aria-hidden="true" className="relative rounded-full bg-indigo-950/85 px-2 py-1 text-xs font-semibold text-white">{name}</span>
+            </button>
+          ))}
         </div>
       </div>
-      <p className="text-sm text-indigo-100">More nighttime friends, including Glimmer and Mothie, may join this shore later.</p>
+      <p className="text-sm text-indigo-100">Meet Boo’s four nighttime friends along the glowing shore.</p>
     </> : <>
       <button type="button" onClick={() => setVisitor(null)} className="min-h-12 w-full rounded-xl bg-indigo-200 px-4 py-3 font-bold text-indigo-950 focus:ring-4 focus:ring-amber-300">← Return to Moonlit Sandbar</button>
-      <div className="relative h-[38vh] min-h-[240px] max-h-[500px] overflow-hidden rounded-2xl ring-1 ring-indigo-200">
-        <Image
-          src={visitor === "luna" ? "/images/Luna-moonlight-polishing-nook.png" : "/images/Twinkle-shell-nook.png"}
-          alt={visitor === "luna" ? "Luna's moonlit polishing nook, with glowing wax jars, pearly shells and an ocean view." : "Twinkle's cozy nighttime shell nook, filled with driftwood shelves, shell baskets and treasures."}
-          fill unoptimized sizes="100vw" className="object-cover"
-        />
-      </div>
-      {visitor === "luna" ? <LunaDiscovery /> : <TwinkleCorner />}
+      {(visitor === "luna" || visitor === "twinkle") ? <>
+        <div className="relative h-[38vh] min-h-[240px] max-h-[500px] overflow-hidden rounded-2xl ring-1 ring-indigo-200">
+          <Image src={visitor === "luna" ? "/images/Luna-moonlight-polishing-nook.png" : "/images/Twinkle-shell-nook.png"}
+            alt={visitor === "luna" ? "Luna's moonlit polishing nook, with glowing wax jars, pearly shells and an ocean view." : "Twinkle's cozy nighttime shell nook, filled with driftwood shelves, shell baskets and treasures."}
+            fill unoptimized sizes="100vw" className="object-cover" />
+        </div>
+        {visitor === "luna" ? <LunaDiscovery /> : <TwinkleCorner />}
+      </> : <div className="rounded-2xl bg-indigo-950/70 p-5 text-white ring-1 ring-indigo-200/40">
+        <div className="relative mx-auto h-48 w-48 sm:h-64 sm:w-64">
+          <Image src={visitor === "glimmer" ? "/images/Glimmer-transparent.PNG" : "/images/Mothie-transparent.PNG"} alt="" fill unoptimized sizes="256px" className="object-contain" />
+        </div>
+        <h3 className="text-xl font-bold">{visitor === "glimmer" ? "Glimmer’s Luminous Sand Art" : "Mothie’s Firefly Lights"}</h3>
+        <p className="mt-2">{visitor === "glimmer"
+          ? "Glimmer dreams of painting the shore with glowing sand patterns. Her sand-art activity is coming soon."
+          : "Mothie watches over the fireflies that light up Shoreline. Her firefly-jar activity is coming soon."}</p>
+      </div>}
     </>}
     {!visitor && <button type="button" onClick={onReturn} className="min-h-12 w-full rounded-xl bg-white px-4 py-3 font-bold text-teal-950 focus:ring-4 focus:ring-amber-300">← Return to Secret Sandbar</button>}
   </section>;
