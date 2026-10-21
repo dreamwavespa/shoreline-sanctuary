@@ -5,7 +5,6 @@ import { useGame } from "@/lib/store";
 import BooDiggingGame from "./BooDiggingGame";
 import BooScavengerHunt from "./BooScavengerHunt";
 import BooFriendship from "./BooFriendship";
-import LunaDiscovery from "./LunaDiscovery";
 
 export default function BooTreasureCorner() {
   const { state, collectItem } = useGame();
@@ -57,10 +56,9 @@ export default function BooTreasureCorner() {
           <p role="status" aria-live="polite" className="mt-2 text-sm">{treatMessage}</p>
         </section>
         <BooFriendship />
-        <LunaDiscovery />
         <BooDiggingGame />
         <BooScavengerHunt />
-        <p className="text-xs text-indigo-200">Coming next: Boo's secret nighttime visitors.</p>
+        <p className="text-xs text-indigo-200">Boo's nighttime friends can be visited along the Moonlit Sandbar Trail. Visit Luna there to polish shells and collect Glowing Wax.</p>
       </div>
     </section>
   );
