@@ -83,6 +83,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "carrot": { id: "carrot", name: "Carrot", category: "food", icon: "🥕", isEmoji: true, rarity: "common", sfx: "groveRootPull" },
   "potato": { id: "potato", name: "Potato", category: "food", icon: "🥔", isEmoji: true, rarity: "common", sfx: "groveRootPull" },
   "broccoli": { id: "broccoli", name: "Broccoli", category: "food", icon: "🥦", isEmoji: true, rarity: "common", sfx: "groveHerbSnip" },
+  "coffee-plant-seeds": { id: "coffee-plant-seeds", name: "Coffee Plant Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
   "coffee-beans": { id: "coffee-beans", name: "Coffee Beans", category: "raw", icon: "🫘", isEmoji: true, rarity: "common", sfx: "bagRustle" },
   "food-garden-vegetable-soup": { id: "food-garden-vegetable-soup", name: "Garden Vegetable Soup", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-seaside-fish-chowder": { id: "food-seaside-fish-chowder", name: "Seaside Fish Chowder", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
