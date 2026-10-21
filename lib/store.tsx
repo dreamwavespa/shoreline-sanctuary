@@ -396,6 +396,7 @@ interface Ctx {
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand") => boolean;
+  iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string) => boolean;
   useBabyBottle: (action: "rose" | "berry" | "water" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
@@ -923,6 +924,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const def = ITEMS[outputItemId];
     toast(def ? `Cooked ${def.name}!` : "Cooked!");
     return true;
+  };
+
+  const iceCreamAction = (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string) => {
+    const current = stateRef.current;
+    if (!current.notebookDiscovered["kitchen-reward:ice-cream-scoop"]) return false;
+    const flavors = ["coconut", "strawberry", "pineapple", "chocolate-seashell"];
+    const toppings = ["chocolate-seashells", "candy-seashells", "dried-sugar-berries", "marshmallows", "coconut-flakes", "melted-chocolate"];
+    const fruits = ["strawberry", "blueberry", "raspberry", "pineapple", "mango", "wild-beach-plum"];
+    const date = new Date().toLocaleDateString("en-CA");
+    const key = `ice-cream-daily:${date}`;
+    if (action === "flavor" || action === "topping") {
+      if (!(action === "flavor" ? flavors : toppings).includes(first)) return false;
+      const used = Number(current.notebookDiscovered[`${key}:${action}:1`]) + Number(current.notebookDiscovered[`${key}:${action}:2`]);
+      const slot = action === "flavor" ? used + 1 : 1;
+      if (slot > (action === "flavor" ? 2 : 1)) return false;
+      const id = action === "flavor" ? `ice-cream-portion-${first}` : `ice-cream-topping-${first}`;
+      setState(prev => ({ ...prev, inventory: { ...prev.inventory, [id]: (prev.inventory[id] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, [`${key}:${action}:${slot}`]: true, [id]: true } }));
+      play("sparkle"); toast("Ice cream portion saved!"); return true;
+    }
+    if (!flavors.includes(first) || !second || !flavors.includes(second) || !fruit || (fruit !== "none" && !fruits.includes(fruit))) return false;
+    const topping = toppings.find(id => (current.inventory[`ice-cream-topping-${id}`] || 0) > 0);
+    if (!topping) return false;
+    const a = `ice-cream-portion-${first}`, b = `ice-cream-portion-${second}`;
+    if ((current.inventory[a] || 0) < (a === b ? 2 : 1) || (current.inventory[b] || 0) < 1 || (fruit !== "none" && (current.inventory[fruit] || 0) < 1)) return false;
+    const id = `food-custom-ice-cream-${first}-${second}-${topping}-${fruit}`;
+    setState(prev => {
+      const inventory = { ...prev.inventory };
+      inventory[a] -= 1; inventory[b] -= 1; inventory[`ice-cream-topping-${topping}`] -= 1;
+      if (fruit !== "none") inventory[fruit] -= 1;
+      inventory[id] = (inventory[id] || 0) + 1;
+      return { ...prev, inventory, notebookDiscovered: { ...prev.notebookDiscovered, [id]: true } };
+    });
+    play("craftSuccess"); toast("Custom ice cream dessert prepared!"); return true;
   };
 
   const useBabyBottle = (action: "rose" | "berry" | "water" | "feed") => {
@@ -2505,6 +2539,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       cook,
       claimKitchenReward,
+      iceCreamAction,
       useBabyBottle,
       bottleRoseMilk,
       claimQuest,
