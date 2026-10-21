@@ -948,7 +948,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!topping) return false;
     const a = `ice-cream-portion-${first}`, b = `ice-cream-portion-${second}`;
     if ((current.inventory[a] || 0) < (a === b ? 2 : 1) || (current.inventory[b] || 0) < 1 || (fruit !== "none" && (current.inventory[fruit] || 0) < 1)) return false;
-    const id = `food-custom-ice-cream-${first}-${second}-${topping}-${fruit}`;
+    const id = "food-custom-ice-cream";
     setState(prev => {
       const inventory = { ...prev.inventory };
       inventory[a] -= 1; inventory[b] -= 1; inventory[`ice-cream-topping-${topping}`] -= 1;
