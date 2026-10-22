@@ -85,6 +85,34 @@ function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
   return spots;
 }
 
+function EllyGarden() {
+  const { state, collectItem } = useGame();
+  const [announcement, setAnnouncement] = useState("");
+  const plants = [
+    { id: "anemone", name: "Moonlight Anemone", task: "Gently clean away drifting sand" },
+    { id: "kelp", name: "Starlight Kelp", task: "Untangle its glowing strands" },
+    { id: "bloom", name: "Pearl Bloom", task: "Send a few glowing bubbles" },
+  ];
+  const date = localDateKey(new Date());
+  const cared = plants.filter(plant => state.notebookDiscovered[`elly-garden:${date}:${plant.id}`]).length;
+  return <section aria-labelledby="elly-garden-title" className="mt-4 rounded-2xl bg-indigo-950 p-3 text-white">
+    <h3 id="elly-garden-title" className="text-xl font-bold">Elly's Jellyfish Glow Garden</h3>
+    <p className="my-2 text-sm">Help Elly care for three glowing plants. Each can be tended once a day.</p>
+    <Image src="/images/Elly-glow-garden.PNG" alt="Elly's enchanted underwater garden with a glowing moonlight anemone, starlight kelp, pearl bloom, and floating jellyfish" width={1200} height={800} unoptimized className="w-full rounded-xl" />
+    <p className="mt-2" aria-live="polite">{cared} of 3 plants cared for today. {announcement}</p>
+    <div className="mt-3 space-y-2">{plants.map(plant => {
+      const done = !!state.notebookDiscovered[`elly-garden:${date}:${plant.id}`];
+      return <button key={plant.id} type="button" disabled={done} onClick={() => {
+        // Persistent progress is recorded by a dedicated store action.
+        const result = window.dispatchEvent(new CustomEvent("elly-garden-care", { detail: { plant: plant.id } }));
+        if (result) setAnnouncement(`You tended ${plant.name}.`);
+      }} className="min-h-12 w-full rounded-xl bg-sky-700 p-3 text-left font-semibold disabled:bg-slate-700 disabled:opacity-70">
+        {plant.name}: {done ? "Cared for today" : plant.task}
+      </button>;
+    })}</div>
+  </section>;
+}
+
 function EllyCard() {
   const { tapElly } = useGame();
   const [msg, setMsg] = useState<string | null>(null);
@@ -550,7 +578,7 @@ export default function BeachScene() {
             {/* Announce gift and reward results inside the active modal: aria-modal hides outside status regions from VoiceOver. */}
             <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{lastToast || ""}</div>
             <button ref={residentCloseRef} type="button" autoFocus onClick={() => setSelectedResident(null)} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name}</button>
-            {selectedResident === "elly" ? <EllyCard /> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : selectedResident === "misty" ? <><VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} /><MistyMoonlitExchange /></> : selectedResident === "shelldon" || selectedResident === "shelby" ? <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} schedule={travelerSchedule?.[selectedResident]} /> : (
+            {selectedResident === "elly" ? <><EllyCard /><EllyGarden /></> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : selectedResident === "misty" ? <><VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} /><MistyMoonlitExchange /></> : selectedResident === "shelldon" || selectedResident === "shelby" ? <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} schedule={travelerSchedule?.[selectedResident]} /> : (
               <>
                 <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} />
                 {selectedResident === "sandy" && <SandyStormHunt />}
