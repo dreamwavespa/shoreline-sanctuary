@@ -86,7 +86,7 @@ function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
 }
 
 function EllyGarden() {
-  const { state, collectItem } = useGame();
+  const { state, careEllyGarden } = useGame();
   const [announcement, setAnnouncement] = useState("");
   const plants = [
     { id: "anemone", name: "Moonlight Anemone", task: "Gently clean away drifting sand" },
@@ -103,9 +103,7 @@ function EllyGarden() {
     <div className="mt-3 space-y-2">{plants.map(plant => {
       const done = !!state.notebookDiscovered[`elly-garden:${date}:${plant.id}`];
       return <button key={plant.id} type="button" disabled={done} onClick={() => {
-        // Persistent progress is recorded by a dedicated store action.
-        const result = window.dispatchEvent(new CustomEvent("elly-garden-care", { detail: { plant: plant.id } }));
-        if (result) setAnnouncement(`You tended ${plant.name}.`);
+        if (careEllyGarden(plant.id as "anemone" | "kelp" | "bloom")) setAnnouncement(`You tended ${plant.name}.`);
       }} className="min-h-12 w-full rounded-xl bg-sky-700 p-3 text-left font-semibold disabled:bg-slate-700 disabled:opacity-70">
         {plant.name}: {done ? "Cared for today" : plant.task}
       </button>;
