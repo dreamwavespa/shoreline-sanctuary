@@ -322,7 +322,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Trades harvested fish for craft items and shares whimsical fishing tales.",
     location: "Underwater Village",
     gift: {
-      lovedGiftIds: ["driftwood-oar", "empty-glass-bottle"],
+      lovedGiftIds: ["driftwood-oar", "empty-glass-bottle", "food-seaside-fish-chowder"],
       reactionSfx: "Flipper Claps, Accordion Shanty",
       reactionVisual: "Flipper Claps",
       redirectTo: ["melody"],
