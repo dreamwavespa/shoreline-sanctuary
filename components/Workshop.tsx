@@ -1206,7 +1206,12 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
                 const season = month >= 2 && month <= 4 ? ["flower", "heart"] : month >= 5 && month <= 7 ? ["starfish", "seashell"] : month >= 8 && month <= 10 ? ["pumpkin", "acorn"] : ["snowflake", "snowball"];
                 const previous = Object.keys(state.notebookDiscovered).filter(key => key.startsWith("kitchen-daily-marshmallow:")).length;
                 const shape = saved || season[(previous - (state.notebookDiscovered[`kitchen-daily-marshmallow:${today}`] ? 1 : 0)) % 2];
-                return <p role="status" className="rounded-lg bg-amber-50 p-3 font-semibold text-amber-950">Today's marshmallow shape: {shape.charAt(0).toUpperCase() + shape.slice(1)} {saved ? "— collected!" : "— ready to collect."}</p>;
+                const imageNames: Record<string, string> = { pumpkin: "Pumpkin", acorn: "Acorn", snowflake: "Snowflake", snowball: "Snowball", flower: "Flower", heart: "Heart", starfish: "Starfish", seashell: "Seashell" };
+                const label = imageNames[shape] || "Pumpkin";
+                return <div className="rounded-xl bg-amber-50 p-3 text-center text-amber-950">
+                  <Image src={`/images/Marshmallow-${label}.png`} alt={`${label} shaped seasonal marshmallow`} width={200} height={200} unoptimized className="mx-auto h-36 w-36 object-contain" />
+                  <p role="status" className="mt-2 font-semibold">Today's marshmallow shape: {label} {saved ? "— collected!" : "— ready to collect."}</p>
+                </div>;
               })()}
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-marshmallow:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-marshmallow")} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">Collect Seasonal Marshmallow</button>
             </div> : kitchenRewardOpen === "soup" ? <div className="space-y-3">
