@@ -396,7 +396,7 @@ interface Ctx {
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand") => boolean;
-  iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string) => boolean;
+  iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
   useBabyBottle: (action: "rose" | "berry" | "water" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
@@ -926,7 +926,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const iceCreamAction = (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string) => {
+  const iceCreamAction = (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => {
     const current = stateRef.current;
     if (!current.notebookDiscovered["kitchen-reward:ice-cream-scoop"]) return false;
     const flavors = ["coconut", "strawberry", "pineapple", "chocolate-seashell"];
@@ -936,22 +936,30 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const key = `ice-cream-daily:${date}`;
     if (action === "flavor" || action === "topping") {
       if (!(action === "flavor" ? flavors : toppings).includes(first)) return false;
-      const used = Number(current.notebookDiscovered[`${key}:${action}:1`]) + Number(current.notebookDiscovered[`${key}:${action}:2`]);
-      const slot = action === "flavor" ? used + 1 : 1;
-      if (slot > (action === "flavor" ? 2 : 1)) return false;
+      const slots = action === "flavor" ? [1, 2] : [1, 2];
+      const slot = slots.find(n => !current.notebookDiscovered[`${key}:${action}:${action === "flavor" ? first + ":" : ""}${n}`]);
+      if (!slot) return false;
       const id = action === "flavor" ? `ice-cream-portion-${first}` : `ice-cream-topping-${first}`;
-      setState(prev => ({ ...prev, inventory: { ...prev.inventory, [id]: (prev.inventory[id] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, [`${key}:${action}:${slot}`]: true, [id]: true } }));
+      setState(prev => ({ ...prev, inventory: { ...prev.inventory, [id]: (prev.inventory[id] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, [`${key}:${action}:${action === "flavor" ? first + ":" : ""}${slot}`]: true, [id]: true } }));
       play("sparkle"); toast("Ice cream portion saved!"); return true;
     }
     if (!flavors.includes(first) || !second || !flavors.includes(second) || !fruit || (fruit !== "none" && !fruits.includes(fruit))) return false;
-    const topping = toppings.find(id => (current.inventory[`ice-cream-topping-${id}`] || 0) > 0);
-    if (!topping) return false;
+    if (!toppingChoice || !toppings.includes(toppingChoice)) return false;
+    const topping = toppingChoice;
+    const alternatives: Record<string, string[]> = {
+      "chocolate-seashells": ["chocolate-seashells"],
+      "dried-sugar-berries": ["dried-sugar-berries"],
+      "marshmallows": ["food-campfire-marshmallow", "marshmallow-seashell"],
+    };
+    const savedTopping = `ice-cream-topping-${topping}`;
+    const toppingItem = (current.inventory[savedTopping] || 0) > 0 ? savedTopping : (alternatives[topping] || []).find(id => (current.inventory[id] || 0) > 0);
+    if (!toppingItem) return false;
     const a = `ice-cream-portion-${first}`, b = `ice-cream-portion-${second}`;
     if ((current.inventory[a] || 0) < (a === b ? 2 : 1) || (current.inventory[b] || 0) < 1 || (fruit !== "none" && (current.inventory[fruit] || 0) < 1)) return false;
     const id = "food-custom-ice-cream";
     setState(prev => {
       const inventory = { ...prev.inventory };
-      inventory[a] -= 1; inventory[b] -= 1; inventory[`ice-cream-topping-${topping}`] -= 1;
+      inventory[a] -= 1; inventory[b] -= 1; inventory[toppingItem] -= 1;
       if (fruit !== "none") inventory[fruit] -= 1;
       inventory[id] = (inventory[id] || 0) + 1;
       return { ...prev, inventory, notebookDiscovered: { ...prev.notebookDiscovered, [id]: true } };
