@@ -1198,6 +1198,16 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
             </div> : kitchenRewardOpen === "mug" ? <div className="space-y-3">
               <p>Collect one seasonal marshmallow each day. The two shapes alternate during each season. Discover all eight to receive the Rainbow Marshmallow!</p>
               <p role="status">{state.notebookDiscovered[`kitchen-daily-marshmallow:${new Date().toLocaleDateString("en-CA")}`] ? "Today's marshmallow has been collected." : "Your seasonal marshmallow is ready."}</p>
+              {(() => {
+                const today = new Date().toLocaleDateString("en-CA");
+                const shapes = ["pumpkin", "acorn", "snowflake", "snowball", "flower", "heart", "starfish", "seashell"];
+                const saved = shapes.find(shape => state.notebookDiscovered[`kitchen-daily-marshmallow-shape:${today}:${shape}`]);
+                const month = new Date().getMonth();
+                const season = month >= 2 && month <= 4 ? ["flower", "heart"] : month >= 5 && month <= 7 ? ["starfish", "seashell"] : month >= 8 && month <= 10 ? ["pumpkin", "acorn"] : ["snowflake", "snowball"];
+                const previous = Object.keys(state.notebookDiscovered).filter(key => key.startsWith("kitchen-daily-marshmallow:")).length;
+                const shape = saved || season[(previous - (state.notebookDiscovered[`kitchen-daily-marshmallow:${today}`] ? 1 : 0)) % 2];
+                return <p role="status" className="rounded-lg bg-amber-50 p-3 font-semibold text-amber-950">Today's marshmallow shape: {shape.charAt(0).toUpperCase() + shape.slice(1)} {saved ? "— collected!" : "— ready to collect."}</p>;
+              })()}
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-marshmallow:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-marshmallow")} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">Collect Seasonal Marshmallow</button>
             </div> : kitchenRewardOpen === "soup" ? <div className="space-y-3">
               <p>Your soup pot is unlocked! Stir the bubbling pot for a small daily bonus, or prepare more soups in the cookbook.</p>
