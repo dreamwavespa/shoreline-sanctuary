@@ -1047,7 +1047,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const chosen = season[previous % 2];
       const itemId = `marshmallow-${chosen}`;
       setState(prev => {
-        const notebookDiscovered = { ...prev.notebookDiscovered, [`kitchen-daily-marshmallow:${date}`]: true, [itemId]: true };
+        const notebookDiscovered = { ...prev.notebookDiscovered, [`kitchen-daily-marshmallow:${date}`]: true, [`kitchen-daily-marshmallow-shape:${date}:${chosen}`]: true, [itemId]: true };
         const allShapes = ["pumpkin", "acorn", "snowflake", "snowball", "flower", "heart", "starfish", "seashell"];
         const rainbow = allShapes.every(shape => notebookDiscovered[`marshmallow-${shape}`]) && !prev.notebookDiscovered["marshmallow-rainbow"];
         if (rainbow) notebookDiscovered["marshmallow-rainbow"] = true;
