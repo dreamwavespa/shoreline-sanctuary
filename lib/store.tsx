@@ -413,6 +413,7 @@ interface Ctx {
   netCutTarget: number;
   trapPryTarget: number;
   lastToast: string | null;
+  careEllyGarden: (plant: "anemone" | "kelp" | "bloom") => boolean;
   tapElly: () => { ok: boolean; secondsLeft?: number };
   feedSnappy: () => boolean;
   giftSnappyChoker: () => boolean;
@@ -1211,6 +1212,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
     play("craftSuccess");
     toast("The shipwreck is restored!");
+    return true;
+  };
+
+  const careEllyGarden = (plant: "anemone" | "kelp" | "bloom") => {
+    if (!["anemone", "kelp", "bloom"].includes(plant)) return false;
+    const date = new Date().toLocaleDateString("en-CA");
+    const key = `elly-garden:${date}:${plant}`;
+    if (stateRef.current.notebookDiscovered[key]) return false;
+    const reward = plant === "bloom" ? "luminous-sea-goo" : plant === "kelp" ? "bioluminescent-shard" : "luminous-sea-goo";
+    setState(prev => ({
+      ...prev,
+      inventory: { ...prev.inventory, [reward]: (prev.inventory[reward] || 0) + 1 },
+      notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, "elly-garden:visited": true },
+    }));
+    play("sparkle");
+    toast(`Elly's garden glows brighter! Found ${ITEMS[reward]?.name || "a reward"}.`);
     return true;
   };
 
@@ -2565,6 +2582,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       trapPryTarget: TRAP_PRY_TARGET,
       lastToast,
       tapElly,
+      careEllyGarden,
       feedSnappy,
       giftSnappyChoker,
       pryTrap,
