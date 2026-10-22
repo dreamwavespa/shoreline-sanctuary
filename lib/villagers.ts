@@ -312,6 +312,22 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       redirectTo: ["coralie"],
     },
   },
+  waverly: {
+    id: "waverly",
+    name: "Waverly",
+    title: "the Marine Biologist",
+    group: "underwater-village",
+    personality: "Curious and caring marine researcher.",
+    role: "Marine Biologist",
+    gameplay: "Studies marine life and raises rescued baby fish.",
+    location: "Marine Lab, accessed from the Reef",
+    gift: {
+      lovedGiftIds: ["food-black-iced-coffee"],
+      reactionSfx: "Gentle chime",
+      reactionVisual: "A delighted smile",
+      redirectTo: [],
+    },
+  },
   splash: {
     id: "splash",
     name: "Splash",
