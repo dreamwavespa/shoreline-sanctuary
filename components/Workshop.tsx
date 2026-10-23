@@ -810,6 +810,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
   const [soupStirring, setSoupStirring] = useState(false);
+  const [selectedSpice, setSelectedSpice] = useState<"pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves">("pumpkin-spice");
   const [kitchenRewardOpen, setKitchenRewardOpen] = useState<"water-bottle" | "vegetable-salad" | "fruit-salad" | "cookbook-stand" | "baby" | "ice" | "coffee" | "cooling" | "pumpkin" | "soup" | "mug" | null>(null);
   const fridgeButtonRef = useRef<HTMLButtonElement>(null);
   const closeFridge = () => { play("kitchenFridge", 1); setFridgeOpen(false); window.setTimeout(() => fridgeButtonRef.current?.focus(), 0); };
@@ -1228,8 +1229,12 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
               <p>Cooling baked treats is optional. Use your rack once each day for a small bonus of 2 Sand Dollars. Baking works normally without it.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-cooling:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-cooling")} className="min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-cooling:${new Date().toLocaleDateString("en-CA")}`] ? "Cooling bonus collected today" : "Cool Baked Treats (+2 Sand Dollars)"}</button>
             </div> : kitchenRewardOpen === "pumpkin" ? <div className="space-y-3">
-              <p>Collect a serving of pumpkin spice each day for your recipes.</p>
-              <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-pumpkin:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-pumpkin")} className="min-h-11 w-full rounded-xl bg-amber-800 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-pumpkin:${new Date().toLocaleDateString("en-CA")}`] ? "Pumpkin Spice collected today" : "Collect Pumpkin Spice"}</button>
+              <p>Choose one spice each day. Pumpkin Spice gives two servings during fall (September through November); all spices are available year-round.</p>
+              <label htmlFor="kitchen-spice-choice" className="block font-semibold">Today's spice</label>
+              <select id="kitchen-spice-choice" value={selectedSpice} onChange={e => setSelectedSpice(e.target.value as typeof selectedSpice)} disabled={!!state.notebookDiscovered[`kitchen-daily-pumpkin:${new Date().toLocaleDateString("en-CA")}`]} className="min-h-11 w-full rounded-xl border border-amber-700 bg-white p-2 text-slate-900">
+                <option value="pumpkin-spice">Pumpkin Spice</option><option value="cinnamon">Cinnamon</option><option value="nutmeg">Nutmeg</option><option value="ginger-spice">Ginger</option><option value="cloves">Cloves</option>
+              </select>
+              <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-pumpkin:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-pumpkin", selectedSpice)} className="min-h-11 w-full rounded-xl bg-amber-800 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-pumpkin:${new Date().toLocaleDateString("en-CA")}`] ? "Spice collected today" : "Collect Selected Spice"}</button>
             </div> : <>
               <p>Collect three servings of crushed ice each day for future frozen recipes.</p>
               <button type="button" disabled={!!state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`]} onClick={() => claimKitchenReward("daily-ice")} className="mt-3 min-h-11 w-full rounded-xl bg-teal-900 px-3 py-2 font-bold text-white disabled:opacity-60">{state.notebookDiscovered[`kitchen-daily-ice:${new Date().toLocaleDateString("en-CA")}`] ? "Ice collected today" : "Collect 3 Crushed Ice"}</button>
