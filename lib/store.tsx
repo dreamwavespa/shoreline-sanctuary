@@ -1025,8 +1025,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (kind === "water-bottle" && (!waterReady || current.notebookDiscovered["kitchen-reward:water-bottle"])) return false;
     if (kind === "cookbook-stand" && (!finalReady || current.notebookDiscovered["kitchen-reward:cookbook-stand"])) return false;
     const dailyRewards: Record<string, { reward: string; item: string; label: string }> = {
-      "daily-vegetable": { reward: "vegetable-salad", item: ["cucumber", "tomato", "carrot"][Math.floor(new Date().getTime() / 86400000) % 3], label: "Fresh vegetable" },
-      "daily-fruit": { reward: "fruit-salad", item: ["mango", "strawberry", "blueberry", "pineapple", "banana", "coconut"][Math.floor(new Date().getTime() / 86400000) % 6], label: "Fresh fruit" },
+      "daily-vegetable": { reward: "vegetable-salad", item: ["cucumber", "tomato", "carrot", "broccoli"][Math.floor(new Date().getTime() / 86400000) % 4], label: "Fresh vegetable" },
+      "daily-fruit": { reward: "fruit-salad", item: ["mango", "strawberry", "blueberry", "pineapple", "banana", "coconut", "watermelon"][Math.floor(new Date().getTime() / 86400000) % 7], label: "Fresh fruit" },
       "daily-water": { reward: "water-bottle", item: "fresh-water-serving", label: "Fresh water serving" },
     };
     if (dailyRewards[kind]) {
