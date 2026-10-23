@@ -294,8 +294,8 @@ function IceCreamStation() {
 
 function dailyBowlIngredient(kind: "fruit" | "vegetable") {
   const day = Math.floor(Date.now() / 86400000);
-  const fruits = ["Mango", "Strawberry", "Blueberry", "Pineapple", "Banana", "Coconut"];
-  const vegetables = ["Cucumber", "Tomato", "Carrot"];
+  const fruits = ["Mango", "Strawberry", "Blueberry", "Pineapple", "Banana", "Coconut", "Watermelon"];
+  const vegetables = ["Cucumber", "Tomato", "Carrot", "Broccoli"];
   const pool = kind === "fruit" ? fruits : vegetables;
   return pool[day % pool.length];
 }
