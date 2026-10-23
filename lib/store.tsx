@@ -1575,6 +1575,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
 
       const notebookDiscovered = { ...s.notebookDiscovered };
+      if (loved && itemId.startsWith("food-")) {
+        notebookDiscovered[`favorite-recipe:${villagerId}:${itemId}`] = true;
+      }
       if (villagerId === "shelldon") {
         for (const [required, reward] of ([[3, "shelldon-botanical-journal"], [5, "shelldon-verdant-tide-shell"], [8, "shelldon-turtle-watering-can"], [12, "shelldon-moon-tide-seed"]] as const)) {
           if (nextGiftCount >= required) notebookDiscovered[reward] = true;
