@@ -5,8 +5,16 @@ import { ITEMS } from "@/lib/items";
 import { localDateKey } from "@/lib/customSandArt";
 
 const KEY = "shoreline-twinkle-v1";
-type Progress = { day: string; traded: boolean; visits: number; lastVisit: string; rewards: string[] };
+type Progress = { day: string; traded: boolean; visits: number; lastVisit: string; rewards: string[]; furnitureClaimed?: string[] };
 const REWARDS = ["shell-cowrie", "shell-nautilus", "shell-abalone", "moonlit-sea-glass"];
+const FURNITURE_MILESTONES = [
+  { visits: 2, id: "twinkle-moonlit-shell-lamp" },
+  { visits: 4, id: "twinkle-seashell-treasure-chest" },
+  { visits: 6, id: "twinkle-pearlescent-bottle" },
+  { visits: 9, id: "twinkle-driftwood-shell-bookshelf" },
+  { visits: 12, id: "twinkle-pearl-shell-chair" },
+  { visits: 16, id: "twinkle-clamshell-fountain" },
+];
 const CHOCOLATE_SEASHELL_CHANCE = 0.15; // Occasional, repeatable kitchen treat.
 function load(): Progress {
   try {
@@ -36,6 +44,13 @@ export default function TwinkleCorner() {
     collectItem(id);
     setMessage("Twinkle offers you " + ITEMS[id].name + "! It's been added to your inventory.");
   };
+  const claimFurniture = (id: string) => {
+    const milestone = FURNITURE_MILESTONES.find(m => m.id === id);
+    if (!milestone || progress.visits < milestone.visits || (progress.furnitureClaimed || []).includes(id)) return;
+    save({ ...progress, furnitureClaimed: [...(progress.furnitureClaimed || []), id] });
+    collectItem(id);
+    setMessage(ITEMS[id].name + " added to your inventory! It will be ready for the beach hut when decorating opens.");
+  };
   return <section aria-labelledby="twinkle-heading" className="rounded-2xl bg-indigo-950 p-4 text-white ring-1 ring-amber-200/60">
     <h2 id="twinkle-heading" className="text-xl font-bold">🐚 Twinkle's Shell Nook</h2>
     <p className="mt-2 text-sm text-indigo-100">Boo's cheerful hermit crab friend collects unusual shells and dreams of decorating a cozy beach hut. Visit him and discover his daily shell surprise. Occasionally he also finds Chocolate Seashells for your kitchen recipes.</p>
@@ -44,7 +59,18 @@ export default function TwinkleCorner() {
     <button type="button" disabled={progress.traded} onClick={swap} className="mt-2 min-h-12 w-full rounded-xl bg-teal-700 px-3 py-3 font-semibold disabled:opacity-60">{progress.traded ? "Today's shell surprise collected" : "Explore Twinkle's Shell Surprise"}</button>
     <h3 className="mt-4 font-semibold">Twinkle's Finds</h3>
     <p className="text-sm text-indigo-100">Shell surprises received: {progress.rewards.length}</p>
-    <p className="mt-2 text-xs text-indigo-200">Coming later: shell trading using inventory materials, furniture finds, and decorations for the beach hut.</p>
+    <h3 className="mt-4 font-semibold">Seashell Furniture Friendship Rewards</h3>
+    <p className="text-sm text-indigo-100">Visit Twinkle on different days to unlock six decorations for the future beach hut. Claim each piece once; collected pieces appear in your inventory and Explorer's Notebook.</p>
+    <div className="mt-2 space-y-2">
+      {FURNITURE_MILESTONES.map(m => {
+        const claimed = (progress.furnitureClaimed || []).includes(m.id);
+        return <button key={m.id} type="button" disabled={claimed || progress.visits < m.visits} onClick={() => claimFurniture(m.id)}
+          className="min-h-12 w-full rounded-xl bg-indigo-800 p-3 text-left font-semibold disabled:opacity-60">
+          {ITEMS[m.id].name} — {claimed ? "Collected" : progress.visits >= m.visits ? "Claim reward" : "Unlocks at " + m.visits + " friendship visits"}
+        </button>;
+      })}
+    </div>
+    <p className="mt-2 text-xs text-indigo-200">Coming later: shell trading using inventory materials and freely arranging furniture in the beach hut on the main beach.</p>
     <p role="status" aria-live="polite" aria-atomic="true" className="mt-3 text-sm text-amber-100">{message}</p>
   </section>;
 }
