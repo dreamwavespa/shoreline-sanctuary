@@ -1025,8 +1025,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (kind === "water-bottle" && (!waterReady || current.notebookDiscovered["kitchen-reward:water-bottle"])) return false;
     if (kind === "cookbook-stand" && (!finalReady || current.notebookDiscovered["kitchen-reward:cookbook-stand"])) return false;
     const dailyRewards: Record<string, { reward: string; item: string; label: string }> = {
-      "daily-vegetable": { reward: "vegetable-salad", item: "cucumber", label: "Fresh cucumber" },
-      "daily-fruit": { reward: "fruit-salad", item: "mango", label: "Fresh mango" },
+      "daily-vegetable": { reward: "vegetable-salad", item: ["cucumber", "tomato", "carrot"][Math.floor(new Date().getTime() / 86400000) % 3], label: "Fresh vegetable" },
+      "daily-fruit": { reward: "fruit-salad", item: ["mango", "strawberry", "blueberry", "pineapple", "banana", "coconut"][Math.floor(new Date().getTime() / 86400000) % 6], label: "Fresh fruit" },
       "daily-water": { reward: "water-bottle", item: "fresh-water-serving", label: "Fresh water serving" },
     };
     if (dailyRewards[kind]) {
@@ -1035,7 +1035,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (!current.notebookDiscovered[`kitchen-reward:${reward}`] || current.notebookDiscovered[key]) return false;
       setState(prev => ({ ...prev, inventory: { ...prev.inventory, [item]: (prev.inventory[item] || 0) + (kind === "daily-water" ? 3 : 1) }, notebookDiscovered: { ...prev.notebookDiscovered, [key]: true, [item]: true } }));
       play("sparkle");
-      toast(kind === "daily-water" ? "Collected 3 Fresh Water Servings!" : `Collected ${label}!`);
+      toast(kind === "daily-water" ? "Collected 3 Fresh Water Servings!" : `Collected ${ITEMS[item]?.name || label}!`);
       return true;
     }
     if (kind === "mug" && (!cocoaReady || current.notebookDiscovered["kitchen-reward:mug"])) return false;
