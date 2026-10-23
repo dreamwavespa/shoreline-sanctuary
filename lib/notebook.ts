@@ -22,6 +22,21 @@ export interface NotebookSection {
 
 export const NOTEBOOK_SECTIONS: NotebookSection[] = [
   {
+    id: "twinkle-beach-hut-furniture",
+    title: "Twinkle's Seashell Furniture Collection",
+    anchorVillagerId: "twinkle",
+    completionReward: "Discover all six furnishings for Twinkle's future beach hut",
+    entries: [
+      { id: "twinkle-pearl-shell-chair", kind: "item", note: "A seafoam-cushioned shell chair for the beach hut." },
+      { id: "twinkle-moonlit-shell-lamp", kind: "item", note: "A glowing crescent shell lamp for a cozy corner." },
+      { id: "twinkle-driftwood-shell-bookshelf", kind: "item", note: "A driftwood shelf adorned with shells and books." },
+      { id: "twinkle-seashell-treasure-chest", kind: "item", note: "A shell-and-pearl covered keepsake chest." },
+      { id: "twinkle-clamshell-fountain", kind: "item", note: "A cascading three-tier clamshell fountain." },
+      { id: "twinkle-pearlescent-bottle", kind: "item", note: "A shimmering small bottle for shelf decoration." },
+    ],
+  },
+
+  {
     id: "imported-botanicals",
     title: "Shelby's Imported Botanicals",
     anchorVillagerId: "shelby",
