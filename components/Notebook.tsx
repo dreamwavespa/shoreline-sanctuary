@@ -147,6 +147,39 @@ function RecipeCollectionPage() {
   );
 }
 
+function CharacterFavoritesPage() {
+  const { state } = useGame();
+  const characters = Object.values(VILLAGERS)
+    .map((villager) => ({
+      villager,
+      recipes: villager.gift.lovedGiftIds.filter((id) => id.startsWith("food-") && ITEMS[id]),
+    }))
+    .filter(({ recipes }) => recipes.length > 0);
+  const total = characters.reduce((sum, entry) => sum + entry.recipes.length, 0);
+  const discovered = characters.reduce((sum, { villager, recipes }) =>
+    sum + recipes.filter((id) => state.notebookDiscovered[`favorite-recipe:${villager.id}:${id}`]).length, 0);
+  return (
+    <section aria-labelledby="favorite-recipes-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
+      <h3 id="favorite-recipes-heading" className="font-serif text-xl font-bold">Character Favorites</h3>
+      <p className="mt-1 text-sm" role="status">{discovered} of {total} favorite recipes discovered</p>
+      <p className="mt-2 text-sm">Experiment by gifting prepared recipes to discover what each character loves. Favorites are recorded after a successful gift.</p>
+      <ul className="mt-3 space-y-3">
+        {characters.map(({ villager, recipes }) => (
+          <li key={villager.id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
+            <h4 className="font-semibold">{villager.name}</h4>
+            <ul className="mt-1 space-y-1">
+              {recipes.map((id, index) => {
+                const found = !!state.notebookDiscovered[`favorite-recipe:${villager.id}:${id}`];
+                return <li key={id} className="text-sm">{found ? `✓ ${ITEMS[id].name} — Discovered` : `○ Favorite recipe ${index + 1} — Undiscovered`}</li>;
+              })}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function Notebook({ onClose }: { onClose: () => void }) {
   const { play, markNotebookSeen } = useGame();
   const [sectionId, setSectionId] = useState(NOTEBOOK_SECTIONS[0].id);
@@ -168,6 +201,7 @@ export default function Notebook({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-1.5 mb-3 px-1 overflow-x-auto">
+          <button type="button" onClick={() => { setSectionId("favorites"); play("notebookPage", .45); }} aria-pressed={sectionId === "favorites"} className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${sectionId === "favorites" ? "bg-amber-400 text-amber-950" : "bg-white/10 text-amber-100"}`}>♥ Character Favorites</button>
           <button type="button" onClick={() => { setSectionId("recipes"); play("notebookPage", .45); }} aria-pressed={sectionId === "recipes"} className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${sectionId === "recipes" ? "bg-amber-400 text-amber-950" : "bg-white/10 text-amber-100"}`}>🍲 Recipes</button>
           {NOTEBOOK_SECTIONS.map((s) => (
             <button key={s.id} type="button" onClick={() => { setSectionId(s.id); play("notebookPage", .45); }} aria-pressed={s.id === sectionId} className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap ${s.id === sectionId ? "bg-amber-400 text-amber-950" : "bg-white/10 text-amber-100"}`}>
@@ -177,7 +211,7 @@ export default function Notebook({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="overflow-y-auto px-1 pb-1" style={{ touchAction: "pan-y" }}>
-          {sectionId === "recipes" ? <RecipeCollectionPage /> : <SectionPage key={section.id} section={section} />}
+          {sectionId === "recipes" ? <RecipeCollectionPage /> : sectionId === "favorites" ? <CharacterFavoritesPage /> : <SectionPage key={section.id} section={section} />}
         </div>
       </div>
     </div>
