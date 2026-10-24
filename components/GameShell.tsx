@@ -115,7 +115,7 @@ export default function GameShell() {
         <OlliHuntOverlay />
         {screen === "beach" && <BeachScene />}
         {screen === "bucket" && <BucketPanel />}
-        {screen === "workshop" && <Workshop openKitchen={destination === "kitchen"} onGoToNursery={() => goTo("nursery")} />}
+        {screen === "workshop" && <Workshop openKitchen={destination === "kitchen"} onGoToNursery={() => goTo("nursery")} onGoToCottage={() => { setDestination(null); setScreen("cottage"); }} />}
         {screen === "bottles" && <BottleQuests />}
         {screen === "cove" && <CoveScene />}
         {screen === "lighthouse" && <><LighthouseScreen /><MarshmallowCarePanel /></>}
