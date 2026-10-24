@@ -70,6 +70,26 @@ export default function OlliInkStudio({ onClose }: { onClose: () => void }) {
         <input id="olli-picture-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={50} className="mt-1 min-h-12 w-full rounded-xl border border-indigo-300 bg-white px-3 text-indigo-950" placeholder="Olli will create a name if left blank" />
         <button type="button" disabled={!inkId} onClick={finish} className="mt-4 min-h-12 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white disabled:bg-slate-300 disabled:text-slate-600">Save Ink Picture</button>
 
+        <section className="mt-6 rounded-2xl bg-white/80 p-4" aria-labelledby="olli-painting-rewards">
+          <h2 id="olli-painting-rewards" className="font-serif text-xl font-bold text-indigo-950">Framed Painting Rewards</h2>
+          <p className="text-sm text-indigo-800">Create 3, 6, 9, 12, and 15 ink pictures to earn permanent framed paintings for your future beach hut.</p>
+          <p className="mt-1 font-semibold text-indigo-950">Pictures completed: {state.olliInkPictures.length}</p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {([
+              ["painting-sunset-shoreline-lighthouse", 3],
+              ["painting-seaside-spring-flowers", 6],
+              ["painting-seaside-winter", 9],
+              ["painting-autumn-moonlight", 12],
+              ["painting-the-seaside-retreat", 15],
+            ] as const).map(([id, required]) => (
+              <article key={id} className="rounded-xl border border-indigo-200 bg-indigo-50 p-2 text-center">
+                <img src={ITEMS[id].icon} alt="" className="mx-auto h-28 w-full object-contain" />
+                <h3 className="mt-1 text-sm font-semibold text-indigo-950">{ITEMS[id].name}</h3>
+                <p className="text-xs text-indigo-800">{(state.inventory[id] || 0) > 0 ? "Unlocked — in inventory" : `Unlock at ${required} pictures`}</p>
+              </article>
+            ))}
+          </div>
+        </section>
         <section className="mt-6" aria-labelledby="olli-gallery-heading">
           <h2 id="olli-gallery-heading" className="font-serif text-xl font-bold text-indigo-950">Olli’s Ink Gallery</h2>
           {state.olliInkPictures.length === 0 ? <p className="mt-2 text-sm text-indigo-700">Your first finished ink picture will appear here.</p> : (
