@@ -394,7 +394,7 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
           {([{ id: "prepared", label: "Prepared Foods" }, { id: "fresh", label: "Fresh Ingredients" }, { id: "supplies", label: "Cooking Supplies" }] as const).map((tab) => (
             <button key={tab.id} type="button" aria-pressed={section === tab.id} onClick={() => setSection(tab.id)} className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${section === tab.id ? "bg-teal-900 text-white" : "bg-white text-teal-950 ring-1 ring-teal-200"}`}>{tab.label}</button>
           ))}
-        </div>}}
+        </div>
         <div className="overflow-y-auto p-4">
           <p className="mb-3 text-sm text-teal-900">Showing your current inventory. Items remain available for cooking and other activities.</p>
           {entries.length === 0 ? <p className="rounded-xl bg-white p-4 text-teal-900">Nothing in this section yet. Gather ingredients or prepare recipes to fill your refrigerator.</p> : (
@@ -947,7 +947,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               {t.label}
             </button>
           ))}
-        </div>
+        </div>}
 
         <button
           type="button"
