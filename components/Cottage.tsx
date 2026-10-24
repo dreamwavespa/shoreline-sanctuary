@@ -109,6 +109,8 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
 
         <HalloweenCauldron />
 
+        <section aria-labelledby="cottage-kitchen-heading" className="rounded-2xl bg-amber-50 p-4 shadow-md ring-1 ring-amber-300"><h2 id="cottage-kitchen-heading" className="font-serif text-lg font-bold text-amber-950">🍲 Cottage Kitchen</h2><p className="mt-1 text-sm text-amber-900">Cook recipes, browse your cookbook, and use your kitchen equipment.</p><button type="button" onClick={onGoToKitchen} className="mt-3 min-h-11 w-full rounded-xl bg-amber-800 px-4 py-2 font-bold text-white">Enter Kitchen</button></section>
+
         <section aria-labelledby="cadence-heading" className="rounded-2xl bg-gradient-to-br from-pink-50 via-white to-emerald-50 p-4 shadow-md ring-1 ring-pink-200">
           <div className="flex items-center gap-3">
             <Image src="/images/IMG_6343.jpeg" alt="Cadence, the baby sister of the Sea Glass Sisters" width={72} height={72} unoptimized className="h-18 w-18 rounded-2xl object-cover shadow" />
