@@ -993,7 +993,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
 
         {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
         {!openKitchen && studioStation === "pottery" && <p className="mb-4 rounded-xl bg-white/90 p-4 text-center text-teal-900">The pottery studio is being prepared. Existing workshop recipes remain available under General Crafting.</p>}
-        {!openKitchen && studioStation === "painting" && <div className="mb-4 flex flex-wrap justify-center gap-3"><button type="button" onClick={() => setOlliInkOpen(true)} disabled={state.olliHuntsCompleted < 1} className="min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white disabled:opacity-50">Olli's Ink Studio</button><button type="button" onClick={() => setShellPaintingOpen(true)} className="min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Shell Painting Studio</button></div>}
+
         {!state.workshopUnlocked ? (
           <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
             <p className="text-amber-900 font-semibold mb-1">The workbench is locked</p>
