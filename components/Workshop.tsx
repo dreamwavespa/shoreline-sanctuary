@@ -394,7 +394,7 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
           {([{ id: "prepared", label: "Prepared Foods" }, { id: "fresh", label: "Fresh Ingredients" }, { id: "supplies", label: "Cooking Supplies" }] as const).map((tab) => (
             <button key={tab.id} type="button" aria-pressed={section === tab.id} onClick={() => setSection(tab.id)} className={`min-h-11 rounded-xl px-3 py-2 text-sm font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${section === tab.id ? "bg-teal-900 text-white" : "bg-white text-teal-950 ring-1 ring-teal-200"}`}>{tab.label}</button>
           ))}
-        </div>
+        </div>}
         <div className="overflow-y-auto p-4">
           <p className="mb-3 text-sm text-teal-900">Showing your current inventory. Items remain available for cooking and other activities.</p>
           {entries.length === 0 ? <p className="rounded-xl bg-white p-4 text-teal-900">Nothing in this section yet. Gather ingredients or prepare recipes to fill your refrigerator.</p> : (
@@ -850,7 +850,7 @@ function SandArtStudio() {
 
 type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
-export default function Workshop({ openKitchen = false, onGoToNursery }: { openKitchen?: boolean; onGoToNursery?: () => void }) {
+export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCottage }: { openKitchen?: boolean; onGoToNursery?: () => void; onGoToCottage?: () => void }) {
   const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
   const [tab, setTab] = useState<Tab>(openKitchen ? "kitchen" : "crafting");
   const { play } = useGame();
@@ -922,7 +922,6 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
 
   const TABS: { id: Tab; label: string; active: string; inactive: string }[] = [
     { id: "crafting", label: "🔨 Crafting", active: "bg-teal-600 text-white", inactive: "bg-white/80 text-teal-800" },
-    { id: "kitchen", label: "🍲 Kitchen", active: "bg-orange-600 text-white", inactive: "bg-white/80 text-orange-800" },
     { id: "jewelry", label: "💍 Jewelry", active: "bg-purple-600 text-white", inactive: "bg-white/80 text-purple-800" },
     { id: "decor", label: "⛱️ Décor", active: "bg-sky-600 text-white", inactive: "bg-white/80 text-sky-800" },
     { id: "sandart", label: "🎨 Sand Art", active: "bg-pink-600 text-white", inactive: "bg-white/80 text-pink-800" },
@@ -931,12 +930,13 @@ export default function Workshop({ openKitchen = false, onGoToNursery }: { openK
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
       <div className="relative w-full h-48">
-        <Image src={SCENES.workshop} alt="Sea Glass Workshop" fill unoptimized className="object-cover" />
+        <Image src={openKitchen ? "/images/Kitchen-background.PNG" : SCENES.workshop} alt={openKitchen ? "Cottage Kitchen" : "Sea Glass Workshop"} fill unoptimized className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
       </div>
 
       <div className="px-4 -mt-6 relative">
-        <div className="flex gap-1.5 mb-4 flex-wrap">
+        {openKitchen && <button type="button" onClick={onGoToCottage} className="mb-4 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-bold text-white">← Return to Cottage</button>}
+        {!openKitchen && <div className="flex gap-1.5 mb-4 flex-wrap">
           {TABS.map((t) => (
             <button
               key={t.id}
