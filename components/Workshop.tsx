@@ -938,9 +938,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         <div className="relative w-full h-48"><Image src="/images/Kitchen-background.PNG" alt="Cottage Kitchen" fill unoptimized className="object-cover" /></div>
       ) : (
         <section aria-label="Coastal Art Studio crafting stations" className="relative">
-          <div className="relative w-full aspect-[3/4] sm:aspect-[16/9] max-h-[740px] overflow-hidden bg-sky-100">
+          <div className="relative w-full aspect-[3/4] sm:aspect-[16/9] overflow-hidden bg-sky-100">
             <Image src="/images/Workshop-background.PNG" alt="Sunlit coastal art studio with ocean views" fill unoptimized sizes="100vw" className="object-cover" />
-            <div className="absolute inset-0 grid grid-cols-3 gap-1 p-2 sm:grid-cols-4 sm:gap-3 sm:p-5">
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1 p-2 pb-4 sm:grid-cols-4 sm:grid-rows-2 sm:gap-3 sm:p-5">
               {([
                 ["jewelry", "Jewelry Counter", "/images/jewelry-counter.png"],
                 ["pottery", "Pottery Studio", "/images/pottery-studio.png"],
@@ -951,7 +951,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 ["general", "General Crafting", "/images/general-crafting.png"],
               ] as const).map(([id, label, src]) => (
                 <button key={id} type="button" onClick={() => chooseStudioStation(id)} aria-pressed={studioStation === id}
-                  className={`flex min-h-0 flex-col items-center justify-end rounded-xl bg-white/15 p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${studioStation === id ? "bg-white/10" : ""}`}>
+                  className={`flex min-h-0 flex-col items-center justify-end rounded-xl bg-transparent p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${studioStation === id ? "bg-white/10" : ""}`}>
                   <span className="relative min-h-0 w-full flex-1"><Image src={src} alt="" fill unoptimized sizes="(max-width: 640px) 33vw, 25vw" className="object-contain" /></span>
                   <span className="rounded-md bg-white/90 px-1 py-1 text-center text-[10px] font-bold text-teal-950 sm:text-sm">{label}</span>
                 </button>
@@ -962,7 +962,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         </section>
       )}
 
-      <div className="px-4 -mt-6 relative">
+      <div className="px-4 pt-4 relative">
         {openKitchen && <button type="button" onClick={onGoToCottage} className="mb-4 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-bold text-white">← Return to Cottage</button>}
         {false && !openKitchen && <div className="flex gap-1.5 mb-4 flex-wrap">
           {TABS.map((t) => (
