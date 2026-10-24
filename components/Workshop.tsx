@@ -1003,13 +1003,13 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </div>
         ) : tab === "crafting" ? (
           <>
-            <RecipeCard
+            {studioStation === "decor" && <RecipeCard
               title="Melodic Wind Chime"
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
               cost={WIND_CHIME_COST}
               recipeId="wind-chime"
               repeatable
-            />
+            />}
 
             <RecipeCard
               title="Kelp Resin"
@@ -1030,26 +1030,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               />
             )}
 
-            <section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Workshop Mini-Game</p>
-              <h2 id="wind-chime-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🎐 Wind Chime Workshop</h2>
-              <p className="mt-1 text-sm text-amber-800">Arrange shells and sea glass, hear every tone, and play your finished chime.</p>
-              <button
-                ref={windChimeButtonRef}
-                type="button"
-                onClick={() => setWindChimeOpen(true)}
-                className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
-              >
-                Open Wind Chime Workshop
-              </button>
-            </section>
+            
 
-            <section aria-labelledby="shell-painting-heading" className="rounded-2xl bg-gradient-to-br from-pink-50 to-cyan-50 p-4 mb-4 shadow-md ring-1 ring-pink-200">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-pink-800">Sunny&apos;s Crafting Activity</p>
-              <h2 id="shell-painting-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭐ Shell Painting Studio</h2>
-              <p className="mt-1 text-sm text-sky-800">Turn collected shells and Paint Pigment into named artwork for Sunny&apos;s gallery. All choices use buttons—nothing needs to be drawn or dragged.</p>
-              <button ref={shellPaintingButtonRef} type="button" onClick={() => setShellPaintingOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-pink-600 px-4 py-3 font-bold text-white shadow active:bg-pink-700">Open Shell Painting Studio</button>
-            </section>
+            
 
             {!state.rowboatRepaired && !state.bucketsFilled ? (
               <RecipeCard
@@ -1214,6 +1197,19 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
+            {studioStation === "decor" && (<section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Workshop Mini-Game</p>
+              <h2 id="wind-chime-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🎐 Wind Chime Workshop</h2>
+              <p className="mt-1 text-sm text-amber-800">Arrange shells and sea glass, hear every tone, and play your finished chime.</p>
+              <button
+                ref={windChimeButtonRef}
+                type="button"
+                onClick={() => setWindChimeOpen(true)}
+                className="mt-3 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800"
+              >
+                Open Wind Chime Workshop
+              </button>
+            </section>)}
             {DECOR_RECIPES.filter((r) => studioStation === "candles" ? r.id === "coastal-beeswax-candle" : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={r.id === "coastal-beeswax-candle" && state.honeybellStage < 3} lockedMessage="Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe." />
             ))}
@@ -1226,6 +1222,12 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </>
         ) : (
           <>
+            {studioStation === "painting" && (<section aria-labelledby="shell-painting-heading" className="rounded-2xl bg-gradient-to-br from-pink-50 to-cyan-50 p-4 mb-4 shadow-md ring-1 ring-pink-200">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-pink-800">Sunny&apos;s Crafting Activity</p>
+              <h2 id="shell-painting-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭐ Shell Painting Studio</h2>
+              <p className="mt-1 text-sm text-sky-800">Turn collected shells and Paint Pigment into named artwork for Sunny&apos;s gallery. All choices use buttons—nothing needs to be drawn or dragged.</p>
+              <button ref={shellPaintingButtonRef} type="button" onClick={() => setShellPaintingOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-pink-600 px-4 py-3 font-bold text-white shadow active:bg-pink-700">Open Shell Painting Studio</button>
+            </section>)}
             {studioStation === "painting" && (<section aria-labelledby="olli-ink-studio-heading" className="mb-4 rounded-2xl bg-gradient-to-br from-indigo-950 to-teal-800 p-4 text-white shadow-md ring-1 ring-cyan-300">
               <p className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Olli&apos;s Creative Activity</p>
               <h2 id="olli-ink-studio-heading" className="mt-1 font-serif text-xl font-bold">🐙 Ink Picture Studio</h2>
