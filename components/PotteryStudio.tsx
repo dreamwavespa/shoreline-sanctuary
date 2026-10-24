@@ -14,6 +14,15 @@ const PIECES = [
   { id: "moonlight-candleholder", name: "Moonlight Candleholder", clay: "porcelain", cost: 1 },
 ] as const;
 const GLAZES = [{ id: "clear-pottery-glaze", name: "Clear" }, { id: "pearl-pottery-glaze", name: "Pearl" }, { id: "iridescent-pottery-glaze", name: "Iridescent" }, { id: "orange-glaze", name: "Orange" }, { id: "glaze-ruby-red", name: "Ruby Red" }, { id: "glaze-sunflower-yellow", name: "Sunflower Yellow" }, { id: "glaze-sky-blue", name: "Sky Blue" }, { id: "glaze-sea-foam-green", name: "Sea Foam Green" }, { id: "glaze-baby-pink", name: "Baby Pink" }, { id: "glaze-pearl-white", name: "Pearl White" }, { id: "glaze-midnight-black", name: "Midnight Black" }, { id: "glaze-purple-grape", name: "Purple Grape" }, { id: "glaze-chocolate-brown", name: "Chocolate Brown" }, { id: "glaze-metallic-gold", name: "Metallic Gold" }, { id: "glaze-shimmering-silver", name: "Shimmering Silver" } ];
+const POTTERY_SOUNDS = { wheel: "/audio/pottery-wheel.mp3", glaze: "/audio/pottery-glaze.mp3", kiln: "/audio/pottery-kiln.mp3", collect: "/audio/pottery-collect.mp3" } as const;
+function playPotterySound(kind: keyof typeof POTTERY_SOUNDS, next?: keyof typeof POTTERY_SOUNDS) {
+  try {
+    const audio = new Audio(POTTERY_SOUNDS[kind]);
+    audio.volume = 0.55;
+    if (next) audio.addEventListener("ended", () => playPotterySound(next), { once: true });
+    void audio.play().catch(() => {});
+  } catch { /* Sound is optional; crafting remains accessible without audio. */ }
+}
 const STORAGE = "shoreline-pottery-v1";
 const MINUTE = 60000;
 function duration(ms: number) { const n = Math.max(0, Math.ceil(ms / MINUTE)); return n ? n + " min remaining" : "Ready"; }
@@ -42,6 +51,7 @@ export default function PotteryStudio() {
     if (!hasEnough([{itemId: material, count: piece.cost}])) { setNotice("Not enough clay."); return; }
     if (!craft("pottery-shaped-workpiece", [{itemId: material, count: piece.cost}])) return;
     setJobs(prev => [...prev, { id: Date.now().toString() + "-" + prev.length, piece: piece.id, clay: piece.clay, stage: "drying", readyAt: Date.now() + 10 * MINUTE }]);
+    playPotterySound("wheel");
     setNotice(piece.name + " is drying.");
   };
   const startFire = (job: Job) => {
@@ -50,6 +60,7 @@ export default function PotteryStudio() {
     if (!hasEnough([{itemId: glaze, count: 1}])) { setNotice("Not enough glaze."); return; }
     if (!craft("pottery-glaze-applied", [{itemId: glaze, count: 1}])) return;
     setJobs(prev => prev.map(j => j.id === job.id ? {...j, stage: "firing", readyAt: Date.now() + 15 * MINUTE, glaze} : j));
+    playPotterySound("glaze", "kiln");
     setNotice("Glazed pottery is firing in the kiln.");
   };
   const collect = (job: Job) => {
@@ -58,6 +69,7 @@ export default function PotteryStudio() {
     if (!craft(job.piece, [])) return;
     setCompleted(prev => prev.includes(job.piece) ? prev : [...prev, job.piece]);
     setJobs(prev => prev.filter(j => j.id !== job.id));
+    playPotterySound("collect");
     setNotice("Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
   };
   if (!hydrated) return <p>Loading pottery studio…</p>;
