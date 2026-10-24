@@ -13,7 +13,7 @@ const PIECES = [
   { id: "porcelain-bowl", name: "Porcelain Bowl", clay: "porcelain", cost: 1 },
   { id: "moonlight-candleholder", name: "Moonlight Candleholder", clay: "porcelain", cost: 1 },
 ] as const;
-const GLAZES = [{ id: "clear-pottery-glaze", name: "Clear" }, { id: "pearl-pottery-glaze", name: "Pearl" }, { id: "iridescent-pottery-glaze", name: "Iridescent" }, { id: "orange-glaze", name: "Orange" }];
+const GLAZES = [{ id: "clear-pottery-glaze", name: "Clear" }, { id: "pearl-pottery-glaze", name: "Pearl" }, { id: "iridescent-pottery-glaze", name: "Iridescent" }, { id: "orange-glaze", name: "Orange" }, { id: "glaze-ruby-red", name: "Ruby Red" }, { id: "glaze-sunflower-yellow", name: "Sunflower Yellow" }, { id: "glaze-sky-blue", name: "Sky Blue" }, { id: "glaze-sea-foam-green", name: "Sea Foam Green" }, { id: "glaze-baby-pink", name: "Baby Pink" }, { id: "glaze-pearl-white", name: "Pearl White" }, { id: "glaze-midnight-black", name: "Midnight Black" }, { id: "glaze-purple-grape", name: "Purple Grape" }, { id: "glaze-chocolate-brown", name: "Chocolate Brown" }, { id: "glaze-metallic-gold", name: "Metallic Gold" }, { id: "glaze-shimmering-silver", name: "Shimmering Silver" } ];
 const STORAGE = "shoreline-pottery-v1";
 const MINUTE = 60000;
 function duration(ms: number) { const n = Math.max(0, Math.ceil(ms / MINUTE)); return n ? n + " min remaining" : "Ready"; }
