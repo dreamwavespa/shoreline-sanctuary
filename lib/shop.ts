@@ -9,7 +9,19 @@ export interface SeaweedDiscovery extends ShopStockItem {
   story: string;
 }
 
+export const GLAZE_PACKS: Record<string, { contents: { itemId: string; count: number }[] }> = {
+  "glaze-pack-classic": { contents: [{ itemId: "glaze-ruby-red", count: 5 }, { itemId: "glaze-sunflower-yellow", count: 5 }, { itemId: "glaze-sky-blue", count: 5 }] },
+  "glaze-pack-pastels": { contents: [{ itemId: "glaze-sea-foam-green", count: 5 }, { itemId: "glaze-baby-pink", count: 5 }, { itemId: "glaze-pearl-white", count: 5 }] },
+  "glaze-pack-earth": { contents: [{ itemId: "glaze-midnight-black", count: 5 }, { itemId: "glaze-purple-grape", count: 5 }, { itemId: "glaze-chocolate-brown", count: 5 }] },
+  "glaze-pack-specialty": { contents: [{ itemId: "glaze-metallic-gold", count: 4 }, { itemId: "glaze-shimmering-silver", count: 4 }, { itemId: "iridescent-pottery-glaze", count: 4 }] },
+};
+
 export const SHOP_STOCK: ShopStockItem[] = [
+  { itemId: "glaze-pack-classic", price: 35, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
+  { itemId: "glaze-pack-pastels", price: 40, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
+  { itemId: "glaze-pack-earth", price: 40, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
+  { itemId: "glaze-pack-specialty", price: 60, note: "4 portions each of 3 glaze colors; 12 portions total. Contents added directly to inventory." },
+
   { itemId: "uv-dive-torch", price: 25, note: "Illuminates the deepest cave and reveals fluorescence." },
   { itemId: "deep-fins", price: 45, note: "Stabilizes you in the Siphon Trench currents." },
   { itemId: "reserve-tank", price: 75, note: "Enables the Abyssal Hearth with fins and a UV torch." },
