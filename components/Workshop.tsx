@@ -12,6 +12,7 @@ import JewelryCounter from "./JewelryCounter";
 import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
 import ShellPaintingStudio from "./ShellPaintingStudio";
+import PotteryStudio from "./PotteryStudio";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -992,7 +993,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         </button>
 
         {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
-        {!openKitchen && studioStation === "pottery" && <p className="mb-4 rounded-xl bg-white/90 p-4 text-center text-teal-900">The pottery studio is being prepared. Existing workshop recipes remain available under General Crafting.</p>}
+        {!openKitchen && studioStation === "pottery" && state.workshopUnlocked && <PotteryStudio />}
 
         {!state.workshopUnlocked ? (
           <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
@@ -1001,7 +1002,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               Complete "The Glass Artisan" bottle quest to unlock the Sea Glass Workshop and learn to craft Melodic Wind Chimes.
             </p>
           </div>
-        ) : tab === "crafting" ? (
+        ) : !openKitchen && studioStation === "pottery" ? null : tab === "crafting" ? (
           <>
 
 
