@@ -211,6 +211,7 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
 ];
 
 export const DECOR_RECIPES: CraftRecipe[] = [
+  { id: "glowing-moonlight-candle", name: "Glowing Moonlight Candle", description: "A softly luminous coastal candle crafted from glowing wax, a moonwashed shell, and moonlit sea glass gathered after dark.", cost: [{ itemId: "glowing-wax", count: 1 }, { itemId: "moonwashed-shell", count: 1 }, { itemId: "moonlit-sea-glass", count: 1 }] },
   {
     id: "coastal-beeswax-candle",
     name: "Sea-Rose Coastal Candle",
