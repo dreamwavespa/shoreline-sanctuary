@@ -453,33 +453,64 @@ const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
   "cadence-teething-kelp-cookies": "/Recipe-teething-kelp-cookies.PNG",
 };
 
+const COOKBOOK_CATEGORIES = [
+  { id: "drinks", label: "Drinks & Coffee", icon: "☕", stations: ["Coffee Pot", "Hot Chocolate Mug", "Chilled Drinks", "Prep Counter & Teapot"] },
+  { id: "baking", label: "Baking & Desserts", icon: "🧁", stations: ["Baking Oven", "Ice Cream"] },
+  { id: "meals", label: "Meals & Soups", icon: "🍲", stations: ["Soup Pot", "Hearth Stockpot", "Hearth Stove", "Campfire Pit"] },
+  { id: "snacks", label: "Snacks & Treats", icon: "🍎", stations: ["Salad Bowls", "Warm Drying Rack", "Cool Pantry", "Heated Stone Slab", "Prep Counter"] },
+] as const;
+
 function ShorelineCookbook() {
   const { play, state } = useGame();
   const chilledUnlocked = ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"].every(id => state.notebookDiscovered[`recipe:${id}`]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
-  const selectedRecipe = KITCHEN_RECIPES.find((recipe) => recipe.id === selectedRecipeId);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const availableRecipes = KITCHEN_RECIPES.filter(recipe => recipe.station !== "Chilled Drinks" || chilledUnlocked);
+  const selectedRecipe = availableRecipes.find(recipe => recipe.id === selectedRecipeId);
+  const categories = COOKBOOK_CATEGORIES.map(category => ({
+    ...category,
+    recipes: availableRecipes.filter(recipe => (category.stations as readonly string[]).includes(recipe.station)),
+  }));
+  const uncategorized = availableRecipes.filter(recipe => !COOKBOOK_CATEGORIES.some(category => (category.stations as readonly string[]).includes(recipe.station)));
+  const allCategories = [...categories, ...(uncategorized.length ? [{ id: "other", label: "Other Recipes", icon: "📖", recipes: uncategorized }] : [])];
+  const selectedCategory = allCategories.find(category => category.id === selectedCategoryId);
   return (
     <section aria-labelledby="shoreline-cookbook-heading" className="mb-5 rounded-2xl bg-amber-50 p-4 shadow-md ring-1 ring-amber-300">
-      <h2 id="shoreline-cookbook-heading" tabIndex={-1} className="font-serif text-2xl font-bold text-amber-950">📖 The Shoreline Cookbook</h2>
-      <p className="mt-1 text-sm text-amber-900">Open a recipe card to check ingredients and prepare a dish. Recipes can be made again whenever ingredients are available.</p>
+      <h2 id="shoreline-cookbook-heading" className="font-serif text-2xl font-bold text-amber-950">📖 The Shoreline Cookbook</h2>
+      <p className="mt-1 text-sm text-amber-900">Choose a section, then open a recipe card to check ingredients and prepare a dish. Recipes can be made again whenever ingredients are available.</p>
       {selectedRecipe ? (
         <div className="mt-4">
-          <button type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(null); }} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Recipe Book</button>
+          <button type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(null); }} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to {selectedCategory?.label || "Recipes"}</button>
           <CookCard recipe={selectedRecipe} />
+        </div>
+      ) : selectedCategory ? (
+        <div className="mt-4">
+          <button type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedCategoryId(null); }} className="mb-3 min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Cookbook Sections</button>
+          <h3 className="font-serif text-xl font-bold text-amber-950">{selectedCategory.icon} {selectedCategory.label}</h3>
+          <p className="text-sm text-amber-900">{selectedCategory.recipes.filter(recipe => state.notebookDiscovered[`recipe:${recipe.id}`]).length} of {selectedCategory.recipes.length} prepared</p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {selectedCategory.recipes.map(recipe => (
+              <button key={recipe.id} type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(recipe.id); }}
+                aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
+                className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+                <span className="flex items-center gap-3">
+                  <RecipeThumbnail recipeId={recipe.id} />
+                  <span className="min-w-0">
+                    <span className="block font-serif text-base font-bold text-amber-950">{recipe.name}</span>
+                    <span className="mt-1 block text-xs text-amber-800">{recipe.season} · {recipe.station}</span>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {KITCHEN_RECIPES.filter(recipe => recipe.station !== "Chilled Drinks" || chilledUnlocked).map((recipe) => (
-            <button key={recipe.id} type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedRecipeId(recipe.id); }}
-              aria-label={`Open recipe card for ${recipe.name}, ${recipe.season}`}
-              className="min-h-20 rounded-xl border-2 border-amber-200 bg-white p-3 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
-              <span className="flex items-center gap-3">
-                <RecipeThumbnail recipeId={recipe.id} />
-                <span className="min-w-0">
-                  <span className="block font-serif text-base font-bold text-amber-950">{recipe.name}</span>
-                  <span className="mt-1 block text-xs text-amber-800">{recipe.season} · {recipe.station}</span>
-                </span>
-              </span>
+          {allCategories.filter(category => category.recipes.length > 0).map(category => (
+            <button key={category.id} type="button" onClick={() => { play("kitchenPageTurn", 0.4); setSelectedCategoryId(category.id); }}
+              className="min-h-20 rounded-xl border-2 border-amber-300 bg-white p-4 text-left shadow-sm hover:bg-amber-100 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+              <span className="block font-serif text-lg font-bold text-amber-950">{category.icon} {category.label}</span>
+              <span className="mt-1 block text-sm text-amber-800">{category.recipes.filter(recipe => state.notebookDiscovered[`recipe:${recipe.id}`]).length} of {category.recipes.length} prepared</span>
             </button>
           ))}
         </div>
