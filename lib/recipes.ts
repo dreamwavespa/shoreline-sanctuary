@@ -64,4 +64,6 @@ export const KITCHEN_RECIPES = [
     station: "Baking Oven",
     season: "Year-round" as const,
   },
+  { id: "pumpkin-seeds", name: "Roasted Pumpkin Seeds", description: "Crunchy roasted pumpkin seeds with a touch of Shoreline sea salt.", cost: [{ itemId: "golden-island-pumpkin", count: 1 }, { itemId: "soothing-sea-salt", count: 1 }], outputItemId: "food-pumpkin-seeds", station: "Warm Drying Rack", season: "Year-round" as const },
+  { id: "dried-fruit-medley", name: "Dried Fruit Medley", description: "A sweet medley of dried strawberries, raspberries, and bananas.", cost: [{ itemId: "strawberry", count: 1 }, { itemId: "raspberry", count: 1 }, { itemId: "banana", count: 1 }], outputItemId: "food-dried-fruit-medley", station: "Warm Drying Rack", season: "Year-round" as const },
 ];
