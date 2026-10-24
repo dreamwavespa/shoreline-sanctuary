@@ -1226,14 +1226,14 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </>
         ) : (
           <>
-            <section aria-labelledby="olli-ink-studio-heading" className="mb-4 rounded-2xl bg-gradient-to-br from-indigo-950 to-teal-800 p-4 text-white shadow-md ring-1 ring-cyan-300">
+            {studioStation === "painting" && (<section aria-labelledby="olli-ink-studio-heading" className="mb-4 rounded-2xl bg-gradient-to-br from-indigo-950 to-teal-800 p-4 text-white shadow-md ring-1 ring-cyan-300">
               <p className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Olli&apos;s Creative Activity</p>
               <h2 id="olli-ink-studio-heading" className="mt-1 font-serif text-xl font-bold">🐙 Ink Picture Studio</h2>
               <p className="mt-1 text-sm text-cyan-50">Use ink earned by finding camouflaged Olli. Choose a background, stamp, and pattern without drawing or dragging.</p>
               {state.olliHuntsCompleted < 1 && <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm font-semibold text-cyan-100">Find Olli during his first Camouflage Hunt to unlock the studio.</p>}
               <button ref={olliInkButtonRef} type="button" disabled={state.olliHuntsCompleted < 1} onClick={() => setOlliInkOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-cyan-200 px-4 py-3 font-bold text-indigo-950 disabled:bg-slate-600 disabled:text-slate-300">Open Olli&apos;s Ink Studio</button>
-            </section>
-            <section aria-labelledby="custom-sand-art-heading" className="mb-4 overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
+            </section>)}
+            {studioStation === "sandart" && (<section aria-labelledby="custom-sand-art-heading" className="mb-4 overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-orange-300">
               <div className="relative h-40">
                 <Image src={SCENES.booSandArt} alt="Boo the ghost crab at his moonlit Sandbar stall with colorful sand art bottles" fill unoptimized sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -1248,9 +1248,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 {state.sandbarsUnlocked && !state.booToolSetDelivered && <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm font-semibold text-orange-100">Craft Boo&apos;s Sand Art Tool Set in the Crafting tab, then deliver it at his Sandbar home.</p>}
                 <button ref={customSandArtButtonRef} type="button" disabled={!state.sandbarsUnlocked || !state.booToolSetDelivered} onClick={() => setCustomSandArtOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-orange-400 px-4 py-3 font-bold text-slate-950 shadow active:bg-orange-300 disabled:bg-slate-600 disabled:text-slate-300">{state.booToolSetDelivered ? "Open Custom Bottle Studio" : "Boo's Tools Needed"}</button>
               </div>
-            </section>
-            <h2 className="mb-3 font-serif text-lg font-bold text-pink-950">Kaiana&apos;s Signature Designs</h2>
-            <SandArtStudio />
+            </section>)}
+            {studioStation === "sandart" && <h2 className="mb-3 font-serif text-lg font-bold text-pink-950">Kaiana&apos;s Signature Designs</h2>}
+            {studioStation === "sandart" && <SandArtStudio />}
           </>
         )}
       </div>
