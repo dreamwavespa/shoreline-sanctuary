@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
+import { ITEMS } from "@/lib/items";
+import Image from "next/image";
 
 type Job = { id: string; piece: string; clay: "coastal" | "porcelain"; stage: "drying" | "ready-glaze" | "firing" | "ready"; readyAt: number; glaze?: string };
 const PIECES = [
@@ -84,6 +86,7 @@ export default function PotteryStudio() {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
       const have = state.inventory[clayId] || 0;
       return <article key={piece.id} className="rounded-xl border border-teal-200 bg-teal-50 p-3">
+        {ITEMS[piece.id]?.icon && !ITEMS[piece.id].isEmoji && <Image src={ITEMS[piece.id].icon} alt={piece.name} width={112} height={112} unoptimized className="mx-auto h-28 w-28 object-contain" />}
         <h3 className="font-bold">{piece.name}</h3>
         <p className="text-sm">{piece.clay === "coastal" ? "Coastal Clay" : "White Porcelain Clay"}: {have}/{piece.cost}</p>
         {piece.id === "porcelain-tea-set" && <p className="text-xs">Tea set shaping will unlock after its existing cottage prerequisite is connected.</p>}
@@ -97,6 +100,7 @@ export default function PotteryStudio() {
       const readyGlaze = job.stage === "ready-glaze" || (job.stage === "drying" && now >= job.readyAt);
       const readyCollect = job.stage === "ready" || (job.stage === "firing" && now >= job.readyAt);
       return <article key={job.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+        {ITEMS[job.piece]?.icon && !ITEMS[job.piece].isEmoji && <Image src={ITEMS[job.piece].icon} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
         {readyGlaze && <div className="mt-2 space-y-2"><label className="block text-sm font-semibold" htmlFor={"glaze-"+job.id}>Choose glaze</label>
