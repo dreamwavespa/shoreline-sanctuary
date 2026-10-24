@@ -856,7 +856,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting">("general");
   const chooseStudioStation = (station: typeof studioStation) => {
     setStudioStation(station);
-    setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : "decor");
+    setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : station === "general" || station === "pottery" ? "crafting" : "decor");
   };
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
@@ -1003,14 +1003,15 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </div>
         ) : tab === "crafting" ? (
           <>
-            {studioStation === "decor" && <RecipeCard
-              title="Melodic Wind Chime"
-              description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
-              cost={WIND_CHIME_COST}
-              recipeId="wind-chime"
-              repeatable
-            />}
 
+
+            {DECOR_RECIPES.filter((r) => ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id)).map((r) => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable />)}
+            {studioStation === "general" && <RecipeCard
+              title={RAFT_RECIPE.name}
+              description={RAFT_RECIPE.description}
+              cost={RAFT_RECIPE.cost}
+              recipeId={RAFT_RECIPE.id}
+            />}
             <RecipeCard
               title="Kelp Resin"
               description="Press fresh reef kelp with soothing sea salt into a useful natural resin. This recipe can be crafted whenever you have enough ingredients."
@@ -1197,6 +1198,13 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
+            {studioStation === "decor" && <RecipeCard
+              title="Melodic Wind Chime"
+              description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
+              cost={WIND_CHIME_COST}
+              recipeId="wind-chime"
+              repeatable
+            />}
             {studioStation === "decor" && (<section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Workshop Mini-Game</p>
               <h2 id="wind-chime-game-heading" className="mt-1 font-serif text-lg font-bold text-amber-950">🎐 Wind Chime Workshop</h2>
@@ -1213,12 +1221,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
             {DECOR_RECIPES.filter((r) => studioStation === "candles" ? r.id === "coastal-beeswax-candle" : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={r.id === "coastal-beeswax-candle" && state.honeybellStage < 3} lockedMessage="Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe." />
             ))}
-            {studioStation === "general" && <RecipeCard
-              title={RAFT_RECIPE.name}
-              description={RAFT_RECIPE.description}
-              cost={RAFT_RECIPE.cost}
-              recipeId={RAFT_RECIPE.id}
-            />}
+
           </>
         ) : (
           <>
