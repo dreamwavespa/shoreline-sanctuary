@@ -6,7 +6,7 @@ import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete 
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
-import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK } from "./shop";
+import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
 import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
@@ -2013,7 +2013,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({
       ...s,
       sandDollars: s.sandDollars - listing.price,
-      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+      inventory: (() => {
+        const inventory = { ...s.inventory };
+        const pack = GLAZE_PACKS[itemId];
+        if (pack) for (const entry of pack.contents) inventory[entry.itemId] = (inventory[entry.itemId] || 0) + entry.count;
+        else inventory[itemId] = (inventory[itemId] || 0) + 1;
+        return inventory;
+      })(),
       seaweedDiscoveryPurchases: discoveryDate
         ? [...s.seaweedDiscoveryPurchases, discoveryDate]
         : s.seaweedDiscoveryPurchases,
