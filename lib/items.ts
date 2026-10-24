@@ -104,6 +104,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "coffee-beans": { id: "coffee-beans", name: "Coffee Beans", category: "raw", icon: "🫘", isEmoji: true, rarity: "common", sfx: "bagRustle" },
   "food-garden-vegetable-soup": { id: "food-garden-vegetable-soup", name: "Garden Vegetable Soup", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-seaside-fish-chowder": { id: "food-seaside-fish-chowder", name: "Seaside Fish Chowder", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-pumpkin-seeds": { id: "food-pumpkin-seeds", name: "Roasted Pumpkin Seeds", category: "food", icon: "🎃", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-dried-fruit-medley": { id: "food-dried-fruit-medley", name: "Dried Fruit Medley", category: "food", icon: "🍓", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-harvest-pumpkin-soup": { id: "food-harvest-pumpkin-soup", name: "Harvest Pumpkin Soup", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-chocolate-seashell-mocha": { id: "food-chocolate-seashell-mocha", name: "Chocolate Seashell Mocha", category: "food", icon: "☕", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-vanilla-cream-coffee": { id: "food-vanilla-cream-coffee", name: "Vanilla Cream Coffee", category: "food", icon: "☕", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
