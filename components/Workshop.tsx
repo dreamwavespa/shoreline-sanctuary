@@ -856,7 +856,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting">("general");
   const chooseStudioStation = (station: typeof studioStation) => {
     setStudioStation(station);
-    setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : station === "decor" || station === "candles" ? "decor" : "crafting");
+    setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : "decor");
   };
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
@@ -1214,15 +1214,15 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
-            {DECOR_RECIPES.map((r) => (
+            {DECOR_RECIPES.filter((r) => studioStation === "candles" ? r.id === "coastal-beeswax-candle" : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={r.id === "coastal-beeswax-candle" && state.honeybellStage < 3} lockedMessage="Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe." />
             ))}
-            <RecipeCard
+            {studioStation === "general" && <RecipeCard
               title={RAFT_RECIPE.name}
               description={RAFT_RECIPE.description}
               cost={RAFT_RECIPE.cost}
               recipeId={RAFT_RECIPE.id}
-            />
+            />}
           </>
         ) : (
           <>
