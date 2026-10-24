@@ -2321,8 +2321,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     };
     setState((s) => ({
       ...s,
-      inventory: { ...s.inventory, [inkId]: Math.max(0, (s.inventory[inkId] || 0) - 1) },
       olliInkPictures: [...s.olliInkPictures, picture],
+      inventory: (() => {
+        const inventory = { ...s.inventory, [inkId]: Math.max(0, (s.inventory[inkId] || 0) - 1) };
+        const rewards = ["painting-sunset-shoreline-lighthouse", "painting-seaside-spring-flowers", "painting-seaside-winter", "painting-autumn-moonlight", "painting-the-seaside-retreat"];
+        const count = s.olliInkPictures.length + 1;
+        rewards.forEach((id, index) => { if (count >= (index + 1) * 3 && !(inventory[id] > 0)) inventory[id] = 1; });
+        return inventory;
+      })(),
     }));
     play("paintPigment", 0.8);
     window.setTimeout(() => play("sparkle", 0.45), 450);
