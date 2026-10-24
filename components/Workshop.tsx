@@ -951,7 +951,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 ["general", "General Crafting", "/images/general-crafting.png"],
               ] as const).map(([id, label, src]) => (
                 <button key={id} type="button" onClick={() => chooseStudioStation(id)} aria-pressed={studioStation === id}
-                  className={`flex min-h-0 flex-col items-center justify-end rounded-xl bg-white/15 p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${studioStation === id ? "ring-2 ring-teal-700 bg-white/35" : ""}`}>
+                  className={`flex min-h-0 flex-col items-center justify-end rounded-xl bg-white/15 p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${studioStation === id ? "bg-white/10" : ""}`}>
                   <span className="relative min-h-0 w-full flex-1"><Image src={src} alt="" fill unoptimized sizes="(max-width: 640px) 33vw, 25vw" className="object-contain" /></span>
                   <span className="rounded-md bg-white/90 px-1 py-1 text-center text-[10px] font-bold text-teal-950 sm:text-sm">{label}</span>
                 </button>
@@ -964,7 +964,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
 
       <div className="px-4 -mt-6 relative">
         {openKitchen && <button type="button" onClick={onGoToCottage} className="mb-4 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-bold text-white">← Return to Cottage</button>}
-        {!openKitchen && <div className="flex gap-1.5 mb-4 flex-wrap">
+        {false && !openKitchen && <div className="flex gap-1.5 mb-4 flex-wrap">
           {TABS.map((t) => (
             <button
               key={t.id}
