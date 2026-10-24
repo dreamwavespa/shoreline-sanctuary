@@ -853,6 +853,11 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCottage }: { openKitchen?: boolean; onGoToNursery?: () => void; onGoToCottage?: () => void }) {
   const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
   const [tab, setTab] = useState<Tab>(openKitchen ? "kitchen" : "crafting");
+  const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting">("general");
+  const chooseStudioStation = (station: typeof studioStation) => {
+    setStudioStation(station);
+    setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : station === "decor" || station === "candles" ? "decor" : "crafting");
+  };
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
   const [fridgeOpen, setFridgeOpen] = useState(false);
@@ -929,10 +934,33 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
-      <div className="relative w-full h-48">
-        <Image src={openKitchen ? "/images/Kitchen-background.PNG" : SCENES.workshop} alt={openKitchen ? "Cottage Kitchen" : "Sea Glass Workshop"} fill unoptimized className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
-      </div>
+      {openKitchen ? (
+        <div className="relative w-full h-48"><Image src="/images/Kitchen-background.PNG" alt="Cottage Kitchen" fill unoptimized className="object-cover" /></div>
+      ) : (
+        <section aria-label="Coastal Art Studio crafting stations" className="relative">
+          <div className="relative w-full aspect-[3/4] sm:aspect-[16/9] max-h-[740px] overflow-hidden bg-sky-100">
+            <Image src="/images/Workshop-background.PNG" alt="Sunlit coastal art studio with ocean views" fill unoptimized sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 grid grid-cols-3 gap-1 p-2 sm:grid-cols-4 sm:gap-3 sm:p-5">
+              {([
+                ["jewelry", "Jewelry Counter", "/images/jewelry-counter.png"],
+                ["pottery", "Pottery Studio", "/images/pottery-studio.png"],
+                ["candles", "Candle Making", "/images/candle-making.png"],
+                ["sandart", "Sand Art", "/images/sand-art.png"],
+                ["decor", "Decorative Crafts", "/images/decorative-crafts.png"],
+                ["painting", "Painting Studio", "/images/painting-studio.png"],
+                ["general", "General Crafting", "/images/general-crafting.png"],
+              ] as const).map(([id, label, src]) => (
+                <button key={id} type="button" onClick={() => chooseStudioStation(id)} aria-pressed={studioStation === id}
+                  className={`flex min-h-0 flex-col items-center justify-end rounded-xl bg-white/15 p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${studioStation === id ? "ring-2 ring-teal-700 bg-white/35" : ""}`}>
+                  <span className="relative min-h-0 w-full flex-1"><Image src={src} alt="" fill unoptimized sizes="(max-width: 640px) 33vw, 25vw" className="object-contain" /></span>
+                  <span className="rounded-md bg-white/90 px-1 py-1 text-center text-[10px] font-bold text-teal-950 sm:text-sm">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="sr-only">Choose a crafting station to access its activities. All stations are keyboard and screen-reader accessible.</p>
+        </section>
+      )}
 
       <div className="px-4 -mt-6 relative">
         {openKitchen && <button type="button" onClick={onGoToCottage} className="mb-4 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-bold text-white">← Return to Cottage</button>}
@@ -963,6 +991,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </div>
         </button>
 
+        {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
+        {!openKitchen && studioStation === "pottery" && <p className="mb-4 rounded-xl bg-white/90 p-4 text-center text-teal-900">The pottery studio is being prepared. Existing workshop recipes remain available under General Crafting.</p>}
+        {!openKitchen && studioStation === "painting" && <div className="mb-4 flex flex-wrap justify-center gap-3"><button type="button" onClick={() => setOlliInkOpen(true)} disabled={state.olliHuntsCompleted < 1} className="min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white disabled:opacity-50">Olli's Ink Studio</button><button type="button" onClick={() => setShellPaintingOpen(true)} className="min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Shell Painting Studio</button></div>}
         {!state.workshopUnlocked ? (
           <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
             <p className="text-amber-900 font-semibold mb-1">The workbench is locked</p>
