@@ -74,7 +74,8 @@ export default function PotteryStudio() {
       return <article key={piece.id} className="rounded-xl border border-teal-200 bg-teal-50 p-3">
         <h3 className="font-bold">{piece.name}</h3>
         <p className="text-sm">{piece.clay === "coastal" ? "Coastal Clay" : "White Porcelain Clay"}: {have}/{piece.cost}</p>
-        <button type="button" disabled={active >= slots || have < piece.cost} onClick={() => begin(piece)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Shape {piece.name}</button>
+        {piece.id === "porcelain-tea-set" && <p className="text-xs">Tea set shaping will unlock after its existing cottage prerequisite is connected.</p>}
+        <button type="button" disabled={active >= slots || have < piece.cost || piece.id === "porcelain-tea-set"} onClick={() => begin(piece)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Shape {piece.name}</button>
       </article>;
     })}</div>
     <h3 className="text-lg font-bold">Drying shelf and kiln</h3>
