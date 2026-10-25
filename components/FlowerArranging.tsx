@@ -13,7 +13,9 @@ const FLOWERS: Record<string,string> = {
   "sea-lavender":"sea-lavender.png", "rain-lily-blossom":"rain-lily-blossom.png",
   "plant-radiant-moonflower":"radiant-moonflower.png", "plant-twinkle-star-flower":"twinkle-star-flower.png",
   "plant-glowing-roses":"glowing-roses.png", "island-vanilla-orchid":"island-vanilla-orchid.png",
-  "christmas-rose":"glowing-roses.png", "snowdrop-flowers":"snowdrop-flowers.png"
+  "christmas-rose":"glowing-roses.png", "snowdrop-flowers":"snowdrop-flowers.png",
+  "tropical-hibiscus":"glowing-roses.png", "summer-hibiscus":"glowing-roses.png",
+  "spring-edible-blossoms":"seaside-daisy.png"
 };
 const SIZES = { small:3, medium:6, large:10 } as const;
 type Size = keyof typeof SIZES;
@@ -28,9 +30,10 @@ export default function FlowerArranging() {
  const [message,setMessage]=useState("");
  const vases=Object.keys(state.inventory).filter(id=>(id==="flower-vase" || id==="pearl-vase" || id.startsWith("flower-vase--") || id.startsWith("pearl-vase--")) && state.inventory[id]>0 && ITEMS[id]);
  const flowers=Object.keys(FLOWERS).filter(id=>ITEMS[id] && state.inventory[id]>0);
+ const [preview,setPreview]=useState(false);
  const used=(id:string)=>stems.filter(s=>s.id===id).length;
- const add=(id:string)=>{if(stems.length>=SIZES[size] || used(id)>=(state.inventory[id]||0))return;setStems(p=>[...p,{id,slot:p.length}]);sound("Flower-placement.mp3");setMessage(ITEMS[id].name+" added.");};
- const finish=()=>{if(!vase || !stems.length)return;sound("Flower-arrangement-complete.mp3");setMessage("Arrangement preview complete! No materials have been consumed. Saving, gifting and selling will be connected in the next phase.");};
+ const add=(id:string)=>{if(stems.length>=SIZES[size] || used(id)>=(state.inventory[id]||0))return;setStems(p=>[...p,{id,slot:p.length}]);sound("Flower-placement.mp3");setPreview(false);setMessage(ITEMS[id].name+" added.");};
+ const finish=()=>{if(!vase || !stems.length)return;setPreview(true);sound("Flower-arrangement-complete.mp3");setMessage("Arrangement preview complete! No materials have been consumed. Saving, gifting and selling will be connected in the next phase.");};
  return <section aria-label="Flower arranging studio" className="space-y-4">
  <h2 className="font-serif text-2xl font-bold">Flower Arranging Studio</h2>
  <p>Choose a vase and place flowers from your inventory. You can undo or rearrange stems before previewing. This first version does not consume inventory.</p>
@@ -39,6 +42,7 @@ export default function FlowerArranging() {
  {stems.map((s,i)=>{const p=POSITIONS[s.slot];return <Image key={i} src={ROOT+FLOWERS[s.id]} alt="" width={90} height={120} unoptimized className="absolute h-[33%] w-[18%] object-contain" style={{left:p.left+"%",top:p.top+"%",transform:"translate(-50%,-30%)"}}/>})}
  {vase && <Image src={ITEMS[vase].icon} alt="" width={130} height={130} unoptimized className="absolute bottom-[5%] left-1/2 h-[32%] w-[25%] -translate-x-1/2 object-contain"/>}
  </div>
+ <section aria-label="Bouquet close-up preview" className="rounded-xl border border-rose-300 bg-white p-3"><h3 className="font-bold">Your bouquet — live preview</h3><p className="text-sm">Flowers appear together above your chosen vase. Previewing does not consume inventory.</p><div className="relative mx-auto mt-2 h-80 max-w-sm overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">{stems.map((stem,i)=>{const angle=(i-(stems.length-1)/2)*14;return <Image key={i} src={ROOT+FLOWERS[stem.id]} alt="" width={150} height={220} unoptimized className="absolute bottom-[22%] left-1/2 h-[62%] w-[38%] object-contain" style={{transform:`translateX(-50%) rotate(${angle}deg)`,transformOrigin:"50% 95%",zIndex:i+1}}/>})}{vase && <Image src={ITEMS[vase].icon} alt="" width={180} height={140} unoptimized className="absolute bottom-[3%] left-1/2 h-[39%] w-[48%] -translate-x-1/2 object-contain" style={{zIndex:20}}/>}</div>{preview && <p role="status" className="mt-2 font-semibold">Finished arrangement preview: {stems.map(x=>ITEMS[x.id]?.name).join(", ")} in {ITEMS[vase]?.name}.</p>}</section>
  <label className="block font-bold" htmlFor="flower-size">Bouquet size</label>
  <select id="flower-size" value={size} onChange={e=>{setSize(e.target.value as Size);setStems([]);}} className="min-h-11 w-full rounded-lg border p-2">{Object.entries(SIZES).map(([name,n])=><option key={name} value={name}>{name} — {n} stems</option>)}</select>
  <label className="block font-bold" htmlFor="flower-vase">Choose a vase</label>
