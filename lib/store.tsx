@@ -65,6 +65,9 @@ export interface CustomJewelryPiece {
   createdAt: number;
 }
 
+export interface SavedFlowerArrangement {
+ id:string; name:string; vaseId:string; stems:{id:string;slot:number}[]; createdAt:number;
+}
 export interface CustomSandBottle {
   id: string;
   name: string;
@@ -172,6 +175,7 @@ interface GameState {
   foundBottleMessages: string[];
   customJewelry: CustomJewelryPiece[];
   customSandBottles: CustomSandBottle[];
+  flowerArrangements: SavedFlowerArrangement[];
   booSandClaimDate: string;
   booToolSetDelivered: boolean;
   honeybellStage: number;
@@ -284,6 +288,7 @@ const DEFAULT_STATE: GameState = {
   foundBottleMessages: [],
   customJewelry: [],
   customSandBottles: [],
+  flowerArrangements: [],
   booSandClaimDate: "",
   booToolSetDelivered: false,
   honeybellStage: 0,
@@ -2444,6 +2449,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const saveFlowerArrangement = (vaseId:string, stems:{id:string;slot:number}[], requestedName:string) => {
+    const current=stateRef.current;
+    if (!ITEMS[vaseId] || !((vaseId==="flower-vase" || vaseId==="pearl-vase" || vaseId.startsWith("flower-vase--") || vaseId.startsWith("pearl-vase--"))) || stems.length<1 || stems.length>10 || new Set(stems.map(x=>x.slot)).size!==stems.length || stems.some(x=>!ITEMS[x.id] || x.slot<0 || x.slot>9)) return false;
+    const counts:Record<string,number>={[vaseId]:1};
+    for(const stem of stems)counts[stem.id]=(counts[stem.id]||0)+1;
+    if(Object.entries(counts).some(([id,n])=>(current.inventory[id]||0)<n))return false;
+    const arrangement:SavedFlowerArrangement={id:`flower-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:requestedName.trim().slice(0,50)||"Coastal Flower Arrangement",vaseId,stems:stems.map(x=>({...x})),createdAt:Date.now()};
+    setState(old=>{const inventory={...old.inventory};for(const [id,n] of Object.entries(counts))inventory[id]-=n;return {...old,inventory,flowerArrangements:[...(old.flowerArrangements||[]),arrangement]};});
+    toast(`${arrangement.name} saved to My Flower Arrangements!`);
+    return true;
+  };
+
   const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string) => {
     if (layers.length !== 5 || layers.some((id) => !(CUSTOM_SAND_IDS as readonly string[]).includes(id)) || (accentId && !(CUSTOM_SAND_ACCENT_IDS as readonly string[]).includes(accentId))) return { ok: false };
     const costs: Record<string, number> = { "empty-glass-bottle": 1 };
@@ -2667,6 +2684,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       claimBooSand,
       deliverBooToolSet,
       createCustomSandBottle,
+      saveFlowerArrangement,
       toggleCustomSandBottleFavorite,
       sellCustomSandBottle,
       discoverBabyFish,
