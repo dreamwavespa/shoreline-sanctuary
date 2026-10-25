@@ -81,7 +81,7 @@ export default function PotteryStudio() {
   };
   const potteryImage = (piece: string, glaze?: string) => {
     const variantId = piece === "seashell-cup" && glaze ? `seashell-cup--${glaze}` : piece;
-    return ITEMS[variantId]?.icon || ITEMS[piece]?.icon;
+    return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
   };
   if (!hydrated) return <p>Loading pottery studio…</p>;
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
