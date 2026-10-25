@@ -52,6 +52,7 @@ export default function PotteryStudio() {
   const [hydrated, setHydrated] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [glazeChoice, setGlazeChoice] = useState<Record<string,string>>({});
+  const [secondGlazeChoice, setSecondGlazeChoice] = useState<Record<string,string>>({});
   const [notice, setNotice] = useState("");
   useEffect(() => {
     try { const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}"); if (Array.isArray(saved.jobs)) setJobs(saved.jobs); if (Array.isArray(saved.completed)) setCompleted(saved.completed); if (Array.isArray(saved.finished)) setFinished(saved.finished); } catch {}
@@ -81,16 +82,19 @@ export default function PotteryStudio() {
   const startFire = (job: Job) => {
     if (job.stage !== "ready-glaze" && !(job.stage === "drying" && now >= job.readyAt)) return;
     const glaze = glazeChoice[job.id] || GLAZES[0].id;
-    if (!hasEnough([{itemId: glaze, count: 1}])) { setNotice("Not enough glaze."); return; }
-    if (!craft("pottery-glaze-applied", [{itemId: glaze, count: 1}])) return;
-    setJobs(prev => prev.map(j => j.id === job.id ? {...j, stage: "firing", readyAt: Date.now() + 15 * MINUTE, glaze} : j));
+    const second = coastalDone && porcelainDone ? secondGlazeChoice[job.id] : undefined;
+    if (second && second === glaze) { setNotice("Choose two different glazes to mix."); return; }
+    const ingredients = [{itemId: glaze, count: 1}, ...(second ? [{itemId: second, count: 1}] : [])];
+    if (!hasEnough(ingredients)) { setNotice("Not enough glaze for the selected finish."); return; }
+    if (!craft("pottery-glaze-applied", ingredients)) return;
+    setJobs(prev => prev.map(j => j.id === job.id ? {...j, stage: "firing", readyAt: Date.now() + 15 * MINUTE, glaze: second ? [glaze, second].sort().join("+") : glaze} : j));
     playPotterySound("glaze", "kiln");
-    setNotice("Glazed pottery is firing in the kiln.");
+    setNotice(second ? "Two glazes combined. Pottery is firing in the kiln." : "Glazed pottery is firing in the kiln.");
   };
   const collect = (job: Job) => {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
-    const variantId = COLORED_SHAPES.includes(job.piece) && job.glaze ? `${job.piece}--${job.glaze}` : job.piece;
+    const variantId = COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
     if (!craft(collectibleId, [])) return;
     setFinished(prev => [...prev, { piece: job.piece, glaze: job.glaze || "clear-pottery-glaze", itemId: collectibleId, collectedAt: Date.now() }]);
@@ -100,11 +104,12 @@ export default function PotteryStudio() {
     setNotice("Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
   };
   const potteryImage = (piece: string, glaze?: string) => {
-    const variantId = COLORED_SHAPES.includes(piece) && glaze ? `${piece}--${glaze}` : piece;
+    const variantId = COLORED_SHAPES.includes(piece) && glaze && !glaze.includes("+") ? `${piece}--${glaze}` : piece;
     return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
   };
+  const glazeName = (glaze: string) => glaze.split("+").map(id => GLAZES.find(g => g.id === id)?.name || id).join(" + ");
   const potteryFilter = (piece: string, glaze?: string) => {
-    if (!glaze || piece === "seashell-cup") return undefined;
+    if (!glaze || glaze.includes("+") || piece === "seashell-cup") return undefined;
     const image = potteryImage(piece, glaze);
     if (image !== ITEMS[piece]?.icon) return undefined;
     return GLAZE_FILTERS[glaze];
@@ -128,7 +133,7 @@ export default function PotteryStudio() {
         <p className="text-sm">{group.unlocked ? "Unlocked" : "Locked"} — Reward: {group.reward}</p>
         <ul className="mt-2 space-y-1 text-sm">{group.pieces.map(piece => <li key={piece.id}>{completedDesigns.has(piece.id) ? "✓ Completed: " : "Not yet completed: "}{piece.name}</li>)}</ul>
       </div>)}
-      <p className="font-semibold">{coastalDone && porcelainDone ? "Artisan's Glaze Palette unlocked! Glaze mixing is coming in the next phase." : "Artisan's Glaze Palette: Complete both clay collections to unlock glaze mixing."}</p>
+      <p className="font-semibold">{coastalDone && porcelainDone ? "Artisan's Glaze Palette unlocked! Select an optional second glaze when finishing pottery. Each selected glaze uses one portion." : "Artisan's Glaze Palette: Complete both clay collections to unlock mixing two glazes."}</p>
     </section>
     <div className="grid gap-3 sm:grid-cols-2">{PIECES.map(piece => {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
@@ -150,10 +155,11 @@ export default function PotteryStudio() {
       return <article key={job.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
         {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <Image src={potteryImage(job.piece, job.glaze)} style={{ filter: potteryFilter(job.piece, job.glaze) }} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
-        {job.glaze && <p className="text-sm">Applied glaze: {GLAZES.find(g => g.id === job.glaze)?.name || job.glaze}</p>}
+        {job.glaze && <p className="text-sm">Applied glaze: {glazeName(job.glaze)}</p>}
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
         {readyGlaze && <div className="mt-2 space-y-2"><label className="block text-sm font-semibold" htmlFor={"glaze-"+job.id}>Choose glaze</label>
           <select id={"glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={glazeChoice[job.id] || GLAZES[0].id} onChange={e => setGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select>
+          {coastalDone && porcelainDone && <><label className="block text-sm font-semibold" htmlFor={"second-glaze-"+job.id}>Second glaze (optional — Artisan's Palette)</label><select id={"second-glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={secondGlazeChoice[job.id] || ""} onChange={e => setSecondGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}><option value="">No second glaze</option>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select><p className="text-xs">Mixing uses one portion of each glaze. The finished collection records both colors; mixed pieces currently use their base artwork and inventory item.</p></>}
           <button type="button" onClick={() => startFire(job)} className="ml-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Glaze and fire</button></div>}
         {readyCollect && <button type="button" onClick={() => collect(job)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect finished pottery</button>}
       </article>;
@@ -166,7 +172,7 @@ export default function PotteryStudio() {
           <article key={item.piece + "::" + item.glaze} className="rounded-xl border border-teal-200 p-2">
             <Image src={potteryImage(item.piece, item.glaze)} style={{ filter: potteryFilter(item.piece, item.glaze) }} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/>
             <p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p>
-            <p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p>
+            <p className="text-sm">{glazeName(item.glaze)} glaze</p>
             <p className="text-sm font-semibold">Crafted: {count}</p>
           </article>)}</div>}
     </section>
