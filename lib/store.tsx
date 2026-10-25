@@ -488,6 +488,9 @@ interface Ctx {
   claimBooSand: (itemId: string) => boolean;
   deliverBooToolSet: () => boolean;
   saveFlowerArrangement: (vaseId: string, stems: {id:string;slot:number}[], requestedName: string) => boolean;
+  flowerArrangementValue: (arrangement: SavedFlowerArrangement) => number;
+  sellFlowerArrangement: (id:string) => boolean;
+  giftFlowerArrangement: (id:string,villagerId:string) => boolean;
   createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string) => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
@@ -2462,6 +2465,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const flowerArrangementValue = (arrangement: SavedFlowerArrangement) => {
+    const special = /moon|glow|radiant|twinkle|orchid|winter|christmas|hibiscus|rain-lily|rare/i;
+    const uncommon = /sea-holly|morning-glory|primrose|mallow|lavender|sunflower/i;
+    const stemValue = arrangement.stems.reduce((total,stem)=>total+(special.test(stem.id)?18:uncommon.test(stem.id)?10:6),0);
+    const vaseValue = arrangement.vaseId.includes("--") ? 20 : arrangement.vaseId.startsWith("pearl-vase") ? 24 : 12;
+    return vaseValue+stemValue+(arrangement.stems.length>=6?12:0);
+  };
+  const sellFlowerArrangement = (id:string) => {
+    const arrangement=(stateRef.current.flowerArrangements||[]).find(a=>a.id===id);
+    if(!arrangement)return false;
+    const value=flowerArrangementValue(arrangement);
+    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id),sandDollars:old.sandDollars+value}));
+    play("sandDollarCoin");
+    toast(`Seaweed paid ${value} Sand Dollars for ${arrangement.name}.`);
+    return true;
+  };
+  const giftFlowerArrangement = (id:string,villagerId:string) => {
+    const arrangement=(stateRef.current.flowerArrangements||[]).find(a=>a.id===id);
+    const villager=VILLAGERS[villagerId];
+    if(!arrangement||!villager)return false;
+    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id)}));
+    play("craftSuccess");
+    toast(`${villager.name} happily received ${arrangement.name}!`);
+    return true;
+  };
+
   const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string) => {
     if (layers.length !== 5 || layers.some((id) => !(CUSTOM_SAND_IDS as readonly string[]).includes(id)) || (accentId && !(CUSTOM_SAND_ACCENT_IDS as readonly string[]).includes(accentId))) return { ok: false };
     const costs: Record<string, number> = { "empty-glass-bottle": 1 };
@@ -2686,6 +2715,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       deliverBooToolSet,
       createCustomSandBottle,
       saveFlowerArrangement,
+      flowerArrangementValue,
+      sellFlowerArrangement,
+      giftFlowerArrangement,
       toggleCustomSandBottleFavorite,
       sellCustomSandBottle,
       discoverBabyFish,
