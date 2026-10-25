@@ -34,7 +34,8 @@ const POSITIONS = [
 ];
 function sound(file:string) { try { const a = new Audio("/audio/"+file); a.volume=.5; void a.play().catch(()=>{}); } catch {} }
 export default function FlowerArranging() {
- const {state}=useGame();
+ const {state,saveFlowerArrangement}=useGame();
+ const [name,setName]=useState("");
  const [size,setSize]=useState<Size>("small");
  const [vase,setVase]=useState("");
  const [stems,setStems]=useState<Stem[]>([]);
@@ -49,10 +50,11 @@ export default function FlowerArranging() {
  </div>;
  const used=(id:string)=>stems.filter(s=>s.id===id).length;
  const add=(id:string)=>{if(stems.length>=SIZES[size] || used(id)>=(state.inventory[id]||0))return;setStems(p=>[...p,{id,slot:p.length}]);sound("Flower-placement.mp3");setPreview(false);setMessage(ITEMS[id].name+" added.");};
- const finish=()=>{if(!vase || !stems.length)return;setPreview(true);sound("Flower-arrangement-complete.mp3");setMessage("Arrangement preview complete! No materials have been consumed. Saving, gifting and selling will be connected in the next phase.");};
+ const finish=()=>{if(!vase||!stems.length)return;setPreview(true);sound("Flower-arrangement-complete.mp3");setMessage("Preview ready. Save to keep this exact design.");};
+ const save=()=>{if(!vase||!stems.length)return;if(!saveFlowerArrangement(vase,stems,name)){setMessage("Unable to save. Check that the vase and all flowers are still in inventory.");return;}sound("Flower-arrangement-complete.mp3");setMessage("Arrangement saved in your gallery.");setStems([]);setVase("");setName("");setPreview(false);};
  return <section aria-label="Flower arranging studio" className="space-y-4">
  <h2 className="font-serif text-2xl font-bold">Flower Arranging Studio</h2>
- <p>Choose a vase and place flowers from your inventory. You can undo or rearrange stems before previewing. This first version does not consume inventory.</p>
+ <p>Choose a vase and place flowers from your inventory. You can undo or rearrange stems before previewing. Previewing does not consume inventory. Saving uses one vase and the selected flowers.</p>
  <div className="relative overflow-hidden rounded-xl bg-rose-100"><Image src={ROOT+"Flower-shop-background.PNG"} alt="Flower shop arranging counter" width={900} height={600} unoptimized className="w-full object-contain"/><div className="absolute inset-x-[18%] bottom-[5%] flex justify-center">{bouquet(true)}</div></div>
  <section aria-label="Bouquet close-up preview" className="rounded-xl border border-rose-300 bg-white p-3"><h3 className="font-bold">Your bouquet — live preview</h3><p className="text-sm">Choose positions below to change how the stems overlap. Your flowers stay in the vase.</p><div className="mt-2 overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">{bouquet(false)}</div>{preview && <p role="status" className="mt-2 font-semibold">Finished arrangement preview: {stems.map(x=>ITEMS[x.id]?.name).join(", ")} in {ITEMS[vase]?.name}.</p>}</section>
  <label className="block font-bold" htmlFor="flower-size">Bouquet size</label>
@@ -66,7 +68,17 @@ export default function FlowerArranging() {
  <h3 className="font-bold">Arrange individual stems</h3>
  <p className="text-sm">Choose a position for each flower. Selecting an occupied position swaps the two flowers. Each position changes its angle and layering.</p>
  <ol className="space-y-2">{stems.map((stem,i)=><li key={i} className="rounded-lg bg-white p-3"><div className="flex items-center justify-between gap-2"><span className="font-semibold">{i+1}. {ITEMS[stem.id]?.name}</span><button type="button" onClick={()=>{setStems(p=>p.filter((_,j)=>j!==i));setPreview(false);}} className="min-h-11 rounded bg-stone-200 px-3">Remove</button></div><label htmlFor={`flower-position-${i}`} className="mt-2 block text-sm font-semibold">Position</label><select id={`flower-position-${i}`} value={stem.slot} onChange={e=>move(i,Number(e.target.value))} className="min-h-11 w-full rounded-lg border p-2">{POSITIONS.map((p,j)=><option key={p.name} value={j}>{p.name}</option>)}</select></li>)}</ol>
+ <label className="block font-bold" htmlFor="flower-arrangement-name">Arrangement name</label><input id="flower-arrangement-name" value={name} maxLength={50} onChange={e=>setName(e.target.value)} placeholder="Coastal Flower Arrangement" className="min-h-11 w-full rounded-lg border p-2"/>
  <p role="status" aria-live="polite">{message}</p>
  <button type="button" disabled={!vase||!stems.length} onClick={finish} className="min-h-11 rounded-xl bg-rose-800 px-5 py-3 font-bold text-white disabled:opacity-50">Preview finished arrangement</button>
+ <button type="button" disabled={!vase||!stems.length} onClick={save} className="min-h-11 rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white disabled:opacity-50">Finish & Save Arrangement</button>
+ <section aria-label="My Flower Arrangements" className="space-y-3 rounded-xl border border-rose-300 bg-white p-3"><h3 className="text-xl font-bold">My Flower Arrangements</h3>
+ {!(state.flowerArrangements||[]).length && <p>No saved arrangements yet.</p>}
+ {(state.flowerArrangements||[]).map(item=><article key={item.id} className="rounded-xl border p-3"><h4 className="font-bold">{item.name}</h4><p className="text-sm">{item.stems.length} flowers · {ITEMS[item.vaseId]?.name}</p>
+ <div className="relative mx-auto h-72 max-w-sm overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">
+ {item.stems.map((stem,i)=>{const p=POSITIONS[stem.slot];const art=FLOWERS[stem.id];return art?<Image key={i} src={ROOT+art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{left:p.x+"%",top:p.y+"%",transform:`translate(-50%, -10%) rotate(${p.angle}deg) scale(${p.scale})`,transformOrigin:"50% 85%",zIndex:p.y<30?2:p.y<45?4:6}}/>:null;})}
+ {ITEMS[item.vaseId] && <Image src={ITEMS[item.vaseId].icon} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{zIndex:10}}/>}</div>
+ <p className="text-sm">Flowers: {item.stems.map(x=>ITEMS[x.id]?.name+" ("+POSITIONS[x.slot]?.name+")").join(", ")}</p></article>)}
+ </section>
  </section>;
 }
