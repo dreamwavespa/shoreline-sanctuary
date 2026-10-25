@@ -1632,7 +1632,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const visitNightVisitor = (villagerId: "celeste" | "orion") => {
     const current = stateRef.current;
-    if (!current.notebookRewardsClaimed.includes("lighthouse-lookout")) return { counted: false, visits: current.nightVisitorVisits[villagerId] || 0, rewardItemId: null };
+    if (!current.notebookRewardsClaimed.includes("lighthouse-lookout") && !["lookout-distant-island", "lookout-lantern-boat", "lookout-moonlit-whale", "lookout-shooting-stars"].some((id) => current.lookoutSightings.includes(id))) { toast("Discover a nighttime lighthouse lookout sighting to meet this visitor."); return { counted: false, visits: current.nightVisitorVisits[villagerId] || 0, rewardItemId: null }; }
     const now = new Date();
     const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const previousVisits = current.nightVisitorVisits[villagerId] || 0;
