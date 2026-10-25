@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ITEMS } from "@/lib/items";
+import { VILLAGERS } from "@/lib/villagers";
 import { useGame } from "@/lib/store";
 
 const ROOT = "/images/Flower shop/";
@@ -34,7 +35,8 @@ const POSITIONS = [
 ];
 function sound(file:string) { try { const a = new Audio("/audio/"+file); a.volume=.5; void a.play().catch(()=>{}); } catch {} }
 export default function FlowerArranging() {
- const {state,saveFlowerArrangement}=useGame();
+ const {state,saveFlowerArrangement,flowerArrangementValue,sellFlowerArrangement,giftFlowerArrangement}=useGame();
+ const [giftTargets,setGiftTargets]=useState<Record<string,string>>({});
  const [name,setName]=useState("");
  const [size,setSize]=useState<Size>("small");
  const [vase,setVase]=useState("");
@@ -76,7 +78,13 @@ export default function FlowerArranging() {
  {!(state.flowerArrangements||[]).length && <p>No saved arrangements yet.</p>}
  {(state.flowerArrangements||[]).map(item=><article key={item.id} className="rounded-xl border p-3"><h4 className="font-bold">{item.name}</h4><p className="text-sm">{item.stems.length} flowers · {ITEMS[item.vaseId]?.name}</p>
  <div className="overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">{bouquet(false,item.stems,item.vaseId)}</div>
- <p className="text-sm">Flowers: {item.stems.map(x=>ITEMS[x.id]?.name+" ("+POSITIONS[x.slot]?.name+")").join(", ")}</p></article>)}
+ <p className="text-sm">Flowers: {item.stems.map(x=>ITEMS[x.id]?.name+" ("+POSITIONS[x.slot]?.name+")").join(", ")}</p>
+ <p className="mt-2 font-semibold">Seaweed's offer: {flowerArrangementValue(item)} Sand Dollars</p>
+ <div className="mt-3 flex flex-wrap gap-2"><button type="button" className="min-h-11 rounded-lg bg-teal-800 px-3 py-2 text-white" onClick={()=>{if(window.confirm(`Sell ${item.name} to Seaweed for ${flowerArrangementValue(item)} Sand Dollars?`))sellFlowerArrangement(item.id);}}>Sell to Seaweed</button></div>
+ <label className="mt-3 block font-semibold" htmlFor={`flower-gift-${item.id}`}>Gift arrangement to</label>
+ <select id={`flower-gift-${item.id}`} className="min-h-11 w-full rounded-lg border p-2" value={giftTargets[item.id]||""} onChange={e=>setGiftTargets(old=>({...old,[item.id]:e.target.value}))}><option value="">Choose a character</option>{Object.values(VILLAGERS).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select>
+ <button type="button" disabled={!giftTargets[item.id]} className="mt-2 min-h-11 rounded-lg bg-rose-800 px-3 py-2 text-white disabled:opacity-50" onClick={()=>{const target=giftTargets[item.id];if(target&&window.confirm(`Give ${item.name} to ${VILLAGERS[target]?.name}?`))giftFlowerArrangement(item.id,target);}}>Give as gift</button>
+ </article>)}
  </section>
  </section>;
 }
