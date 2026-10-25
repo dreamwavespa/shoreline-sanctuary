@@ -524,7 +524,7 @@ export default function BeachScene() {
           ...(travelerSchedule?.shelby?.available ? [{ id: "shelby" as const, name: "Shelby", image: "/images/Shelby-transparent.PNG", x: 61, y: 43 }] : []),
           ...(travelerSchedule?.misty?.available ? [{ id: "misty" as const, name: "Misty", image: "/images/Misty-transparent.PNG", x: 92, y: 12 }] : []),
           { id: "angel", name: "Angel", image: "/images/Angel-transparent.PNG", x: 12, y: 52 },
-          ...(nighttime && state.notebookRewardsClaimed.includes("lighthouse-lookout") ? [
+          ...(nighttime && ["lookout-distant-island", "lookout-lantern-boat", "lookout-moonlit-whale", "lookout-shooting-stars"].some((id) => state.lookoutSightings.includes(id)) ? [
             { id: "celeste" as const, name: "Celeste", image: "/images/Celeste-transparent.PNG", x: 42, y: 11 },
             { id: "orion" as const, name: "Orion", image: "/images/Orion-transparent.PNG", x: 72, y: 13 },
           ] : []),
