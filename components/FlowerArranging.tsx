@@ -21,7 +21,7 @@ type Stem = { id:string; slot:number };
 const POSITIONS = [{left:18,top:29},{left:50,top:15},{left:80,top:29},{left:32,top:45},{left:66,top:45},{left:50,top:36},{left:12,top:52},{left:87,top:52},{left:38,top:12},{left:65,top:12}];
 function sound(file:string) { try { const a = new Audio("/audio/"+file); a.volume=.5; void a.play().catch(()=>{}); } catch {} }
 export default function FlowerArranging() {
- const {state,craft}=useGame();
+ const {state}=useGame();
  const [size,setSize]=useState<Size>("small");
  const [vase,setVase]=useState("");
  const [stems,setStems]=useState<Stem[]>([]);
@@ -30,10 +30,10 @@ export default function FlowerArranging() {
  const flowers=Object.keys(FLOWERS).filter(id=>ITEMS[id] && state.inventory[id]>0);
  const used=(id:string)=>stems.filter(s=>s.id===id).length;
  const add=(id:string)=>{if(stems.length>=SIZES[size] || used(id)>=(state.inventory[id]||0))return;setStems(p=>[...p,{id,slot:p.length}]);sound("Flower-placement.mp3");setMessage(ITEMS[id].name+" added.");};
- const finish=()=>{if(!vase || !stems.length)return; const counts=new Map<string,number>();for(const s of stems)counts.set(s.id,(counts.get(s.id)||0)+1); const materials=[{itemId:vase,count:1},...Array.from(counts,([itemId,count])=>({itemId,count}))];if(!craft("flower-arrangement",materials)){setMessage("Unable to finish; check materials.");return;}sound("Flower-arrangement-complete.mp3");setStems([]);setVase("");setMessage("Arrangement completed! Materials used. A collectible arrangement and gifting/selling will be added in the next phase.");};
+ const finish=()=>{if(!vase || !stems.length)return;sound("Flower-arrangement-complete.mp3");setMessage("Arrangement preview complete! No materials have been consumed. Saving, gifting and selling will be connected in the next phase.");};
  return <section aria-label="Flower arranging studio" className="space-y-4">
  <h2 className="font-serif text-2xl font-bold">Flower Arranging Studio</h2>
- <p>Choose a vase and place flowers from your inventory. You can undo or rearrange stems before finishing.</p>
+ <p>Choose a vase and place flowers from your inventory. You can undo or rearrange stems before previewing. This first version does not consume inventory.</p>
  <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-rose-100">
  <Image src={ROOT+"Flower-shop-background.PNG"} alt="Flower arranging studio interior" fill unoptimized className="object-contain"/>
  {stems.map((s,i)=>{const p=POSITIONS[s.slot];return <Image key={i} src={ROOT+FLOWERS[s.id]} alt="" width={90} height={120} unoptimized className="absolute h-[33%] w-[18%] object-contain" style={{left:p.left+"%",top:p.top+"%",transform:"translate(-50%,-30%)"}}/>})}
@@ -50,6 +50,6 @@ export default function FlowerArranging() {
  <h3 className="font-bold">Arrangement positions</h3>
  <ol className="space-y-2">{stems.map((s,i)=><li key={i} className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-2"><span className="flex-1">{i+1}. {ITEMS[s.id]?.name}</span><button type="button" disabled={i===0} onClick={()=>setStems(p=>p.map((x,j)=>j===i?{...x,slot:Math.max(0,x.slot-1)}:j===i-1?{...x,slot:x.slot+1}:x))} className="min-h-11 rounded bg-rose-100 px-2">Move left</button><button type="button" disabled={i===stems.length-1} onClick={()=>setStems(p=>p.map((x,j)=>j===i?{...x,slot:Math.min(9,x.slot+1)}:j===i+1?{...x,slot:x.slot-1}:x))} className="min-h-11 rounded bg-rose-100 px-2">Move right</button><button type="button" onClick={()=>setStems(p=>p.filter((_,j)=>j!==i).map((x,j)=>({...x,slot:j})))} className="min-h-11 rounded bg-stone-200 px-2">Remove</button></li>)}</ol>
  <p role="status" aria-live="polite">{message}</p>
- <button type="button" disabled={!vase||!stems.length} onClick={finish} className="min-h-11 rounded-xl bg-rose-800 px-5 py-3 font-bold text-white disabled:opacity-50">Finish arrangement</button>
+ <button type="button" disabled={!vase||!stems.length} onClick={finish} className="min-h-11 rounded-xl bg-rose-800 px-5 py-3 font-bold text-white disabled:opacity-50">Preview finished arrangement</button>
  </section>;
 }
