@@ -44,9 +44,9 @@ export default function FlowerArranging() {
  const flowers=Object.keys(FLOWERS).filter(id=>ITEMS[id] && state.inventory[id]>0);
  const [preview,setPreview]=useState(false);
  const move=(index:number,slot:number)=>{setStems(old=>old.map((stem,i)=>i===index?{...stem,slot}:stem.slot===slot?{...stem,slot:old[index].slot}:stem));setPreview(false);};
- const bouquet=(compact:boolean)=> <div className={compact?"relative mx-auto h-52 w-full max-w-xs":"relative mx-auto h-80 w-full max-w-sm"} aria-label={stems.length?stems.map(s=>ITEMS[s.id]?.name+" at "+POSITIONS[s.slot].name).join("; "):"Empty bouquet"}>
- {stems.map((stem,i)=>{const p=POSITIONS[stem.slot];return <Image key={i} src={ROOT+FLOWERS[stem.id]} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{left:p.x+"%",top:p.y+"%",transform:`translate(-50%, -10%) rotate(${p.angle}deg) scale(${p.scale})`,transformOrigin:"50% 85%",zIndex:p.y<30?2:p.y<45?4:6}}/>})}
- {vase && <Image src={ITEMS[vase].icon} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{zIndex:10}}/>}
+ const bouquet=(compact:boolean,displayStems:Stem[]=stems,displayVase:string=vase)=> <div className={compact?"relative mx-auto h-52 w-full max-w-xs":"relative mx-auto h-80 w-full max-w-sm"} aria-label={displayStems.length?displayStems.map(st=>ITEMS[st.id]?.name+" at "+POSITIONS[st.slot]?.name).join("; "):"Empty bouquet"}>
+ {displayStems.map((stem,i)=>{const p=POSITIONS[stem.slot];const art=FLOWERS[stem.id];if(!p||!art)return null;const anchorX=50+(p.x-50)*.36;const anchorY=54+(p.y-35)*.32;return <Image key={i} src={ROOT+art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{left:anchorX+"%",top:anchorY+"%",transform:`translate(-50%, -72%) rotate(${p.angle*.65}deg) scale(${p.scale*.87})`,transformOrigin:"50% 85%",zIndex:p.y<30?2:p.y<45?4:6}}/>})}
+ {displayVase && ITEMS[displayVase] && <Image src={ITEMS[displayVase].icon} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{zIndex:10}}/>}
  </div>;
  const used=(id:string)=>stems.filter(s=>s.id===id).length;
  const add=(id:string)=>{if(stems.length>=SIZES[size] || used(id)>=(state.inventory[id]||0))return;setStems(p=>[...p,{id,slot:p.length}]);sound("Flower-placement.mp3");setPreview(false);setMessage(ITEMS[id].name+" added.");};
@@ -75,9 +75,7 @@ export default function FlowerArranging() {
  <section aria-label="My Flower Arrangements" className="space-y-3 rounded-xl border border-rose-300 bg-white p-3"><h3 className="text-xl font-bold">My Flower Arrangements</h3>
  {!(state.flowerArrangements||[]).length && <p>No saved arrangements yet.</p>}
  {(state.flowerArrangements||[]).map(item=><article key={item.id} className="rounded-xl border p-3"><h4 className="font-bold">{item.name}</h4><p className="text-sm">{item.stems.length} flowers · {ITEMS[item.vaseId]?.name}</p>
- <div className="relative mx-auto h-72 max-w-sm overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">
- {item.stems.map((stem,i)=>{const p=POSITIONS[stem.slot];const art=FLOWERS[stem.id];return art?<Image key={i} src={ROOT+art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{left:p.x+"%",top:p.y+"%",transform:`translate(-50%, -10%) rotate(${p.angle}deg) scale(${p.scale})`,transformOrigin:"50% 85%",zIndex:p.y<30?2:p.y<45?4:6}}/>:null;})}
- {ITEMS[item.vaseId] && <Image src={ITEMS[item.vaseId].icon} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{zIndex:10}}/>}</div>
+ <div className="overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">{bouquet(false,item.stems,item.vaseId)}</div>
  <p className="text-sm">Flowers: {item.stems.map(x=>ITEMS[x.id]?.name+" ("+POSITIONS[x.slot]?.name+")").join(", ")}</p></article>)}
  </section>
  </section>;
