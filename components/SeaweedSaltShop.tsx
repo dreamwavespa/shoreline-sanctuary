@@ -106,7 +106,7 @@ export default function SeaweedSaltShop() {
                 <span className="sr-only">{area.label}</span>
               </button>
             ))}
-            <button type="button" aria-label="Open Flower Shop" onClick={(event) => openArea("flowers", event.currentTarget)} className="absolute right-[2%] top-[65%] z-20 h-[31%] w-[19%]"><Image src="/images/Flower shop/Flower-shop-entrance.PNG" alt="" fill unoptimized className="object-contain"/></button>
+            <button type="button" aria-label="Open Flower Shop" onClick={(event) => openArea("flowers", event.currentTarget)} className="absolute right-[1%] top-[55%] z-20 h-[40%] w-[23%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300"><Image src="/images/Flower shop/Flower-shop-entrance.PNG" alt="" fill unoptimized className="object-contain"/></button>
             <button type="button" aria-label="Talk to Seaweed the otter" title="Talk to Seaweed"
               onClick={(event) => openArea("talk", event.currentTarget)}
               className="absolute bottom-[3%] right-[19%] z-20 h-[43%] w-[24%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-cyan-300">
