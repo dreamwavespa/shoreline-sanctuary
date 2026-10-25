@@ -60,8 +60,11 @@ export default function PotteryStudio() {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed, finished })); }, [jobs, completed, finished, hydrated]);
-  const coastalDone = PIECES.filter(p => p.clay === "coastal").every(p => completed.includes(p.id));
-  const porcelainDone = PIECES.filter(p => p.clay === "porcelain").every(p => completed.includes(p.id));
+  const completedDesigns = new Set([...completed, ...finished.map(item => item.piece)]);
+  const coastalPieces = PIECES.filter(p => p.clay === "coastal");
+  const porcelainPieces = PIECES.filter(p => p.clay === "porcelain");
+  const coastalDone = coastalPieces.every(p => completedDesigns.has(p.id));
+  const porcelainDone = porcelainPieces.every(p => completedDesigns.has(p.id));
   const slots = 2 + Number(coastalDone) + Number(porcelainDone);
   const active = jobs.filter(j => j.stage !== "ready").length;
   const begin = (piece: typeof PIECES[number]) => {
@@ -115,10 +118,16 @@ export default function PotteryStudio() {
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
     <p>Shape pottery, wait for it to dry, choose a glaze, then fire it in the kiln. Timers continue while this page is closed.</p>
     <p className="font-semibold">Pottery spaces: {active} of {slots} in use</p>
-    <p className="text-sm">Coastal collection: {PIECES.filter(p => p.clay === "coastal" && completed.includes(p.id)).length}/4. Porcelain collection: {PIECES.filter(p => p.clay === "porcelain" && completed.includes(p.id)).length}/4.</p>
-    {coastalDone && <p>Coastal Clay Mastery: third space unlocked!</p>}
-    {porcelainDone && <p>Porcelain Mastery: fourth space unlocked!</p>}
-    {coastalDone && porcelainDone && <p>Artisan's Glaze Palette earned! Glaze mixing will be added in the next phase.</p>}
+    <section aria-labelledby="pottery-mastery-heading" className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-3">
+      <h3 id="pottery-mastery-heading" className="text-lg font-bold">Pottery mastery rewards</h3>
+      <p className="text-sm">Finish each unique pottery shape once, with any glaze. Repeat pieces and glaze colors do not affect mastery progress. Your previous finished designs count.</p>
+      {([{ label: "Coastal Clay Mastery", pieces: coastalPieces, unlocked: coastalDone, reward: "Third pottery space" }, { label: "Porcelain Clay Mastery", pieces: porcelainPieces, unlocked: porcelainDone, reward: "Fourth pottery space" }] as const).map(group => <div key={group.label} className="rounded-lg bg-white p-3">
+        <h4 className="font-semibold">{group.label}: {group.pieces.filter(p => completedDesigns.has(p.id)).length}/{group.pieces.length}</h4>
+        <p className="text-sm">{group.unlocked ? "Unlocked" : "Locked"} — Reward: {group.reward}</p>
+        <ul className="mt-2 space-y-1 text-sm">{group.pieces.map(piece => <li key={piece.id}>{completedDesigns.has(piece.id) ? "✓ Completed: " : "Not yet completed: "}{piece.name}</li>)}</ul>
+      </div>)}
+      <p className="font-semibold">{coastalDone && porcelainDone ? "Artisan's Glaze Palette unlocked! Glaze mixing is coming in the next phase." : "Artisan's Glaze Palette: Complete both clay collections to unlock glaze mixing."}</p>
+    </section>
     <div className="grid gap-3 sm:grid-cols-2">{PIECES.map(piece => {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
       const have = state.inventory[clayId] || 0;
