@@ -1,16 +1,30 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 
 export default function BucketPanel() {
   const { state, bucketCapacity, setScreen } = useGame();
+  const [search,setSearch] = useState("");
+  const [category,setCategory] = useState("all");
+  const classify = (id:string) => {
+    const item=ITEMS[id];
+    if (/flower|blossom|lavender|orchid|hibiscus|holly|rose|moonflower/i.test(id) && !/seed|petal|shard|glaze|painting|mosaic|marshmallow/i.test(id)) return "flowers";
+    if (/seed|soil|sapling|plant/i.test(id)) return "gardening";
+    if (/fish|kelp|coral|seaweed|pearl|shell|sea.glass/i.test(id) && item?.category==="raw") return "ocean";
+    if (item?.category==="food") return "food";
+    if (item?.category==="decor") return "decor";
+    if (item?.category==="special" || item?.rarity==="rare") return "special";
+    if (item?.category==="raw") return "materials";
+    return "other";
+  };
   const pct = Math.min(100, Math.round((state.bucketCount / bucketCapacity) * 100));
   const tier = pct <= 25 ? "Empty" : pct <= 75 ? "Half-Full" : "Full to the Brim!";
 
   const entries = Object.entries(state.inventory)
-    .filter(([, count]) => count > 0)
+    .filter(([id, count]) => count > 0 && !!ITEMS[id] && (category==="all" || classify(id)===category) && (!search.trim() || ITEMS[id].name.toLowerCase().includes(search.trim().toLowerCase()) || id.toLowerCase().includes(search.trim().toLowerCase())))
     .sort((a, b) => b[1] - a[1]);
   const blueprints = state.blueprints.map((id) => ITEMS[id]).filter(Boolean);
 
@@ -67,10 +81,21 @@ export default function BucketPanel() {
       </section>
 
       <h2 className="text-lg font-semibold text-amber-900 mb-2">Collection</h2>
-      {entries.length === 0 && (
+      <div className="mb-4 space-y-3 rounded-xl bg-white/80 p-3">
+        <label htmlFor="inventory-search" className="block font-semibold text-amber-900">Search inventory</label>
+        <input id="inventory-search" type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search item names" className="min-h-12 w-full rounded-lg border border-amber-300 bg-white px-3 text-base text-amber-950"/>
+        <label htmlFor="inventory-category" className="block font-semibold text-amber-900">Item category</label>
+        <select id="inventory-category" value={category} onChange={e=>setCategory(e.target.value)} className="min-h-12 w-full rounded-lg border border-amber-300 bg-white px-3 text-base text-amber-950">
+          <option value="all">All items</option><option value="flowers">Flowers</option><option value="gardening">Seeds & gardening</option><option value="ocean">Ocean finds</option><option value="food">Food & drinks</option><option value="materials">Crafting materials</option><option value="decor">Decorations & pottery</option><option value="special">Rare & special</option><option value="other">Other items</option>
+        </select>
+        <p role="status" className="text-sm text-amber-800">{entries.length} matching item types</p>
+        {(search || category!=="all") && <button type="button" className="min-h-11 rounded-lg bg-teal-800 px-4 py-2 font-semibold text-white" onClick={()=>{setSearch("");setCategory("all");}}>Clear filters</button>}
+      </div>
+      {entries.length === 0 && !search && category==="all" && (
         <p className="text-sm text-amber-700/80">Nothing collected yet — head to the beach and start tapping treasures!</p>
       )}
-      <div className="grid grid-cols-4 gap-3">
+      {entries.length===0 && (search || category!=="all") && <p role="status" className="mb-3 text-amber-800">No items match your search or category.</p>}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {entries.map(([id, count]) => {
           const def = ITEMS[id];
           if (!def) return null;
