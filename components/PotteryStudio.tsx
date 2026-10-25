@@ -104,6 +104,13 @@ export default function PotteryStudio() {
     if (image !== ITEMS[piece]?.icon) return undefined;
     return GLAZE_FILTERS[glaze];
   };
+  const groupedFinished = Object.values(finished.reduce<Record<string, { item: FinishedPottery; count: number }>>((groups, item) => {
+    const key = item.piece + "::" + item.glaze;
+    if (!groups[key]) groups[key] = { item, count: 0 };
+    groups[key].count += 1;
+    if (item.collectedAt > groups[key].item.collectedAt) groups[key].item = item;
+    return groups;
+  }, {})).sort((a, b) => b.item.collectedAt - a.item.collectedAt);
   if (!hydrated) return <p>Loading pottery studio…</p>;
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
     <p>Shape pottery, wait for it to dry, choose a glaze, then fire it in the kiln. Timers continue while this page is closed.</p>
@@ -140,7 +147,18 @@ export default function PotteryStudio() {
         {readyCollect && <button type="button" onClick={() => collect(job)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect finished pottery</button>}
       </article>;
     })}
-    <section aria-label="Finished pottery collection" className="space-y-2"><h3 className="text-lg font-bold">Finished pottery collection</h3><p className="text-sm">Completed pieces retain their selected glaze. Seashell Cups use individual color artwork; other pieces use available artwork or a color preview until more illustrations are ready.</p>{finished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> : <div className="grid grid-cols-2 gap-3">{finished.slice().reverse().map((item, index) => <article key={item.collectedAt + "-" + index} className="rounded-xl border border-teal-200 p-2"><Image src={potteryImage(item.piece, item.glaze)} style={{ filter: potteryFilter(item.piece, item.glaze) }} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/><p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p><p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p></article>)}</div>}</section>
+    <section aria-label="Finished pottery collection" className="space-y-2">
+      <h3 className="text-lg font-bold">Finished pottery collection</h3>
+      <p className="text-sm">Browse your finished pottery by shape and glaze. Matching pieces are grouped together with their quantities. Colored artwork is available for Seashell Cups and selected vases and bowls; other finishes use their base artwork until more designs are added.</p>
+      {groupedFinished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> :
+        <div className="grid grid-cols-2 gap-3">{groupedFinished.map(({ item, count }) =>
+          <article key={item.piece + "::" + item.glaze} className="rounded-xl border border-teal-200 p-2">
+            <Image src={potteryImage(item.piece, item.glaze)} style={{ filter: potteryFilter(item.piece, item.glaze) }} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/>
+            <p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p>
+            <p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p>
+            <p className="text-sm font-semibold">Crafted: {count}</p>
+          </article>)}</div>}
+    </section>
     <p role="status" className="text-sm font-semibold">{notice}</p>
     <p className="text-xs text-teal-700">This first version stores pottery timers in this browser. Cross-device syncing and phone notifications are planned for a later phase.</p>
   </section>;
