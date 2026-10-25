@@ -17,6 +17,21 @@ const PIECES = [
   { id: "moonlight-candleholder", name: "Moonlight Candleholder", clay: "porcelain", cost: 1 },
 ] as const;
 const GLAZES = [{ id: "clear-pottery-glaze", name: "Clear" }, { id: "pearl-pottery-glaze", name: "Pearl" }, { id: "iridescent-pottery-glaze", name: "Iridescent" }, { id: "orange-glaze", name: "Orange" }, { id: "glaze-ruby-red", name: "Ruby Red" }, { id: "glaze-sunflower-yellow", name: "Sunflower Yellow" }, { id: "glaze-sky-blue", name: "Sky Blue" }, { id: "glaze-sea-foam-green", name: "Sea Foam Green" }, { id: "glaze-baby-pink", name: "Baby Pink" }, { id: "glaze-pearl-white", name: "Pearl White" }, { id: "glaze-midnight-black", name: "Midnight Black" }, { id: "glaze-purple-grape", name: "Purple Grape" }, { id: "glaze-chocolate-brown", name: "Chocolate Brown" }, { id: "glaze-metallic-gold", name: "Metallic Gold" }, { id: "glaze-shimmering-silver", name: "Shimmering Silver" } ];
+const COLORED_SHAPES = ["seashell-cup", "flower-vase", "coastal-bowl", "pearl-vase", "porcelain-bowl"];
+const GLAZE_FILTERS: Record<string, string> = {
+  "glaze-ruby-red": "sepia(1) saturate(5) hue-rotate(305deg)",
+  "glaze-sunflower-yellow": "sepia(1) saturate(3) hue-rotate(350deg)",
+  "glaze-sky-blue": "saturate(1.35)",
+  "glaze-sea-foam-green": "sepia(.35) saturate(1.5) hue-rotate(35deg)",
+  "glaze-baby-pink": "sepia(.65) saturate(1.6) hue-rotate(285deg)",
+  "glaze-pearl-white": "saturate(.35) brightness(1.2)",
+  "glaze-midnight-black": "grayscale(.8) brightness(.42)",
+  "glaze-purple-grape": "sepia(.55) saturate(2) hue-rotate(105deg)",
+  "glaze-chocolate-brown": "sepia(.9) saturate(1.4) hue-rotate(335deg) brightness(.7)",
+  "glaze-metallic-gold": "sepia(.95) saturate(2) hue-rotate(350deg)",
+  "glaze-shimmering-silver": "grayscale(1) brightness(1.2)",
+  "orange-glaze": "sepia(1) saturate(3) hue-rotate(335deg)",
+};
 const POTTERY_SOUNDS = { wheel: "/audio/pottery-wheel.mp3", glaze: "/audio/pottery-glaze.mp3", kiln: "/audio/pottery-kiln.mp3", collect: "/audio/pottery-collect.mp3" } as const;
 function playPotterySound(kind: keyof typeof POTTERY_SOUNDS, next?: keyof typeof POTTERY_SOUNDS) {
   try {
@@ -70,7 +85,7 @@ export default function PotteryStudio() {
   const collect = (job: Job) => {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
-    const variantId = job.piece === "seashell-cup" && job.glaze ? `seashell-cup--${job.glaze}` : job.piece;
+    const variantId = COLORED_SHAPES.includes(job.piece) && job.glaze ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
     if (!craft(collectibleId, [])) return;
     setFinished(prev => [...prev, { piece: job.piece, glaze: job.glaze || "clear-pottery-glaze", itemId: collectibleId, collectedAt: Date.now() }]);
@@ -80,8 +95,14 @@ export default function PotteryStudio() {
     setNotice("Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
   };
   const potteryImage = (piece: string, glaze?: string) => {
-    const variantId = piece === "seashell-cup" && glaze ? `seashell-cup--${glaze}` : piece;
+    const variantId = COLORED_SHAPES.includes(piece) && glaze ? `${piece}--${glaze}` : piece;
     return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
+  };
+  const potteryFilter = (piece: string, glaze?: string) => {
+    if (!glaze || piece === "seashell-cup") return undefined;
+    const image = potteryImage(piece, glaze);
+    if (image !== ITEMS[piece]?.icon) return undefined;
+    return GLAZE_FILTERS[glaze];
   };
   if (!hydrated) return <p>Loading pottery studio…</p>;
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
@@ -109,7 +130,7 @@ export default function PotteryStudio() {
       const readyGlaze = job.stage === "ready-glaze" || (job.stage === "drying" && now >= job.readyAt);
       const readyCollect = job.stage === "ready" || (job.stage === "firing" && now >= job.readyAt);
       return <article key={job.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-        {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <Image src={potteryImage(job.piece, job.glaze)} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
+        {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <Image src={potteryImage(job.piece, job.glaze)} style={{ filter: potteryFilter(job.piece, job.glaze) }} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
         {job.glaze && <p className="text-sm">Applied glaze: {GLAZES.find(g => g.id === job.glaze)?.name || job.glaze}</p>}
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
@@ -119,7 +140,7 @@ export default function PotteryStudio() {
         {readyCollect && <button type="button" onClick={() => collect(job)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect finished pottery</button>}
       </article>;
     })}
-    <section aria-label="Finished pottery collection" className="space-y-2"><h3 className="text-lg font-bold">Finished pottery collection</h3><p className="text-sm">Completed pieces retain their selected glaze. Seashell Cups have individual collectible artwork for each color.</p>{finished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> : <div className="grid grid-cols-2 gap-3">{finished.slice().reverse().map((item, index) => <article key={item.collectedAt + "-" + index} className="rounded-xl border border-teal-200 p-2"><Image src={potteryImage(item.piece, item.glaze)} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/><p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p><p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p></article>)}</div>}</section>
+    <section aria-label="Finished pottery collection" className="space-y-2"><h3 className="text-lg font-bold">Finished pottery collection</h3><p className="text-sm">Completed pieces retain their selected glaze. Seashell Cups use individual color artwork; other pieces use available artwork or a color preview until more illustrations are ready.</p>{finished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> : <div className="grid grid-cols-2 gap-3">{finished.slice().reverse().map((item, index) => <article key={item.collectedAt + "-" + index} className="rounded-xl border border-teal-200 p-2"><Image src={potteryImage(item.piece, item.glaze)} style={{ filter: potteryFilter(item.piece, item.glaze) }} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/><p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p><p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p></article>)}</div>}</section>
     <p role="status" className="text-sm font-semibold">{notice}</p>
     <p className="text-xs text-teal-700">This first version stores pottery timers in this browser. Cross-device syncing and phone notifications are planned for a later phase.</p>
   </section>;
