@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "angels-tidal-geode-candle": { id: "angels-tidal-geode-candle", name: "Angel’s Tidal Geode Candle", category: "decor", icon: "/images/Enchanted-geode-candle.PNG", rarity: "rare", sfx: "candleLight", glows: true, artDescription: "A glowing geode candle with iridescent aqua and amethyst crystals, pearly seashells, and a golden flame." },
   "seashell-cup--clear-pottery-glaze": { id: "seashell-cup--clear-pottery-glaze", name: "Crystal Clear Seashell Cup", category: "decor", icon: "/images/Pottery/seashell-mug.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Handcrafted seashell cup with crystal clear glaze." },
   "seashell-cup--pearl-pottery-glaze": { id: "seashell-cup--pearl-pottery-glaze", name: "Pearl Seashell Cup", category: "decor", icon: "/images/Pottery/seashell-mug.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Handcrafted seashell cup with pearl glaze." },
   "seashell-cup--iridescent-pottery-glaze": { id: "seashell-cup--iridescent-pottery-glaze", name: "Iridescent Seashell Cup", category: "decor", icon: "/images/Pottery/iridescent-mug.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Handcrafted seashell cup with iridescent glaze." },
