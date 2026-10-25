@@ -68,6 +68,9 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
   const { state, collectItem } = useGame();
   const [placements, setPlacements] = useState<GardenPlacements>({});
   const [harvestTimes, setHarvestTimes] = useState<HarvestTimes>({});
+  const [cycles, setCycles] = useState(0);
+  const [initialHarvested, setInitialHarvested] = useState<Record<string, string>>({});
+  const [cycleHarvested, setCycleHarvested] = useState<Record<string, string>>({});
   const [selectedBedId, setSelectedBedId] = useState(GARDEN_BEDS[0].id);
   const [announcement, setAnnouncement] = useState("Coralie's Underwater Garden opened.");
   const [now, setNow] = useState(Date.now());
@@ -76,6 +79,7 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
   useEffect(() => {
     try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) setPlacements(JSON.parse(saved)); } catch {}
     try { const saved = localStorage.getItem(HARVEST_STORAGE_KEY); if (saved) setHarvestTimes(JSON.parse(saved)); } catch {}
+    try { const data = JSON.parse(localStorage.getItem("shoreline-coralie-cycles-v1") || "{}"); setCycles(data.cycles || 0); setInitialHarvested(data.initial || {}); setCycleHarvested(data.harvested || {}); } catch {}
     window.setTimeout(() => closeButtonRef.current?.focus(), 0);
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
@@ -83,6 +87,7 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(placements)); } catch {} }, [placements]);
   useEffect(() => { try { localStorage.setItem(HARVEST_STORAGE_KEY, JSON.stringify(harvestTimes)); } catch {} }, [harvestTimes]);
 
+  useEffect(() => { try { localStorage.setItem("shoreline-coralie-cycles-v1", JSON.stringify({ cycles, initial: initialHarvested, harvested: cycleHarvested })); } catch {} }, [cycles, initialHarvested, cycleHarvested]);
   const discovered = (option: GardenOption) => {
     if (option.rewardGiftCount) return (state.villagerGiftCounts.coralie || 0) >= option.rewardGiftCount;
     if (!option.discoveryIds) return true;
@@ -103,6 +108,8 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
     if (!discovered(option)) return;
     setPlacements((current) => ({ ...current, [selectedBedId]: option.id }));
     setHarvestTimes((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
+    setInitialHarvested((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
+    setCycleHarvested((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
     setAnnouncement(`${option.name} placed in ${selectedBed.name}.${option.harvestItemId ? " It is ready for its first harvest." : ""}`);
   };
   const harvestSelected = () => {
@@ -116,7 +123,24 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
     const harvestedAt = Date.now();
     setHarvestTimes((current) => ({ ...current, [selectedBedId]: harvestedAt }));
     setNow(harvestedAt);
-    setAnnouncement(`${selectedOption.harvestName || selectedOption.name} harvested from ${selectedBed.name} and added to your inventory. The plant remains in the garden and will regrow.`);
+    const first = initialHarvested[selectedBedId] !== selectedOption.id;
+    if (first) setInitialHarvested((current) => ({ ...current, [selectedBedId]: selectedOption.id }));
+    const harvested = first ? cycleHarvested : { ...cycleHarvested, [selectedBedId]: selectedOption.id };
+    const planted = Object.entries(placements).filter(([, id]) => GARDEN_OPTIONS.some((o) => o.id === id && !!o.harvestItemId));
+    const complete = !first && planted.length >= 4 && planted.every(([bed, id]) => harvested[bed] === id);
+    if (complete) {
+      const next = cycles + 1;
+      setCycles(next);
+      setCycleHarvested({});
+      if (next % 3 === 0) {
+        const reward = ["rare-soil", "deep-sea-seed", "storm-fiddlehead"][(next / 3 - 1) % 3];
+        collectItem(reward);
+        setAnnouncement(`Garden cycle ${next} complete! Coralie gifted ${ITEMS[reward].name}.`);
+      } else setAnnouncement(`Garden cycle ${next} complete! All plants can now contribute to the next cycle after regrowing.`);
+    } else {
+      if (!first) setCycleHarvested(harvested);
+      setAnnouncement(first ? `${selectedOption.name} initial harvest collected. It must regrow before counting toward a cycle.` : `${selectedOption.name} harvested. Cycle progress: ${planted.filter(([bed, id]) => harvested[bed] === id).length} of ${planted.length} plants.`);
+    }
   };
   const clearSelectedBed = () => {
     const existingId = placements[selectedBedId];
@@ -124,9 +148,11 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
     const existing = GARDEN_OPTIONS.find((o) => o.id === existingId);
     setPlacements((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
     setHarvestTimes((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
+    setInitialHarvested((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
+    setCycleHarvested((current) => { const next = { ...current }; delete next[selectedBedId]; return next; });
     setAnnouncement(`${existing?.name || "Decoration"} removed from ${selectedBed.name}.`);
   };
-  const resetGarden = () => { setPlacements({}); setHarvestTimes({}); setAnnouncement("The underwater garden has been cleared. All six garden spaces are ready to decorate again."); };
+  const resetGarden = () => { setPlacements({}); setHarvestTimes({}); setInitialHarvested({}); setCycleHarvested({}); setAnnouncement("The underwater garden has been cleared. All six garden spaces are ready to decorate again."); };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#071f2d]/95 p-4 text-white" role="dialog" aria-modal="true" aria-labelledby="coralie-garden-title">
@@ -136,6 +162,7 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
           <div className="mt-3 flex flex-wrap gap-2 text-xs"><span className="rounded-full bg-emerald-950/70 px-3 py-1">{placedCount}/6 spaces decorated</span><span className="rounded-full bg-emerald-950/70 px-3 py-1">{plantedCount} living plant{plantedCount === 1 ? "" : "s"}</span><span className="rounded-full bg-emerald-950/70 px-3 py-1">{unlockedPlants.length}/{unlockedPlants.length + lockedPlants.length} plants discovered</span></div>
         </div>
         <div aria-live="polite" aria-atomic="true" className="sr-only">{announcement}</div>
+        <section aria-label="Garden cycle progress" className="mb-4 rounded-xl bg-emerald-950 p-3"><p>Completed garden cycles: {cycles}. Next reward at cycle {Math.ceil((cycles + 1) / 3) * 3}.</p><p>Harvest all planted harvestable plants after their initial harvest and regrowth. At least four plants are required; decorations do not count.</p><p>Current progress: {Object.entries(placements).filter(([bed, id]) => GARDEN_OPTIONS.some((o) => o.id === id && !!o.harvestItemId) && cycleHarvested[bed] === id).length} plants harvested toward this cycle.</p></section>
 
         <section aria-labelledby="garden-preview-heading" className="mb-5 overflow-hidden rounded-3xl bg-gradient-to-b from-cyan-900/80 to-emerald-950/90 shadow-xl ring-1 ring-cyan-300/20">
           <div className="p-4"><h2 id="garden-preview-heading" className="font-serif text-xl font-bold text-cyan-50">Garden View</h2><p className="mt-1 text-sm text-cyan-100/80">Select one of the six named spaces to plant, decorate, or harvest it.</p></div>
