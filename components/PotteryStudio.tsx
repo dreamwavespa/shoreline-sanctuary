@@ -17,6 +17,18 @@ const PIECES = [
   { id: "moonlight-candleholder", name: "Moonlight Candleholder", clay: "porcelain", cost: 1 },
 ] as const;
 const GLAZES = [{ id: "clear-pottery-glaze", name: "Clear" }, { id: "pearl-pottery-glaze", name: "Pearl" }, { id: "iridescent-pottery-glaze", name: "Iridescent" }, { id: "orange-glaze", name: "Orange" }, { id: "glaze-ruby-red", name: "Ruby Red" }, { id: "glaze-sunflower-yellow", name: "Sunflower Yellow" }, { id: "glaze-sky-blue", name: "Sky Blue" }, { id: "glaze-sea-foam-green", name: "Sea Foam Green" }, { id: "glaze-baby-pink", name: "Baby Pink" }, { id: "glaze-pearl-white", name: "Pearl White" }, { id: "glaze-midnight-black", name: "Midnight Black" }, { id: "glaze-purple-grape", name: "Purple Grape" }, { id: "glaze-chocolate-brown", name: "Chocolate Brown" }, { id: "glaze-metallic-gold", name: "Metallic Gold" }, { id: "glaze-shimmering-silver", name: "Shimmering Silver" } ];
+const SPECIAL_GLAZES = [
+  { name: "Mermaid Shimmer", colors: ["glaze-sky-blue", "iridescent-pottery-glaze"], description: "Ocean blue with lavender and aqua reflections." },
+  { name: "Sunset Pearl", colors: ["glaze-baby-pink", "orange-glaze"], description: "Peach and coral-pink sunset swirls." },
+  { name: "Moonlit Silver", colors: ["glaze-midnight-black", "glaze-shimmering-silver"], description: "Midnight tones with silver streaks." },
+  { name: "Royal Coral", colors: ["glaze-ruby-red", "glaze-metallic-gold"], description: "Ruby red with golden veins." },
+  { name: "Sea Glass Mist", colors: ["glaze-sea-foam-green", "clear-pottery-glaze"], description: "Frosted translucent sea-glass green." },
+  { name: "Blushing Pearl", colors: ["glaze-baby-pink", "glaze-pearl-white"], description: "Soft pearlescent pink." },
+  { name: "Aurora Tide", colors: ["glaze-purple-grape", "iridescent-pottery-glaze"], description: "Violet and teal aurora reflections." },
+  { name: "Golden Driftwood", colors: ["glaze-chocolate-brown", "glaze-metallic-gold"], description: "Warm driftwood brown with golden highlights." },
+] as const;
+const mixKey = (colors: readonly string[]) => [...colors].sort().join("+");
+const specialGlaze = (glaze?: string) => SPECIAL_GLAZES.find(s => mixKey(s.colors) === glaze);
 const COLORED_SHAPES = ["seashell-cup", "flower-vase", "coastal-bowl", "pearl-vase", "porcelain-bowl"];
 const GLAZE_FILTERS: Record<string, string> = {
   "glaze-ruby-red": "sepia(1) saturate(5) hue-rotate(305deg)",
@@ -101,19 +113,22 @@ export default function PotteryStudio() {
     setCompleted(prev => prev.includes(job.piece) ? prev : [...prev, job.piece]);
     setJobs(prev => prev.filter(j => j.id !== job.id));
     playPotterySound("collect");
-    setNotice("Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
+    const special = specialGlaze(job.glaze);
+    const previouslyDiscovered = new Set(finished.map(item => specialGlaze(item.glaze)?.name).filter(Boolean));
+    setNotice(special && !previouslyDiscovered.has(special.name) ? `New glaze discovered: ${special.name}! Recorded in your Artisan’s Glaze Discoveries.` : "Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
   };
   const potteryImage = (piece: string, glaze?: string) => {
     const variantId = COLORED_SHAPES.includes(piece) && glaze && !glaze.includes("+") ? `${piece}--${glaze}` : piece;
     return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
   };
-  const glazeName = (glaze: string) => glaze.split("+").map(id => GLAZES.find(g => g.id === id)?.name || id).join(" + ");
+  const glazeName = (glaze: string) => specialGlaze(glaze)?.name || glaze.split("+").map(id => GLAZES.find(g => g.id === id)?.name || id).join(" + ");
   const potteryFilter = (piece: string, glaze?: string) => {
     if (!glaze || glaze.includes("+") || piece === "seashell-cup") return undefined;
     const image = potteryImage(piece, glaze);
     if (image !== ITEMS[piece]?.icon) return undefined;
     return GLAZE_FILTERS[glaze];
   };
+  const discoveredSpecials = new Set(finished.map(item => specialGlaze(item.glaze)?.name).filter(Boolean));
   const groupedFinished = Object.values(finished.reduce<Record<string, { item: FinishedPottery; count: number }>>((groups, item) => {
     const key = item.piece + "::" + item.glaze;
     if (!groups[key]) groups[key] = { item, count: 0 };
@@ -134,6 +149,20 @@ export default function PotteryStudio() {
         <ul className="mt-2 space-y-1 text-sm">{group.pieces.map(piece => <li key={piece.id}>{completedDesigns.has(piece.id) ? "✓ Completed: " : "Not yet completed: "}{piece.name}</li>)}</ul>
       </div>)}
       <p className="font-semibold">{coastalDone && porcelainDone ? "Artisan's Glaze Palette unlocked! Select an optional second glaze when finishing pottery. Each selected glaze uses one portion." : "Artisan's Glaze Palette: Complete both clay collections to unlock mixing two glazes."}</p>
+    </section>
+    <section aria-labelledby="artisan-discoveries-heading" className="rounded-xl border border-teal-200 bg-teal-50 p-3 space-y-2">
+      <h3 id="artisan-discoveries-heading" className="text-lg font-bold">Artisan's Glaze Discoveries</h3>
+      <p className="font-semibold">{discoveredSpecials.size} of {SPECIAL_GLAZES.length} specialty finishes discovered</p>
+      {coastalDone && porcelainDone ? <p className="text-sm">Mix two glazes while finishing pottery. Collect the fired piece to record a discovery. Mixing order does not matter.</p> : <p className="text-sm">Complete Coastal and Porcelain Mastery to unlock the Artisan's Glaze Palette and discover these secret finishes.</p>}
+      <ul className="space-y-2">{SPECIAL_GLAZES.map((special, index) => {
+        const discovered = discoveredSpecials.has(special.name);
+        return <li key={special.name} className="rounded-lg bg-white p-2 text-sm">
+          <strong>{discovered ? "✓ " + special.name : "Undiscovered finish " + (index + 1)}</strong>
+          {discovered && <p>{special.description} Ingredients: {special.colors.map(id => GLAZES.find(g => g.id === id)?.name || id).join(" + ")}.</p>}
+        </li>;
+      })}</ul>
+      <p className="font-semibold">{discoveredSpecials.size === SPECIAL_GLAZES.length ? "All eight discovered! Master Potter's Glaze Kit achievement complete." : "Discover all eight finishes to earn the Master Potter's Glaze Kit achievement."}</p>
+      <p className="text-xs">Discovery progress is saved with this browser's pottery collection. A physical glaze-kit item and unique mixed-glaze artwork are planned for a later update.</p>
     </section>
     <div className="grid gap-3 sm:grid-cols-2">{PIECES.map(piece => {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
@@ -159,7 +188,7 @@ export default function PotteryStudio() {
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
         {readyGlaze && <div className="mt-2 space-y-2"><label className="block text-sm font-semibold" htmlFor={"glaze-"+job.id}>Choose glaze</label>
           <select id={"glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={glazeChoice[job.id] || GLAZES[0].id} onChange={e => setGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select>
-          {coastalDone && porcelainDone && <><label className="block text-sm font-semibold" htmlFor={"second-glaze-"+job.id}>Second glaze (optional — Artisan's Palette)</label><select id={"second-glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={secondGlazeChoice[job.id] || ""} onChange={e => setSecondGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}><option value="">No second glaze</option>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select><p className="text-xs">Mixing uses one portion of each glaze. The finished collection records both colors; mixed pieces currently use their base artwork and inventory item.</p></>}
+          {coastalDone && porcelainDone && <><label className="block text-sm font-semibold" htmlFor={"second-glaze-"+job.id}>Second glaze (optional — Artisan's Palette)</label><select id={"second-glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={secondGlazeChoice[job.id] || ""} onChange={e => setSecondGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}><option value="">No second glaze</option>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select><p className="text-xs">Mixing uses one portion of each glaze. Known specialty combinations are named when collected. Other mixes retain both color names. Mixed pieces currently use their base artwork and inventory item.</p></>}
           <button type="button" onClick={() => startFire(job)} className="ml-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Glaze and fire</button></div>}
         {readyCollect && <button type="button" onClick={() => collect(job)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect finished pottery</button>}
       </article>;
