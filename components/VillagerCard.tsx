@@ -53,6 +53,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
   const merchantStock = merchantId ? getTravelingMerchantStock(merchantId, new Date(), state) : [];
   const nightVisitorId: "celeste" | "orion" | null = villager.id === "celeste" || villager.id === "orion" ? villager.id : null;
   const nightVisits = nightVisitorId ? (state.nightVisitorVisits[nightVisitorId] || 0) : 0;
+  const [nightVisitFeedback, setNightVisitFeedback] = useState("");
 
 
   const availableGifts = villager.gift.lovedGiftIds.map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] })).filter((g) => g.def);
@@ -165,9 +166,10 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
               <h3 className="text-sm font-bold text-cyan-950">Moonlit Friendship</h3>
               <p className="mt-1 text-xs text-cyan-800">{nightVisits} of 5 nighttime visits shared</p>
               <p className="mt-1 text-[11px] text-cyan-700">A visit can be recorded once per real-world night. Special treasures are shared as your friendship grows.</p>
-              <button type="button" onClick={() => visitNightVisitor(nightVisitorId)} className="mt-3 min-h-11 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-bold text-white active:bg-cyan-800">
+              <button type="button" onClick={() => { const result = visitNightVisitor(nightVisitorId); setNightVisitFeedback(result.counted ? (result.rewardItemId ? `${villager.name} shared a special treasure! Nighttime visit ${result.visits} recorded.` : `Moonlit moment shared with ${villager.name}. Nighttime visit ${result.visits} recorded.`) : `No new visit recorded. You can spend time with ${villager.name} once per night.`); }} className="mt-3 min-h-11 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-bold text-white active:bg-cyan-800">
                 Spend a Moonlit Moment with {villager.name}
               </button>
+              {nightVisitFeedback && <p role="status" aria-live="polite" className="mt-2 text-sm text-cyan-900">{nightVisitFeedback}</p>}
             </section>
           )}
 
