@@ -487,6 +487,7 @@ interface Ctx {
   sellCustomJewelry: (pieceId: string) => boolean;
   claimBooSand: (itemId: string) => boolean;
   deliverBooToolSet: () => boolean;
+  saveFlowerArrangement: (vaseId: string, stems: {id:string;slot:number}[], requestedName: string) => boolean;
   createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string) => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
