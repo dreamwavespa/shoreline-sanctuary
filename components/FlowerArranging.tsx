@@ -13,9 +13,9 @@ const FLOWERS: Record<string,string> = {
   "sea-lavender":"sea-lavender.png", "rain-lily-blossom":"rain-lily-blossom.png",
   "plant-radiant-moonflower":"radiant-moonflower.png", "plant-twinkle-star-flower":"twinkle-star-flower.png",
   "plant-glowing-roses":"glowing-roses.png", "island-vanilla-orchid":"island-vanilla-orchid.png",
-  "christmas-rose":"glowing-roses.png", "snowdrop-flowers":"snowdrop-flowers.png",
-  "tropical-hibiscus":"glowing-roses.png", "summer-hibiscus":"glowing-roses.png",
-  "spring-edible-blossoms":"seaside-daisy.png"
+  "christmas-rose":"christmas-rose.png", "snowdrop-flowers":"snowdrop-flowers.png",
+  "tropical-hibiscus":"tropical-hibiscus.png", "summer-hibiscus":"summer-hibiscus.png",
+  "spring-edible-blossoms":"spring-edible-blossoms.png", "winterberry-holly":"winterberry-holly.png"
 };
 const SIZES = { small:3, medium:6, large:10 } as const;
 type Size = keyof typeof SIZES;
