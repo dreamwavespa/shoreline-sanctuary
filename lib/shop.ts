@@ -72,6 +72,8 @@ export const SELL_PRICES: Record<string, number> = {
   "beach-bag": 6,
   "shoreline-snow-globe": 12,
   "coastal-beeswax-candle": 14,
+  "glowing-moonlight-candle": 18,
+  "angels-tidal-geode-candle": 24,
   "bottle-sunset-shoreline": 5,
   "bottle-subaquatic-sandbar": 6,
   "bottle-legendary-tidepool": 9,
