@@ -4,6 +4,7 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import Image from "next/image";
 
+type FinishedPottery = { piece: string; glaze: string; itemId: string; collectedAt: number };
 type Job = { id: string; piece: string; clay: "coastal" | "porcelain"; stage: "drying" | "ready-glaze" | "firing" | "ready"; readyAt: number; glaze?: string };
 const PIECES = [
   { id: "flower-vase", name: "Flower Vase", clay: "coastal", cost: 1 },
@@ -32,17 +33,18 @@ export default function PotteryStudio() {
   const { state, craft, hasEnough } = useGame();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [completed, setCompleted] = useState<string[]>([]);
+  const [finished, setFinished] = useState<FinishedPottery[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [glazeChoice, setGlazeChoice] = useState<Record<string,string>>({});
   const [notice, setNotice] = useState("");
   useEffect(() => {
-    try { const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}"); if (Array.isArray(saved.jobs)) setJobs(saved.jobs); if (Array.isArray(saved.completed)) setCompleted(saved.completed); } catch {}
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}"); if (Array.isArray(saved.jobs)) setJobs(saved.jobs); if (Array.isArray(saved.completed)) setCompleted(saved.completed); if (Array.isArray(saved.finished)) setFinished(saved.finished); } catch {}
     setHydrated(true);
     const timer = window.setInterval(() => setNow(Date.now()), 15000);
     return () => window.clearInterval(timer);
   }, []);
-  useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed })); }, [jobs, completed, hydrated]);
+  useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed, finished })); }, [jobs, completed, finished, hydrated]);
   const coastalDone = PIECES.filter(p => p.clay === "coastal").every(p => completed.includes(p.id));
   const porcelainDone = PIECES.filter(p => p.clay === "porcelain").every(p => completed.includes(p.id));
   const slots = 2 + Number(coastalDone) + Number(porcelainDone);
@@ -68,11 +70,18 @@ export default function PotteryStudio() {
   const collect = (job: Job) => {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
-    if (!craft(job.piece, [])) return;
+    const variantId = job.piece === "seashell-cup" && job.glaze ? `seashell-cup--${job.glaze}` : job.piece;
+    const collectibleId = ITEMS[variantId] ? variantId : job.piece;
+    if (!craft(collectibleId, [])) return;
+    setFinished(prev => [...prev, { piece: job.piece, glaze: job.glaze || "clear-pottery-glaze", itemId: collectibleId, collectedAt: Date.now() }]);
     setCompleted(prev => prev.includes(job.piece) ? prev : [...prev, job.piece]);
     setJobs(prev => prev.filter(j => j.id !== job.id));
     playPotterySound("collect");
     setNotice("Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
+  };
+  const potteryImage = (piece: string, glaze?: string) => {
+    const variantId = piece === "seashell-cup" && glaze ? `seashell-cup--${glaze}` : piece;
+    return ITEMS[variantId]?.icon || ITEMS[piece]?.icon;
   };
   if (!hydrated) return <p>Loading pottery studio…</p>;
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
@@ -100,8 +109,9 @@ export default function PotteryStudio() {
       const readyGlaze = job.stage === "ready-glaze" || (job.stage === "drying" && now >= job.readyAt);
       const readyCollect = job.stage === "ready" || (job.stage === "firing" && now >= job.readyAt);
       return <article key={job.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-        {ITEMS[job.piece]?.icon && !ITEMS[job.piece].isEmoji && <Image src={ITEMS[job.piece].icon} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
+        {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <Image src={potteryImage(job.piece, job.glaze)} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
+        {job.glaze && <p className="text-sm">Applied glaze: {GLAZES.find(g => g.id === job.glaze)?.name || job.glaze}</p>}
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
         {readyGlaze && <div className="mt-2 space-y-2"><label className="block text-sm font-semibold" htmlFor={"glaze-"+job.id}>Choose glaze</label>
           <select id={"glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={glazeChoice[job.id] || GLAZES[0].id} onChange={e => setGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select>
@@ -109,6 +119,7 @@ export default function PotteryStudio() {
         {readyCollect && <button type="button" onClick={() => collect(job)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect finished pottery</button>}
       </article>;
     })}
+    <section aria-label="Finished pottery collection" className="space-y-2"><h3 className="text-lg font-bold">Finished pottery collection</h3><p className="text-sm">Completed pieces retain their selected glaze. Seashell Cups have individual collectible artwork for each color.</p>{finished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> : <div className="grid grid-cols-2 gap-3">{finished.slice().reverse().map((item, index) => <article key={item.collectedAt + "-" + index} className="rounded-xl border border-teal-200 p-2"><Image src={potteryImage(item.piece, item.glaze)} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/><p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p><p className="text-sm">{GLAZES.find(g => g.id === item.glaze)?.name || item.glaze} glaze</p></article>)}</div>}</section>
     <p role="status" className="text-sm font-semibold">{notice}</p>
     <p className="text-xs text-teal-700">This first version stores pottery timers in this browser. Cross-device syncing and phone notifications are planned for a later phase.</p>
   </section>;
