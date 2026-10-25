@@ -15,7 +15,7 @@ type HarvestTimes = Partial<Record<NodeId, number>>;
 const MYSTERY_HERB_KEY = "shoreline-imported-herb-v1";
 const MYSTERY_HERB_GROW_MS = 45 * 60_000;
 const MYSTERY_HERBS = ["island-vanilla-orchid", "moonmint-leaves", "tropical-hibiscus"] as const;
-type MysteryHerb = { result: typeof MYSTERY_HERBS[number]; plantedAt: number };
+type MysteryHerb = { result: typeof MYSTERY_HERBS[number]; plantedAt: number; rareSeedBonus?: boolean };
 const FLOWER_BED_KEY = "shoreline-grove-flowerbed-v1";
 const FLOWER_GROW_MS = 30 * 60_000;
 const flowerGrowMs = (hasTurtleCan: boolean) => hasTurtleCan ? 20 * 60_000 : FLOWER_GROW_MS;
@@ -243,7 +243,7 @@ export default function CoconutGrove() {
   const plantMysteryHerb = () => {
     if (mysteryHerb || !state.inventory["imported-island-herb-seeds"]) return;
     if (!craft("grove-mystery-herb-plant", [{ itemId: "imported-island-herb-seeds", count: 1 }])) return;
-    const planted: MysteryHerb = { result: MYSTERY_HERBS[Math.floor(Math.random() * MYSTERY_HERBS.length)], plantedAt: Date.now() };
+    const planted: MysteryHerb = { result: MYSTERY_HERBS[Math.floor(Math.random() * MYSTERY_HERBS.length)], plantedAt: Date.now(), rareSeedBonus: Math.random() < 0.10 };
     setMysteryHerb(planted);
     try { localStorage.setItem(MYSTERY_HERB_KEY, JSON.stringify(planted)); } catch {}
     setMessage("Mystery island seeds planted. The plant will be revealed at harvest.");
@@ -254,7 +254,8 @@ export default function CoconutGrove() {
     if (!mysteryHerb || Date.now() - mysteryHerb.plantedAt < MYSTERY_HERB_GROW_MS) return;
     collectItem(mysteryHerb.result, { silent: true });
     if (mysteryHerb.result === "island-vanilla-orchid") collectItem("vanilla", { silent: true });
-    setMessage("Mystery revealed! You grew " + ITEMS[mysteryHerb.result].name + "! Added to inventory.");
+    if (mysteryHerb.rareSeedBonus) collectItem("deep-sea-seed", { silent: true });
+    setMessage("Mystery revealed! You grew " + ITEMS[mysteryHerb.result].name + "! Added to inventory." + (mysteryHerb.rareSeedBonus ? " Bonus discovery: Deep-Sea Seed!" : ""));
     play("groveHerbSnip");
     setMysteryHerb(null);
     try { localStorage.removeItem(MYSTERY_HERB_KEY); } catch {}
