@@ -2041,7 +2041,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const openShelbyCargo = (): string | null => {
     if ((stateRef.current.inventory["shelby-sealed-cargo"] || 0) < 1) return null;
     const common = ["pearl-silk-thread", "polished-driftwood", "colored-glass-pieces", "silver-jewelry-wire", "vanilla", "sea-lavender"];
-    const rare = ["glass-rainbow", "pearl-blue", "shell-nautilus", "star-sand"];
+    const rare = ["glass-rainbow", "pearl-blue", "shell-nautilus", "star-sand", "rare-soil", "deep-sea-seed", "storm-fiddlehead"];
     const exceptional = ["antique-captains-compass", "ship-in-a-bottle", "captains-coin"];
     const roll = Math.random();
     const pool = roll < 0.06 ? exceptional.filter(id => !stateRef.current.notebookDiscovered[id] && !(stateRef.current.inventory[id] > 0)) : roll < 0.30 ? rare : common;
