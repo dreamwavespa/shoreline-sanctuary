@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
+import { ITEMS } from "@/lib/items";
 
 interface GardenOption {
   id: string;
@@ -107,6 +108,10 @@ export default function CoralieUnderwaterGarden({ onClose }: { onClose: () => vo
   const harvestSelected = () => {
     if (!selectedOption?.harvestItemId) return;
     if (!isReady(selectedBedId, selectedOption)) { setAnnouncement(`${selectedOption.name} is regrowing. About ${minutesLeft(selectedBedId, selectedOption)} minutes remaining.`); return; }
+    if (!ITEMS[selectedOption.harvestItemId]) {
+      setAnnouncement(`Unable to harvest ${selectedOption.name}: inventory item is not registered. Your plant remains ready to harvest.`);
+      return;
+    }
     collectItem(selectedOption.harvestItemId);
     const harvestedAt = Date.now();
     setHarvestTimes((current) => ({ ...current, [selectedBedId]: harvestedAt }));
