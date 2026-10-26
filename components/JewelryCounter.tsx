@@ -100,6 +100,22 @@ export default function JewelryCounter({ onClose }: { onClose: () => void }) {
     setAnnouncement(`${pattern === "repeat" ? "Repeating" : pattern === "alternate" ? "Alternating" : "Mirrored"} pattern applied. The design is ready to finish.`);
   };
 
+  const moveMaterial = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= materials.length) return;
+    const next = [...materials];
+    [next[index], next[target]] = [next[target], next[index]];
+    setMaterials(next);
+    setAnnouncement(`${ITEMS[materials[index]].name} moved to position ${target + 1} of ${materials.length}.`);
+  };
+
+  const removeMaterial = (index: number) => {
+    const removed = materials[index];
+    if (!removed) return;
+    setMaterials((current) => current.filter((_, position) => position !== index));
+    setAnnouncement(`${ITEMS[removed].name} removed from position ${index + 1}. Remaining pieces shifted left.`);
+  };
+
   const undo = () => {
     if (!materials.length) return;
     const removed = materials[materials.length - 1];
@@ -198,6 +214,24 @@ export default function JewelryCounter({ onClose }: { onClose: () => void }) {
                   })}
                 </div>
                 <p className="mt-3 text-sm font-semibold text-purple-900">{materials.length} of {JEWELRY_KIND_DETAILS[kind].slots} positions filled</p>
+              </section>
+
+              <section aria-labelledby="jewelry-arrangement-heading" className="rounded-2xl bg-white p-4 shadow ring-1 ring-purple-200">
+                <h3 id="jewelry-arrangement-heading" className="font-bold text-purple-950">Arrange Your Pieces</h3>
+                <p className="mt-1 text-sm text-purple-800">Move any stone, charm, pearl, shell, or other decoration left or right, or remove it without starting over.</p>
+                <ol className="mt-3 space-y-3">
+                  {materials.map((itemId, index) => (
+                    <li key={index} className="flex flex-wrap items-center gap-3 rounded-xl bg-purple-50 p-3 ring-1 ring-purple-100">
+                      <MaterialIcon itemId={itemId} />
+                      <span className="min-w-32 flex-1 text-left text-sm font-semibold text-purple-950">Position {index + 1}: {ITEMS[itemId].name}</span>
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" disabled={index === 0} onClick={() => moveMaterial(index, -1)} aria-label={`Move ${ITEMS[itemId].name} at position ${index + 1} left`} className="min-h-11 rounded-lg bg-purple-700 px-3 py-2 text-sm font-bold text-white disabled:bg-purple-200 disabled:text-purple-500">Move Left</button>
+                        <button type="button" disabled={index === materials.length - 1} onClick={() => moveMaterial(index, 1)} aria-label={`Move ${ITEMS[itemId].name} at position ${index + 1} right`} className="min-h-11 rounded-lg bg-purple-700 px-3 py-2 text-sm font-bold text-white disabled:bg-purple-200 disabled:text-purple-500">Move Right</button>
+                        <button type="button" onClick={() => removeMaterial(index)} aria-label={`Remove ${ITEMS[itemId].name} from position ${index + 1}`} className="min-h-11 rounded-lg bg-amber-700 px-3 py-2 text-sm font-bold text-white">Remove</button>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
               </section>
 
               <section aria-labelledby="pattern-tools-heading" className="rounded-2xl bg-white p-4 shadow ring-1 ring-amber-200">
