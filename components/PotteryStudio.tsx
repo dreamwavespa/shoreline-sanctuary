@@ -108,7 +108,7 @@ export default function PotteryStudio() {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
     const specialty = specialGlaze(job.glaze);
-    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl"].includes(job.piece)
+    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl", "seashell-cup", "porcelain-tea-set", "moonlight-candleholder"].includes(job.piece)
       ? `${job.piece}--special-${specialty.name.toLowerCase().replace(/\s+/g, "-")}`
       : COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
@@ -123,10 +123,15 @@ export default function PotteryStudio() {
   };
   const potteryImage = (piece: string, glaze?: string) => {
     const specialty = specialGlaze(glaze);
-    if (specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl"].includes(piece)) {
+    if (specialty) {
       const slug = specialty.name.toLowerCase().replace(/\s+/g, "-");
-      const shape = piece.includes("vase") ? "vase" : "bowl";
-      return `/images/Pottery/${slug}-${shape}.png`;
+      const suffix: Record<string, string> = {
+        "flower-vase": "vase", "pearl-vase": "vase",
+        "coastal-bowl": "bowl", "porcelain-bowl": "bowl",
+        "seashell-cup": "cup", "porcelain-tea-set": "tea-set",
+        "moonlight-candleholder": "moonlight-candleholder",
+      };
+      if (suffix[piece]) return `/images/Pottery/${slug}-${suffix[piece]}.png`;
     }
     const variantId = COLORED_SHAPES.includes(piece) && glaze && !glaze.includes("+") ? `${piece}--${glaze}` : piece;
     return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
