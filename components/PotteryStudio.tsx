@@ -146,6 +146,7 @@ export default function PotteryStudio() {
     if (!glaze || !craft(glaze.id, [])) return;
     if (!craft(glaze.id, [])) return;
     setLastKitClaim(todayKey);
+    try { const audio = new Audio("/audio/Chest Opening.mp3"); audio.volume = 0.55; void audio.play().catch(() => {}); } catch { /* Sound is optional. */ }
     setNotice("Master Potter's Glaze Kit: You received 2 portions of " + glaze.name + " glaze!");
   };
   const discoveredSpecials = new Set(finished.map(item => specialGlaze(item.glaze)?.name).filter(Boolean));
