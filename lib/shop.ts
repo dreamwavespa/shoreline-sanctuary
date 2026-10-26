@@ -81,6 +81,22 @@ export const SELL_PRICES: Record<string, number> = {
   "beach-bottle": 8,
 };
 
+
+// Finished pottery can be traded without selling permanent mastery or glaze-kit rewards.
+const POTTERY_BASE_VALUES: Record<string, number> = {
+  "flower-vase": 10, "coastal-bowl": 8, "seashell-cup": 9, "driftwood-candleholder": 11,
+  "porcelain-tea-set": 20, "pearl-vase": 14, "porcelain-bowl": 12, "moonlight-candleholder": 15,
+};
+export function potterySalePrice(itemId: string): number {
+  const [shape, finish] = itemId.split("--");
+  const base = POTTERY_BASE_VALUES[shape];
+  if (!base) return 0;
+  return base + (finish?.startsWith("special-") ? 8 : finish ? 2 : 0);
+}
+export function seaweedSalePrice(itemId: string): number {
+  return SELL_PRICES[itemId] || potterySalePrice(itemId);
+}
+
 export const SEAWEED_DISCOVERIES: SeaweedDiscovery[] = [
   {
     itemId: "moonstone",
