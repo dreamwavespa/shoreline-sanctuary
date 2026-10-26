@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "master-potters-glaze-kit": { id: "master-potters-glaze-kit", name: "Master Potter’s Glaze Kit", category: "special", icon: "🎨", isEmoji: true, rarity: "rare", sfx: "craftSuccess", artDescription: "An artisan’s keepsake awarded for discovering all eight specialty pottery glazes." },
   "flower-vase--special-mermaid-shimmer": { id: "flower-vase--special-mermaid-shimmer", name: "Mermaid Shimmer Flower Vase", category: "decor", icon: "/images/Pottery/mermaid-shimmer-vase.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Flower Vase finished with the Mermaid Shimmer specialty glaze." },
   "pearl-vase--special-mermaid-shimmer": { id: "pearl-vase--special-mermaid-shimmer", name: "Mermaid Shimmer Pearl Vase", category: "decor", icon: "/images/Pottery/mermaid-shimmer-vase.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Pearl Vase finished with the Mermaid Shimmer specialty glaze." },
   "coastal-bowl--special-mermaid-shimmer": { id: "coastal-bowl--special-mermaid-shimmer", name: "Mermaid Shimmer Coastal Bowl", category: "decor", icon: "/images/Pottery/mermaid-shimmer-bowl.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Coastal Bowl finished with the Mermaid Shimmer specialty glaze." },
