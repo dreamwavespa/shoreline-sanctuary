@@ -6,7 +6,7 @@ import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete 
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
 import { VILLAGERS } from "./villagers";
-import { getShopDateKey, SEAWEED_DISCOVERIES, SELL_PRICES, SHOP_STOCK, GLAZE_PACKS } from "./shop";
+import { getShopDateKey, SEAWEED_DISCOVERIES, seaweedSalePrice, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
 import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
@@ -2362,7 +2362,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const sellToSeaweed = (itemId: string) => {
-    const price = SELL_PRICES[itemId];
+    const price = seaweedSalePrice(itemId);
     if (!price || (stateRef.current.inventory[itemId] || 0) < 1) return false;
 
     setState((s) => ({
