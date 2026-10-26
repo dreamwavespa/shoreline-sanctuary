@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
-import { getShopDateKey, getTodaysDiscovery, SELL_PRICES, SHOP_STOCK } from "@/lib/shop";
+import { getShopDateKey, getTodaysDiscovery, seaweedSalePrice, SHOP_STOCK } from "@/lib/shop";
 import { useGame } from "@/lib/store";
 import VillagerCard from "@/components/VillagerCard";
 import FlowerArranging from "@/components/FlowerArranging";
@@ -61,7 +61,7 @@ export default function SeaweedSaltShop() {
   );
 
   const sellable = Object.entries(state.inventory)
-    .filter(([itemId, count]) => count > 0 && SELL_PRICES[itemId] && ITEMS[itemId])
+    .filter(([itemId, count]) => count > 0 && seaweedSalePrice(itemId) && ITEMS[itemId])
     .sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name));
 
   useEffect(() => {
@@ -179,7 +179,7 @@ export default function SeaweedSaltShop() {
                   <h3 className="font-bold text-stone-800">Shoreline Goods and Workshop Crafts</h3>
                   {sellable.map(([itemId, count]) => {
                   const item = ITEMS[itemId];
-                  const price = SELL_PRICES[itemId];
+                  const price = seaweedSalePrice(itemId);
                   return (
                     <div key={itemId} className="flex items-center gap-3 rounded-2xl border border-stone-300 bg-white p-3 shadow-sm">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50"><ItemIcon itemId={itemId} /></div>
