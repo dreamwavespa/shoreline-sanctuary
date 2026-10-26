@@ -170,8 +170,12 @@ export default function PotteryStudio() {
           {discovered && <p>{special.description} Ingredients: {special.colors.map(id => GLAZES.find(g => g.id === id)?.name || id).join(" + ")}.</p>}
         </li>;
       })}</ul>
-      <p className="font-semibold">{discoveredSpecials.size === SPECIAL_GLAZES.length ? "All eight discovered! Master Potter's Glaze Kit achievement complete." : "Discover all eight finishes to earn the Master Potter's Glaze Kit achievement."}</p>
-      <p className="text-xs">Discovery progress is saved with this browser's pottery collection. A physical glaze-kit item and unique mixed-glaze artwork are planned for a later update.</p>
+      <div className="rounded-lg border border-amber-300 bg-white p-3 space-y-2">
+        <h4 className="font-semibold">Master Potter's Glaze Kit</h4>
+        <p className="text-sm">A collectible keepsake for discovering all eight specialty glazes. Claim it once and find it in your inventory.</p>
+        {state.crafted.includes("master-potters-glaze-kit") ? <p className="font-semibold">✓ Reward claimed — Master Potter's Glaze Kit is unlocked.</p> : <button type="button" disabled={discoveredSpecials.size !== SPECIAL_GLAZES.length} onClick={() => { if (discoveredSpecials.size === SPECIAL_GLAZES.length && !state.crafted.includes("master-potters-glaze-kit") && craft("master-potters-glaze-kit", [])) setNotice("Master Potter's Glaze Kit claimed! Find your keepsake in inventory."); }} className="rounded-lg bg-teal-700 px-4 py-3 text-white disabled:opacity-50">{discoveredSpecials.size === SPECIAL_GLAZES.length ? "Claim Master Potter's Glaze Kit" : `Locked — ${discoveredSpecials.size}/8 glazes discovered`}</button>}
+      </div>
+      <p className="text-xs">Discovery progress is saved with this browser's pottery collection. The kit uses a temporary icon until its artwork is ready.</p>
     </section>
     <div className="grid gap-3 sm:grid-cols-2">{PIECES.map(piece => {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
