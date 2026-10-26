@@ -106,7 +106,10 @@ export default function PotteryStudio() {
   const collect = (job: Job) => {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
-    const variantId = COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
+    const specialty = specialGlaze(job.glaze);
+    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl"].includes(job.piece)
+      ? `${job.piece}--special-${specialty.name.toLowerCase().replace(/\s+/g, "-")}`
+      : COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
     if (!craft(collectibleId, [])) return;
     setFinished(prev => [...prev, { piece: job.piece, glaze: job.glaze || "clear-pottery-glaze", itemId: collectibleId, collectedAt: Date.now() }]);
@@ -118,6 +121,12 @@ export default function PotteryStudio() {
     setNotice(special && !previouslyDiscovered.has(special.name) ? `New glaze discovered: ${special.name}! Recorded in your Artisan’s Glaze Discoveries.` : "Finished " + (PIECES.find(p => p.id === job.piece)?.name || "pottery") + " collected.");
   };
   const potteryImage = (piece: string, glaze?: string) => {
+    const specialty = specialGlaze(glaze);
+    if (specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl"].includes(piece)) {
+      const slug = specialty.name.toLowerCase().replace(/\s+/g, "-");
+      const shape = piece.includes("vase") ? "vase" : "bowl";
+      return `/images/Pottery/${slug}-${shape}.png`;
+    }
     const variantId = COLORED_SHAPES.includes(piece) && glaze && !glaze.includes("+") ? `${piece}--${glaze}` : piece;
     return ITEMS[variantId]?.icon || ITEMS[piece]?.icon || "/images/pottery-studio.png";
   };
