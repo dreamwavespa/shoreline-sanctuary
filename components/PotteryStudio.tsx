@@ -66,13 +66,14 @@ export default function PotteryStudio() {
   const [glazeChoice, setGlazeChoice] = useState<Record<string,string>>({});
   const [secondGlazeChoice, setSecondGlazeChoice] = useState<Record<string,string>>({});
   const [notice, setNotice] = useState("");
+  const [lastKitClaim, setLastKitClaim] = useState("");
   useEffect(() => {
-    try { const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}"); if (Array.isArray(saved.jobs)) setJobs(saved.jobs); if (Array.isArray(saved.completed)) setCompleted(saved.completed); if (Array.isArray(saved.finished)) setFinished(saved.finished); } catch {}
+    try { const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}"); if (Array.isArray(saved.jobs)) setJobs(saved.jobs); if (Array.isArray(saved.completed)) setCompleted(saved.completed); if (Array.isArray(saved.finished)) setFinished(saved.finished); if (typeof saved.lastKitClaim === "string") setLastKitClaim(saved.lastKitClaim); } catch {}
     setHydrated(true);
     const timer = window.setInterval(() => setNow(Date.now()), 15000);
     return () => window.clearInterval(timer);
   }, []);
-  useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed, finished })); }, [jobs, completed, finished, hydrated]);
+  useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed, finished, lastKitClaim })); }, [jobs, completed, finished, lastKitClaim, hydrated]);
   const completedDesigns = new Set([...completed, ...finished.map(item => item.piece)]);
   const coastalPieces = PIECES.filter(p => p.clay === "coastal");
   const porcelainPieces = PIECES.filter(p => p.clay === "porcelain");
@@ -137,6 +138,16 @@ export default function PotteryStudio() {
     if (image !== ITEMS[piece]?.icon) return undefined;
     return GLAZE_FILTERS[glaze];
   };
+  const todayKey = new Date(now).toLocaleDateString("en-CA");
+  const kitOwned = state.crafted.includes("master-potters-glaze-kit");
+  const collectDailyGlaze = () => {
+    if (!kitOwned || lastKitClaim === todayKey) return;
+    const glaze = GLAZES[Math.floor(Math.random() * GLAZES.length)];
+    if (!glaze || !craft(glaze.id, [])) return;
+    if (!craft(glaze.id, [])) return;
+    setLastKitClaim(todayKey);
+    setNotice("Master Potter's Glaze Kit: You received 2 portions of " + glaze.name + " glaze!");
+  };
   const discoveredSpecials = new Set(finished.map(item => specialGlaze(item.glaze)?.name).filter(Boolean));
   const groupedFinished = Object.values(finished.reduce<Record<string, { item: FinishedPottery; count: number }>>((groups, item) => {
     const key = item.piece + "::" + item.glaze;
@@ -172,10 +183,11 @@ export default function PotteryStudio() {
       })}</ul>
       <div className="rounded-lg border border-amber-300 bg-white p-3 space-y-2">
         <h4 className="font-semibold">Master Potter's Glaze Kit</h4>
+        <Image src="/images/Pottery/Master-pottery-kit.PNG" alt="Coastal wooden glaze kit with colorful glaze jars and brushes" width={240} height={200} unoptimized className="mx-auto max-h-48 w-auto object-contain" />
         <p className="text-sm">A collectible keepsake for discovering all eight specialty glazes. Claim it once and find it in your inventory.</p>
-        {state.crafted.includes("master-potters-glaze-kit") ? <p className="font-semibold">✓ Reward claimed — Master Potter's Glaze Kit is unlocked.</p> : <button type="button" disabled={discoveredSpecials.size !== SPECIAL_GLAZES.length} onClick={() => { if (discoveredSpecials.size === SPECIAL_GLAZES.length && !state.crafted.includes("master-potters-glaze-kit") && craft("master-potters-glaze-kit", [])) setNotice("Master Potter's Glaze Kit claimed! Find your keepsake in inventory."); }} className="rounded-lg bg-teal-700 px-4 py-3 text-white disabled:opacity-50">{discoveredSpecials.size === SPECIAL_GLAZES.length ? "Claim Master Potter's Glaze Kit" : `Locked — ${discoveredSpecials.size}/8 glazes discovered`}</button>}
+        {kitOwned ? <div className="space-y-2"><p className="font-semibold">✓ Reward claimed — Master Potter's Glaze Kit is unlocked.</p><p className="text-sm">Collect two portions of one random glaze each day.</p><button type="button" disabled={lastKitClaim === todayKey} onClick={collectDailyGlaze} className="rounded-lg bg-teal-700 px-4 py-3 text-white disabled:opacity-50">{lastKitClaim === todayKey ? "Today's glaze collected — return tomorrow" : "Collect Today's Glaze"}</button></div> : <button type="button" disabled={discoveredSpecials.size !== SPECIAL_GLAZES.length} onClick={() => { if (discoveredSpecials.size === SPECIAL_GLAZES.length && !state.crafted.includes("master-potters-glaze-kit") && craft("master-potters-glaze-kit", [])) setNotice("Master Potter's Glaze Kit claimed! Find your keepsake in inventory."); }} className="rounded-lg bg-teal-700 px-4 py-3 text-white disabled:opacity-50">{discoveredSpecials.size === SPECIAL_GLAZES.length ? "Claim Master Potter's Glaze Kit" : `Locked — ${discoveredSpecials.size}/8 glazes discovered`}</button>}
       </div>
-      <p className="text-xs">Discovery progress is saved with this browser's pottery collection. The kit uses a temporary icon until its artwork is ready.</p>
+      <p className="text-xs">Discovery progress is saved with this browser's pottery collection. The daily kit collection resets on the next local calendar day.</p>
     </section>
     <div className="grid gap-3 sm:grid-cols-2">{PIECES.map(piece => {
       const clayId = piece.clay === "coastal" ? "coastal-clay" : "white-porcelain-clay";
