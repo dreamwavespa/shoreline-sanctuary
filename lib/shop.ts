@@ -91,7 +91,10 @@ export function potterySalePrice(itemId: string): number {
   const [shape, finish] = itemId.split("--");
   const base = POTTERY_BASE_VALUES[shape];
   if (!base) return 0;
-  return base + (finish?.startsWith("special-") ? 8 : finish ? 2 : 0);
+  if (!finish) return base;
+  if (finish.startsWith("special-")) return base + 20;
+  const rareGlazes = ["iridescent-pottery-glaze", "pearl-pottery-glaze", "glaze-metallic-gold", "glaze-shimmering-silver", "glaze-pearl-white"];
+  return base + (rareGlazes.includes(finish) ? 10 : 2);
 }
 export function seaweedSalePrice(itemId: string): number {
   return SELL_PRICES[itemId] || potterySalePrice(itemId);
