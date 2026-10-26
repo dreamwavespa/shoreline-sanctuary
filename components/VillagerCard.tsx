@@ -57,6 +57,10 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
 
 
   const availableGifts = villager.gift.lovedGiftIds.map((id) => ({ id, have: state.inventory[id] || 0, def: ITEMS[id] })).filter((g) => g.def);
+  const potteryGifts = Object.entries(state.inventory)
+    .filter(([id, count]) => count > 0 && /^(flower-vase|coastal-bowl|seashell-cup|driftwood-candleholder|porcelain-tea-set|pearl-vase|porcelain-bowl|moonlight-candleholder)(--.*)?$/.test(id) && ITEMS[id])
+    .sort(([a], [b]) => ITEMS[a].name.localeCompare(ITEMS[b].name));
+  const [selectedPottery, setSelectedPottery] = useState("");
   const handleGift = (itemId: string) => {
     giftVillager(villager.id, itemId);
   };
@@ -189,7 +193,8 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
           )}
 
           {!nightVisitorId && (isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
-            <div><p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>{availableGifts.length === 0 ? <p className="text-xs text-amber-500 italic">You don't have any of their favorite gifts yet.</p> : <div className="flex flex-wrap gap-2">{availableGifts.map((g) => <button key={g.id} type="button" disabled={g.have < 1} onClick={() => handleGift(g.id)} className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full text-white disabled:bg-amber-100 disabled:text-amber-400 bg-rose-500 active:bg-rose-600">{g.def.isEmoji ? <span>{g.def.icon}</span> : <Image src={g.def.icon} alt={g.def.name} width={16} height={16} unoptimized />}Give {g.def.name} ({g.have})</button>)}</div>}</div>
+            <div><p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>{availableGifts.length === 0 ? <p className="text-xs text-amber-500 italic">You don't have any of their favorite gifts yet.</p> : <div className="flex flex-wrap gap-2">{availableGifts.map((g) => <button key={g.id} type="button" disabled={g.have < 1} onClick={() => handleGift(g.id)} className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full text-white disabled:bg-amber-100 disabled:text-amber-400 bg-rose-500 active:bg-rose-600">{g.def.isEmoji ? <span>{g.def.icon}</span> : <Image src={g.def.icon} alt={g.def.name} width={16} height={16} unoptimized />}Give {g.def.name} ({g.have})</button>)}</div>}
+              {potteryGifts.length > 0 && <div className="mt-3 space-y-2"><label htmlFor={`pottery-gift-${villager.id}`} className="block text-xs font-semibold text-amber-900">Gift handmade pottery</label><select id={`pottery-gift-${villager.id}`} value={selectedPottery} onChange={event => setSelectedPottery(event.target.value)} className="min-h-11 w-full rounded-lg border border-amber-300 bg-white p-2 text-sm"><option value="">Choose a pottery piece</option>{potteryGifts.map(([id, count]) => <option key={id} value={id}>{ITEMS[id].name} ({count} owned)</option>)}</select><button type="button" disabled={!selectedPottery || !(state.inventory[selectedPottery] > 0)} onClick={() => { if (selectedPottery && giftVillager(villager.id, selectedPottery)) setSelectedPottery(""); }} className="min-h-11 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Give selected pottery</button><p className="text-xs text-amber-800">Handmade pottery counts as a gift. Favorite gifts still have their own special reactions.</p></div>}</div>
           ))}
           {!nightVisitorId && <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>}
         </div>
