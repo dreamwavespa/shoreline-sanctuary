@@ -108,7 +108,7 @@ export default function PotteryStudio() {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
     const specialty = specialGlaze(job.glaze);
-    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl", "seashell-cup", "porcelain-tea-set", "moonlight-candleholder"].includes(job.piece)
+    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl", "seashell-cup", "porcelain-tea-set", "moonlight-candleholder", "driftwood-candleholder"].includes(job.piece)
       ? `${job.piece}--special-${specialty.name.toLowerCase().replace(/\s+/g, "-")}`
       : COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
@@ -130,6 +130,7 @@ export default function PotteryStudio() {
         "coastal-bowl": "bowl", "porcelain-bowl": "bowl",
         "seashell-cup": "cup", "porcelain-tea-set": "tea-set",
         "moonlight-candleholder": "moonlight-candleholder",
+        "driftwood-candleholder": "driftwood-candleholder",
       };
       if (suffix[piece]) return `/images/Pottery/${slug}-${suffix[piece]}.png`;
     }
@@ -151,7 +152,14 @@ export default function PotteryStudio() {
     if (!glaze || !craft(glaze.id, [])) return;
     if (!craft(glaze.id, [])) return;
     setLastKitClaim(todayKey);
-    try { const audio = new Audio("/audio/Chest Opening.mp3"); audio.volume = 0.55; void audio.play().catch(() => {}); } catch { /* Sound is optional. */ }
+    try {
+      const chest = new Audio("/audio/Chest Opening.mp3");
+      chest.volume = 0.55;
+      const jars = new Audio("/audio/Pottery-glaze-jar.mp3");
+      jars.volume = 0.65;
+      chest.addEventListener("ended", () => { void jars.play().catch(() => {}); }, { once: true });
+      void chest.play().catch(() => { void jars.play().catch(() => {}); });
+    } catch { /* Sound is optional. */ }
     setNotice("Master Potter's Glaze Kit: You received 2 portions of " + glaze.name + " glaze!");
   };
   const discoveredSpecials = new Set(finished.map(item => specialGlaze(item.glaze)?.name).filter(Boolean));
