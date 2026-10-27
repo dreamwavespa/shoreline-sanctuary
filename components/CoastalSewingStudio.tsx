@@ -27,7 +27,8 @@ export default function CoastalSewingStudio() {
   const [selected,setSelected] = useState<string>(PROJECTS[0][0]);
   const [lastClaim,setLastClaim] = useState(() => { try { return localStorage.getItem("shoreline-sewing-pin-daily") || ""; } catch { return ""; } });
   const allMade = PROJECTS.every(([id]) => state.crafted.includes("sewing-"+id));
-  const thimble = !!state.inventory["magic-sewing-thimble"];
+  const materialsComplete = ["cotton-plant-seeds","catnip-plant-seeds","cotton-balls","catnip","washed-beach-towel","bird-feather"].every(item => !!state.notebookDiscovered[item]);
+  const thimble = materialsComplete || !!state.inventory["magic-sewing-thimble"];
   const today = new Date().toLocaleDateString("en-CA");
   const project = PROJECTS.find(p => p[0] === selected) || PROJECTS[0];
   const [id,name,fabric,cotton,feathers,ribbons,catnip] = project;
@@ -48,7 +49,7 @@ export default function CoastalSewingStudio() {
   const sew = () => {
     if (!hasEnough(cost)) {setMessage("You need more materials to sew this project.");return;}
     if (!craft("sewing-"+id,cost)) {setMessage("Unable to complete the sewing project.");return;}
-    collectItem("sewing-"+id,{silent:true});playFile("sewing-machine.mp3");
+    playFile("sewing-machine.mp3");
     setMessage(name+" completed and added to your inventory. Thread selected: "+thread+". The finished design matches the original artwork.");
   };
   const claim = () => {
