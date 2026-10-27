@@ -246,6 +246,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "carrot": { id: "carrot", name: "Carrot", category: "food", icon: "🥕", isEmoji: true, rarity: "common", sfx: "groveRootPull" },
   "potato": { id: "potato", name: "Potato", category: "food", icon: "🥔", isEmoji: true, rarity: "common", sfx: "groveRootPull" },
   "broccoli": { id: "broccoli", name: "Broccoli", category: "food", icon: "🥦", isEmoji: true, rarity: "common", sfx: "groveHerbSnip" },
+  "washed-beach-towel": { id: "washed-beach-towel", name: "Washed-Ashore Beach Towel", category: "raw", icon: "🏖️", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
+  "bird-feather": { id: "bird-feather", name: "Soft Bird Feather", category: "raw", icon: "🪶", isEmoji: true, rarity: "common", sfx: "bagRustle" },
   "cotton-plant-seeds": { id: "cotton-plant-seeds", name: "Cotton Plant Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
   "catnip-plant-seeds": { id: "catnip-plant-seeds", name: "Catnip Plant Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
   "cotton-balls": { id: "cotton-balls", name: "Cotton Balls", category: "raw", icon: "☁️", isEmoji: true, rarity: "common", sfx: "groveHerbSnip" },
@@ -617,6 +619,8 @@ export const ITEMS: Record<string, ItemDef> = {
 };
 
 export const BEACH_SPAWN_POOL: { id: string; weight: number }[] = [
+  { id: "washed-beach-towel", weight: 3 },
+  { id: "bird-feather", weight: 6 },
   { id: "shell-scallop", weight: 12 },
   { id: "shell-whelk", weight: 10 },
   { id: "shell-cowrie", weight: 10 },
