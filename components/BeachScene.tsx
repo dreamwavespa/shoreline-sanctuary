@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 const versionedImage = (src: string) => src.startsWith("/images/") ? `${src}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}` : src;
 import Image from "next/image";
 import { ITEMS, rollSpawn } from "@/lib/items";
-import { useGame, windTreasureItem } from "@/lib/store";
+import { useGame, savedWindTreasureItem } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
@@ -579,7 +579,7 @@ export default function BeachScene() {
             <div className="mt-3 space-y-2">
               {[0, 1, 2].map(slot => {
                 const found = !!state.questProgress[`wind-treasure:${date}:${slot}`];
-                const name = ITEMS[windTreasureItem(date, slot)].name;
+                const name = ITEMS[savedWindTreasureItem(state, date, slot)].name;
                 return <button key={slot} type="button" disabled={found} onClick={() => { const itemId = collectWindTreasure(slot); if (itemId) setWindTreasureAnnouncement(`You found ${ITEMS[itemId].name}. Added to inventory.`); }} className="block w-full min-h-11 rounded-xl bg-teal-800 px-4 py-2 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">
                   {found ? `Treasure ${slot + 1}: ${name} collected` : `Search windblown treasure ${slot + 1}`}
                 </button>;
