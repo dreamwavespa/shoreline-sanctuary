@@ -7,8 +7,8 @@ import { SCENES } from "@/lib/media";
 import { getShopDateKey } from "@/lib/shop";
 import { BEE_VISIT_COOLDOWN_MS, useGame } from "@/lib/store";
 import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
-import GroveCoffeePlant from "./GroveCoffeePlant";
-import GroveFiberPatch from "./GroveFiberPatch";
+import WoodlandTrail from "./WoodlandTrail";
+
 
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
@@ -70,6 +70,7 @@ export default function CoconutGrove() {
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
+  const [woodlandOpen, setWoodlandOpen] = useState(false);
   const [flowerBedOpen, setFlowerBedOpen] = useState(false);
   const [mysteryHerbOpen, setMysteryHerbOpen] = useState(false);
   const [mysteryHerb, setMysteryHerb] = useState<MysteryHerb | null>(null);
@@ -306,12 +307,15 @@ export default function CoconutGrove() {
     else setMessage("The bees are still filling their honeycomb. Visit again later.");
   };
 
+  if (woodlandOpen) return <WoodlandTrail onBack={() => setWoodlandOpen(false)} />;
+
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
       <section aria-label="Interactive Coconut Grove" className="relative min-h-[540px] w-full overflow-hidden bg-emerald-900 sm:min-h-[540px]">
         <Image src={SCENES.coconutGrove} alt="Tropical Coconut Grove with palms, fruit trees and garden beds" fill priority unoptimized sizes="100vw" className="object-cover object-[43%_35%] sm:object-center" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
+        <button type="button" onClick={() => setWoodlandOpen(true)} aria-label="Follow the Woodland Trail to Robin’s Bird Sanctuary" className="absolute left-3 top-[27%] z-20 min-h-11 rounded-xl bg-emerald-950/90 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌲 Woodland Trail</button>
         {/* Seasonal plants are decorative; the existing garden hotspot handles all interaction. */}
         <div className="pointer-events-none absolute left-[62%] top-[49%] z-[5] h-[40%] w-[38%]" aria-hidden="true">
           <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 42vw, 25vw" className="object-contain object-bottom" />
@@ -464,29 +468,6 @@ export default function CoconutGrove() {
           </div>
         </div>
       )}
-      <section aria-labelledby="robin-nest-title" className="mx-4 mt-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
-        <h2 id="robin-nest-title" className="text-lg font-bold text-emerald-950">🪺 Robin's Nest — Bird Sanctuary</h2>
-        {!state.robinNestPlacedAt ? (
-          <>
-            <p className="mt-2 text-sm text-emerald-900">A sheltered branch is ready for a rescued bird's nest. Once placed, Robin may discover it after 24 hours.</p>
-            <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (placeRobinNest()) setMessage("Nest placed safely. Robin may arrive in 24 hours."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">
-              {(state.inventory["wind-bird-nest"] || 0) > 0 ? "Place rescued nest in the tree" : "Find a rescued nest on a windy beach"}
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="mt-2 text-sm text-emerald-900">{now - state.robinNestPlacedAt >= 24 * 60 * 60 * 1000 ? "Robin has discovered her new home! The sanctuary has its first resident." : `The nest is secure. Robin may arrive in about ${Math.max(1, Math.ceil((24 * 60 * 60 * 1000 - (now - state.robinNestPlacedAt)) / 3600000))} hour(s).`}</p>
-            {state.robinNestRepairNeeded ? (
-              <div className="mt-3">
-                <p className="text-sm text-amber-900">The last storm loosened Robin's nest. A spare rescued nest can be used to repair it.</p>
-                <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (repairRobinNest()) setMessage("Robin's nest repaired."); }} className="mt-2 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300">Repair nest with spare nest ({state.inventory["wind-bird-nest"] || 0} available)</button>
-              </div>
-            ) : <p className="mt-2 text-sm text-emerald-800">Nest condition: secure. Spare nests in inventory: {state.inventory["wind-bird-nest"] || 0}.</p>}
-          </>
-        )}
-      </section>
-      <GroveCoffeePlant />
-      <GroveFiberPatch />
       {nurseryOpen && <HiddenGroveNursery onClose={closeNursery} />}
     </div>
   );
