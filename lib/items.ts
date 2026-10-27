@@ -15,6 +15,21 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "recycled-fabric": { id: "recycled-fabric", name: "Recycled Fabric", category: "raw", icon: "🧵", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "magic-sewing-thimble": { id: "magic-sewing-thimble", name: "Magic Thimble", category: "special", icon: "🪡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "seashell-pin-cushion": { id: "seashell-pin-cushion", name: "Seashell Pin Cushion", category: "special", icon: "🧷", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "sea-ribbons": { id: "sea-ribbons", name: "Sea Ribbons", category: "raw", icon: "🎀", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-seashell-pillow": { id: "sewing-seashell-pillow", name: "Seashell Pillow", category: "decor", icon: "/images/sewing/seashell-pillow.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-moon-pillow": { id: "sewing-moon-pillow", name: "Moon Pillow", category: "decor", icon: "/images/sewing/moon-pillow.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-luxury-feather-pillow": { id: "sewing-luxury-feather-pillow", name: "Luxury Feather Pillow", category: "decor", icon: "/images/sewing/luxury-feather-pillow.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-patchwork-beach-blanket": { id: "sewing-patchwork-beach-blanket", name: "Patchwork Beach Blanket", category: "decor", icon: "/images/sewing/patchwork-beach-blanket.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-cozy-fluffy-baby-blanket": { id: "sewing-cozy-fluffy-baby-blanket", name: "Cozy Fluffy Baby Blanket", category: "decor", icon: "/images/sewing/cozy-fluffy-baby-blanket.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-turtle-plushie": { id: "sewing-turtle-plushie", name: "Turtle Plushie", category: "decor", icon: "/images/sewing/turtle-plushie.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-octopus-plushie": { id: "sewing-octopus-plushie", name: "Octopus Plushie", category: "decor", icon: "/images/sewing/octopus-plushie.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-moon-jelly-plushie": { id: "sewing-moon-jelly-plushie", name: "Moon Jelly Plushie", category: "decor", icon: "/images/sewing/moon-jelly-plushie.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-fluffy-snowball-cat-toy": { id: "sewing-fluffy-snowball-cat-toy", name: "Fluffy Snowball Cat Toy", category: "decor", icon: "/images/sewing/fluffy-snowball-cat-toy.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-catnip-moon": { id: "sewing-catnip-moon", name: "Catnip Moon", category: "decor", icon: "/images/sewing/catnip-moon.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "sewing-crinkly-starfish": { id: "sewing-crinkly-starfish", name: "Crinkly Starfish", category: "decor", icon: "/images/sewing/crinkly-starfish.png", rarity: "uncommon", sfx: "craftSuccess" },
   "driftwood-candleholder--special-mermaid-shimmer": { id: "driftwood-candleholder--special-mermaid-shimmer", name: "Mermaid Shimmer Driftwood Candleholder", category: "decor", icon: "/images/Pottery/mermaid-shimmer-driftwood-candleholder.png", rarity: "rare", sfx: "craftSuccess", artDescription: "A driftwood candleholder with the Mermaid Shimmer specialty glaze." },
   "driftwood-candleholder--special-sunset-pearl": { id: "driftwood-candleholder--special-sunset-pearl", name: "Sunset Pearl Driftwood Candleholder", category: "decor", icon: "/images/Pottery/sunset-pearl-driftwood-candleholder.png", rarity: "rare", sfx: "craftSuccess", artDescription: "A driftwood candleholder with the Sunset Pearl specialty glaze." },
   "driftwood-candleholder--special-moonlit-silver": { id: "driftwood-candleholder--special-moonlit-silver", name: "Moonlit Silver Driftwood Candleholder", category: "decor", icon: "/images/Pottery/moonlit-silver-driftwood-candleholder.png", rarity: "rare", sfx: "craftSuccess", artDescription: "A driftwood candleholder with the Moonlit Silver specialty glaze." },
