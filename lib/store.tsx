@@ -104,6 +104,7 @@ interface GameState {
   shelbyChartBonusPending: boolean;
   shelbyForecastDate: string;
   weatherForecastDate: string;
+  windTreasureRewards: Record<string, string>;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -212,11 +213,34 @@ interface GameState {
 }
 
 export function windTreasureItem(date: string, slot: number): string {
+  // Independent deterministic rolls avoid the almost-identical results from hashing consecutive slots.
+  const pool = ["wind-glitter-ribbon", "wind-fabric-scrap", "wind-shell-button", "wind-glass-button", "wind-journal", "wind-bird-nest", "wind-bubble-lantern"];
+  let hash = 2166136261;
+  for (const char of `wind:${date}:slot:${slot}`) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  hash ^= hash >>> 16;
+  hash = Math.imul(hash, 0x7feb352d);
+  hash ^= hash >>> 15;
+  hash = Math.imul(hash, 0x846ca68b);
+  hash ^= hash >>> 16;
+  const roll = (hash >>> 0) % 100;
+  return roll < 27 ? pool[0] : roll < 54 ? pool[1] : roll < 76 ? pool[2] : roll < 87 ? pool[3] : roll < 95 ? pool[4] : roll < 98 ? pool[5] : pool[6];
+}
+
+// Keep the original algorithm for treasures collected before the selection update.
+export function legacyWindTreasureItem(date: string, slot: number): string {
   const pool = ["wind-glitter-ribbon", "wind-fabric-scrap", "wind-shell-button", "wind-glass-button", "wind-journal", "wind-bird-nest", "wind-bubble-lantern"];
   let hash = 0;
   for (const char of `${date}:${slot}`) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
   const roll = (hash >>> 0) % 100;
   return roll < 27 ? pool[0] : roll < 54 ? pool[1] : roll < 76 ? pool[2] : roll < 87 ? pool[3] : roll < 95 ? pool[4] : roll < 98 ? pool[5] : pool[6];
+}
+
+export function savedWindTreasureItem(state: GameState, date: string, slot: number): string {
+  const key = `wind-treasure:${date}:${slot}`;
+  return state.windTreasureRewards?.[key] || (state.questProgress[key] ? legacyWindTreasureItem(date, slot) : windTreasureItem(date, slot));
 }
 
 const BUCKET_CAPACITY = 20;
@@ -228,6 +252,7 @@ const DEFAULT_STATE: GameState = {
   shelbyChartBonusPending: false,
   shelbyForecastDate: "",
   weatherForecastDate: "",
+  windTreasureRewards: {},
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -782,6 +807,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (stateRef.current.questProgress[key]) return null;
     const itemId = windTreasureItem(date, slot);
     setState(prev => ({
+      windTreasureRewards: { ...(prev.windTreasureRewards || {}), [key]: itemId },
       ...prev,
       questProgress: { ...prev.questProgress, [key]: true },
       inventory: { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) + 1 },
