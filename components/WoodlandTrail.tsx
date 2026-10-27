@@ -13,6 +13,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
   const { state, placeRobinNest, repairRobinNest } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
+  const [activeGarden, setActiveGarden] = useState<"coffee" | "cotton" | "catnip" | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const arrived = !!state.robinNestPlacedAt && now - state.robinNestPlacedAt >= ARRIVAL_MS;
   useEffect(() => {
@@ -23,6 +24,10 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     audioRef.current?.pause();
     audioRef.current = null;
   }, []);
+  const openGarden = (garden: "coffee" | "cotton" | "catnip") => {
+    setActiveGarden(garden);
+    setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} selected. Planting and harvesting controls are below the forest scene.`);
+  };
   const greetRobin = () => {
     setAnnouncement("Robin chirps a cheerful greeting from her tree.");
     audioRef.current?.pause();
@@ -49,6 +54,10 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-lg bg-emerald-950/90 px-2 py-1 text-sm font-bold text-white">Robin</span>
           </button>
         )}
+        {/* The forest artwork remains visible; large, labeled hotspots open the actual plant controls. */}
+        <button type="button" onClick={() => openGarden("coffee")} aria-label="Explore coffee shrubs, plant seeds or harvest coffee beans" aria-pressed={activeGarden === "coffee"} className="absolute right-[3%] top-[48%] z-20 min-h-12 w-[42%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">☕ Coffee Shrubs</button>
+        <button type="button" onClick={() => openGarden("cotton")} aria-label="Explore cotton plants, plant seeds or harvest cotton" aria-pressed={activeGarden === "cotton"} className="absolute left-[3%] bottom-[19%] z-20 min-h-12 w-[40%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">☁️ Cotton Patch</button>
+        <button type="button" onClick={() => openGarden("catnip")} aria-label="Explore catnip plants, plant seeds or harvest catnip" aria-pressed={activeGarden === "catnip"} className="absolute right-[3%] bottom-[17%] z-20 min-h-12 w-[38%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌿 Catnip Plants</button>
       </section>
       <div className="mx-auto max-w-3xl space-y-5 px-4 py-5">
         <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-emerald-950">{announcement}</p>
@@ -76,9 +85,16 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         </section>
         <section aria-label="Woodland Trail plantings" className="space-y-4">
           <h2 className="text-xl font-bold text-emerald-950">Forest Garden</h2>
-          <p>Care for the coffee plants, cotton and catnip along the sunny edge of the woodland clearing.</p>
-          <GroveCoffeePlant />
-          <GroveFiberPatch />
+          <p>Choose the coffee shrubs, cotton patch or catnip plants in the clearing to tend them. Each plant keeps its existing growth and harvest schedule.</p>
+          {activeGarden && (
+            <div className="rounded-2xl bg-white p-3 shadow-md ring-1 ring-emerald-300">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-bold text-emerald-950">{activeGarden === "coffee" ? "Coffee Shrubs" : activeGarden === "cotton" ? "Cotton Patch" : "Catnip Plants"}</h3>
+                <button type="button" onClick={() => { setActiveGarden(null); setAnnouncement("Returned to the Woodland Trail clearing."); }} className="min-h-11 rounded-lg bg-emerald-800 px-3 py-2 font-semibold text-white">Close garden controls</button>
+              </div>
+              {activeGarden === "coffee" ? <GroveCoffeePlant /> : <GroveFiberPatch kind={activeGarden} />}
+            </div>
+          )}
         </section>
         <button type="button" onClick={onBack} className="min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white">Return to Coconut Grove</button>
       </div>
