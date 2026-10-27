@@ -120,7 +120,7 @@ export function getTravelingMerchantStock(villagerId: string, date = new Date(),
     const unique = new Set(["antique-captains-compass", "ship-in-a-bottle", "captains-coin"]);
     const eligibleCargo = SHELBY_CARGO.filter((listing) => !unique.has(listing.itemId) ||
       !progress || ((progress.inventory[listing.itemId] || 0) === 0 && !progress.notebookDiscovered[listing.itemId]));
-    return [...needed, ...SHELBY_FLOWER_SEEDS, { itemId: "coffee-plant-seeds", price: 12, kind: "seed", note: "Plant once in the Coconut Grove for recurring coffee bean harvests." }, { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "Open at Shelby’s counter for a mystery supply or rare treasure." }, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
+    return [...needed, ...SHELBY_FLOWER_SEEDS, { itemId: "coffee-plant-seeds", price: 12, kind: "seed", note: "Plant once in the Coconut Grove for recurring coffee bean harvests." }, { itemId: "cotton-plant-seeds", price: 10, kind: "seed", note: "Grow up to three year-round cotton plants in Coconut Grove. Each produces cotton balls for soft crafts." }, { itemId: "catnip-plant-seeds", price: 8, kind: "seed", note: "Grow up to two year-round catnip plants in Coconut Grove for Marshmallow’s future toys." }, { itemId: "shelby-sealed-cargo", price: 24, kind: "item", note: "Open at Shelby’s counter for a mystery supply or rare treasure." }, ...rotate(eligibleCargo, docking % Math.max(eligibleCargo.length, 1), 4)];
   }
   return [];
 }
