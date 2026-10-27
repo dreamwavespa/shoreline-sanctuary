@@ -212,6 +212,8 @@ export default function CoconutGrove() {
       play("groveBerryPick");
     }
 
+    // Birds occasionally leave a feather near the palms and garden paths.
+    if (Math.random() < 0.18) rewards.push({ itemId: "bird-feather", count: 1 });
     rewards.forEach(({ itemId, count }) => add(itemId, count));
     if (Math.random() < 0.22) setLeafSandReady(true);
     const names = rewards.map(({ itemId, count }) => `${count} ${ITEMS[itemId].name}`).join(" and ");
