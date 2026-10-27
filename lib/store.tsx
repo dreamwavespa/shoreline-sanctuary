@@ -837,8 +837,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (stateRef.current.questProgress[key]) return null;
     const itemId = windTreasureItem(date, slot);
     setState(prev => ({
-      windTreasureRewards: { ...(prev.windTreasureRewards || {}), [key]: itemId },
       ...prev,
+      windTreasureRewards: { ...(prev.windTreasureRewards || {}), [key]: itemId },
       questProgress: { ...prev.questProgress, [key]: true },
       inventory: { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) + 1 },
       totalCollected: prev.totalCollected + 1,
