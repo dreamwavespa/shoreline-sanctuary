@@ -383,7 +383,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Rotates rare goods, master structural blueprints, and foreign trinkets.",
     location: "Trading Dock",
     gift: {
-      lovedGiftIds: ["ship-chart", "spyglass-lens", "food-chocolate-cake", "food-iced-mint-tea"],
+      lovedGiftIds: ["salvage-brass-key", "spyglass-lens", "food-chocolate-cake", "food-iced-mint-tea"],
       reactionSfx: 'Claw Clicks ("Clack!"), Brass Ship Bell',
       reactionVisual: "Claw Clicks",
       redirectTo: ["coralie"],
