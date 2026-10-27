@@ -47,6 +47,15 @@ export interface VillagerDef {
 }
 
 export const VILLAGERS: Record<string, VillagerDef> = {
+  lacey: {
+    id: "lacey", name: "Lacey", title: "The Coastal Seamstress", group: "underwater-village",
+    personality: "Warm, imaginative and patient; she loves sharing stories stitched into her work.",
+    palette: "Lavender, seafoam and pearl", role: "Welcomes visitors to the Coastal Sewing Studio and teaches embroidery.",
+    gameplay: "All sewing projects are available immediately. Loved gifts build friendship and unlock embroidery keepsakes.",
+    location: "Coastal Sewing Studio (Craft Workshop)", imageUrl: "/images/Sewing/Lacey.PNG",
+    gift: { lovedGiftIds: ["pearl-pink", "moonlit-sea-glass", "food-frozen-pineapple-drink", "rain-lily-blossom"], reactionSfx: "soft pearl chime", reactionVisual: "Lavender and seafoam sparkles", redirectTo: ["melody", "coralie"] },
+    soundSignature: { instrumentation: "Gentle harp and delicate sewing-room chimes", movementSfx: "Soft swish of silk" },
+  },
   // ── The Sea Glass Sisters ───────────────────────────────────────────
   melody: {
     id: "melody",
