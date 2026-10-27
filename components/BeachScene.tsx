@@ -346,7 +346,7 @@ function BeachBagCard() {
 }
 
 export default function BeachScene() {
-  const { state, collectItem, collectSeaWater, setScreen, lastToast, play } = useGame();
+  const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
@@ -566,6 +566,25 @@ export default function BeachScene() {
 
       <div className="px-4 py-4 space-y-3 bg-[#fbf3e3] pb-8">
         {/* Beach scenery provides the water bucket, grove, shop, tide pool, Snappy ride, umbrella, and picnic interactions. */}
+        {state.currentForecast?.id === "wind" && (() => {
+          const now = new Date();
+          const date = localDateKey(now);
+          const active = state.weatherForecastDate === date || state.weatherForecastDate === now.toLocaleDateString("en-CA");
+          if (!active) return null;
+          return <section aria-labelledby="wind-treasure-heading" className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-sky-300">
+            <h2 id="wind-treasure-heading" className="font-bold text-sky-950">💨 Windblown Treasures</h2>
+            <p className="text-sm text-sky-900">Maeve's windy forecast has brought three unusual finds to the beach. Search them before the next day's forecast.</p>
+            <div className="mt-3 space-y-2">
+              {[0, 1, 2].map(slot => {
+                const found = !!state.questProgress[`wind-treasure:${date}:${slot}`];
+                return <button key={slot} type="button" disabled={found} onClick={() => collectWindTreasure(slot)} className="block w-full min-h-11 rounded-xl bg-teal-800 px-4 py-2 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">
+                  {found ? `Treasure ${slot + 1} collected` : `Search windblown treasure ${slot + 1}`}
+                </button>;
+              })}
+            </div>
+            <p role="status" aria-live="polite" className="mt-2 text-sm text-sky-900">{[0, 1, 2].filter(slot => state.questProgress[`wind-treasure:${date}:${slot}`]).length} of 3 treasures collected today.</p>
+          </section>;
+        })()}
         <BeachBagCard />
 
         {/* Resident interactions, special quests, and visitor exchanges live in the accessible character dialogs above. */}
