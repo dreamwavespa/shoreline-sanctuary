@@ -13,6 +13,7 @@ import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
 import ShellPaintingStudio from "./ShellPaintingStudio";
 import PotteryStudio from "./PotteryStudio";
+import CoastalSewingStudio from "./CoastalSewingStudio";
 
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
@@ -854,7 +855,7 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCottage }: { openKitchen?: boolean; onGoToNursery?: () => void; onGoToCottage?: () => void }) {
   const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
   const [tab, setTab] = useState<Tab>(openKitchen ? "kitchen" : "crafting");
-  const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting">("general");
+  const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting" | "sewing">("general");
   const chooseStudioStation = (station: typeof studioStation) => {
     setStudioStation(station);
     setTab(station === "jewelry" ? "jewelry" : station === "sandart" || station === "painting" ? "sandart" : station === "general" || station === "pottery" ? "crafting" : "decor");
@@ -945,6 +946,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               {([
                 ["jewelry", "Jewelry Counter", "/images/jewelry-counter.png"],
                 ["pottery", "Pottery Studio", "/images/pottery-studio.png"],
+                ["sewing", "Coastal Sewing Studio", "/images/sewing/sewing-entrance.png"],
                 ["candles", "Candle Making", "/images/candle-making.png"],
                 ["sandart", "Sand Art", "/images/sand-art.png"],
                 ["decor", "Decorative Crafts", "/images/decorative-crafts.png"],
@@ -992,8 +994,9 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           </div>
         </button>
 
-        {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
+        {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",sewing:"Coastal Sewing Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
         {!openKitchen && studioStation === "pottery" && state.workshopUnlocked && <PotteryStudio />}
+        {!openKitchen && studioStation === "sewing" && state.workshopUnlocked && <CoastalSewingStudio />}
 
         {!state.workshopUnlocked ? (
           <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center">
@@ -1002,7 +1005,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               Complete "The Glass Artisan" bottle quest to unlock the Sea Glass Workshop and learn to craft Melodic Wind Chimes.
             </p>
           </div>
-        ) : !openKitchen && studioStation === "pottery" ? null : tab === "crafting" ? (
+        ) : !openKitchen && (studioStation === "pottery" || studioStation === "sewing") ? null : tab === "crafting" ? (
           <>
 
 
