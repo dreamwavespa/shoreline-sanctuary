@@ -101,6 +101,9 @@ interface GameState {
   shelbyPacked: Record<string, number>;
   shelbyShipmentDate: string;
   shelbyShipmentCount: number;
+  shelbyChartBonusPending: boolean;
+  shelbyForecastDate: string;
+  weatherForecastDate: string;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -214,6 +217,9 @@ const DEFAULT_STATE: GameState = {
   shelbyPacked: {},
   shelbyShipmentDate: "",
   shelbyShipmentCount: 0,
+  shelbyChartBonusPending: false,
+  shelbyForecastDate: "",
+  weatherForecastDate: "",
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -387,9 +393,10 @@ const SPLASH_STORIES = [
 
 interface Ctx {
   packShelbyItem: (itemId: string) => boolean;
-  sendShelbyShipment: () => boolean;
+  sendShelbyShipment: (useChart?: boolean) => boolean;
   claimShelbyShipment: () => boolean;
   recordWeatherChartObservation: () => boolean;
+  recordShelbyForecast: () => boolean;
   createWeatheredShipChart: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
   state: GameState;
@@ -834,6 +841,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const recordShelbyForecast = (): boolean => {
+    const today = new Date().toLocaleDateString("en-CA");
+    const current = stateRef.current;
+    if (!current.currentForecast || current.weatherForecastDate !== today || current.shelbyForecastDate === today) return false;
+    setState((s) => ({ ...s, shelbyForecastDate: today }));
+    toast("Today's sailing forecast recorded for Shelby.");
+    return true;
+  };
+
   const packShelbyItem = (itemId: string): boolean => {
     const current = stateRef.current;
     const order = currentShelbyOrder(current.shelbyShipmentCount || 0);
@@ -850,23 +866,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const sendShelbyShipment = (): boolean => {
+  const sendShelbyShipment = (useChart = false): boolean => {
     const current = stateRef.current;
+    const today = new Date().toLocaleDateString("en-CA");
     if (current.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(current.shelbyShipmentCount || 0), current.shelbyPacked || {})) return false;
-    const date = new Date();
-    const today = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    if (current.shelbyForecastDate !== today || current.weatherForecastDate !== today) {
+      toast("Record today's sailing forecast at the Lighthouse before sending Shelby's crate.");
+      return false;
+    }
+    if (current.currentForecast?.id === "storm") {
+      toast("A storm is coming. Shelby will wait for safer weather before departing.");
+      return false;
+    }
+    if (useChart && !(current.inventory["ship-chart"] > 0)) return false;
     setState((s) => {
       if (s.shelbyShipmentDate || !isPackageComplete(currentShelbyOrder(s.shelbyShipmentCount || 0), s.shelbyPacked || {})) return s;
-      return { ...s, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
+      const inventory = { ...s.inventory };
+      if (useChart) inventory["ship-chart"] = Math.max(0, (inventory["ship-chart"] || 0) - 1);
+      return { ...s, inventory, shelbyChartBonusPending: useChart, shelbyShipmentDate: today, shelbyShipmentCount: (s.shelbyShipmentCount || 0) + 1 };
     });
-    toast("Shelby's crate is on its way! Return tomorrow.");
+    toast(useChart ? "Shelby's crate departed with a chart. A 10 Sand Dollar bonus awaits!" : "Shelby's crate is on its way! Return tomorrow.");
     return true;
   };
 
   const claimShelbyShipment = (): boolean => {
     const current = stateRef.current;
-    const d = new Date();
-    const today = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+    const today = new Date().toLocaleDateString("en-CA");
     if (!current.shelbyShipmentDate || current.shelbyShipmentDate >= today) return false;
     setState((s) => {
       if (!s.shelbyShipmentDate || s.shelbyShipmentDate >= today) return s;
@@ -878,12 +903,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return {
         ...s,
         inventory,
-        sandDollars: s.sandDollars + order.sandDollars,
+        sandDollars: s.sandDollars + order.sandDollars + (s.shelbyChartBonusPending ? 10 : 0),
+        shelbyChartBonusPending: false,
         shelbyShipmentDate: "",
         shelbyPacked: {},
       };
     });
-    toast("Shelby's cargo arrived: 2 Blue Sea Glass and 5 Sand Dollars!");
+    toast("Shelby's returning cargo collected, including any chart bonus!");
     return true;
   };
 
@@ -1850,10 +1876,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     // Storms are possible, but deliberately uncommon: one storm entry in a
     // weighted set of eight outcomes.
     const weighted = [...forecasts.slice(0, 5), forecasts[0], forecasts[1], forecasts[5], ...winterForecasts];
+    const today = new Date().toLocaleDateString("en-CA");
+    if (stateRef.current.weatherForecastDate === today && stateRef.current.currentForecast) return stateRef.current.currentForecast;
     const forecast = weighted[Math.floor(Math.random() * weighted.length)];
     setState((s) => ({
       ...s,
       currentForecast: forecast,
+      weatherForecastDate: today,
       stormCleanupAvailable: forecast.id === "storm" ? true : s.stormCleanupAvailable,
       groveNurseryAvailable: forecast.id === "storm" ? true : s.groveNurseryAvailable,
       libbyTrapBottleFound: forecast.id === "storm" && s.libbyRescued && !s.questProgress.libbytraprepair
@@ -2633,6 +2662,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       sendShelbyShipment,
       claimShelbyShipment,
       recordWeatherChartObservation,
+      recordShelbyForecast,
       createWeatheredShipChart,
       emptyBucket,
       craft,
