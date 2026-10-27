@@ -105,6 +105,9 @@ interface GameState {
   shelbyForecastDate: string;
   weatherForecastDate: string;
   windTreasureRewards: Record<string, string>;
+  robinNestPlacedAt: number;
+  robinNestRepairNeeded: boolean;
+  robinNestStormDate: string;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -253,6 +256,9 @@ const DEFAULT_STATE: GameState = {
   shelbyForecastDate: "",
   weatherForecastDate: "",
   windTreasureRewards: {},
+  robinNestPlacedAt: 0,
+  robinNestRepairNeeded: false,
+  robinNestStormDate: "",
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -438,6 +444,8 @@ interface Ctx {
   setScreen: (s: Screen) => void;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
   collectWindTreasure: (slot: number) => string | null;
+  placeRobinNest: () => boolean;
+  repairRobinNest: () => boolean;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -796,6 +804,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const toast = (msg: string) => {
     setLastToast(msg);
     window.setTimeout(() => setLastToast((cur) => (cur === msg ? null : cur)), 2200);
+  };
+
+  const placeRobinNest = (): boolean => {
+    if (stateRef.current.robinNestPlacedAt || !(stateRef.current.inventory["wind-bird-nest"] > 0)) return false;
+    setState(prev => ({
+      ...prev,
+      robinNestPlacedAt: Date.now(),
+      inventory: { ...prev.inventory, "wind-bird-nest": (prev.inventory["wind-bird-nest"] || 0) - 1 },
+    }));
+    toast("The rescued nest is safely placed in Coconut Grove. Robin may arrive in 24 hours!");
+    return true;
+  };
+
+  const repairRobinNest = (): boolean => {
+    if (!stateRef.current.robinNestPlacedAt || !stateRef.current.robinNestRepairNeeded || !(stateRef.current.inventory["wind-bird-nest"] > 0)) return false;
+    setState(prev => ({
+      ...prev,
+      robinNestRepairNeeded: false,
+      inventory: { ...prev.inventory, "wind-bird-nest": (prev.inventory["wind-bird-nest"] || 0) - 1 },
+    }));
+    toast("Robin's nest has been repaired using a spare rescued nest.");
+    return true;
   };
 
   const collectWindTreasure = (slot: number): string | null => {
@@ -1937,6 +1967,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       currentForecast: forecast,
       weatherForecastDate: today,
       stormCleanupAvailable: forecast.id === "storm" ? true : s.stormCleanupAvailable,
+      robinNestRepairNeeded: forecast.id === "storm" && s.robinNestPlacedAt > 0 && !s.robinNestRepairNeeded && s.robinNestStormDate !== today ? true : s.robinNestRepairNeeded,
+      robinNestStormDate: forecast.id === "storm" && s.robinNestPlacedAt > 0 ? today : s.robinNestStormDate,
       groveNurseryAvailable: forecast.id === "storm" ? true : s.groveNurseryAvailable,
       libbyTrapBottleFound: forecast.id === "storm" && s.libbyRescued && !s.questProgress.libbytraprepair
         ? true
@@ -2712,6 +2744,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       offshoreAction,
       collectItem,
       collectWindTreasure,
+      placeRobinNest,
+      repairRobinNest,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
