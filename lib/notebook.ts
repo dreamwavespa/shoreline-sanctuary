@@ -22,6 +22,20 @@ export interface NotebookSection {
 
 export const NOTEBOOK_SECTIONS: NotebookSection[] = [
   {
+    id: "coastal-sewing-materials",
+    title: "Coastal Sewing Materials",
+    anchorVillagerId: "coralie",
+    completionReward: "A complete record of the coastal plants and beachcombing materials for the Sewing Studio",
+    entries: [
+      { id: "cotton-plant-seeds", kind: "item", note: "Shelby sells seeds for permanent cotton plants in Coconut Grove." },
+      { id: "catnip-plant-seeds", kind: "item", note: "Shelby sells seeds for permanent catnip plants in Coconut Grove." },
+      { id: "cotton-balls", kind: "item", note: "Soft stuffing harvested from cotton plants year-round." },
+      { id: "catnip", kind: "item", note: "Fragrant leaves harvested for Marshmallow's future cat toys." },
+      { id: "washed-beach-towel", kind: "item", note: "A towel washed onto the beach; later recyclable into two pieces of fabric." },
+      { id: "bird-feather", kind: "item", note: "A feather discovered on the beach or while tending Coconut Grove." },
+    ],
+  },
+  {
     id: "twinkle-beach-hut-furniture",
     title: "Twinkle's Seashell Furniture Collection",
     anchorVillagerId: "twinkle",
