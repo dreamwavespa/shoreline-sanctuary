@@ -946,7 +946,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               {([
                 ["jewelry", "Jewelry Counter", "/images/jewelry-counter.png"],
                 ["pottery", "Pottery Studio", "/images/pottery-studio.png"],
-                ["sewing", "Coastal Sewing Studio", "/images/sewing/sewing-entrance.png"],
+                ["sewing", "Coastal Sewing Studio", "/images/Sewing/Sewing-corner-entrance.PNG"],
                 ["candles", "Candle Making", "/images/candle-making.png"],
                 ["sandart", "Sand Art", "/images/sand-art.png"],
                 ["decor", "Decorative Crafts", "/images/decorative-crafts.png"],
