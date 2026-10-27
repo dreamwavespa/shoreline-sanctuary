@@ -65,7 +65,7 @@ function choose<T>(weighted: { value: T; weight: number }[]): T {
 }
 
 export default function CoconutGrove() {
-  const { state, collectItem, craft, play, setMusicOverride, setScreen, advanceHoneybell, visitGroveBees } = useGame();
+  const { state, collectItem, craft, play, setMusicOverride, setScreen, advanceHoneybell, visitGroveBees, placeRobinNest, repairRobinNest } = useGame();
   const [harvestedAt, setHarvestedAt] = useState<HarvestTimes>({});
   const [message, setMessage] = useState("The grove is ready to explore.");
   const [now, setNow] = useState(() => Date.now());
@@ -464,6 +464,27 @@ export default function CoconutGrove() {
           </div>
         </div>
       )}
+      <section aria-labelledby="robin-nest-title" className="mx-4 mt-4 rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+        <h2 id="robin-nest-title" className="text-lg font-bold text-emerald-950">🪺 Robin's Nest — Bird Sanctuary</h2>
+        {!state.robinNestPlacedAt ? (
+          <>
+            <p className="mt-2 text-sm text-emerald-900">A sheltered branch is ready for a rescued bird's nest. Once placed, Robin may discover it after 24 hours.</p>
+            <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (placeRobinNest()) setMessage("Nest placed safely. Robin may arrive in 24 hours."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">
+              {(state.inventory["wind-bird-nest"] || 0) > 0 ? "Place rescued nest in the tree" : "Find a rescued nest on a windy beach"}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="mt-2 text-sm text-emerald-900">{now - state.robinNestPlacedAt >= 24 * 60 * 60 * 1000 ? "Robin has discovered her new home! The sanctuary has its first resident." : `The nest is secure. Robin may arrive in about ${Math.max(1, Math.ceil((24 * 60 * 60 * 1000 - (now - state.robinNestPlacedAt)) / 3600000))} hour(s).`}</p>
+            {state.robinNestRepairNeeded ? (
+              <div className="mt-3">
+                <p className="text-sm text-amber-900">The last storm loosened Robin's nest. A spare rescued nest can be used to repair it.</p>
+                <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (repairRobinNest()) setMessage("Robin's nest repaired."); }} className="mt-2 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300">Repair nest with spare nest ({state.inventory["wind-bird-nest"] || 0} available)</button>
+              </div>
+            ) : <p className="mt-2 text-sm text-emerald-800">Nest condition: secure. Spare nests in inventory: {state.inventory["wind-bird-nest"] || 0}.</p>}
+          </>
+        )}
+      </section>
       <GroveCoffeePlant />
       <GroveFiberPatch />
       {nurseryOpen && <HiddenGroveNursery onClose={closeNursery} />}
