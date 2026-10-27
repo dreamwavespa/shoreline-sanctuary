@@ -18,7 +18,7 @@ const valid = (p: unknown): p is Plant => !!p && typeof p === "object" &&
 const due = (p: Plant) => Math.max(p.plantedAt + GROW, p.lastHarvest ? p.lastHarvest + REGROW : 0);
 const remainingText = (ms: number) => Math.floor(ms / 3600000) + "h " + Math.ceil((ms % 3600000) / 60000) + "m";
 
-export default function GroveFiberPatch() {
+export default function GroveFiberPatch({ kind }: { kind?: Kind } = {}) {
   const { state, craft, collectItem } = useGame();
   const [patch, setPatch] = useState<Patch>({ cotton: [], catnip: [] });
   const [ready, setReady] = useState(false);
@@ -72,7 +72,7 @@ export default function GroveFiberPatch() {
   return <section aria-labelledby="fiber-patch-heading" className="mt-4 rounded-2xl bg-emerald-950/90 p-4 text-white ring-1 ring-emerald-300/50">
     <h3 id="fiber-patch-heading" className="text-xl font-bold">🌱 Cotton & Catnip Patch</h3>
     <p className="mt-2">These plants grow year-round. Your first cotton and catnip plants are included; additional plants need seeds. Harvests replenish every three hours.</p>
-    {!ready ? <p>Checking the growing patch...</p> : (["cotton", "catnip"] as const).map(kind => {
+    {!ready ? <p>Checking the growing patch...</p> : (kind ? [kind] : ["cotton", "catnip"] as const).map(kind => {
       const config = CONFIG[kind];
       return <div key={kind} className="mt-4 rounded-xl bg-emerald-900/80 p-3">
         <h4 className="font-bold">{config.icon} {config.label} — {patch[kind].length} of {config.max} plants</h4>
