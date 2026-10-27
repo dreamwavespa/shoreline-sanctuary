@@ -15,6 +15,13 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "wind-glitter-ribbon": { id: "wind-glitter-ribbon", name: "Glittery Sea Ribbon", category: "raw", icon: "🎀", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "wind-fabric-scrap": { id: "wind-fabric-scrap", name: "Windblown Fabric Scrap", category: "raw", icon: "🧵", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "wind-shell-button": { id: "wind-shell-button", name: "Seashell Button", category: "raw", icon: "🐚", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "wind-glass-button": { id: "wind-glass-button", name: "Sea Glass Button", category: "raw", icon: "🔘", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "wind-journal": { id: "wind-journal", name: "Washed-Up Journal", category: "special", icon: "📖", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "wind-bird-nest": { id: "wind-bird-nest", name: "Rescued Bird's Nest", category: "special", icon: "🪺", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "wind-bubble-lantern": { id: "wind-bubble-lantern", name: "Moon Jelly Bubble Lantern", category: "special", icon: "🏮", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "lacey-urchin-pincushion": { id: "lacey-urchin-pincushion", name: "Lacey's Sea-Urchin Pincushion", category: "special", icon: "/images/Sewing/seashell-pin-cushion.png", rarity: "rare", sfx: "craftSuccess" },
   "lacey-clam-satchel": { id: "lacey-clam-satchel", name: "Lacey's Clam-Shell Satchel", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "lacey-turret-thimble": { id: "lacey-turret-thimble", name: "Lacey's Turret-Shell Thimble", category: "special", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
