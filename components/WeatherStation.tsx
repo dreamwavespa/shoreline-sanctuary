@@ -68,7 +68,7 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 }
 
 export default function WeatherStation() {
-  const { state, checkWeather, collectRainBarrelWater, recordWeatherChartObservation, createWeatheredShipChart } = useGame();
+  const { state, checkWeather, collectRainBarrelWater, recordWeatherChartObservation, recordShelbyForecast, createWeatheredShipChart } = useGame();
   const [cleanupOpen, setCleanupOpen] = useState(false);
   const [teaOpen, setTeaOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -149,9 +149,17 @@ export default function WeatherStation() {
                 ) : (
                   <p className="mt-2 text-sm text-sky-100">The brass instruments are ready. Ask Maeve to read the sky and tide.</p>
                 )}
+                <section className="mt-4 rounded-xl bg-white/90 p-3 text-sky-950" aria-label="Shelby's Sailing Forecast">
+                  <h3 className="font-bold">Shelby's Daily Sailing Forecast</h3>
+                  <p className="mt-1 text-sm">Check today's weather, then record a sailing forecast for Shelby. A storm means her shipment must wait for a safer day.</p>
+                  <p className="mt-2 text-sm" role="status">{state.shelbyForecastDate === new Date().toLocaleDateString("en-CA") ? "Today's sailing forecast has been recorded." : "No sailing forecast recorded today."}</p>
+                  <button type="button" onClick={() => { if (recordShelbyForecast()) setAnnouncement("Today's sailing forecast recorded for Shelby."); }}
+                    disabled={state.weatherForecastDate !== new Date().toLocaleDateString("en-CA") || state.shelbyForecastDate === new Date().toLocaleDateString("en-CA")}
+                    className="mt-2 w-full rounded-lg bg-sky-700 px-3 py-2 text-white disabled:opacity-50">Record Forecast for Shelby</button>
+                </section>
                 <section className="mt-4 rounded-xl bg-white/90 p-3 text-sky-950" aria-label="Weather Observation Log">
                   <h3 className="font-bold">Weather Observation Log</h3>
-                  <p className="text-sm">Record one observation per calendar day. Three different days make one Weathered Ship Chart for Shelby.</p>
+                  <p className="text-sm">Record one observation per calendar day. Three different days make one Weathered Ship Chart. Use a chart with Shelby's shipment to earn 10 bonus Sand Dollars.</p>
                   <p role="status" className="mt-2 text-sm">{(state.weatherChartObservationDates || []).length} of 3 days recorded.</p>
                   <button type="button" onClick={() => {
                     if (recordWeatherChartObservation()) setAnnouncement("Weather observation recorded. " + ((state.weatherChartObservationDates || []).length + 1) + " of 3 days complete.");
