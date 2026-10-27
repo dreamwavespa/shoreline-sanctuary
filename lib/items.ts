@@ -15,6 +15,10 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "lacey-urchin-pincushion": { id: "lacey-urchin-pincushion", name: "Lacey's Sea-Urchin Pincushion", category: "special", icon: "/images/Sewing/seashell-pin-cushion.png", rarity: "rare", sfx: "craftSuccess" },
+  "lacey-clam-satchel": { id: "lacey-clam-satchel", name: "Lacey's Clam-Shell Satchel", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "lacey-turret-thimble": { id: "lacey-turret-thimble", name: "Lacey's Turret-Shell Thimble", category: "special", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "lacey-embroidery-hoop": { id: "lacey-embroidery-hoop", name: "Lacey's Embroidery Hoop", category: "special", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "recycled-fabric": { id: "recycled-fabric", name: "Recycled Fabric", category: "raw", icon: "🧵", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "magic-sewing-thimble": { id: "magic-sewing-thimble", name: "Magic Thimble", category: "special", icon: "🪡", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "seashell-pin-cushion": { id: "seashell-pin-cushion", name: "Seashell Pin Cushion", category: "special", icon: "🧷", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
