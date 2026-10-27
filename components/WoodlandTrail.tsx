@@ -42,7 +42,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <Image src={`/images/Woodland-trail.PNG?v=${ASSET_VERSION}`} alt="Sunlit forest clearing with a winding trail, Robin's large tree on the right, a birdbath, flowers, cotton plants and coffee shrubs" fill priority unoptimized sizes="100vw" className="object-cover object-center" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-emerald-950/75 to-transparent" />
         <h1 className="pointer-events-none absolute left-4 top-3 z-10 font-serif text-3xl font-bold text-white drop-shadow-lg">Woodland Trail</h1>
-        <button type="button" onClick={onBack} className="absolute left-4 top-20 z-20 min-h-11 rounded-xl bg-emerald-950/95 px-4 py-2 font-semibold text-white shadow-lg ring-2 ring-amber-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">← Return to Coconut Grove</button>
+        <button type="button" onClick={onBack} aria-label="Return to Coconut Grove" className="absolute left-3 top-[13%] z-20 min-h-11 rounded-lg border-2 border-amber-200 bg-[#60432b]/95 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">← Coconut Grove</button>
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[6%] top-[7%] h-[19%] w-[28%]" aria-hidden="true">
             <Image src={`/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="30vw" className="object-contain" />
@@ -63,7 +63,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           <Image src="/images/Cotton-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Cotton patch</span>
         </button>
-        <button type="button" onClick={() => openGarden("catnip")} aria-label="Explore catnip plants, plant seeds or harvest" aria-pressed={activeGarden === "catnip"} className="absolute right-[2%] bottom-[10%] h-[27%] w-[40%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+        <button type="button" onClick={() => openGarden("catnip")} aria-label="Explore catnip plants, plant seeds or harvest" aria-pressed={activeGarden === "catnip"} className="absolute right-[1%] bottom-[7%] h-[23%] w-[34%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
           <Image src="/images/Catnip-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Catnip plants</span>
         </button>
