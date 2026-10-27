@@ -55,9 +55,18 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           </button>
         )}
         {/* The forest artwork remains visible; large, labeled hotspots open the actual plant controls. */}
-        <button type="button" onClick={() => openGarden("coffee")} aria-label="Explore coffee shrubs, plant seeds or harvest coffee beans" aria-pressed={activeGarden === "coffee"} className="absolute right-[3%] top-[48%] z-20 min-h-12 w-[42%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">☕ Coffee Shrubs</button>
-        <button type="button" onClick={() => openGarden("cotton")} aria-label="Explore cotton plants, plant seeds or harvest cotton" aria-pressed={activeGarden === "cotton"} className="absolute left-[3%] bottom-[19%] z-20 min-h-12 w-[40%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">☁️ Cotton Patch</button>
-        <button type="button" onClick={() => openGarden("catnip")} aria-label="Explore catnip plants, plant seeds or harvest catnip" aria-pressed={activeGarden === "catnip"} className="absolute right-[3%] bottom-[17%] z-20 min-h-12 w-[38%] rounded-xl border-2 border-amber-200 bg-emerald-950/80 px-2 py-2 text-sm font-bold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌿 Catnip Plants</button>
+        <button type="button" onClick={() => openGarden("coffee")} aria-label="Explore coffee shrubs, plant seeds or harvest" aria-pressed={activeGarden === "coffee"} className="absolute right-[2%] top-[45%] h-[31%] w-[44%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <Image src="/images/Coffee-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Coffee shrubs</span>
+        </button>
+        <button type="button" onClick={() => openGarden("cotton")} aria-label="Explore cotton patch, plant seeds or harvest" aria-pressed={activeGarden === "cotton"} className="absolute left-[2%] bottom-[13%] h-[30%] w-[42%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <Image src="/images/Cotton-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Cotton patch</span>
+        </button>
+        <button type="button" onClick={() => openGarden("catnip")} aria-label="Explore catnip plants, plant seeds or harvest" aria-pressed={activeGarden === "catnip"} className="absolute right-[2%] bottom-[10%] h-[27%] w-[40%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <Image src="/images/Catnip-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Catnip plants</span>
+        </button>
       </section>
       <div className="mx-auto max-w-3xl space-y-5 px-4 py-5">
         <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-emerald-950">{announcement}</p>
