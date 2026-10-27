@@ -54,6 +54,19 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-lg bg-emerald-950/90 px-2 py-1 text-sm font-bold text-white">Robin</span>
           </button>
         )}
+        {/* Decorative details are not interactive and never intercept plant taps. */}
+        <div className="pointer-events-none absolute left-[2%] bottom-[2%] h-[14%] w-[25%]" aria-hidden="true">
+          <Image src="/images/Mossy-rocks.png" alt="" fill unoptimized sizes="25vw" className="object-contain" />
+        </div>
+        <div className="pointer-events-none absolute left-[43%] bottom-[3%] h-[11%] w-[22%]" aria-hidden="true">
+          <Image src="/images/Woodland-wildflowers.png" alt="" fill unoptimized sizes="22vw" className="object-contain" />
+        </div>
+        <div className="pointer-events-none absolute left-[3%] top-[60%] h-[13%] w-[21%]" aria-hidden="true">
+          <Image src="/images/Cotton-harvest-basket.png" alt="" fill unoptimized sizes="21vw" className="object-contain" />
+        </div>
+        <div className="pointer-events-none absolute right-[2%] top-[72%] h-[11%] w-[19%]" aria-hidden="true">
+          <Image src="/images/Coffee-harvest-basket.png" alt="" fill unoptimized sizes="19vw" className="object-contain" />
+        </div>
         {/* The forest artwork remains visible; large, labeled hotspots open the actual plant controls. */}
         <button type="button" onClick={() => openGarden("coffee")} aria-label="Explore coffee shrubs, plant seeds or harvest" aria-pressed={activeGarden === "coffee"} className="absolute right-[2%] top-[45%] h-[31%] w-[44%] z-20 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
           <Image src="/images/Coffee-plant.png" alt="" fill unoptimized sizes="45vw" className="object-contain drop-shadow-lg" />
