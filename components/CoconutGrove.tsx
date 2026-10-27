@@ -8,6 +8,7 @@ import { getShopDateKey } from "@/lib/shop";
 import { BEE_VISIT_COOLDOWN_MS, useGame } from "@/lib/store";
 import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 import GroveCoffeePlant from "./GroveCoffeePlant";
+import GroveFiberPatch from "./GroveFiberPatch";
 
 type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
@@ -462,6 +463,7 @@ export default function CoconutGrove() {
         </div>
       )}
       <GroveCoffeePlant />
+      <GroveFiberPatch />
       {nurseryOpen && <HiddenGroveNursery onClose={closeNursery} />}
     </div>
   );
