@@ -211,6 +211,14 @@ interface GameState {
   nightVisitorLastVisitDate: Record<string, string>;
 }
 
+export function windTreasureItem(date: string, slot: number): string {
+  const pool = ["wind-glitter-ribbon", "wind-fabric-scrap", "wind-shell-button", "wind-glass-button", "wind-journal", "wind-bird-nest", "wind-bubble-lantern"];
+  let hash = 0;
+  for (const char of `${date}:${slot}`) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
+  const roll = (hash >>> 0) % 100;
+  return roll < 27 ? pool[0] : roll < 54 ? pool[1] : roll < 76 ? pool[2] : roll < 87 ? pool[3] : roll < 95 ? pool[4] : roll < 98 ? pool[5] : pool[6];
+}
+
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
@@ -772,11 +780,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (stateRef.current.currentForecast?.id !== "wind" || (forecastDate !== date && forecastDate !== now.toLocaleDateString("en-CA")) || slot < 0 || slot > 2) return null;
     const key = `wind-treasure:${date}:${slot}`;
     if (stateRef.current.questProgress[key]) return null;
-    const pool = ["wind-glitter-ribbon", "wind-fabric-scrap", "wind-shell-button", "wind-glass-button", "wind-journal", "wind-bird-nest", "wind-bubble-lantern"];
-    let hash = 0;
-    for (const char of `${date}:${slot}`) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
-    const roll = (hash >>> 0) % 100;
-    const itemId = roll < 27 ? pool[0] : roll < 54 ? pool[1] : roll < 76 ? pool[2] : roll < 87 ? pool[3] : roll < 95 ? pool[4] : roll < 98 ? pool[5] : pool[6];
+    const itemId = windTreasureItem(date, slot);
     setState(prev => ({
       ...prev,
       questProgress: { ...prev.questProgress, [key]: true },
