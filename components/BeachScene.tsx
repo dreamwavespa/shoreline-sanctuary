@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 const versionedImage = (src: string) => src.startsWith("/images/") ? `${src}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}` : src;
 import Image from "next/image";
 import { ITEMS, rollSpawn } from "@/lib/items";
-import { useGame } from "@/lib/store";
+import { useGame, windTreasureItem } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
@@ -348,6 +348,7 @@ function BeachBagCard() {
 export default function BeachScene() {
   const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [windTreasureAnnouncement, setWindTreasureAnnouncement] = useState("");
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
@@ -574,11 +575,13 @@ export default function BeachScene() {
           return <section aria-labelledby="wind-treasure-heading" className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-sky-300">
             <h2 id="wind-treasure-heading" className="font-bold text-sky-950">💨 Windblown Treasures</h2>
             <p className="text-sm text-sky-900">Maeve's windy forecast has brought three unusual finds to the beach. Search them before the next day's forecast.</p>
+            <p role="status" aria-live="polite" aria-atomic="true" className="mt-2 font-semibold text-teal-950">{windTreasureAnnouncement}</p>
             <div className="mt-3 space-y-2">
               {[0, 1, 2].map(slot => {
                 const found = !!state.questProgress[`wind-treasure:${date}:${slot}`];
-                return <button key={slot} type="button" disabled={found} onClick={() => collectWindTreasure(slot)} className="block w-full min-h-11 rounded-xl bg-teal-800 px-4 py-2 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">
-                  {found ? `Treasure ${slot + 1} collected` : `Search windblown treasure ${slot + 1}`}
+                const name = ITEMS[windTreasureItem(date, slot)].name;
+                return <button key={slot} type="button" disabled={found} onClick={() => { const itemId = collectWindTreasure(slot); if (itemId) setWindTreasureAnnouncement(`You found ${ITEMS[itemId].name}. Added to inventory.`); }} className="block w-full min-h-11 rounded-xl bg-teal-800 px-4 py-2 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">
+                  {found ? `Treasure ${slot + 1}: ${name} collected` : `Search windblown treasure ${slot + 1}`}
                 </button>;
               })}
             </div>
