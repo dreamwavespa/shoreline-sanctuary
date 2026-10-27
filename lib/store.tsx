@@ -404,6 +404,7 @@ interface Ctx {
   zone: Zone;
   setScreen: (s: Screen) => void;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
+  collectWindTreasure: (slot: number) => string | null;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -762,6 +763,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const toast = (msg: string) => {
     setLastToast(msg);
     window.setTimeout(() => setLastToast((cur) => (cur === msg ? null : cur)), 2200);
+  };
+
+  const collectWindTreasure = (slot: number): string | null => {
+    const now = new Date();
+    const date = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+    const forecastDate = stateRef.current.weatherForecastDate;
+    if (stateRef.current.currentForecast?.id !== "wind" || (forecastDate !== date && forecastDate !== now.toLocaleDateString("en-CA")) || slot < 0 || slot > 2) return null;
+    const key = `wind-treasure:${date}:${slot}`;
+    if (stateRef.current.questProgress[key]) return null;
+    const pool = ["wind-glitter-ribbon", "wind-fabric-scrap", "wind-shell-button", "wind-glass-button", "wind-journal", "wind-bird-nest", "wind-bubble-lantern"];
+    let hash = 0;
+    for (const char of `${date}:${slot}`) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
+    const roll = (hash >>> 0) % 100;
+    const itemId = roll < 27 ? pool[0] : roll < 54 ? pool[1] : roll < 76 ? pool[2] : roll < 87 ? pool[3] : roll < 95 ? pool[4] : roll < 98 ? pool[5] : pool[6];
+    setState(prev => ({
+      ...prev,
+      questProgress: { ...prev.questProgress, [key]: true },
+      inventory: { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) + 1 },
+      totalCollected: prev.totalCollected + 1,
+    }));
+    toast(`Windblown treasure found: ${ITEMS[itemId].name}!`);
+    return itemId;
   };
 
   const collectItem = (itemId: string, opts?: { silent?: boolean }) => {
@@ -2658,6 +2681,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      collectWindTreasure,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
