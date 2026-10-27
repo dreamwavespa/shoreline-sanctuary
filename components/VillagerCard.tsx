@@ -42,6 +42,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
   const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment, openShelbyCargo } = useGame();
   const [expanded, setExpanded] = useState(false);
   const [cargoResult, setCargoResult] = useState<string | null>(null);
+  const [useShelbyChart, setUseShelbyChart] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
   const isAway = scheduleKnown && !schedule!.available;
   const shippingOrder = currentShelbyOrder(state.shelbyShipmentDate ? Math.max(0, (state.shelbyShipmentCount || 1) - 1) : (state.shelbyShipmentCount || 0));
@@ -150,15 +151,24 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
                 </div>;
               })}
               <p role="status" className="text-sm text-sky-900">{remainingItems === 0 ? "All required items packed. Crate ready to send." : `${remainingItems} items left to pack before sending.`}</p>
+              {!state.shelbyShipmentDate && (
+                <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
+                  <p>Today's sailing forecast: {state.shelbyForecastDate === new Date().toLocaleDateString("en-CA") ? (state.currentForecast?.id === "storm" ? "Storm warning — departure delayed" : "Recorded — ready for sailing") : "Not recorded. Visit the Lighthouse first."}</p>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={useShelbyChart} onChange={(event) => setUseShelbyChart(event.target.checked)} disabled={(state.inventory["ship-chart"] || 0) < 1} />
+                    Use one Weathered Ship Chart for 10 bonus Sand Dollars ({state.inventory["ship-chart"] || 0} available)
+                  </label>
+                </div>
+              )}
               {state.shelbyShipmentDate ? (
                 <div role="status" className="space-y-2">
-                  <p>Crate sent on {state.shelbyShipmentDate}. Your return cargo will be ready the next day.</p>
+                  <p>Crate sent on {state.shelbyShipmentDate}. Your return cargo will be ready the next day.{state.shelbyChartBonusPending ? " Chart bonus: 10 Sand Dollars." : ""}</p>
                   <button type="button" onClick={() => { if (claimShelbyShipment()) play("shelbyMailbox", 0.7); }}
                     className="rounded-lg bg-emerald-800 px-3 py-2 text-white">Collect returning cargo (when ready)</button>
                 </div>
               ) : (
-                <button type="button" disabled={!isPackageComplete(shippingOrder, state.shelbyPacked || {})}
-                  onClick={sendShelbyShipment}
+                <button type="button" disabled={!isPackageComplete(shippingOrder, state.shelbyPacked || {}) || state.shelbyForecastDate !== new Date().toLocaleDateString("en-CA") || state.currentForecast?.id === "storm"}
+                  onClick={() => { if (sendShelbyShipment(useShelbyChart)) setUseShelbyChart(false); }}
                   className="rounded-lg bg-emerald-800 px-3 py-2 text-white disabled:opacity-40" aria-label={remainingItems > 0 ? `Send crate unavailable. Pack ${remainingItems} more items first.` : "Send packed crate"}>Send packed crate</button>
               )}
               <p className="text-xs text-sky-800">Return reward: {shippingOrder.rewardCount} {ITEMS[shippingOrder.rewardItemId]?.name || shippingOrder.rewardItemId} and {shippingOrder.sandDollars} Sand Dollars. A new order appears after you collect the returning cargo. Some deliveries also contain mystery pearls; every third and fifth shipment earns a rarer treasure.</p>
