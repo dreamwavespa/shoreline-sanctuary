@@ -1549,6 +1549,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // Lacey's friendship grows through loved gifts; milestones award permanent sewing keepsakes.
+      if (villagerId === "lacey" && loved) {
+        for (const [required, rewardId] of ([[3, "lacey-urchin-pincushion"], [5, "lacey-clam-satchel"], [8, "lacey-turret-thimble"], [12, "lacey-embroidery-hoop"]] as const)) {
+          const marker = `lacey-friendship:${required}`;
+          if (nextGiftCount >= required && !crafted.includes(marker)) {
+            inv[rewardId] = (inv[rewardId] || 0) + 1;
+            crafted.push(marker);
+          }
+        }
+      }
+
       // Sea Glass Sister milestone rewards are granted in the same state update
       // as the loved gift, so inventory/unlocks cannot be lost between renders.
       if (loved) {
