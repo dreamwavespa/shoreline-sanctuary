@@ -10,7 +10,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [activeGarden, setActiveGarden] = useState<"coffee" | "cotton" | "catnip" | null>(null);
@@ -27,6 +27,14 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
   const openGarden = (garden: "coffee" | "cotton" | "catnip") => {
     setActiveGarden(garden);
     setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} selected. Planting and harvesting controls are below the forest scene.`);
+  };
+  const feederRefills = state.robinFeederRefills || 0;
+  const feederReady = now - (state.robinFeederLastFilledAt || 0) >= 48 * 60 * 60 * 1000;
+  const playSeedSound = () => {
+    audioRef.current?.pause();
+    const audio = new Audio(`/audio/pinecone-feeder-seeds.mp3?v=${ASSET_VERSION}`);
+    audioRef.current = audio;
+    void audio.play().catch(() => {});
   };
   const greetRobin = () => {
     setAnnouncement("Robin chirps a cheerful greeting from her tree.");
@@ -46,6 +54,11 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[6%] top-[7%] h-[19%] w-[28%]" aria-hidden="true">
             <Image src={`/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="30vw" className="object-contain" />
+          </div>
+        )}
+        {state.robinFeederPlaced && (
+          <div className="pointer-events-none absolute right-[4%] top-[28%] z-10 h-[17%] w-[20%]" aria-hidden="true">
+            <Image src="/images/pinecone-feeder.png" alt="" fill unoptimized sizes="20vw" className="object-contain drop-shadow-lg" />
           </div>
         )}
         {arrived && (
@@ -102,6 +115,24 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
                   <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (repairRobinNest()) setAnnouncement("Robin's nest is repaired and secure."); }} className="mt-2 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Repair nest with spare nest ({state.inventory["wind-bird-nest"] || 0} available)</button>
                 </div>
               ) : <p className="mt-2 text-emerald-800">Nest condition: secure. Spare nests: {state.inventory["wind-bird-nest"] || 0}.</p>}
+            </>
+          )}
+        </section>
+        <section aria-labelledby="robin-feeder-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="robin-feeder-title" className="text-xl font-bold text-emerald-950">Robin's Pinecone Feeder</h2>
+          {!state.robinFeederPlaced ? (
+            <>
+              <p className="mt-2">Prepare a Pinecone Bird Feeder in the Nature & Wildlife cookbook, then hang it near Robin's nest.</p>
+              <button type="button" disabled={!state.robinNestPlacedAt || (state.inventory["food-pinecone-bird-feeder"] || 0) < 1} onClick={() => { if (placeRobinFeeder()) setAnnouncement("Pinecone feeder hung near Robin's nest. Robin has a fresh treat!"); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Hang pinecone feeder ({state.inventory["food-pinecone-bird-feeder"] || 0} available)</button>
+            </>
+          ) : (
+            <>
+              <p className="mt-2">Feeder refills: {feederRefills} of 12. {feederRefills >= 12 ? "The pinecone is worn and ready to be replaced." : feederReady ? "The feeder is ready for fresh coconut cream and birdseed." : "The feeder is full. Check back in two days."}</p>
+              {feederRefills >= 12 ? (
+                <button type="button" disabled={(state.inventory["food-pinecone-bird-feeder"] || 0) < 1} onClick={() => { if (replaceRobinFeeder()) { playSeedSound(); setAnnouncement("Robin's worn feeder has been replaced with a fresh pinecone feeder."); } }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Replace feeder ({state.inventory["food-pinecone-bird-feeder"] || 0} available)</button>
+              ) : (
+                <button type="button" disabled={!feederReady || (state.inventory["coconut-cream"] || 0) < 1 || (state.inventory["birdseed"] || 0) < 1} onClick={() => { if (refillRobinFeeder()) { playSeedSound(); setAnnouncement("You added coconut cream and birdseed to Robin's feeder. Robin chirps happily."); } }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Refill with coconut cream and birdseed (1 each)</button>
+              )}
             </>
           )}
         </section>
