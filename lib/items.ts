@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "lacey-special-embroidery-needle": { id: "lacey-special-embroidery-needle", name: "Lacey\'s Special Embroidery Needle", category: "special", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "wind-glitter-ribbon": { id: "wind-glitter-ribbon", name: "Glittery Sea Ribbon", category: "raw", icon: "🎀", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "wind-fabric-scrap": { id: "wind-fabric-scrap", name: "Windblown Fabric Scrap", category: "raw", icon: "🧵", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "wind-shell-button": { id: "wind-shell-button", name: "Seashell Button", category: "raw", icon: "🐚", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
