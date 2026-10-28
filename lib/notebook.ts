@@ -25,7 +25,8 @@ export const NOTEBOOK_SECTIONS: NotebookSection[] = [
     id: "coastal-sewing-materials",
     title: "Coastal Sewing Materials",
     anchorVillagerId: "coralie",
-    completionReward: "A complete record of the coastal plants and beachcombing materials for the Sewing Studio",
+    completionReward: "Magic Thimble — choose thread colors in the Coastal Sewing Studio",
+    completionRewardItemId: "magic-sewing-thimble",
     entries: [
       { id: "cotton-plant-seeds", kind: "item", note: "Shelby sells seeds for permanent cotton plants in Coconut Grove." },
       { id: "catnip-plant-seeds", kind: "item", note: "Shelby sells seeds for permanent catnip plants in Coconut Grove." },
