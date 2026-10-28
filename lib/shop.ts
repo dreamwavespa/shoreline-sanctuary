@@ -17,6 +17,7 @@ export const GLAZE_PACKS: Record<string, { contents: { itemId: string; count: nu
 };
 
 export const SHOP_STOCK: ShopStockItem[] = [
+  { itemId: "birdseed", price: 1, note: "One serving for Robin’s refillable pinecone feeder. Buy five servings for 5 sand dollars." },
   { itemId: "glaze-pack-classic", price: 35, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
   { itemId: "glaze-pack-pastels", price: 40, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
   { itemId: "glaze-pack-earth", price: 40, note: "5 portions each of 3 glaze colors; 15 portions total. Contents added directly to inventory." },
