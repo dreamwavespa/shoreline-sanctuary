@@ -344,7 +344,7 @@ export default function CoconutGrove() {
           // Hotspots align with the artwork: palms upper left, berries left,
           // herb flowers center, coastal edibles lower left, fruit right,
           // roots in the foreground, seasonal patch lower right.
-          const spots: Record<NodeId, { left: string; top: string; width: string; height: string }> = {
+          const spots: Record<Exclude<NodeId, "orange">, { left: string; top: string; width: string; height: string }> = {
             palms: { left: "1%", top: "1%", width: "26%", height: "25%" },
             berries: { left: "1%", top: "32%", width: "26%", height: "24%" },
             herbs: { left: "27%", top: "40%", width: "24%", height: "24%" },
@@ -354,7 +354,7 @@ export default function CoconutGrove() {
             vegetables: { left: "18%", top: "34%", width: "43%", height: "34%" },
             seasonal: { left: "67%", top: "66%", width: "30%", height: "29%" },
           };
-          const spot = spots[node.id];
+          const spot = spots[node.id as Exclude<NodeId, "orange">];
           const waiting = remaining(node.id) > 0;
           return (
             <button key={node.id} type="button" title={node.title}
