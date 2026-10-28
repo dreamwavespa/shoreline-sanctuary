@@ -479,6 +479,8 @@ export const ITEMS: Record<string, ItemDef> = {
   "sand-snow-white": { id: "sand-snow-white", name: "Snow-White Sand", category: "raw", icon: "⚪", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-black-obsidian": { id: "sand-black-obsidian", name: "Black Obsidian Sand", category: "raw", icon: "⚫", isEmoji: true, rarity: "uncommon", sfx: "stone", artDescription: "Deep black sand with a subtle glossy sparkle." },
   "sand-red-ruby": { id: "sand-red-ruby", name: "Red Ruby Sand", category: "raw", icon: "🔴", isEmoji: true, rarity: "uncommon", sfx: "stone", artDescription: "Rich, dark ruby-red sand." },
+  "pinecone": { id: "pinecone", name: "Pinecone", category: "raw", icon: "/images/pinecone.png", rarity: "common", sfx: "groveLeafRustle" },
+  "orange": { id: "orange", name: "Orange", category: "raw", icon: "🍊", isEmoji: true, rarity: "common", sfx: "groveItemPickup" },
   "sand-green-leaf": { id: "sand-green-leaf", name: "Green Leaf Sand", category: "raw", icon: "🍃", isEmoji: true, rarity: "uncommon", sfx: "groveLeafRustle", artDescription: "Leafy green sand with tiny leaves mixed throughout." },
   "sand-pumpkin-orange": { id: "sand-pumpkin-orange", name: "Pumpkin Orange Sand", category: "raw", icon: "🎃", isEmoji: true, rarity: "rare", sfx: "driftwood" },
   "sand-candy-corn-swirl": { id: "sand-candy-corn-swirl", name: "Candy Corn Swirl Sand", category: "raw", icon: "🍬", isEmoji: true, rarity: "rare", sfx: "shell" },
