@@ -108,6 +108,9 @@ interface GameState {
   robinNestPlacedAt: number;
   robinNestRepairNeeded: boolean;
   robinNestStormDate: string;
+  robinFeederRefills: number;
+  robinFeederLastFilledAt: number;
+  robinFeederPlaced: boolean;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -259,6 +262,9 @@ const DEFAULT_STATE: GameState = {
   robinNestPlacedAt: 0,
   robinNestRepairNeeded: false,
   robinNestStormDate: "",
+  robinFeederRefills: 0,
+  robinFeederLastFilledAt: 0,
+  robinFeederPlaced: false,
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -446,6 +452,9 @@ interface Ctx {
   collectWindTreasure: (slot: number) => string | null;
   placeRobinNest: () => boolean;
   repairRobinNest: () => boolean;
+  placeRobinFeeder: () => boolean;
+  refillRobinFeeder: () => boolean;
+  replaceRobinFeeder: () => boolean;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -828,6 +837,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const placeRobinFeeder = (): boolean => {
+    const s = stateRef.current;
+    if (!s.robinNestPlacedAt || s.robinFeederPlaced || (s.inventory["food-pinecone-bird-feeder"] || 0) < 1) return false;
+    setState(prev => ({ ...prev, robinFeederPlaced: true, robinFeederRefills: 0, robinFeederLastFilledAt: Date.now(), inventory: { ...prev.inventory, "food-pinecone-bird-feeder": (prev.inventory["food-pinecone-bird-feeder"] || 0) - 1 } }));
+    toast("Robin's pinecone feeder is hanging near her nest!");
+    return true;
+  };
+  const refillRobinFeeder = (): boolean => {
+    const s = stateRef.current;
+    if (!s.robinFeederPlaced || (s.robinFeederRefills || 0) >= 12 || Date.now() - (s.robinFeederLastFilledAt || 0) < 48 * 60 * 60 * 1000 || (s.inventory["coconut-cream"] || 0) < 1 || (s.inventory["birdseed"] || 0) < 1) return false;
+    setState(prev => ({ ...prev, robinFeederRefills: (prev.robinFeederRefills || 0) + 1, robinFeederLastFilledAt: Date.now(), inventory: { ...prev.inventory, "coconut-cream": (prev.inventory["coconut-cream"] || 0) - 1, "birdseed": (prev.inventory["birdseed"] || 0) - 1 } }));
+    toast("Robin's feeder has been refilled!");
+    return true;
+  };
+  const replaceRobinFeeder = (): boolean => {
+    const s = stateRef.current;
+    if (!s.robinFeederPlaced || (s.robinFeederRefills || 0) < 12 || (s.inventory["food-pinecone-bird-feeder"] || 0) < 1) return false;
+    setState(prev => ({ ...prev, robinFeederRefills: 0, robinFeederLastFilledAt: Date.now(), inventory: { ...prev.inventory, "food-pinecone-bird-feeder": (prev.inventory["food-pinecone-bird-feeder"] || 0) - 1 } }));
+    toast("Robin's old pinecone feeder has been replaced!");
+    return true;
+  };
   const collectWindTreasure = (slot: number): string | null => {
     const now = new Date();
     const date = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
@@ -2746,6 +2776,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       collectWindTreasure,
       placeRobinNest,
       repairRobinNest,
+      placeRobinFeeder,
+      refillRobinFeeder,
+      replaceRobinFeeder,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
