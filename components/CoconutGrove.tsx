@@ -10,7 +10,7 @@ import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 import WoodlandTrail from "./WoodlandTrail";
 
 
-type NodeId = "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
+type NodeId = "orange" | "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
 const MYSTERY_HERB_KEY = "shoreline-imported-herb-v1";
@@ -33,6 +33,7 @@ const FLOWERS = [
 type FlowerPlant = { seed: string; flower: string; plantedAt: number };
 const STORAGE_KEY = "shoreline-coconut-grove-harvests";
 const BASE_COOLDOWN: Record<NodeId, number> = {
+  orange: 30 * 60_000,
   palms: 30 * 60_000,
   berries: 20 * 60_000,
   herbs: 25 * 60_000,
@@ -77,6 +78,7 @@ export default function CoconutGrove() {
   const [flowerPlant, setFlowerPlant] = useState<FlowerPlant | null>(null);
   const [beePanelOpen, setBeePanelOpen] = useState(false);
   const [leafSandReady, setLeafSandReady] = useState(false);
+  const [pineconeReady, setPineconeReady] = useState(false);
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
   const beeHotspotRef = useRef<HTMLButtonElement>(null);
   const nurseryHotspotRef = useRef<HTMLButtonElement>(null);
@@ -178,6 +180,9 @@ export default function CoconutGrove() {
       rewards.push({ itemId: companionPlant, count: companionPlant === "sea-lavender" ? 1 : 2 });
       play("groveHerbSnip");
       window.setTimeout(() => play("groveBasketFill"), 380);
+    } else if (id === "orange") {
+      rewards.push({ itemId: "orange", count: 2 + Math.floor(Math.random() * 3) });
+      try { void new Audio("/audio/Orange-harvest.mp3").play().catch(() => {}); } catch {}
     } else if (id === "fruit") {
       const itemId = choose([
         { value: "pineapple", weight: 20 },
@@ -216,7 +221,10 @@ export default function CoconutGrove() {
     // Birds occasionally leave a feather near the palms and garden paths.
     if (Math.random() < 0.18) rewards.push({ itemId: "bird-feather", count: 1 });
     rewards.forEach(({ itemId, count }) => add(itemId, count));
-    if (Math.random() < 0.22) setLeafSandReady(true);
+    if (Math.random() < 0.22 && !leafSandReady && !pineconeReady) {
+      if (Math.random() < 0.25) setPineconeReady(true);
+      else setLeafSandReady(true);
+    }
     const names = rewards.map(({ itemId, count }) => `${count} ${ITEMS[itemId].name}`).join(" and ");
     setMessage(`Collected ${names}. It is now in your bucket and inventory.`);
     const next = { ...harvestedAt, [id]: Date.now() };
@@ -263,6 +271,14 @@ export default function CoconutGrove() {
     play("groveHerbSnip");
     setMysteryHerb(null);
     try { localStorage.removeItem(MYSTERY_HERB_KEY); } catch {}
+  };
+
+  const investigatePinecone = () => {
+    if (!pineconeReady) return;
+    collectItem("pinecone", { silent: true });
+    play("groveLeafRustle");
+    setPineconeReady(false);
+    setMessage("You discovered a pinecone beneath the leaves. Added one pinecone to your inventory.");
   };
 
   const investigateLeafSand = () => {
@@ -354,6 +370,8 @@ export default function CoconutGrove() {
         <button type="button" ref={nurseryHotspotRef} onClick={() => state.groveNurseryAvailable ? setNurseryOpen(true) : setMessage("The Hidden Grove Nursery is resting. A new coastal storm will uncover more materials.")} aria-label={state.groveNurseryAvailable ? "Open Hidden Grove Nursery" : "Explore Hidden Grove Nursery; unavailable until the next storm"} className="absolute left-[53%] top-[7%] z-10 h-[28%] w-[27%] rounded-xl bg-transparent text-transparent hover:bg-white/10 focus-visible:bg-white/15 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span aria-hidden="true" className="sr-only">Nursery</span></button>
         <button type="button" onClick={() => setMysteryHerbOpen(true)} aria-label="Open imported mystery herb planting" className="absolute left-[27%] top-[64%] z-20 min-h-11 rounded-lg bg-emerald-100 px-3 py-2 text-sm font-bold text-emerald-950 shadow ring-2 ring-emerald-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌱 Mystery Herbs</button>
         <button type="button" onClick={() => setFlowerBedOpen(true)} aria-label="Open Sheldon's flowerbed for planting land flower seeds" className="absolute left-[35%] top-[91%] z-20 min-h-11 rounded-lg bg-rose-100 px-3 py-2 text-sm font-bold text-rose-950 shadow ring-2 ring-rose-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌷 Flowerbed</button>
+        <button type="button" onClick={() => remaining("orange") > 0 ? setMessage(`Orange tree: ${waitLabel("orange")}.`) : harvest("orange")} aria-label={remaining("orange") > 0 ? `Orange tree. ${waitLabel("orange")}.` : "Harvest 2 to 4 oranges from the orange tree"} className="absolute right-[3%] top-[38%] z-20 w-[19%] min-h-12 rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><Image src="/images/Orange-tree.PNG" alt="" width={240} height={260} unoptimized className="w-full h-auto" /><span className="sr-only">Orange tree</span></button>
+        {pineconeReady && <button type="button" onClick={investigatePinecone} aria-label="Collect pinecone" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><Image src="/images/pinecone.png" alt="" width={52} height={52} unoptimized /></button>}
         {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
