@@ -224,7 +224,7 @@ export default function CoconutGrove() {
       const roll = Math.random();
       const options = [
         ["sand-green-leaf", 0.40], ["pinecone", 0.20], ["beeswax-jar", 0.15],
-        ["coastal-honey-jar", 0.10], ["cotton-ball", 0.08], ["bird-feather", 0.05], ["amber-sap", 0.02],
+        ["coastal-honey-jar", 0.10], ["cotton-balls", 0.08], ["bird-feather", 0.05], ["amber-sap", 0.02],
       ] as const;
       let cumulative = 0;
       for (const [itemId, chance] of options) {
