@@ -97,7 +97,8 @@ export default function CoastalSewingStudio() {
     setMessage("A delicate metallic chime rings from the "+pinName+" Pin Cushion! You found "+(ITEMS[reward]?.name || reward)+". Added to inventory. Search again tomorrow.");
   };
   const needleUnlocked = !!state.questProgress.needleinthetides && (state.inventory["lacey-special-embroidery-needle"] || 0) > 0;
-  const embroideryItemId = "sewing-embroidered-"+embroideryBase+"-"+embroideryPattern;
+  const embroideryColorId = (thimble ? embroideryThread : "Pearl White").toLowerCase().replaceAll(" ","-");
+  const embroideryItemId = "sewing-embroidered-"+embroideryBase+"-"+embroideryPattern+"-"+embroideryColorId;
   const embroideryCost = [{itemId:"sewing-"+embroideryBase,count:1},{itemId:"hemp-thread",count:1}];
   const embroider = () => {
     if (!needleUnlocked) {setMessage("Complete The Needle in the Tides to unlock embroidery.");return;}
@@ -106,7 +107,7 @@ export default function CoastalSewingStudio() {
     playFile("sewing-machine.mp3");
     const baseName = EMBROIDERY_BASES.find(([key])=>key===embroideryBase)?.[1] || embroideryBase;
     const patternName = EMBROIDERY_PATTERNS.find(([key])=>key===embroideryPattern)?.[1] || embroideryPattern;
-    setMessage("Embroidered "+baseName+" completed with "+patternName+" stitching in "+(thimble?embroideryThread:"Pearl White")+". The customized item was added to inventory. Original artwork remains the visual preview.");
+    setMessage("Embroidered "+baseName+" completed with "+patternName+" stitching in "+(thimble?embroideryThread:"Pearl White")+". The customized item and its thread color were saved to inventory.");
   };
   const claim = () => {
     if (!pinUnlocked || lastClaim === today) return;
