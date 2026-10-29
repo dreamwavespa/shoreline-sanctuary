@@ -471,7 +471,7 @@ interface Ctx {
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand", spice?: "pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves") => boolean;
   iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
-  useBabyBottle: (action: "rose" | "berry" | "water" | "feed") => boolean;
+  useBabyBottle: (action: "rose" | "berry" | "orange" | "water" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
   claimQuest: (quest: QuestDef) => boolean;
   openChest: (cost: { itemId: string; count: number }[]) => boolean;
@@ -1156,15 +1156,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     play("craftSuccess"); toast("Custom ice cream dessert prepared!"); return true;
   };
 
-  const useBabyBottle = (action: "rose" | "berry" | "water" | "feed") => {
+  const useBabyBottle = (action: "rose" | "berry" | "orange" | "water" | "feed") => {
     const current = stateRef.current;
     if (!current.notebookDiscovered["kitchen-reward:baby"]) return false;
     const roseKey = "kitchen-bottle:rose";
     const berryKey = "kitchen-bottle:berry";
     const waterKey = "kitchen-bottle:water";
-    const filled = !!current.notebookDiscovered[roseKey] || !!current.notebookDiscovered[berryKey] || !!current.notebookDiscovered[waterKey];
+    const orangeKey = "kitchen-bottle:orange";
+    const filled = !!current.notebookDiscovered[roseKey] || !!current.notebookDiscovered[berryKey] || !!current.notebookDiscovered[waterKey] || !!current.notebookDiscovered[orangeKey];
     if (action === "feed" ? !filled : filled) return false;
-    const cost = action === "rose" ? [{ itemId: "food-cadence-warm-rose-milk", count: 1 }] : action === "berry" ? [{ itemId: "coastal-brambleberry", count: 2 }] : action === "water" ? [{ itemId: "fresh-water-serving", count: 1 }] : [];
+    const cost = action === "rose" ? [{ itemId: "food-cadence-warm-rose-milk", count: 1 }] : action === "berry" ? [{ itemId: "coastal-brambleberry", count: 2 }] : action === "orange" ? [{ itemId: "food-fresh-orange-juice", count: 1 }] : action === "water" ? [{ itemId: "fresh-water-serving", count: 1 }] : [];
     if (cost.some(item => (current.inventory[item.itemId] || 0) < item.count)) return false;
     setState(prev => {
       const inventory = { ...prev.inventory };
@@ -1174,6 +1175,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         [roseKey]: action === "rose",
         [berryKey]: action === "berry",
         [waterKey]: action === "water",
+        [orangeKey]: action === "orange",
       }};
     });
     play(action === "feed" ? "babyBottle" : "oceanWaterSplash", .5);
