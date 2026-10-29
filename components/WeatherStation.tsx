@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { SCENES } from "@/lib/media";
 import { useGame, WeatherForecast } from "@/lib/store";
@@ -9,14 +9,25 @@ import TeaWithMaeve from "./TeaWithMaeve";
 
 const WEATHER_PARTICLES = Array.from({ length: 12 }, (_, index) => index);
 
-function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
+const NIGHT_DESCRIPTIONS: Record<WeatherForecast["id"], string> = {
+  calm: "Clear skies and gentle waves. An ideal night for stargazing.",
+  "low-tide": "Moonlight reveals the exposed seabed. Search the Sandbar for hidden treasures.",
+  fog: "A silvery mist settles over the water. Listen for the lighthouse bell.",
+  wind: "A cool nighttime breeze carries driftwood toward shore.",
+  ship: "The visiting vessel's lanterns shimmer beyond the point.",
+  storm: "Distant lightning illuminates the waves. Take care along the shore.",
+  snow: "Snowflakes sparkle beneath the lighthouse beam.",
+  cold: "A crisp, frosty night settles over the bay. Keep warm by the lighthouse.",
+};
+
+function AnimatedForecast({ weather, isNight }: { weather: WeatherForecast; isNight: boolean }) {
   const isRain = weather.id === "storm";
   const isSnow = weather.id === "snow";
   const isCold = weather.id === "cold";
   const showSun = weather.id === "calm" || weather.id === "low-tide" || weather.id === "ship" || isCold;
   const showClouds = !isCold && weather.id !== "low-tide";
 
-  const skyClass = isRain
+  const skyClass = isNight ? "from-indigo-950 via-slate-900 to-blue-950" : isRain
     ? "from-slate-800 via-slate-600 to-slate-400"
     : isSnow || isCold
       ? "from-sky-300 via-blue-100 to-slate-50"
@@ -26,7 +37,7 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 
   return (
     <div aria-hidden="true" className={`weather-scene relative mt-3 h-40 overflow-hidden rounded-2xl bg-gradient-to-b ${skyClass} ring-1 ring-white/30`}>
-      {showSun && <div className={`weather-sun ${isCold ? "weather-cold-sun" : ""}`} />}
+      {isNight ? <><span aria-hidden="true" className="absolute right-9 top-4 text-5xl text-amber-100">☾</span><span aria-hidden="true" className="absolute left-8 top-6 text-xl text-white">✦</span><span aria-hidden="true" className="absolute left-1/3 top-12 text-sm text-white">✧</span><span aria-hidden="true" className="absolute right-1/3 top-8 text-lg text-white">✦</span></> : showSun && <div className={`weather-sun ${isCold ? "weather-cold-sun" : ""}`} />}
 
       {showClouds && (
         <>
@@ -69,6 +80,16 @@ function AnimatedForecast({ weather }: { weather: WeatherForecast }) {
 
 export default function WeatherStation() {
   const { state, checkWeather, collectRainBarrelWater, recordWeatherChartObservation, recordShelbyForecast, createWeatheredShipChart } = useGame();
+  const [isNight, setIsNight] = useState(false);
+  useEffect(() => {
+    const updateNight = () => {
+      const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+      setIsNight(hour >= 19 || hour < 6);
+    };
+    updateNight();
+    const interval = window.setInterval(updateNight, 60000);
+    return () => window.clearInterval(interval);
+  }, []);
   const [cleanupOpen, setCleanupOpen] = useState(false);
   const [teaOpen, setTeaOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -142,8 +163,8 @@ export default function WeatherStation() {
                 {state.currentForecast ? (
                   <div className="mt-2" role="status" aria-live="polite">
                     <h3 className="font-serif text-lg font-bold"><span aria-hidden="true">{state.currentForecast.icon}</span> {state.currentForecast.title}</h3>
-                    <AnimatedForecast weather={state.currentForecast} />
-                    <p className="mt-1 text-sm leading-relaxed text-sky-50">{state.currentForecast.message}</p>
+                    <AnimatedForecast weather={state.currentForecast} isNight={isNight} />
+                    <p className="mt-1 text-sm leading-relaxed text-sky-50">{isNight ? NIGHT_DESCRIPTIONS[state.currentForecast.id] : state.currentForecast.message}</p>
                     <p className="mt-2 text-xs font-semibold text-amber-200">{state.currentForecast.effect}</p>
                   </div>
                 ) : (
