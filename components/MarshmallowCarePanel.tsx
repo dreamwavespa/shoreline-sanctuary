@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
+import Image from "next/image";
 
 const BOWL_DATE_KEY = "shoreline-marshmallow-water-bowl-date";
 const BOWL_PLACED_KEY = "shoreline-marshmallow-water-bowl-placed";
@@ -38,6 +39,8 @@ function todayKey() {
 export default function MarshmallowCarePanel() {
   const { state, scratchMarshmallow } = useGame();
   const [open, setOpen] = useState(false);
+  const [basketOpen, setBasketOpen] = useState(false);
+  const [basketBonusDate, setBasketBonusDate] = useState("");
   const [message, setMessage] = useState("");
   const [bowlPlaced, setBowlPlaced] = useState(false);
   const [bowlFilledToday, setBowlFilledToday] = useState(false);
@@ -55,6 +58,7 @@ export default function MarshmallowCarePanel() {
       setFishingGiven(window.localStorage.getItem(FISHING_GIVEN_KEY) === "yes");
       setQuestStarted(window.localStorage.getItem(TOY_QUEST_STARTED_KEY) === "yes");
       setToyFound(window.localStorage.getItem(TOY_FOUND_KEY) === "yes");
+      setBasketBonusDate(window.localStorage.getItem("shoreline-marshmallow-basket-bonus-date") || "");
     } catch {}
   }, []);
 
@@ -113,6 +117,25 @@ export default function MarshmallowCarePanel() {
     setMessage(FISHING_REACTIONS[Math.floor(Math.random() * FISHING_REACTIONS.length)]);
   };
 
+  const basketToys = [
+    {id:"fishing",name:"Fishing Pole Toy",available:fishingGiven,sound:"/audio/Marshmallow/marshmallow-fishing-toy.mp3",reactions:FISHING_REACTIONS},
+    {id:"crinkle",name:"Crinkly Foil Ball",available:crinkleGiven && (!questStarted || questDone || toyFound),sound:"/audio/Marshmallow/marshmallow-crinkle-ball.mp3",reactions:CRINKLE_REACTIONS},
+    {id:"snowball",name:"Fluffy Snowball Cat Toy",available:(state.inventory["sewing-fluffy-snowball-cat-toy"] || 0)>0,sound:"/audio/Marshmallow/marshmallow-purr-short.mp3",reactions:["Marshmallow bats the fluffy snowball and chases it across the lighthouse floor.","Marshmallow catches the snowball between his paws and gives a pleased purr."]},
+    {id:"catnip",name:"Catnip Moon",available:(state.inventory["sewing-catnip-moon"] || 0)>0,sound:"/audio/Marshmallow/marshmallow-purr-cozy.mp3",reactions:["Marshmallow cuddles the catnip moon, rolls onto his back, and purrs.","Marshmallow rubs his cheek against the catnip moon and gives a happy meow."]},
+    {id:"starfish",name:"Crinkly Starfish",available:(state.inventory["sewing-crinkly-starfish"] || 0)>0,sound:"/audio/Marshmallow/marshmallow-crinkle-ball.mp3",reactions:["Marshmallow pounces on the crinkly starfish and wrestles it with both paws.","The starfish crinkles as Marshmallow bats it across the floor."]},
+  ];
+  const playBasketToy = (toy: typeof basketToys[number]) => {
+    if (!toy.available) return;
+    try { const audio=new Audio(toy.sound);audio.volume=0.55;void audio.play().catch(()=>{}); } catch {}
+    const firstPlay = basketBonusDate !== todayKey();
+    if (firstPlay) {
+      try { window.localStorage.setItem("shoreline-marshmallow-basket-bonus-date",todayKey()); } catch {}
+      setBasketBonusDate(todayKey());
+      scratchMarshmallow();
+    }
+    setMessage(toy.reactions[Math.floor(Math.random()*toy.reactions.length)] + (firstPlay ? " First toy-basket play of the day: Marshmallow enjoys some extra attention!" : ""));
+  };
+
   const searchForToy = () => {
     let attempts = 1;
     try {
@@ -166,6 +189,18 @@ export default function MarshmallowCarePanel() {
               {!fishingGiven ? <button type="button" onClick={giveFishing} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Give Fishing Pole Toy</button> : <button type="button" onClick={playFishing} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Play with Fishing Pole Toy</button>}
             </div>
           </div>
+
+          <section className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200" aria-label="Marshmallow's seashell toy basket">
+            <button type="button" aria-expanded={basketOpen} onClick={()=>setBasketOpen(v=>!v)} className="flex w-full flex-col items-center gap-2 rounded-xl bg-white p-3 text-teal-950 font-bold">
+              <Image src="/images/Seashell-toy-basket.PNG" alt="Seashell-shaped basket filled with Marshmallow's toys" width={240} height={160} unoptimized className="h-auto max-h-36 w-auto object-contain" />
+              {basketOpen ? "Close Marshmallow's Toy Basket" : "Open Marshmallow's Toy Basket"}
+            </button>
+            {basketOpen && <div className="mt-3 space-y-2">
+              <p className="text-sm text-teal-900">Choose a toy. Fishing pole and crinkle ball keep their original activities; sewing toys become available after crafting. Toys are reusable and never consumed.</p>
+              {basketToys.map(toy=><button key={toy.id} type="button" disabled={!toy.available} onClick={()=>playBasketToy(toy)} className="block w-full rounded-lg bg-teal-700 p-3 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">{toy.available ? "Play with "+toy.name : toy.name+" — "+(toy.id==="fishing" || toy.id==="crinkle" ? "give Marshmallow this toy first" : "craft at Lacey's Sewing Studio to unlock")}</button>)}
+              <p className="text-sm text-teal-900">{basketBonusDate===todayKey() ? "Today's first-play friendship bonus has been collected." : "The first toy-basket play each day gives a little extra attention."}</p>
+            </div>}
+          </section>
 
           {questStarted && !questDone && (
             <div className="mt-3 rounded-xl bg-violet-50 p-3 ring-1 ring-violet-200">
