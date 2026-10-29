@@ -5,14 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
 import GroveCoffeePlant from "./GroveCoffeePlant";
 import GroveFiberPatch from "./GroveFiberPatch";
+import { ITEMS } from "@/lib/items";
 
 const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
+  const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
   const [activeGarden, setActiveGarden] = useState<"coffee" | "cotton" | "catnip" | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const arrived = !!state.robinNestPlacedAt && now - state.robinNestPlacedAt >= ARRIVAL_MS;
@@ -28,6 +30,9 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     setActiveGarden(garden);
     setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} selected. Planting and harvesting controls are below the forest scene.`);
   };
+  const giftIds = Object.keys(state.inventory).filter(id => (id === "dried-sugar-berries" || id === "cotton-balls" || id === "wind-fabric-scrap" || id.startsWith("flower-") || id === "rain-lily-blossom") && (state.inventory[id] || 0) > 0 && ITEMS[id]);
+  const birdbathAge = now - (state.robinBirdbathFilledAt || 0);
+  const birdbathLevel = !state.robinBirdbathFilledAt || birdbathAge >= 48 * 60 * 60 * 1000 ? "Empty" : birdbathAge >= 24 * 60 * 60 * 1000 ? "Half full" : "Full";
   const feederRefills = state.robinFeederRefills || 0;
   const feederReady = now - (state.robinFeederLastFilledAt || 0) >= 48 * 60 * 60 * 1000;
   const playSeedSound = () => {
@@ -67,6 +72,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-lg bg-emerald-950/90 px-2 py-1 text-sm font-bold text-white">Robin</span>
           </button>
         )}
+        <button type="button" onClick={() => { setAnnouncement(`Birdbath is ${birdbathLevel.toLowerCase()}. Use the birdbath controls below to refill it.`); document.getElementById("robin-birdbath-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} aria-label={`Check Robin's birdbath. ${birdbathLevel}.`} className="absolute left-[32%] top-[49%] z-20 h-[15%] w-[22%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Check birdbath</span></button>
         {/* Decorative details are not interactive and never intercept plant taps. */}
         <div className="pointer-events-none absolute left-[2%] bottom-[2%] h-[14%] w-[25%]" aria-hidden="true">
           <Image src="/images/Mossy-rocks.png" alt="" fill unoptimized sizes="25vw" className="object-contain" />
@@ -135,6 +141,25 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
               )}
             </>
           )}
+        </section>
+        <section aria-labelledby="robin-gifts-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="robin-gifts-title" className="text-xl font-bold text-emerald-950">Robin's Friendship & Gifts</h2>
+          <p className="mt-2">Gifts given: {state.robinGiftCount || 0}. Robin enjoys sugar berries, cotton balls, fabric scraps and flowers. Give one gift each day after she arrives.</p>
+          <p className="mt-1 text-sm text-emerald-900">Rewards: 3 gifts — Robin's Feather and leaf-shaped sand art bottle unlock; 6 gifts — Woodland Nest Decorations; 10 gifts — Carved Crystal Robin.</p>
+          {giftIds.length ? (
+            <div className="mt-3 space-y-2">
+              <label htmlFor="robin-gift-choice" className="block font-semibold">Choose a gift</label>
+              <select id="robin-gift-choice" value={giftIds.includes(selectedGift) ? selectedGift : giftIds[0]} onChange={e => setSelectedGift(e.target.value)} className="min-h-12 w-full rounded-lg border-2 border-emerald-500 bg-white p-2 text-emerald-950">{giftIds.map(id => <option key={id} value={id}>{ITEMS[id].name} ({state.inventory[id]})</option>)}</select>
+              <button type="button" disabled={!arrived || state.robinGiftDate === new Date().toLocaleDateString("en-CA")} onClick={() => { const id = giftIds.includes(selectedGift) ? selectedGift : giftIds[0]; if (giftRobin(id)) { greetRobin(); setAnnouncement(`Robin loves your ${ITEMS[id].name}! Gift ${(state.robinGiftCount || 0) + 1} recorded.`); } }} className="min-h-12 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Give Robin a gift</button>
+            </div>
+          ) : <p className="mt-2">Collect sugar berries, cotton balls, fabric scraps or flowers to give Robin a gift.</p>}
+          {state.robinGiftDate === new Date().toLocaleDateString("en-CA") && <p className="mt-2">Robin has received today's gift. Visit again tomorrow.</p>}
+        </section>
+        <section aria-labelledby="robin-birdbath-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="robin-birdbath-title" className="text-xl font-bold text-emerald-950">Woodland Birdbath</h2>
+          <p className="mt-2">Water level: {birdbathLevel}. Fill it with one fresh water serving. Robin may splash and sing when she visits.</p>
+          <button type="button" disabled={!state.robinNestPlacedAt || state.robinBirdbathCareDate === new Date().toLocaleDateString("en-CA") || (state.inventory["fresh-water-serving"] || 0) < 1} onClick={() => { if (fillRobinBirdbath()) { audioRef.current?.pause(); const audio = new Audio(`/audio/robin-birdbath-water-birds.mp3?v=${ASSET_VERSION}`); audioRef.current = audio; void audio.play().catch(() => {}); setAnnouncement("You filled Robin's birdbath. Water splashes and birds chirp."); } }} className="mt-3 min-h-12 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Fill birdbath (1 fresh water serving)</button>
+          {state.robinBirdbathCareDate === new Date().toLocaleDateString("en-CA") && <p className="mt-2">Birdbath cared for today. Return tomorrow.</p>}
         </section>
         <section aria-label="Woodland Trail plantings" className="space-y-4">
           <h2 className="text-xl font-bold text-emerald-950">Forest Garden</h2>
