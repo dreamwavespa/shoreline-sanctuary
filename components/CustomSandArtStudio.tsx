@@ -22,20 +22,22 @@ function ItemIcon({ itemId }: { itemId: string }) {
   return item.isEmoji ? <span className="text-2xl" aria-hidden="true">{item.icon}</span> : <Image src={item.icon} alt="" width={38} height={38} unoptimized className="h-9 w-9 object-contain" />;
 }
 
-function BottlePreview({ layers, accentId, compact = false }: { layers: string[]; accentId: string | null; compact?: boolean }) {
+function BottlePreview({ layers, accentId, compact = false, shape = "classic" }: { layers: string[]; accentId: string | null; compact?: boolean; shape?: "classic" | "leaf" }) {
   const description = layers.length
     ? `${layers.length} of 5 layers, bottom to top: ${layers.map((id) => ITEMS[id]?.name).join(", ")}${accentId ? `. Accent: ${ITEMS[accentId]?.name}` : ""}.`
     : "Empty frosted glass bottle.";
   return (
     <div role="img" aria-label={description} className={`mx-auto ${compact ? "w-20" : "w-36"}`}>
-      <div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
+      {shape === "leaf" && <Image src="/images/Leaf-shaped-sand-art-bottle-empty.PNG" alt="" width={220} height={260} unoptimized className="mx-auto h-auto w-full object-contain" />}
+      {shape !== "leaf" && <><div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
       <div className={`custom-sand-bottle relative flex flex-col-reverse justify-start overflow-hidden rounded-[2.25rem] border-4 border-cyan-800/70 bg-white/45 shadow-inner ${compact ? "h-28" : "h-48"}`}>
         {layers.map((itemId, index) => (
           <div key={`${itemId}-${index}`} className="custom-sand-layer w-full border-t border-white/50" style={{ height: "20%", background: SAND_FILLS[itemId] }} />
         ))}
         {accentId && <div className="absolute inset-x-0 bottom-2 text-center text-2xl drop-shadow" aria-hidden="true">{ITEMS[accentId]?.isEmoji ? ITEMS[accentId].icon : "✦"}</div>}
         <div className="pointer-events-none absolute inset-2 rounded-[1.75rem] border-l-4 border-white/55" />
-      </div>
+      </div></>}
+      {shape === "leaf" && layers.length > 0 && <p className="mt-1 text-xs font-semibold text-teal-900">{layers.length} sand layers selected for the leaf bottle.</p>}
     </div>
   );
 }
@@ -43,6 +45,7 @@ function BottlePreview({ layers, accentId, compact = false }: { layers: string[]
 export default function CustomSandArtStudio({ onClose }: { onClose: () => void }) {
   const { state, play, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
   const [layers, setLayers] = useState<string[]>([]);
+  const [shape, setShape] = useState<"classic" | "leaf">("classic");
   const [accentId, setAccentId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [completed, setCompleted] = useState<CustomSandBottle | null>(null);
@@ -88,7 +91,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
   };
 
   const finish = () => {
-    const result = createCustomSandBottle(layers, accentId, name);
+    const result = createCustomSandBottle(layers, accentId, name, shape);
     if (!result.ok || !result.bottle) {
       setAnnouncement("The bottle could not be completed. Check that the empty bottle, sand, and accent are still available.");
       return;
@@ -121,10 +124,11 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
 
           {!completed && (
             <>
+              {state.crafted.includes("robin-friendship:3") && <section aria-label="Bottle shape" className="rounded-xl bg-white p-4 ring-1 ring-amber-200"><h3 className="font-bold">Choose bottle shape</h3><div className="mt-2 flex flex-wrap gap-2"><button type="button" aria-pressed={shape === "classic"} onClick={() => setShape("classic")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Classic bottle</button><button type="button" aria-pressed={shape === "leaf"} onClick={() => setShape("leaf")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Robin's leaf-shaped bottle</button></div></section>}
               <section aria-labelledby="sand-preview-heading" className="rounded-2xl bg-gradient-to-br from-cyan-100 via-white to-orange-100 p-5 text-center ring-1 ring-cyan-300">
                 <h3 id="sand-preview-heading" className="font-serif text-xl font-bold text-slate-950">Bottle Preview</h3>
                 <p className="mb-3 text-sm text-slate-700">{state.inventory["empty-glass-bottle"] || 0} empty frosted bottle{(state.inventory["empty-glass-bottle"] || 0) === 1 ? "" : "s"} available</p>
-                <BottlePreview layers={layers} accentId={accentId} />
+                <BottlePreview layers={layers} accentId={accentId} shape={shape} />
                 <p className="mt-3 font-bold text-slate-900">{layers.length} of 5 layers filled</p>
               </section>
 
@@ -166,11 +170,11 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
             </>
           )}
 
-          {completed && <section aria-labelledby="sand-complete-heading" className="rounded-2xl bg-cyan-50 p-5 text-center ring-1 ring-cyan-300"><h3 id="sand-complete-heading" className="font-serif text-2xl font-bold text-cyan-950">{completed.name} is complete!</h3><BottlePreview layers={completed.layers} accentId={completed.accentId} /><p className="mt-3 text-sm text-cyan-900">Saved for display · Seaweed value: {completed.value} Sand Dollars</p><button type="button" onClick={startAnother} className="mt-4 min-h-12 w-full rounded-xl bg-cyan-800 px-4 py-3 font-bold text-white">Make Another Bottle</button></section>}
+          {completed && <section aria-labelledby="sand-complete-heading" className="rounded-2xl bg-cyan-50 p-5 text-center ring-1 ring-cyan-300"><h3 id="sand-complete-heading" className="font-serif text-2xl font-bold text-cyan-950">{completed.name} is complete!</h3><BottlePreview layers={completed.layers} accentId={completed.accentId} shape={completed.shape} /><p className="mt-3 text-sm text-cyan-900">Saved for display · Seaweed value: {completed.value} Sand Dollars</p><button type="button" onClick={startAnother} className="mt-4 min-h-12 w-full rounded-xl bg-cyan-800 px-4 py-3 font-bold text-white">Make Another Bottle</button></section>}
 
           <section aria-labelledby="custom-bottle-gallery-heading">
             <h3 id="custom-bottle-gallery-heading" className="font-serif text-xl font-bold text-slate-950">Custom Bottle Gallery</h3>
-            {state.customSandBottles.length === 0 ? <p className="mt-2 text-sm text-slate-700">Finished bottles will be displayed here.</p> : <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{state.customSandBottles.map((bottle) => <article key={bottle.id} className="rounded-2xl bg-white p-3 text-center shadow ring-1 ring-cyan-200"><BottlePreview layers={bottle.layers} accentId={bottle.accentId} compact /><h4 className="mt-2 font-bold text-slate-950">{bottle.name}</h4><p className="text-xs text-slate-600">Value: {bottle.value} Sand Dollars</p><button type="button" aria-pressed={bottle.favorite} onClick={() => toggleCustomSandBottleFavorite(bottle.id)} className="mt-2 min-h-11 w-full rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{bottle.favorite ? "★ Display Favorite" : "☆ Add to Favorites"}</button></article>)}</div>}
+            {state.customSandBottles.length === 0 ? <p className="mt-2 text-sm text-slate-700">Finished bottles will be displayed here.</p> : <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{state.customSandBottles.map((bottle) => <article key={bottle.id} className="rounded-2xl bg-white p-3 text-center shadow ring-1 ring-cyan-200"><BottlePreview layers={bottle.layers} accentId={bottle.accentId} shape={bottle.shape} compact /><h4 className="mt-2 font-bold text-slate-950">{bottle.name}</h4><p className="text-xs text-slate-600">Value: {bottle.value} Sand Dollars</p><button type="button" aria-pressed={bottle.favorite} onClick={() => toggleCustomSandBottleFavorite(bottle.id)} className="mt-2 min-h-11 w-full rounded-xl bg-amber-100 px-3 py-2 text-sm font-bold text-amber-950 ring-1 ring-amber-300">{bottle.favorite ? "★ Display Favorite" : "☆ Add to Favorites"}</button></article>)}</div>}
           </section>
         </div>
       </div>
