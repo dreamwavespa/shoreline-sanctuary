@@ -45,7 +45,7 @@ export default function CoastalSewingStudio() {
     {itemId:"hemp-thread",count:1},
     ...(cotton ? [{itemId:"cotton-balls",count:cotton}] : []),
     ...(feathers ? [{itemId:"bird-feather",count:feathers}] : []),
-    ...(ribbons ? [{itemId:"sea-ribbons",count:ribbons}] : []),
+    ...(ribbons ? [{itemId:"ribbon",count:ribbons}] : []),
     ...(catnip ? [{itemId:"catnip",count:catnip}] : []),
     ...(id === "crinkly-starfish" ? [{itemId:"trash-plastic",count:1}] : [])
   ];
@@ -81,7 +81,7 @@ export default function CoastalSewingStudio() {
     if (!state.questProgress.needleinthetides || needleSearchDate === today) return;
     const count = needleSearchCount + 1;
     const rare = Math.random();
-    const reward = count % 7 === 0 ? "lacey-seashell-pattern" : rare < 0.06 ? "lacey-pearl-needle" : rare < 0.22 ? "lacey-embroidery-thread" : ["wind-fabric-scrap","hemp-thread","cotton-balls","sea-ribbons"][Math.floor(Math.random()*4)];
+    const reward = count % 7 === 0 ? "lacey-seashell-pattern" : rare < 0.06 ? "lacey-pearl-needle" : rare < 0.22 ? "lacey-embroidery-thread" : ["wind-fabric-scrap","hemp-thread","cotton-balls","ribbon"][Math.floor(Math.random()*4)];
     collectItem(reward,{silent:true});
     try {localStorage.setItem("shoreline-lacey-pin-search-date",today);localStorage.setItem("shoreline-lacey-pin-search-count",String(count));}catch{}
     setNeedleSearchDate(today);setNeedleSearchCount(count);
