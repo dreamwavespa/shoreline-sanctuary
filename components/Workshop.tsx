@@ -417,6 +417,8 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "pinecone-bird-feeder": "/images/pinecone-bird-feeder-recipe.png",
+  "sweet-nectar": "/images/sweet-nectar-recipe.png",
   "pumpkin-seeds": "/images/Recipe-pumpkin-seeds.PNG",
   "rainbow-vegetable-soup": "/images/Recipe-rainbow-vegetable-soup.PNG",
   "jelly-donut": "/images/Recipe-jelly-donut.PNG",
@@ -468,6 +470,7 @@ const COOKBOOK_CATEGORIES = [
   { id: "baking", label: "Baking & Desserts", icon: "🧁", stations: ["Baking Oven", "Ice Cream"] },
   { id: "meals", label: "Meals & Soups", icon: "🍲", stations: ["Soup Pot", "Hearth Stockpot", "Hearth Stove", "Campfire Pit"] },
   { id: "snacks", label: "Snacks & Treats", icon: "🍎", stations: ["Salad Bowls", "Warm Drying Rack", "Cool Pantry", "Heated Stone Slab", "Prep Counter"] },
+  { id: "wildlife", label: "Nature & Wildlife", icon: "🐦", stations: ["Nature & Wildlife"] },
 ] as const;
 
 function ShorelineCookbook() {
