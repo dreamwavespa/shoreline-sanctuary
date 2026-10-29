@@ -111,6 +111,10 @@ interface GameState {
   robinFeederRefills: number;
   robinFeederLastFilledAt: number;
   robinFeederPlaced: boolean;
+  robinGiftDate: string;
+  robinGiftCount: number;
+  robinBirdbathFilledAt: number;
+  robinBirdbathCareDate: string;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -265,6 +269,10 @@ const DEFAULT_STATE: GameState = {
   robinFeederRefills: 0,
   robinFeederLastFilledAt: 0,
   robinFeederPlaced: false,
+  robinGiftDate: "",
+  robinGiftCount: 0,
+  robinBirdbathFilledAt: 0,
+  robinBirdbathCareDate: "",
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -455,6 +463,8 @@ interface Ctx {
   placeRobinFeeder: () => boolean;
   refillRobinFeeder: () => boolean;
   replaceRobinFeeder: () => boolean;
+  giftRobin: (itemId: string) => boolean;
+  fillRobinBirdbath: () => boolean;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -856,6 +866,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!s.robinFeederPlaced || (s.robinFeederRefills || 0) < 12 || (s.inventory["food-pinecone-bird-feeder"] || 0) < 1) return false;
     setState(prev => ({ ...prev, robinFeederRefills: 0, robinFeederLastFilledAt: Date.now(), inventory: { ...prev.inventory, "food-pinecone-bird-feeder": (prev.inventory["food-pinecone-bird-feeder"] || 0) - 1 } }));
     toast("Robin's old pinecone feeder has been replaced!");
+    return true;
+  };
+  const giftRobin = (itemId: string): boolean => {
+    const s = stateRef.current;
+    const today = new Date().toLocaleDateString("en-CA");
+    const allowed = itemId === "dried-sugar-berries" || itemId === "cotton-balls" || itemId === "wind-fabric-scrap" || itemId.startsWith("flower-") || itemId === "rain-lily-blossom";
+    if (!s.robinNestPlacedAt || Date.now() - s.robinNestPlacedAt < 24 * 60 * 60 * 1000 || s.robinGiftDate === today || !allowed || (s.inventory[itemId] || 0) < 1) return false;
+    const count = (s.robinGiftCount || 0) + 1;
+    setState(prev => {
+      const inventory = { ...prev.inventory, [itemId]: (prev.inventory[itemId] || 0) - 1 };
+      const crafted = [...prev.crafted];
+      for (const [required, reward] of ([[3, "robin-feather"], [6, "robin-nest-decorations"], [10, "robin-crystal-keepsake"]] as const)) {
+        const marker = `robin-friendship:${required}`;
+        if (count >= required && !crafted.includes(marker)) {
+          inventory[reward] = (inventory[reward] || 0) + 1;
+          crafted.push(marker);
+        }
+      }
+      return { ...prev, robinGiftDate: today, robinGiftCount: count, inventory, crafted };
+    });
+    toast(`Robin happily accepts the gift! Friendship: ${count} gifts.`);
+    return true;
+  };
+  const fillRobinBirdbath = (): boolean => {
+    const s = stateRef.current;
+    const today = new Date().toLocaleDateString("en-CA");
+    if (!s.robinNestPlacedAt || s.robinBirdbathCareDate === today || (s.inventory["fresh-water-serving"] || 0) < 1) return false;
+    setState(prev => ({ ...prev, robinBirdbathFilledAt: Date.now(), robinBirdbathCareDate: today, inventory: { ...prev.inventory, "fresh-water-serving": (prev.inventory["fresh-water-serving"] || 0) - 1 } }));
+    toast("You filled the woodland birdbath. Robin chirps and splashes happily!");
     return true;
   };
   const collectWindTreasure = (slot: number): string | null => {
@@ -2779,6 +2818,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       placeRobinFeeder,
       refillRobinFeeder,
       replaceRobinFeeder,
+      giftRobin,
+      fillRobinBirdbath,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
