@@ -267,7 +267,7 @@ function IceCreamStation() {
   const [second, setSecond] = useState("strawberry");
   const [fruit, setFruit] = useState("none");
   const [topping, setTopping] = useState("chocolate-seashells");
-  const flavors = [["coconut", "Coconut"], ["strawberry", "Strawberry"], ["pineapple", "Pineapple"], ["chocolate-seashell", "Chocolate Seashell"]];
+  const flavors = [["coconut", "Coconut"], ["strawberry", "Strawberry"], ["pineapple", "Pineapple"], ["chocolate-seashell", "Chocolate Seashell"], ["vanilla", "Vanilla"]];
   const toppings = [["chocolate-seashells", "Chocolate Seashells"], ["candy-seashells", "Candy Seashells"], ["dried-sugar-berries", "Dried Sugar Berries"], ["marshmallows", "Marshmallows"], ["coconut-flakes", "Coconut Flakes"], ["melted-chocolate", "Melted Chocolate"]];
   const fruits = [["none", "No extra fruit"], ["strawberry", "Strawberry"], ["blueberry", "Blueberry"], ["raspberry", "Raspberry"], ["pineapple", "Pineapple"], ["mango", "Mango"], ["wild-beach-plum", "Beach Plum"]];
   const date = new Date().toLocaleDateString("en-CA");
@@ -279,13 +279,13 @@ function IceCreamStation() {
     <Image src="/images/Kitchen-ice-cream-scoop.PNG" alt="Decorative seashell ice cream scoop" width={160} height={150} unoptimized className="my-2 h-28 w-auto object-contain" />
     <p>Collect two portions of each flavor and choose two toppings each day. Unused portions remain in your inventory.</p>
     <h4 className="mt-4 font-bold">Daily flavors: two portions per flavor</h4>
-    <div className="mt-2 grid gap-2 sm:grid-cols-2">{flavors.map(([id,name]) => <button key={id} type="button" disabled={flavorCount(id) >= 2} onClick={() => iceCreamAction("flavor",id)} className="min-h-11 rounded-lg bg-teal-800 p-2 text-white disabled:opacity-50">Collect {name} portion ({flavorCount(id)}/2)</button>)}</div>
+    <div className="mt-2 grid gap-2 sm:grid-cols-2">{flavors.map(([id,name]) => <button key={id} type="button" disabled={flavorCount(id) >= 2 || (id === "vanilla" && !state.notebookDiscovered["recipe:classic-vanilla-ice-cream"])} onClick={() => iceCreamAction("flavor",id)} className="min-h-11 rounded-lg bg-teal-800 p-2 text-white disabled:opacity-50">Collect {name} portion ({flavorCount(id)}/2){id === "vanilla" && !state.notebookDiscovered["recipe:classic-vanilla-ice-cream"] ? " — prepare vanilla recipe to unlock" : ""}</button>)}</div>
     <h4 className="mt-4 font-bold">Daily toppings: {toppingCount} of 2 collected</h4>
     <div className="mt-2 grid gap-2 sm:grid-cols-2">{toppings.map(([id,name]) => <button key={id} type="button" disabled={toppingCount >= 2} onClick={() => iceCreamAction("topping",id)} className="min-h-11 rounded-lg bg-teal-800 p-2 text-white disabled:opacity-50">Collect {name}</button>)}</div>
     <h4 className="mt-4 font-bold">Saved portions</h4>
     <ul>{flavors.map(([id,name]) => <li key={id}>{name}: {state.inventory[`ice-cream-portion-${id}`] || 0}</li>)}{toppings.map(([id,name]) => <li key={id}>{name} topping: {state.inventory[`ice-cream-topping-${id}`] || 0}</li>)}</ul>
     <h4 className="mt-4 font-bold">Assemble a custom dessert</h4>
-    <label className="mt-2 block">First flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={first} onChange={e => setFirst(e.target.value)}>{flavors.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
+    <label className="mt-2 block">First flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={first} onChange={e => setFirst(e.target.value)}>{flavors.filter(([id]) => id !== "vanilla" || state.notebookDiscovered["recipe:classic-vanilla-ice-cream"]).map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Second flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={second} onChange={e => setSecond(e.target.value)}>{flavors.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Optional fresh fruit<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={fruit} onChange={e => setFruit(e.target.value)}>{fruits.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Topping<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={topping} onChange={e => setTopping(e.target.value)}>{toppings.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
@@ -541,13 +541,17 @@ function ShorelineCookbook() {
 }
 
 function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
-  const { state, cook, hasEnough, play } = useGame();
+  const { state, cook, hasEnough, play, jelloAction } = useGame();
   // Once the Fresh Water Bottle is unlocked, prefer its renewable servings.
   // Before that, and when servings run out, rare Pure Water Vials still work.
   const usesWater = recipe.cost.some(ingredient => ingredient.itemId === "pure-water");
   const useFreshWater = usesWater && !!state.notebookDiscovered["kitchen-reward:water-bottle"] && (state.inventory["fresh-water-serving"] || 0) >= (recipe.cost.find(ingredient => ingredient.itemId === "pure-water")?.count || 0);
   const effectiveCost = recipe.cost.map(ingredient => useFreshWater && ingredient.itemId === "pure-water" ? { ...ingredient, itemId: "fresh-water-serving" } : ingredient);
   const [addParsley, setAddParsley] = useState(false);
+  const [clock, setClock] = useState(() => Date.now());
+  useEffect(() => { if (recipe.id !== "luminous-orange-jello" || !state.jelloReadyAt) return; const timer = window.setInterval(() => setClock(Date.now()), 1000); return () => window.clearInterval(timer); }, [recipe.id, state.jelloReadyAt]);
+  const jelloPending = recipe.id === "luminous-orange-jello" && state.jelloReadyAt > 0;
+  const jelloRemaining = Math.max(0, Math.ceil((state.jelloReadyAt - clock) / 1000));
   const parsleyGarnish = recipe.id === "breakfast-bowl" && addParsley && (state.inventory["sea-parsley"] || 0) > 0;
   const finalCost = parsleyGarnish ? [...effectiveCost, { itemId: "sea-parsley", count: 1 }] : effectiveCost;
   const canCook = hasEnough(finalCost);
@@ -620,14 +624,15 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       </ul>
       {usesWater && <p className="mt-2 text-sm text-teal-900">{useFreshWater ? "Using renewable Fresh Water Serving; your Pure Water Vials are saved." : state.notebookDiscovered["kitchen-reward:water-bottle"] ? "No Fresh Water Servings available. This recipe can still use a Pure Water Vial, or collect fresh water from the kitchen bottle." : "Before unlocking the Fresh Water Bottle, this recipe uses a Pure Water Vial."}</p>}
 
+      {recipe.id === "luminous-orange-jello" && <p role="status" className="mt-3 font-semibold text-teal-950">{jelloPending ? jelloRemaining > 0 ? `Jello chilling in refrigerator: ${Math.floor(jelloRemaining / 60)} minutes ${jelloRemaining % 60} seconds remaining.` : "Jello has set! Collect it from the refrigerator." : "Prepare the jello, then chill it in the refrigerator for 15 minutes. The timer continues when you leave the kitchen."}</p>}
       {recipe.id === "breakfast-bowl" && <label className="mt-3 flex items-center gap-2 text-sm text-teal-950"><input type="checkbox" checked={addParsley} onChange={e => setAddParsley(e.target.checked)} disabled={(state.inventory["sea-parsley"] || 0) < 1} /> Add optional Sea Parsley garnish ({state.inventory["sea-parsley"] || 0} available)</label>}
       <button
         type="button"
-        disabled={!canCook || coffeeStage !== null}
-        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(finalCost)) return; cook(finalCost, recipe.outputItemId, recipe.outputCount || 1); }}
+        disabled={(!canCook && !jelloPending) || (jelloPending && jelloRemaining > 0) || coffeeStage !== null}
+        onClick={() => { if (recipe.id === "luminous-orange-jello") { jelloAction(jelloPending ? "collect" : "start"); return; } if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(finalCost)) return; cook(finalCost, recipe.outputItemId, recipe.outputCount || 1); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
-        {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
+        {jelloPending ? jelloRemaining > 0 ? "Jello Cooling…" : "Collect Luminous Orange Jello" : canCook ? `🍳 ${recipe.id === "luminous-orange-jello" ? "Prepare & Chill" : "Cook"} ${recipe.name}` : "Need More Ingredients"}
       </button>
       {recipe.station === "Coffee Pot" && coffeeStage && (
         <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-100 p-4 text-center">
