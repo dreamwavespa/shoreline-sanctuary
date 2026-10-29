@@ -77,8 +77,7 @@ export default function CoconutGrove() {
   const [mysteryHerb, setMysteryHerb] = useState<MysteryHerb | null>(null);
   const [flowerPlant, setFlowerPlant] = useState<FlowerPlant | null>(null);
   const [beePanelOpen, setBeePanelOpen] = useState(false);
-  const [leafSandReady, setLeafSandReady] = useState(false);
-  const [pineconeReady, setPineconeReady] = useState(false);
+  const [woodlandFind, setWoodlandFind] = useState<string | null>(null);
   const nurseryButtonRef = useRef<HTMLButtonElement>(null);
   const beeHotspotRef = useRef<HTMLButtonElement>(null);
   const nurseryHotspotRef = useRef<HTMLButtonElement>(null);
@@ -221,9 +220,17 @@ export default function CoconutGrove() {
     // Birds occasionally leave a feather near the palms and garden paths.
     if (Math.random() < 0.18) rewards.push({ itemId: "bird-feather", count: 1 });
     rewards.forEach(({ itemId, count }) => add(itemId, count));
-    if (Math.random() < 0.22 && !leafSandReady && !pineconeReady) {
-      if (Math.random() < 0.25) setPineconeReady(true);
-      else setLeafSandReady(true);
+    if (Math.random() < 0.22 && !woodlandFind) {
+      const roll = Math.random();
+      const options = [
+        ["sand-green-leaf", 0.40], ["pinecone", 0.20], ["beeswax-jar", 0.15],
+        ["coastal-honey-jar", 0.10], ["cotton-ball", 0.08], ["bird-feather", 0.05], ["amber-sap", 0.02],
+      ] as const;
+      let cumulative = 0;
+      for (const [itemId, chance] of options) {
+        cumulative += chance;
+        if (roll < cumulative) { setWoodlandFind(itemId); break; }
+      }
     }
     const names = rewards.map(({ itemId, count }) => `${count} ${ITEMS[itemId].name}`).join(" and ");
     setMessage(`Collected ${names}. It is now in your bucket and inventory.`);
@@ -273,20 +280,15 @@ export default function CoconutGrove() {
     try { localStorage.removeItem(MYSTERY_HERB_KEY); } catch {}
   };
 
-  const investigatePinecone = () => {
-    if (!pineconeReady) return;
-    collectItem("pinecone", { silent: true });
+  const investigateWoodlandFind = () => {
+    if (!woodlandFind) return;
+    const item = ITEMS[woodlandFind];
+    collectItem(woodlandFind, { silent: true });
     play("groveLeafRustle");
-    setPineconeReady(false);
-    setMessage("You discovered a pinecone beneath the leaves. Added one pinecone to your inventory.");
-  };
-
-  const investigateLeafSand = () => {
-    if (!leafSandReady) return;
-    collectItem("sand-green-leaf", { silent: true });
-    play("groveLeafRustle");
-    setLeafSandReady(false);
-    setMessage("You brush aside the leaves and discover Green Leaf Sand, green grains sprinkled with tiny leaves. It is now in your bucket and inventory.");
+    setWoodlandFind(null);
+    setMessage(woodlandFind === "amber-sap"
+      ? "Something golden glimmers beneath the fallen leaves. You discovered Hardened Amber Sap! Added to your inventory."
+      : `You discovered ${item.name} beneath the leaves. Added one to your inventory.`);
   };
 
   const leave = () => {
@@ -371,8 +373,7 @@ export default function CoconutGrove() {
         <button type="button" onClick={() => setMysteryHerbOpen(true)} aria-label="Open imported mystery herb planting" className="absolute left-[27%] top-[64%] z-20 min-h-11 rounded-lg bg-emerald-100 px-3 py-2 text-sm font-bold text-emerald-950 shadow ring-2 ring-emerald-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌱 Mystery Herbs</button>
         <button type="button" onClick={() => setFlowerBedOpen(true)} aria-label="Open Sheldon's flowerbed for planting land flower seeds" className="absolute left-[35%] top-[91%] z-20 min-h-11 rounded-lg bg-rose-100 px-3 py-2 text-sm font-bold text-rose-950 shadow ring-2 ring-rose-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌷 Flowerbed</button>
         <button type="button" onClick={() => remaining("orange") > 0 ? setMessage(`Orange tree: ${waitLabel("orange")}.`) : harvest("orange")} aria-label={remaining("orange") > 0 ? `Orange tree. ${waitLabel("orange")}.` : "Harvest 2 to 4 oranges from the orange tree"} className="absolute right-[1%] top-[31%] z-20 w-[32%] min-h-12 rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><Image src="/images/Orange-tree.PNG" alt="" width={240} height={260} unoptimized className="w-full h-auto drop-shadow-lg" /><span className="sr-only">Orange tree</span></button>
-        {pineconeReady && <button type="button" onClick={investigatePinecone} aria-label="Collect pinecone" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><Image src="/images/pinecone.png" alt="" width={52} height={52} unoptimized /></button>}
-        {leafSandReady && <button type="button" onClick={investigateLeafSand} aria-label="Collect Green Leaf Sand" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">✨</button>}
+        {woodlandFind && <button type="button" onClick={investigateWoodlandFind} aria-label="Investigate woodland discovery" className="absolute left-[31%] top-[84%] z-20 min-h-12 min-w-12 rounded-full bg-lime-100/90 text-2xl shadow-lg ring-2 ring-lime-500 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">{woodlandFind === "pinecone" ? <Image src="/images/pinecone.png" alt="" width={52} height={52} unoptimized /> : "✨"}</button>}
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
       <div className="space-y-3 px-4 py-4">
