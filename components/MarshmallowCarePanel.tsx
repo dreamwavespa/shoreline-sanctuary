@@ -126,6 +126,8 @@ export default function MarshmallowCarePanel() {
   ];
   const playBasketToy = (toy: typeof basketToys[number]) => {
     if (!toy.available) return;
+    if (toy.id === "crinkle") { playCrinkle(); return; }
+    if (toy.id === "fishing") { playFishing(); return; }
     try { const audio=new Audio(toy.sound);audio.volume=0.55;void audio.play().catch(()=>{}); } catch {}
     const firstPlay = basketBonusDate !== todayKey();
     if (firstPlay) {
@@ -181,15 +183,6 @@ export default function MarshmallowCarePanel() {
             )}
           </div>
 
-          <div className="mt-3 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
-            <h3 className="font-bold text-amber-950">🧶 Toys</h3>
-            <p className="mt-1 text-xs text-amber-800">Once given to Marshmallow, his toys stay at the lighthouse and can be used again.</p>
-            <div className="mt-2 grid gap-2">
-              {!crinkleGiven ? <button type="button" onClick={giveCrinkle} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Give Crinkly Foil Ball</button> : <button type="button" onClick={playCrinkle} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Play with Crinkly Foil Ball</button>}
-              {!fishingGiven ? <button type="button" onClick={giveFishing} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Give Fishing Pole Toy</button> : <button type="button" onClick={playFishing} className="rounded-lg bg-amber-700 py-2 font-semibold text-white">Play with Fishing Pole Toy</button>}
-            </div>
-          </div>
-
           <section className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200" aria-label="Marshmallow's seashell toy basket">
             <button type="button" aria-expanded={basketOpen} onClick={()=>setBasketOpen(v=>!v)} className="flex w-full flex-col items-center gap-2 rounded-xl bg-white p-3 text-teal-950 font-bold">
               <Image src="/images/Seashell-toy-basket.PNG" alt="Seashell-shaped basket filled with Marshmallow's toys" width={240} height={160} unoptimized className="h-auto max-h-36 w-auto object-contain" />
@@ -197,6 +190,8 @@ export default function MarshmallowCarePanel() {
             </button>
             {basketOpen && <div className="mt-3 space-y-2">
               <p className="text-sm text-teal-900">Choose a toy. Fishing pole and crinkle ball keep their original activities; sewing toys become available after crafting. Toys are reusable and never consumed.</p>
+              {!crinkleGiven && <button type="button" onClick={giveCrinkle} className="block w-full rounded-lg bg-amber-700 p-3 font-semibold text-white">Give Crinkly Foil Ball to Marshmallow</button>}
+              {!fishingGiven && <button type="button" onClick={giveFishing} className="block w-full rounded-lg bg-amber-700 p-3 font-semibold text-white">Give Fishing Pole Toy to Marshmallow</button>}
               {basketToys.map(toy=><button key={toy.id} type="button" disabled={!toy.available} onClick={()=>playBasketToy(toy)} className="block w-full rounded-lg bg-teal-700 p-3 text-left font-semibold text-white disabled:bg-slate-200 disabled:text-slate-700">{toy.available ? "Play with "+toy.name : toy.name+" — "+(toy.id==="fishing" || toy.id==="crinkle" ? "give Marshmallow this toy first" : "craft at Lacey's Sewing Studio to unlock")}</button>)}
               <p className="text-sm text-teal-900">{basketBonusDate===todayKey() ? "Today's first-play friendship bonus has been collected." : "The first toy-basket play each day gives a little extra attention."}</p>
             </div>}
