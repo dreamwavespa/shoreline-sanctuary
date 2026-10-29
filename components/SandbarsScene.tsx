@@ -7,7 +7,7 @@ import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import SandcastleArchitect from "./SandcastleArchitect";
-import { isBooOctober, localDateKey } from "@/lib/customSandArt";
+import { getBooSands, getBooMonthlySand, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
 import MoonlitSandbar from "./MoonlitSandbar";
@@ -226,7 +226,8 @@ export default function SandbarsScene() {
     0,
     (state.inventory["sandcastle-masterpiece"] || 0) - state.sandcastleGallery.length
   );
-  const booColorsAvailable = isBooOctober();
+  const booColors = getBooSands();
+  const booColorsAvailable = booColors.length > 0;
   const booClaimedToday = state.booSandClaimDate === localDateKey();
   const booToolSetCount = state.inventory["boo-sand-art-tool-set"] || 0;
 
@@ -363,7 +364,7 @@ export default function SandbarsScene() {
             </div>
           </div>
           <div className="p-4">
-            <p className="text-sm text-orange-50">Boo lives beside this driftwood stall. He helps Kaiana with custom sand art and saves his rarest colors for October.</p>
+            <p className="text-sm text-orange-50">Boo lives beside this driftwood stall. He helps Kaiana with custom sand art and shares a different rare sand every month, with extra Halloween colors in October.</p>
             {!state.booToolSetDelivered && <div className="mt-3 rounded-xl bg-white/10 p-3 ring-1 ring-orange-200/40">
               <p className="text-sm font-bold text-orange-100">Boo needs his Sand Art Tool Set</p>
               <p className="mt-1 text-xs text-orange-50">Craft it in the Workshop from 3 Plastic Debris and 2 Shiny Soda Tabs, then bring it here.</p>
@@ -372,14 +373,13 @@ export default function SandbarsScene() {
             {state.booToolSetDelivered && <p className="mt-2 text-sm font-bold text-emerald-300">✓ Tool set delivered · Custom Bottle Studio unlocked</p>}
             <p role="status" aria-live="polite" className="mt-2 text-sm font-semibold text-orange-200">
               {booMessage || (!state.booToolSetDelivered
-                ? "Boo will share rare October sand after his tools are delivered."
+                ? "Boo will share monthly rare sand after his tools are delivered."
                 : booColorsAvailable
-                ? booClaimedToday ? "Today’s rare sand bundle has already been collected. Boo will prepare another tomorrow." : "Choose one October color. Boo will share three scoops today."
-                : "Pumpkin Orange and Candy Corn Swirl sand return October 1. Sand already in your collection can still be used year-round.")}
+                ? booClaimedToday ? "Today’s rare sand bundle has already been collected. Boo will prepare another tomorrow." : "Choose a seasonal sand. Boo will share three scoops today."
+                : "Your collected sands remain available for crafting year-round.")}
             </p>
             {state.booToolSetDelivered && booColorsAvailable && !booClaimedToday && <div className="mt-3 grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => chooseBooSand("sand-pumpkin-orange")} className="min-h-14 rounded-xl bg-orange-600 px-3 py-3 text-sm font-bold text-white active:bg-orange-700">🎃 Choose Pumpkin Orange</button>
-              <button type="button" onClick={() => chooseBooSand("sand-candy-corn-swirl")} className="min-h-14 rounded-xl bg-amber-100 px-3 py-3 text-sm font-bold text-slate-950 active:bg-amber-200">🍬 Choose Candy Corn Swirl</button>
+              {booColors.map((id) => <button key={id} type="button" onClick={() => chooseBooSand(id)} className="min-h-14 rounded-xl bg-amber-100 px-3 py-3 text-sm font-bold text-slate-950 active:bg-amber-200">Choose {ITEMS[id].name}</button>)}
             </div>}
           </div>
         </section>
