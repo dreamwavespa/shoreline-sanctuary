@@ -7,7 +7,7 @@ import { SCENES } from "@/lib/media";
 import { VILLAGERS } from "@/lib/villagers";
 import VillagerCard from "./VillagerCard";
 import SandcastleArchitect from "./SandcastleArchitect";
-import { getBooSands, getBooMonthlySand, localDateKey } from "@/lib/customSandArt";
+import { getBooSands, localDateKey } from "@/lib/customSandArt";
 import UnderwaterResidentActivity from "./UnderwaterResidentActivity";
 import BooTreasureCorner from "./BooTreasureCorner";
 import MoonlitSandbar from "./MoonlitSandbar";
