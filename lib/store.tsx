@@ -99,6 +99,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  jelloReadyAt: number;
   shelbyPacked: Record<string, number>;
   shelbyShipmentDate: string;
   shelbyShipmentCount: number;
@@ -257,6 +258,7 @@ export function savedWindTreasureItem(state: GameState, date: string, slot: numb
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  jelloReadyAt: 0,
   shelbyPacked: {},
   shelbyShipmentDate: "",
   shelbyShipmentCount: 0,
@@ -470,6 +472,7 @@ interface Ctx {
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand", spice?: "pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves") => boolean;
+  jelloAction: (action: "start" | "collect") => boolean;
   iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
   useBabyBottle: (action: "rose" | "berry" | "orange" | "water" | "feed") => boolean;
   bottleRoseMilk: () => boolean;
@@ -1115,16 +1118,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const jelloAction = (action: "start" | "collect") => {
+    const current = stateRef.current;
+    if (action === "start") {
+      if (current.jelloReadyAt > 0) return false;
+      const recipe = KITCHEN_RECIPES.find(entry => entry.id === "luminous-orange-jello");
+      if (!recipe || !hasEnough(recipe.cost)) return false;
+      setState(prev => ({ ...prev, inventory: deductCost({ ...prev.inventory }, recipe.cost), jelloReadyAt: Date.now() + 15 * 60 * 1000 }));
+      play("kitchenFridge", .7);
+      toast("Luminous Orange Jello is chilling for 15 minutes.");
+      return true;
+    }
+    if (!current.jelloReadyAt || Date.now() < current.jelloReadyAt) return false;
+    setState(prev => ({ ...prev, jelloReadyAt: 0, inventory: { ...prev.inventory, "food-luminous-orange-jello": (prev.inventory["food-luminous-orange-jello"] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, "recipe:luminous-orange-jello": true } }));
+    play("craftSuccess"); toast("Luminous Orange Jello is ready!");
+    return true;
+  };
+
   const iceCreamAction = (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => {
     const current = stateRef.current;
     if (!current.notebookDiscovered["kitchen-reward:ice-cream-scoop"]) return false;
-    const flavors = ["coconut", "strawberry", "pineapple", "chocolate-seashell"];
+    const flavors = ["coconut", "strawberry", "pineapple", "chocolate-seashell", "vanilla"];
     const toppings = ["chocolate-seashells", "candy-seashells", "dried-sugar-berries", "marshmallows", "coconut-flakes", "melted-chocolate"];
     const fruits = ["strawberry", "blueberry", "raspberry", "pineapple", "mango", "wild-beach-plum"];
     const date = new Date().toLocaleDateString("en-CA");
     const key = `ice-cream-daily:${date}`;
     if (action === "flavor" || action === "topping") {
       if (!(action === "flavor" ? flavors : toppings).includes(first)) return false;
+      if (action === "flavor" && first === "vanilla" && !current.notebookDiscovered["recipe:classic-vanilla-ice-cream"]) return false;
       const slots = action === "flavor" ? [1, 2] : [1, 2];
       const slot = slots.find(n => !current.notebookDiscovered[`${key}:${action}:${action === "flavor" ? first + ":" : ""}${n}`]);
       if (!slot) return false;
@@ -1132,6 +1153,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setState(prev => ({ ...prev, inventory: { ...prev.inventory, [id]: (prev.inventory[id] || 0) + 1 }, notebookDiscovered: { ...prev.notebookDiscovered, [`${key}:${action}:${action === "flavor" ? first + ":" : ""}${slot}`]: true, [id]: true } }));
       play("sparkle"); toast("Ice cream portion saved!"); return true;
     }
+    if ((first === "vanilla" || second === "vanilla") && !current.notebookDiscovered["recipe:classic-vanilla-ice-cream"]) return false;
     if (!flavors.includes(first) || !second || !flavors.includes(second) || !fruit || (fruit !== "none" && !fruits.includes(fruit))) return false;
     if (!toppingChoice || !toppings.includes(toppingChoice)) return false;
     const topping = toppingChoice;
@@ -2835,6 +2857,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       cook,
       claimKitchenReward,
+      jelloAction,
       iceCreamAction,
       useBabyBottle,
       bottleRoseMilk,
