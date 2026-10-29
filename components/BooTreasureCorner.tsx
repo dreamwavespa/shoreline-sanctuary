@@ -5,6 +5,8 @@ import { useGame } from "@/lib/store";
 import BooDiggingGame from "./BooDiggingGame";
 import BooScavengerHunt from "./BooScavengerHunt";
 import BooFriendship from "./BooFriendship";
+import { BOO_SAND_IDS, getBooMonthlySand } from "@/lib/customSandArt";
+import { ITEMS } from "@/lib/items";
 
 export default function BooTreasureCorner() {
   const { state, collectItem } = useGame();
@@ -23,10 +25,7 @@ export default function BooTreasureCorner() {
     setTreatMessage(itemId === "chocolate-seashells" ? "Boo gifted you Chocolate Seashells!" : "Boo gifted you a Golden Island Pumpkin!");
   };
   const [view, setView] = useState<"home" | "collection">("home");
-  const sands = [
-    ["sand-pumpkin-orange", "Pumpkin Orange"],
-    ["sand-candy-corn-swirl", "Candy Corn Swirl"],
-  ] as const;
+  const sands = BOO_SAND_IDS.map(id => [id, ITEMS[id].name] as const);
   return (
     <section aria-labelledby="boo-treasure-heading" className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-md ring-1 ring-indigo-300">
       <div className="relative h-56 sm:h-80">
@@ -44,10 +43,11 @@ export default function BooTreasureCorner() {
         </div>
         {view === "collection" && <div id="boo-treasure-collection" className="rounded-xl bg-white/10 p-3" aria-label="Boo's sand collection">
           <h3 className="font-semibold">Rare sands in your inventory</h3>
+          <p className="mt-1 text-sm">This month: {ITEMS[getBooMonthlySand()].name}</p>
           <ul className="mt-2 space-y-2 text-sm">
             {sands.map(([id, name]) => <li key={id}>{name}: {state.inventory[id] || 0} scoops</li>)}
           </ul>
-          <p className="mt-2 text-xs text-indigo-100">More monthly sands and treasures will be added in a future update.</p>
+          <p className="mt-2 text-xs text-indigo-100">Monthly sands rotate on the first of each month. Previously collected sands stay in your inventory.</p>
         </div>}
         <section aria-label="Boo's kitchen gifts" className="rounded-xl bg-indigo-900/70 p-4 ring-1 ring-indigo-300/40">
           <h3 className="font-bold">Boo's Kitchen Gifts</h3>
