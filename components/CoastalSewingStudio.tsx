@@ -27,6 +27,7 @@ export default function CoastalSewingStudio() {
   const [needleSearchDate,setNeedleSearchDate] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-date") || "";}catch{return "";}});
   const [needleSearchCount,setNeedleSearchCount] = useState(() => {try{return Number(localStorage.getItem("shoreline-lacey-pin-search-count") || "0");}catch{return 0;}});
   const [pinChoice,setPinChoice] = useState("urchin");
+  const [needleReward,setNeedleReward] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-last-reward") || "";}catch{return "";}});
   const lacey = VILLAGERS.lacey;
   const giftCount = state.villagerGiftCounts.lacey || 0;
   const friendshipMilestones = [[3,"Sea-Urchin Pincushion"],[5,"Clam-Shell Satchel"],[8,"Turret-Shell Thimble"],[12,"Embroidery Hoop"]] as const;
@@ -83,7 +84,8 @@ export default function CoastalSewingStudio() {
     const rare = Math.random();
     const reward = count % 7 === 0 ? "lacey-seashell-pattern" : rare < 0.06 ? "lacey-pearl-needle" : rare < 0.22 ? "lacey-embroidery-thread" : ["wind-fabric-scrap","hemp-thread","cotton-balls","ribbon"][Math.floor(Math.random()*4)];
     collectItem(reward,{silent:true});
-    try {localStorage.setItem("shoreline-lacey-pin-search-date",today);localStorage.setItem("shoreline-lacey-pin-search-count",String(count));}catch{}
+    try {localStorage.setItem("shoreline-lacey-pin-search-date",today);localStorage.setItem("shoreline-lacey-pin-search-count",String(count));localStorage.setItem("shoreline-lacey-pin-search-last-reward",reward);}catch{}
+    setNeedleReward(reward);
     setNeedleSearchDate(today);setNeedleSearchCount(count);
     playFile("sewing-reward.mp3");
     const pinName = pinChoice === "urchin" ? "Sea-Urchin" : pinChoice === "clam" ? "Clam-Shell" : "Starfish";
