@@ -24,6 +24,9 @@ function playFile(file: string) { try { const audio = new Audio("/audio/" + file
 export default function CoastalSewingStudio() {
   const {state,craft,collectItem,hasEnough,giftVillager,markVillagerEncounter} = useGame();
   const [giftChoice,setGiftChoice] = useState("pearl-pink");
+  const [needleSearchDate,setNeedleSearchDate] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-date") || "";}catch{return "";}});
+  const [needleSearchCount,setNeedleSearchCount] = useState(() => {try{return Number(localStorage.getItem("shoreline-lacey-pin-search-count") || "0");}catch{return 0;}});
+  const [pinChoice,setPinChoice] = useState("urchin");
   const lacey = VILLAGERS.lacey;
   const giftCount = state.villagerGiftCounts.lacey || 0;
   const friendshipMilestones = [[3,"Sea-Urchin Pincushion"],[5,"Clam-Shell Satchel"],[8,"Turret-Shell Thimble"],[12,"Embroidery Hoop"]] as const;
@@ -74,6 +77,18 @@ export default function CoastalSewingStudio() {
     const lines = ["You find a silver thread tangled in a washed-up shell. The next clue points toward the Shipwreck.", "An old sewing basket among the shipwreck treasures holds a note: look inside Lacey’s pincushions.", "A tiny metallic chime rings out! You found Lacey’s lost embroidery needle. Return to the Bottles page to complete the quest."];
     setMessage(lines[needleStep]);playFile("sewing-reward.mp3");
   };
+  const dailyNeedleSearch = () => {
+    if (!state.questProgress.needleinthetides || needleSearchDate === today) return;
+    const count = needleSearchCount + 1;
+    const rare = Math.random();
+    const reward = count % 7 === 0 ? "lacey-seashell-pattern" : rare < 0.06 ? "lacey-pearl-needle" : rare < 0.22 ? "lacey-embroidery-thread" : ["wind-fabric-scrap","hemp-thread","cotton-balls","sea-ribbons"][Math.floor(Math.random()*4)];
+    collectItem(reward,{silent:true});
+    try {localStorage.setItem("shoreline-lacey-pin-search-date",today);localStorage.setItem("shoreline-lacey-pin-search-count",String(count));}catch{}
+    setNeedleSearchDate(today);setNeedleSearchCount(count);
+    playFile("sewing-reward.mp3");
+    const pinName = pinChoice === "urchin" ? "Sea-Urchin" : pinChoice === "clam" ? "Clam-Shell" : "Starfish";
+    setMessage("A delicate metallic chime rings from the "+pinName+" Pin Cushion! You found "+(ITEMS[reward]?.name || reward)+". Added to inventory. Search again tomorrow.");
+  };
   const claim = () => {
     if (!pinUnlocked || lastClaim === today) return;
     const pool = ["wind-fabric-scrap","cotton-balls","hemp-thread","catnip","bird-feather"];
@@ -102,6 +117,18 @@ export default function CoastalSewingStudio() {
       <p>Clues discovered: {needleStep} of 3. {state.questProgress.needleinthetides ? "Quest completed." : needleStep===3 ? "Needle found! Return to the Bottles page to claim your reward." : "A clue is waiting."}</p>
       <button type="button" disabled={needleStep>=3 || !!state.questProgress.needleinthetides} onClick={searchNeedle} className="rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{needleStep===0 ? "Search for a clue on the beach" : needleStep===1 ? "Search the shipwreck sewing basket" : "Search Lacey's pin cushions"}</button>
       <p className="text-sm">The special needle will enable decorative embroidery in a future studio expansion; it does not change the original project artwork.</p>
+    </section>
+    <section className="rounded-xl bg-white p-3 space-y-2" aria-label="Lacey's Lost Needle Search">
+      <h3 className="font-bold">Lacey's Lost Needle Search</h3>
+      <p>{state.questProgress.needleinthetides ? "Help Lacey find misplaced needles and sewing treasures. Choose one pin cushion to search each day. Every search gives a supply; rare embroidery discoveries are possible." : "Complete The Needle in the Tides bottle quest to unlock this optional daily search."}</p>
+      {state.questProgress.needleinthetides && <>
+        <fieldset className="space-y-2"><legend className="font-medium">Choose a pin cushion</legend>
+          {([["urchin","Sea-Urchin Pin Cushion"],["clam","Clam-Shell Pin Cushion"],["starfish","Starfish Pin Cushion"]] as const).map(([value,label])=><label key={value} className="flex items-center gap-2"><input type="radio" name="lacey-search-pin" checked={pinChoice===value} onChange={()=>setPinChoice(value)} />{label}</label>)}
+        </fieldset>
+        <p>Searches completed: {needleSearchCount}. {needleSearchDate===today ? "Today's search is complete. Come back tomorrow." : "One search available today."}</p>
+        <button type="button" disabled={needleSearchDate===today} onClick={dailyNeedleSearch} className="rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{needleSearchDate===today ? "Today's search completed" : "Search selected pin cushion"}</button>
+        <p className="text-sm">Every seventh search discovers a special seashell embroidery pattern. Rare thread and pearl-tipped needles may appear sooner. The pattern is a collectible for future embroidery customization.</p>
+      </>}
     </section>
     <div className="rounded-xl bg-white p-3"><h3 className="font-bold">Recycle beach towels</h3><p>One washed-ashore towel makes two pieces of recycled fabric. Towels available: {state.inventory["washed-beach-towel"] || 0}.</p><button type="button" disabled={!state.inventory["washed-beach-towel"]} onClick={recycle} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Cut towel into two fabric pieces</button></div>
     <div className="rounded-xl bg-white p-3"><h3 className="font-bold">Combine fabric scraps</h3><p>Three windblown fabric scraps make one piece of recycled fabric. Scraps available: {state.inventory["wind-fabric-scrap"] || 0}.</p><button type="button" disabled={(state.inventory["wind-fabric-scrap"] || 0) < 3} onClick={makeFabric} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Combine three fabric scraps</button></div>
