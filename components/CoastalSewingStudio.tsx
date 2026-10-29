@@ -19,6 +19,8 @@ const PROJECTS = [
   ["crinkly-starfish","Crinkly Starfish",2,0,0,0,0],
 ] as const;
 const THREADS = ["Pearl White","Ocean Blue","Seafoam Green","Rose Pink","Lavender","Golden Sand"];
+const EMBROIDERY_BASES = [["seashell-pillow","Seashell Pillow"],["moon-pillow","Moon Pillow"],["patchwork-beach-blanket","Patchwork Beach Blanket"],["cozy-fluffy-baby-blanket","Cozy Fluffy Baby Blanket"]] as const;
+const EMBROIDERY_PATTERNS = [["seashell","Seashell"],["starfish","Starfish"],["flower","Flower"],["moon","Moon"]] as const;
 const IMAGE_ROOT = "/images/Sewing/";
 function playFile(file: string) { try { const audio = new Audio("/audio/" + file); audio.volume = 0.7; void audio.play().catch(() => {}); } catch {} }
 export default function CoastalSewingStudio() {
@@ -27,6 +29,9 @@ export default function CoastalSewingStudio() {
   const [needleSearchDate,setNeedleSearchDate] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-date") || "";}catch{return "";}});
   const [needleSearchCount,setNeedleSearchCount] = useState(() => {try{return Number(localStorage.getItem("shoreline-lacey-pin-search-count") || "0");}catch{return 0;}});
   const [pinChoice,setPinChoice] = useState("urchin");
+  const [embroideryBase,setEmbroideryBase] = useState<string>("seashell-pillow");
+  const [embroideryPattern,setEmbroideryPattern] = useState<string>("seashell");
+  const [embroideryThread,setEmbroideryThread] = useState(THREADS[0]);
   const [needleReward,setNeedleReward] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-last-reward") || "";}catch{return "";}});
   const lacey = VILLAGERS.lacey;
   const giftCount = state.villagerGiftCounts.lacey || 0;
@@ -91,6 +96,18 @@ export default function CoastalSewingStudio() {
     const pinName = pinChoice === "urchin" ? "Sea-Urchin" : pinChoice === "clam" ? "Clam-Shell" : "Starfish";
     setMessage("A delicate metallic chime rings from the "+pinName+" Pin Cushion! You found "+(ITEMS[reward]?.name || reward)+". Added to inventory. Search again tomorrow.");
   };
+  const needleUnlocked = !!state.questProgress.needleinthetides && (state.inventory["lacey-special-embroidery-needle"] || 0) > 0;
+  const embroideryItemId = "sewing-embroidered-"+embroideryBase+"-"+embroideryPattern;
+  const embroideryCost = [{itemId:"sewing-"+embroideryBase,count:1},{itemId:"hemp-thread",count:1}];
+  const embroider = () => {
+    if (!needleUnlocked) {setMessage("Complete The Needle in the Tides to unlock embroidery.");return;}
+    if (!hasEnough(embroideryCost)) {setMessage("You need one finished original project and one hemp thread.");return;}
+    if (!craft(embroideryItemId,embroideryCost)) {setMessage("Unable to finish embroidery.");return;}
+    playFile("sewing-machine.mp3");
+    const baseName = EMBROIDERY_BASES.find(([key])=>key===embroideryBase)?.[1] || embroideryBase;
+    const patternName = EMBROIDERY_PATTERNS.find(([key])=>key===embroideryPattern)?.[1] || embroideryPattern;
+    setMessage("Embroidered "+baseName+" completed with "+patternName+" stitching in "+(thimble?embroideryThread:"Pearl White")+". The customized item was added to inventory. Original artwork remains the visual preview.");
+  };
   const claim = () => {
     if (!pinUnlocked || lastClaim === today) return;
     const pool = ["wind-fabric-scrap","cotton-balls","hemp-thread","catnip","bird-feather"];
@@ -140,6 +157,21 @@ export default function CoastalSewingStudio() {
     <p>Materials: {cost.map(c=>c.count+" "+(ITEMS[c.itemId]?.name || c.itemId)+" (have "+(state.inventory[c.itemId] || 0)+")").join(", ")}.</p>
     <p>{state.crafted.includes("sewing-"+id) ? "Completed at least once." : "Not yet completed."}</p>
     <button type="button" onClick={sew} disabled={!hasEnough(cost)} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Sew {name}</button></div>
+    <section className="rounded-xl bg-white p-3 space-y-3" aria-label="Lacey's Embroidery Station">
+      <h3 className="font-bold">Lacey's Embroidery Station</h3>
+      <p>{needleUnlocked ? "Your special embroidery needle unlocks optional decorations for finished projects." : "Complete The Needle in the Tides and collect Lacey's Special Embroidery Needle to unlock this station."}</p>
+      <label htmlFor="embroidery-base" className="block font-medium">Choose a finished project</label>
+      <select id="embroidery-base" disabled={!needleUnlocked} value={embroideryBase} onChange={e=>setEmbroideryBase(e.target.value)} className="w-full rounded border p-2">{EMBROIDERY_BASES.map(([value,label])=><option value={value} key={value}>{label} (have {state.inventory["sewing-"+value] || 0})</option>)}</select>
+      <div className="relative mx-auto h-40 max-w-xs"><Image src={IMAGE_ROOT+embroideryBase+".png"} alt="Original project artwork; embroidery decoration preview is described below" fill unoptimized className="object-contain" sizes="320px" /></div>
+      <label htmlFor="embroidery-pattern" className="block font-medium">Choose embroidery pattern</label>
+      <select id="embroidery-pattern" disabled={!needleUnlocked} value={embroideryPattern} onChange={e=>setEmbroideryPattern(e.target.value)} className="w-full rounded border p-2">{EMBROIDERY_PATTERNS.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select>
+      <label htmlFor="embroidery-thread" className="block font-medium">Choose embroidery thread color</label>
+      <select id="embroidery-thread" disabled={!needleUnlocked || !thimble} value={embroideryThread} onChange={e=>setEmbroideryThread(e.target.value)} className="w-full rounded border p-2">{THREADS.map(value=><option key={value}>{value}</option>)}</select>
+      <p aria-live="polite">Preview: {EMBROIDERY_BASES.find(([value])=>value===embroideryBase)?.[1]} with {EMBROIDERY_PATTERNS.find(([value])=>value===embroideryPattern)?.[1]} embroidery in {thimble?embroideryThread:"Pearl White"}. Decorative stitching is described in text; custom overlay artwork is not yet available.</p>
+      <p>Materials: 1 finished original {EMBROIDERY_BASES.find(([value])=>value===embroideryBase)?.[1]} and 1 Hemp Thread. The original item is used to make the embroidered version. Your special needle is reusable.</p>
+      <button type="button" disabled={!needleUnlocked || !hasEnough(embroideryCost)} onClick={embroider} className="rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Embroider selected project</button>
+      <p className="text-sm">Your new embroidered item is stored separately in inventory. Color and pattern choices are announced here; visual customization artwork will be added later.</p>
+    </section>
     <div className="rounded-xl bg-white p-3"><h3 className="font-bold">Seashell Pin Cushion</h3><div className="relative h-24 w-24"><Image src={IMAGE_ROOT+"seashell-pin-cushion.png"} alt="Seashell Pin Cushion with sewing pins" fill unoptimized className="object-contain" sizes="96px" /></div><p>Projects completed: {PROJECTS.filter(([p])=>state.crafted.includes("sewing-"+p)).length} of {PROJECTS.length}. Finish each project once to earn the Seashell Pin Cushion, then collect one free sewing supply daily.</p>{allMade && !pinUnlocked && <button type="button" onClick={claimPin} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect Seashell Pin Cushion reward</button>}{pinUnlocked && <p>Seashell Pin Cushion unlocked and added to inventory.</p>}<button type="button" disabled={!pinUnlocked || lastClaim===today} onClick={claim} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{!pinUnlocked ? "Earn the Seashell Pin Cushion first" : lastClaim===today ? "Today's supply collected" : "Collect today's sewing supply"}</button></div>
   </section>;
 }
