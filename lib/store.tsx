@@ -9,7 +9,7 @@ import { VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, seaweedSalePrice, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
-import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, isBooOctober, localDateKey } from "./customSandArt";
+import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, getBooSands, localDateKey } from "./customSandArt";
 import { getScheduleStatus } from "./schedule";
 import { getTravelingMerchantStock, isShelbyBlueprintNeeded } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
@@ -2649,7 +2649,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const claimBooSand = (itemId: string) => {
     const today = localDateKey();
-    if (!stateRef.current.sandbarsUnlocked || !stateRef.current.booToolSetDelivered || !isBooOctober() || stateRef.current.booSandClaimDate === today || !(BOO_SAND_IDS as readonly string[]).includes(itemId)) return false;
+    if (!stateRef.current.sandbarsUnlocked || !stateRef.current.booToolSetDelivered || stateRef.current.booSandClaimDate === today || !getBooSands().includes(itemId)) return false;
     setState((s) => ({
       ...s,
       booSandClaimDate: today,
