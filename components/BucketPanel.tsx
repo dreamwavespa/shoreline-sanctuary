@@ -99,16 +99,26 @@ export default function BucketPanel() {
         {entries.map(([id, count]) => {
           const def = ITEMS[id];
           if (!def) return null;
+          const embroideryMatch = id.match(/^sewing-embroidered-(seashell-pillow|moon-pillow|patchwork-beach-blanket|cozy-fluffy-baby-blanket)-(seashell|starfish|flower|moon)(?:-(pearl-white|ocean-blue|seafoam-green|rose-pink|lavender|golden-sand))?$/);
+          const embroideryColor = embroideryMatch?.[3] ? embroideryMatch[3].replaceAll("-", " ") : "color not recorded";
           return (
             <div key={id} className="flex flex-col items-center bg-white/80 rounded-xl p-2 shadow-sm ring-1 ring-amber-100">
-              <div className="w-10 h-10 flex items-center justify-center">
+              <div className="w-16 h-16 flex items-center justify-center">
                 {def.isEmoji ? (
                   <span className={`text-2xl ${def.glows ? "chest-treasure-glow" : ""}`}>{def.icon}</span>
                 ) : (
-                  <Image src={def.icon} alt={def.artDescription || def.name} width={40} height={40} unoptimized className={`object-contain ${def.glows ? "chest-treasure-glow" : ""}`} />
+                  embroideryMatch ? (
+                    <div className="relative h-16 w-16" role="img" aria-label={def.name + ". Embroidered " + embroideryMatch[2] + ", thread " + embroideryColor}>
+                      <Image src={def.icon} alt="" fill unoptimized className="object-contain" sizes="64px" />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="relative h-7 w-7"><Image src={"/images/Sewing/embroidery-"+embroideryMatch[2]+".png"} alt="" fill unoptimized className="object-contain" sizes="28px" /></div>
+                      </div>
+                    </div>
+                  ) : <Image src={def.icon} alt={def.artDescription || def.name} width={40} height={40} unoptimized className={`object-contain ${def.glows ? "chest-treasure-glow" : ""}`} />
                 )}
               </div>
               <span className="text-[10px] text-amber-800 text-center mt-1 leading-tight">{def.name}</span>
+              {embroideryMatch && <span className="text-[10px] text-teal-800 text-center">Thread: {embroideryColor}</span>}
               <span className="text-xs font-bold text-emerald-700">{count}</span>
             </div>
           );
