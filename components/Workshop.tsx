@@ -547,7 +547,10 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
   const usesWater = recipe.cost.some(ingredient => ingredient.itemId === "pure-water");
   const useFreshWater = usesWater && !!state.notebookDiscovered["kitchen-reward:water-bottle"] && (state.inventory["fresh-water-serving"] || 0) >= (recipe.cost.find(ingredient => ingredient.itemId === "pure-water")?.count || 0);
   const effectiveCost = recipe.cost.map(ingredient => useFreshWater && ingredient.itemId === "pure-water" ? { ...ingredient, itemId: "fresh-water-serving" } : ingredient);
-  const canCook = hasEnough(effectiveCost);
+  const [addParsley, setAddParsley] = useState(false);
+  const parsleyGarnish = recipe.id === "breakfast-bowl" && addParsley && (state.inventory["sea-parsley"] || 0) > 0;
+  const finalCost = parsleyGarnish ? [...effectiveCost, { itemId: "sea-parsley", count: 1 }] : effectiveCost;
+  const canCook = hasEnough(finalCost);
   const madeCount = state.inventory[recipe.outputItemId] || 0;
   const output = ITEMS[recipe.outputItemId];
   const headingId = `recipe-${recipe.id}`;
@@ -617,10 +620,11 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       </ul>
       {usesWater && <p className="mt-2 text-sm text-teal-900">{useFreshWater ? "Using renewable Fresh Water Serving; your Pure Water Vials are saved." : state.notebookDiscovered["kitchen-reward:water-bottle"] ? "No Fresh Water Servings available. This recipe can still use a Pure Water Vial, or collect fresh water from the kitchen bottle." : "Before unlocking the Fresh Water Bottle, this recipe uses a Pure Water Vial."}</p>}
 
+      {recipe.id === "breakfast-bowl" && <label className="mt-3 flex items-center gap-2 text-sm text-teal-950"><input type="checkbox" checked={addParsley} onChange={e => setAddParsley(e.target.checked)} disabled={(state.inventory["sea-parsley"] || 0) < 1} /> Add optional Sea Parsley garnish ({state.inventory["sea-parsley"] || 0} available)</label>}
       <button
         type="button"
         disabled={!canCook || coffeeStage !== null}
-        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(effectiveCost)) return; cook(effectiveCost, recipe.outputItemId, recipe.outputCount || 1); }}
+        onClick={() => { if (recipe.station === "Coffee Pot") { startCoffee(); return; } if (!hasEnough(finalCost)) return; cook(finalCost, recipe.outputItemId, recipe.outputCount || 1); }}
         className="mt-4 min-h-12 w-full rounded-xl bg-orange-600 py-3 font-bold text-white shadow transition disabled:bg-orange-200 disabled:text-orange-600 active:bg-orange-700"
       >
         {canCook ? `🍳 Cook ${recipe.name}` : "Need More Ingredients"}
@@ -1290,6 +1294,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               {!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"] && !state.notebookDiscovered["kitchen-bottle:water"] && <div className="grid gap-2">
                 <button type="button" disabled={(state.inventory["food-cadence-warm-rose-milk"] || 0) < 1} onClick={() => useBabyBottle("rose")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Fill with Warm Rose Milk (1 prepared serving)</button>
                 <button type="button" disabled={(state.inventory["coastal-brambleberry"] || 0) < 2} onClick={() => useBabyBottle("berry")} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-semibold text-white disabled:opacity-50">Make Berry Juice (2 coastal brambleberries)</button>
+                <button type="button" disabled={(state.inventory["food-fresh-orange-juice"] || 0) < 1} onClick={() => useBabyBottle("orange")} className="min-h-11 rounded-lg bg-orange-700 px-3 py-2 font-semibold text-white disabled:opacity-50">Fill with Fresh Orange Juice (1 prepared serving)</button>
                 <button type="button" disabled={(state.inventory["fresh-water-serving"] || 0) < 1} onClick={() => useBabyBottle("water")} className="min-h-11 rounded-lg bg-sky-800 px-3 py-2 font-semibold text-white disabled:opacity-50">Fill with Fresh Water (1 Fresh Water Serving)</button>
               </div>}
             </div> : kitchenRewardOpen === "coffee" ? <div className="space-y-3">
