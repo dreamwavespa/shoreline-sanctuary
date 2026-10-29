@@ -337,6 +337,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "food-tropical-fruit-salad": { id: "food-tropical-fruit-salad", name: "Tropical Fruit Salad", category: "food", icon: "🥗", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-coastal-berry-salad": { id: "food-coastal-berry-salad", name: "Coastal Berry Salad", category: "food", icon: "🥗", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "food-spring-fruit-medley": { id: "food-spring-fruit-medley", name: "Spring Fruit Medley", category: "food", icon: "🥗", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "ice-cream-portion-vanilla": { id: "ice-cream-portion-vanilla", name: "Vanilla Ice Cream Portion", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "sparkle" },
   "ice-cream-portion-coconut": { id: "ice-cream-portion-coconut", name: "Coconut Ice Cream Portion", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "sparkle" },
   "ice-cream-portion-strawberry": { id: "ice-cream-portion-strawberry", name: "Strawberry Ice Cream Portion", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "sparkle" },
   "ice-cream-portion-pineapple": { id: "ice-cream-portion-pineapple", name: "Pineapple Ice Cream Portion", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "sparkle" },
