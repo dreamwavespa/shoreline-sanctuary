@@ -15,6 +15,15 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  // New orange harvest and breakfast dishes
+  "food-classic-vanilla-ice-cream": { id: "food-classic-vanilla-ice-cream", name: "Classic Vanilla Ice Cream", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-orange-float": { id: "food-orange-float", name: "Orange Float", category: "food", icon: "🥤", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-fresh-orange-juice": { id: "food-fresh-orange-juice", name: "Fresh Orange Juice", category: "food", icon: "🍊", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-dried-orange-slices": { id: "food-dried-orange-slices", name: "Dried Orange Slices", category: "food", icon: "🍊", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-luminous-orange-jello": { id: "food-luminous-orange-jello", name: "Luminous Orange Jello", category: "food", icon: "🍮", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-orange-muffins": { id: "food-orange-muffins", name: "Orange Muffins", category: "food", icon: "🧁", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-creamy-berry-oatmeal": { id: "food-creamy-berry-oatmeal", name: "Creamy Berry Oatmeal", category: "food", icon: "🥣", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "food-breakfast-bowl": { id: "food-breakfast-bowl", name: "Breakfast Bowl", category: "food", icon: "🍳", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "sewing-embroidered-seashell-pillow-seashell-pearl-white": { id: "sewing-embroidered-seashell-pillow-seashell-pearl-white", name: "Embroidered Seashell Pillow — Seashell (Pearl White)", category: "decor", icon: "/images/Sewing/seashell-pillow.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Embroidered Seashell Pillow — Seashell (Pearl White)" },
   "sewing-embroidered-seashell-pillow-seashell-ocean-blue": { id: "sewing-embroidered-seashell-pillow-seashell-ocean-blue", name: "Embroidered Seashell Pillow — Seashell (Ocean Blue)", category: "decor", icon: "/images/Sewing/seashell-pillow.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Embroidered Seashell Pillow — Seashell (Ocean Blue)" },
   "sewing-embroidered-seashell-pillow-seashell-seafoam-green": { id: "sewing-embroidered-seashell-pillow-seashell-seafoam-green", name: "Embroidered Seashell Pillow — Seashell (Seafoam Green)", category: "decor", icon: "/images/Sewing/seashell-pillow.png", rarity: "rare", sfx: "craftSuccess", artDescription: "Embroidered Seashell Pillow — Seashell (Seafoam Green)" },
