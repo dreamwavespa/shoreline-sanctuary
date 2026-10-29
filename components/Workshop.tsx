@@ -417,6 +417,14 @@ function KitchenRefrigerator({ onClose }: { onClose: () => void }) {
 // Recipe-card artwork uses the filenames already committed to public/.
 // Cooking costs and progress remain defined by KITCHEN_RECIPES.
 const KITCHEN_RECIPE_CARD_IMAGES: Record<string, string> = {
+  "classic-vanilla-ice-cream": "/images/Recipe-classic-vanilla-ice-cream.PNG",
+  "orange-float": "/images/Recipe-orange-float.PNG",
+  "fresh-orange-juice": "/images/Recipe-fresh-orange-juice.PNG",
+  "dried-orange-slices": "/images/Recipe-dried-orange-slices.PNG",
+  "luminous-orange-jello": "/images/Recipe-Luminous-orange-jello.PNG",
+  "orange-muffins": "/images/Recipe-orange-muffins.PNG",
+  "creamy-berry-oatmeal": "/images/Recipe-creamy-berry-oatmeal.PNG",
+  "breakfast-bowl": "/images/Recipe-breakfast-bowl.PNG",
   "pinecone-bird-feeder": "/images/pinecone-bird-feeder-recipe.png",
   "sweet-nectar": "/images/sweet-nectar-recipe.png",
   "pumpkin-seeds": "/images/Recipe-pumpkin-seeds.PNG",
@@ -478,7 +486,7 @@ function ShorelineCookbook() {
   const chilledUnlocked = ["chocolate-seashell-mocha", "vanilla-cream-coffee", "toasted-marshmallow-coffee", "black-iced-coffee"].every(id => state.notebookDiscovered[`recipe:${id}`]);
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const availableRecipes = KITCHEN_RECIPES.filter(recipe => recipe.station !== "Chilled Drinks" || chilledUnlocked);
+  const availableRecipes = KITCHEN_RECIPES.filter(recipe => recipe.station !== "Chilled Drinks" || chilledUnlocked || ["orange-float", "fresh-orange-juice"].includes(recipe.id));
   const selectedRecipe = availableRecipes.find(recipe => recipe.id === selectedRecipeId);
   const categories = COOKBOOK_CATEGORIES.map(category => ({
     ...category,
