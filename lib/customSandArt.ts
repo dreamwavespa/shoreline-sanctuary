@@ -13,6 +13,17 @@ export const CUSTOM_SAND_IDS = [
   "sand-candy-corn-swirl",
   "sand-moonlight-silver",
   "sand-blush-pearl",
+  "sand-frost-moon",
+  "sand-rose-quartz",
+  "sand-clover",
+  "sand-rainbow-mist",
+  "sand-sea-blossom",
+  "sand-sunbeam",
+  "sand-firefly",
+  "sand-shooting-star",
+  "sand-harvest-moon",
+  "sand-amber-tide",
+  "sand-starlight-snow",
 ] as const;
 
 export const CUSTOM_SAND_ACCENT_IDS = [
@@ -21,7 +32,12 @@ export const CUSTOM_SAND_ACCENT_IDS = [
   "glass-green", "glass-blue", "glass-purple", "glass-rainbow",
 ] as const;
 
-export const BOO_SAND_IDS = ["sand-pumpkin-orange", "sand-candy-corn-swirl"] as const;
+export const BOO_MONTHLY_SANDS = ["sand-frost-moon","sand-rose-quartz","sand-clover","sand-rainbow-mist","sand-sea-blossom","sand-sunbeam","sand-firefly","sand-shooting-star","sand-harvest-moon","sand-black-obsidian","sand-amber-tide","sand-starlight-snow"] as const;
+export const BOO_SAND_IDS = [...BOO_MONTHLY_SANDS, "sand-pumpkin-orange", "sand-candy-corn-swirl"] as const;
+export function getBooSands(date = new Date()): string[] {
+  return date.getMonth() === 9 ? ["sand-black-obsidian", "sand-pumpkin-orange", "sand-candy-corn-swirl"] : [BOO_MONTHLY_SANDS[date.getMonth()]];
+}
+export function getBooMonthlySand(date = new Date()): string { return BOO_MONTHLY_SANDS[date.getMonth()]; }
 
 export function isBooOctober(date = new Date()): boolean {
   return date.getMonth() === 9;
