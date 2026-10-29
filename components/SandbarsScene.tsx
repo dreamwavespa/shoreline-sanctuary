@@ -192,6 +192,31 @@ export default function SandbarsScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
   const [booMessage, setBooMessage] = useState("");
+  const [lowTideSearches, setLowTideSearches] = useState(0);
+  const [lowTideAnnouncement, setLowTideAnnouncement] = useState("");
+  const lowTideDate = state.weatherForecastDate;
+  const today = new Date().toLocaleDateString("en-CA");
+  const lowTideActive = state.currentForecast?.id === "low-tide" && lowTideDate === today;
+  const lowTideKey = `shoreline-low-tide-sandbar-${lowTideDate}`;
+  useEffect(() => {
+    if (!lowTideActive) { setLowTideSearches(0); return; }
+    try { setLowTideSearches(Math.min(3, Math.max(0, Number(localStorage.getItem(lowTideKey) || "0")))); }
+    catch { setLowTideSearches(0); }
+  }, [lowTideActive, lowTideKey]);
+
+  const searchExposedSeabed = () => {
+    if (!lowTideActive) return;
+    const saved = Number(localStorage.getItem(lowTideKey) || "0");
+    if (saved >= 3) { setLowTideSearches(3); setLowTideAnnouncement("You've explored the exposed seabed for this low tide. Come back during the next unusually low tide."); return; }
+    const rewards = ["coastal-clay", "sea-glitter", "tideglow-pebble", "porcelain-clay"];
+    const available = rewards.filter((id) => ITEMS[id]);
+    if (!available.length) { setLowTideAnnouncement("No treasures are available yet."); return; }
+    const itemId = available[Math.floor(Math.random() * available.length)];
+    localStorage.setItem(lowTideKey, String(saved + 1));
+    setLowTideSearches(saved + 1);
+    collectItem(itemId, { silent: true });
+    setLowTideAnnouncement(`You discovered ${ITEMS[itemId].name}! Added to inventory. ${3 - saved - 1} searches remaining this low tide.`);
+  };
   const [destination, setDestination] = useState<string | null>(null);
   const [lunaStage, setLunaStage] = useState(0);
   const [lunaUnlocked, setLunaUnlocked] = useState(false);
@@ -285,6 +310,16 @@ export default function SandbarsScene() {
             </button>
           );
         })}
+        {lowTideActive && (
+          <div className="absolute left-[42%] top-[54%] z-20 -translate-x-1/2 rounded-xl bg-amber-50/95 p-3 text-center shadow-lg ring-2 ring-amber-300">
+            <p className="text-sm font-bold text-amber-950">Exposed Seabed</p>
+            <button type="button" onClick={searchExposedSeabed} disabled={lowTideSearches >= 3} className="mt-2 min-h-12 rounded-lg bg-teal-800 px-4 py-2 font-bold text-white disabled:bg-slate-500">
+              Search exposed seabed ({Math.max(0, 3 - lowTideSearches)} left)
+            </button>
+            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{lowTideAnnouncement}</p>
+            {lowTideSearches >= 3 && <p className="mt-1 text-xs text-amber-950">Come back during the next unusually low tide.</p>}
+          </div>
+        )}
         <button type="button" onClick={() => setDestination("moonlit")} aria-label="Follow the Moonlit Trail to the nighttime sandbar" title="Moonlit Trail" className="absolute bottom-[6%] right-[6%] z-20 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-950/65 text-4xl text-white shadow-lg ring-2 ring-cyan-200/80 backdrop-blur-sm transition-transform active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"><span aria-hidden="true">🌙</span></button>
         <div className="absolute inset-0 z-10 pointer-events-none" aria-label="Explore the Sandbar">
           {([
