@@ -11,7 +11,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath, robinNestingAction } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
@@ -31,6 +31,14 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} selected. Planting and harvesting controls are below the forest scene.`);
   };
   const giftIds = Object.keys(state.inventory).filter(id => (id === "dried-sugar-berries" || id === "cotton-balls" || id === "wind-fabric-scrap" || id.startsWith("flower-") || id === "rain-lily-blossom") && (state.inventory[id] || 0) > 0 && ITEMS[id]);
+  const date = new Date(now);
+  const month = date.getMonth();
+  const season = month >= 2 && month <= 4 ? "spring" : month >= 5 && month <= 7 ? "summer" : month >= 8 && month <= 10 ? "autumn" : "winter";
+  const seasonKey = `${date.getFullYear()}-${season}`;
+  const todayKey = [date.getFullYear(), String(month + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+  const nestingStage = state.robinNestingStage || 0;
+  const nestingImage = nestingStage === 2 || nestingStage === 3 || nestingStage === 4 ? "robin_nest_eggs.png" : nestingStage === 5 ? "robin_nest_hatchlings.png" : nestingStage === 6 ? "robin_nest_fledglings.png" : "robin_empty_nest.png";
+  const nestingMessage = ["", "Robin is preparing a cozy nest.", "Three pale blue eggs have appeared!", "Robin is keeping her eggs warm.", "The eggs are almost ready to hatch.", "The chicks have hatched!", "The young robins are growing feathers."][nestingStage] || "Robin's nest is ready for another season.";
   const birdbathAge = now - (state.robinBirdbathFilledAt || 0);
   const birdbathLevel = !state.robinBirdbathFilledAt || birdbathAge >= 48 * 60 * 60 * 1000 ? "Empty" : birdbathAge >= 24 * 60 * 60 * 1000 ? "Half full" : "Full";
   const feederRefills = state.robinFeederRefills || 0;
@@ -58,7 +66,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <button type="button" onClick={onBack} aria-label="Return to Coconut Grove" className="absolute left-3 top-[13%] z-20 min-h-11 rounded-lg border-2 border-amber-200 bg-[#60432b]/95 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">← Coconut Grove</button>
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[6%] top-[7%] h-[19%] w-[28%]" aria-hidden="true">
-            <Image src={`/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="30vw" className="object-contain" />
+            <Image src={nestingStage ? `/images/Robin/${nestingImage}` : `/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="30vw" className="object-contain" />
           </div>
         )}
         {state.robinFeederPlaced && (
@@ -121,6 +129,26 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
                   <button type="button" disabled={(state.inventory["wind-bird-nest"] || 0) < 1} onClick={() => { if (repairRobinNest()) setAnnouncement("Robin's nest is repaired and secure."); }} className="mt-2 min-h-11 rounded-xl bg-amber-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Repair nest with spare nest ({state.inventory["wind-bird-nest"] || 0} available)</button>
                 </div>
               ) : <p className="mt-2 text-emerald-800">Nest condition: secure. Spare nests: {state.inventory["wind-bird-nest"] || 0}.</p>}
+            </>
+          )}
+        </section>
+        <section aria-labelledby="robin-season-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="robin-season-title" className="text-xl font-bold text-emerald-950">Robin's Seasonal Family</h2>
+          <p className="mt-2">Season: {season}. One nesting event per season. Missed days never harm the chicks.</p>
+          {nestingStage > 0 ? (
+            <>
+              <p className="mt-2" role="status">Nesting day {nestingStage} of 7. {nestingMessage}</p>
+              <button type="button" disabled={state.robinNestingLastCheck === todayKey || !!state.robinNestRepairNeeded} onClick={() => { if (robinNestingAction("check")) setAnnouncement("You checked on Robin's family. Their nesting story has progressed."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Check on Robin's nest</button>
+              {state.robinNestingLastCheck === todayKey && <p className="mt-2">You've checked on the nest today. Return tomorrow.</p>}
+            </>
+          ) : (state.robinNestingCompleted || []).includes(seasonKey) ? (
+            <p className="mt-2">Robin's chicks have fledged safely this season. Return next season for another family!</p>
+          ) : season === "winter" && !state.robinWinterBubbleActive ? (
+            <p className="mt-2">Winter nesting will become available when the greenhouse bubble is activated. Robin remains safe while she waits.</p>
+          ) : (
+            <>
+              <p className="mt-2">Robin is ready to prepare her nest for this season.</p>
+              <button type="button" disabled={!arrived || !!state.robinNestRepairNeeded} onClick={() => { if (robinNestingAction("start")) setAnnouncement("Robin is preparing her seasonal nest. Check tomorrow for eggs."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Begin seasonal nesting</button>
             </>
           )}
         </section>
