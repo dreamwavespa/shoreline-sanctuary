@@ -22,39 +22,52 @@ function ItemIcon({ itemId }: { itemId: string }) {
   return item.isEmoji ? <span className="text-2xl" aria-hidden="true">{item.icon}</span> : <Image src={item.icon} alt="" width={38} height={38} unoptimized className="h-9 w-9 object-contain" />;
 }
 
+const SAND_PALETTE: Record<string, string> = {
+  "sand-black-obsidian": "#27232d", "sand-red-ruby": "#b73348", "sand-green-leaf": "#79a65b",
+  "star-sand": "#e8ce85", "sand-moonlight-silver": "#c9d1df", "sand-blush-pearl": "#efc4d3",
+  "sand-frost-moon": "#dce9f4", "sand-rose-quartz": "#e9a4bb", "sand-clover": "#74a56c",
+  "sand-rainbow-mist": "#b9a8dc", "sand-sea-blossom": "#f1b2b4", "sand-sunbeam": "#f3d37b",
+  "sand-firefly": "#b9cb72", "sand-shooting-star": "#9da6da", "sand-harvest-moon": "#cf9958",
+  "sand-amber-tide": "#d99c52", "sand-starlight-snow": "#e6e9f1",
+};
+function AccentArtwork({ accentId }: { accentId: string | null }) {
+  if (!accentId || !ITEMS[accentId]) return null;
+  const item = ITEMS[accentId];
+  return item.isEmoji ? <span className="text-xl" aria-hidden="true">{item.icon}</span> : <Image src={item.icon} alt="" width={30} height={30} unoptimized className="h-7 w-7 object-contain drop-shadow" />;
+}
 function BottlePreview({ layers, accentId, compact = false, shape = "classic" }: { layers: string[]; accentId: string | null; compact?: boolean; shape?: "classic" | "leaf" | "moon" }) {
   const description = layers.length
     ? `${layers.length} of 5 layers, bottom to top: ${layers.map((id) => ITEMS[id]?.name).join(", ")}${accentId ? `. Accent: ${ITEMS[accentId]?.name}` : ""}.`
     : "Empty frosted glass bottle.";
+  const colors = layers.map(id => SAND_PALETTE[id] || (SAND_FILLS[id]?.startsWith("#") ? SAND_FILLS[id] : "#edbc83"));
+  const gradient = colors.length ? `linear-gradient(to top, ${colors.map((color, i) => `${color} ${i * 100 / colors.length}% ${(i + 1) * 100 / colors.length}%`).join(", ")})` : "transparent";
+  if (shape !== "classic") {
+    const leaf = shape === "leaf";
+    const maskPath = leaf
+      ? "M 31 213 Q 47 180 71 157 Q 98 123 133 89 Q 164 57 198 43 Q 210 74 189 113 Q 165 154 123 185 Q 83 212 31 213 Z"
+      : "M 87 41 Q 147 30 183 82 Q 217 140 183 194 Q 140 243 73 219 Q 43 208 24 173 Q 67 204 107 173 Q 155 137 141 90 Q 129 57 87 41 Z";
+    const maskId = leaf ? "leaf-sand-interior" : "moon-sand-interior";
+    return (
+      <div role="img" aria-label={description} className={`relative mx-auto ${compact ? "w-20" : "w-36"}`}>
+        <svg viewBox="0 0 240 260" className="absolute inset-0 h-full w-full" aria-hidden="true">
+          <defs><clipPath id={maskId}><path d={maskPath} /></clipPath></defs>
+          <g clipPath={`url(#${maskId})`}>
+            {colors.map((color, i) => <rect key={i} x="0" y={260 - (i + 1) * 46} width="240" height="46" fill={color} opacity="0.9" />)}
+          </g>
+        </svg>
+        <Image src={leaf ? "/images/Leaf-shaped-sand-art-bottle-empty.PNG" : "/images/Moon-shaped-sand-art-bottle.PNG"} alt="" width={240} height={260} unoptimized className="relative z-10 h-auto w-full object-contain opacity-85" />
+        {accentId && <div className={`absolute z-20 ${leaf ? "bottom-[27%] left-[46%]" : "bottom-[27%] right-[23%]"}`}><AccentArtwork accentId={accentId} /></div>}
+      </div>
+    );
+  }
   return (
     <div role="img" aria-label={description} className={`mx-auto ${compact ? "w-20" : "w-36"}`}>
-      {shape === "leaf" && <div className="relative mx-auto aspect-[220/260] w-full">
-        <div className="absolute inset-0 z-0" style={{ clipPath: "polygon(18% 77%, 31% 60%, 45% 42%, 60% 29%, 82% 19%, 93% 34%, 83% 52%, 67% 68%, 48% 80%, 27% 88%)" }}>
-          <div className="absolute inset-x-0 bottom-0 flex h-[77%] flex-col-reverse">
-            {layers.map((itemId, index) => <div key={`${itemId}-leaf-${index}`} className="w-full border-t border-white/40" style={{ height: "20%", background: SAND_FILLS[itemId] || "#c7a77d" }} />)}
-          </div>
-        </div>
-        <Image src="/images/Leaf-shaped-sand-art-bottle-empty.PNG" alt="" fill unoptimized sizes={compact ? "80px" : "144px"} className="relative z-10 object-contain opacity-80" />
-        {accentId && <span className="absolute bottom-[27%] left-[45%] z-20 text-xl" aria-hidden="true">✦</span>}
-      </div>}
-      {shape === "moon" && <div className="relative mx-auto aspect-square w-full">
-        <div className="absolute inset-0 z-0" style={{ clipPath: "polygon(45% 17%, 62% 17%, 79% 30%, 86% 49%, 83% 68%, 70% 83%, 52% 89%, 32% 85%, 17% 73%, 30% 78%, 49% 75%, 63% 62%, 67% 45%, 62% 30%)" }}>
-          <div className="absolute inset-x-0 bottom-0 flex h-[83%] flex-col-reverse">
-            {layers.map((itemId, index) => <div key={`${itemId}-moon-${index}`} className="w-full border-t border-white/40" style={{ height: "20%", background: SAND_FILLS[itemId] || "#c7a77d" }} />)}
-          </div>
-        </div>
-        <Image src="/images/Moon-shaped-sand-art-bottle.PNG" alt="" fill unoptimized sizes={compact ? "80px" : "144px"} className="relative z-10 object-contain opacity-80" />
-        {accentId && <span className="absolute bottom-[25%] right-[23%] z-20 text-xl" aria-hidden="true">✦</span>}
-      </div>}
-      {shape === "classic" && <><div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
-      <div className={`custom-sand-bottle relative flex flex-col-reverse justify-start overflow-hidden rounded-[2.25rem] border-4 border-cyan-800/70 bg-white/45 shadow-inner ${compact ? "h-28" : "h-48"}`}>
-        {layers.map((itemId, index) => (
-          <div key={`${itemId}-${index}`} className="custom-sand-layer w-full border-t border-white/50" style={{ height: "20%", background: SAND_FILLS[itemId] }} />
-        ))}
-        {accentId && <div className="absolute inset-x-0 bottom-2 text-center text-2xl drop-shadow" aria-hidden="true">{ITEMS[accentId]?.isEmoji ? ITEMS[accentId].icon : "✦"}</div>}
+      <div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
+      <div className={`custom-sand-bottle relative overflow-hidden rounded-[2.25rem] border-4 border-cyan-800/70 bg-white/45 shadow-inner ${compact ? "h-28" : "h-48"}`}>
+        <div className="absolute inset-0" style={{ background: gradient }} />
+        {accentId && <div className="absolute inset-x-0 bottom-2 flex justify-center"><AccentArtwork accentId={accentId} /></div>}
         <div className="pointer-events-none absolute inset-2 rounded-[1.75rem] border-l-4 border-white/55" />
-      </div></>}
-      
+      </div>
     </div>
   );
 }
