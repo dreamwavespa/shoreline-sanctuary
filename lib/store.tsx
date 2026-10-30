@@ -117,6 +117,11 @@ interface GameState {
   robinGiftCount: number;
   robinBirdbathFilledAt: number;
   robinBirdbathCareDate: string;
+  robinNestingSeason: string;
+  robinNestingStage: number;
+  robinNestingLastCheck: string;
+  robinNestingCompleted: string[];
+  robinWinterBubbleActive: boolean;
   weatherChartObservationDates: string[];
   offshore: OffshoreProgress;
   inventory: Record<string, number>;
@@ -277,6 +282,11 @@ const DEFAULT_STATE: GameState = {
   robinGiftCount: 0,
   robinBirdbathFilledAt: 0,
   robinBirdbathCareDate: "",
+  robinNestingSeason: "",
+  robinNestingStage: 0,
+  robinNestingLastCheck: "",
+  robinNestingCompleted: [],
+  robinWinterBubbleActive: false,
   weatherChartObservationDates: [],
   offshore: DEFAULT_OFFSHORE,
   inventory: {},
@@ -470,6 +480,7 @@ interface Ctx {
   replaceRobinFeeder: () => boolean;
   giftRobin: (itemId: string) => boolean;
   fillRobinBirdbath: () => boolean;
+  robinNestingAction: (action: "start" | "check") => boolean;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -902,6 +913,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!s.robinNestPlacedAt || s.robinBirdbathCareDate === today || (s.inventory["fresh-water-serving"] || 0) < 1) return false;
     setState(prev => ({ ...prev, robinBirdbathFilledAt: Date.now(), robinBirdbathCareDate: today, inventory: { ...prev.inventory, "fresh-water-serving": (prev.inventory["fresh-water-serving"] || 0) - 1 } }));
     toast("You filled the woodland birdbath. Robin chirps and splashes happily!");
+    return true;
+  };
+  const robinNestingAction = (action: "start" | "check"): boolean => {
+    const s = stateRef.current;
+    const date = new Date();
+    const today = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    const month = date.getMonth();
+    const season = month >= 2 && month <= 4 ? "spring" : month >= 5 && month <= 7 ? "summer" : month >= 8 && month <= 10 ? "autumn" : "winter";
+    const seasonKey = `${date.getFullYear()}-${season}`;
+    if (!s.robinNestPlacedAt || Date.now() - s.robinNestPlacedAt < 86400000 || s.robinNestRepairNeeded) return false;
+    if (action === "start") {
+      if ((s.robinNestingStage || 0) > 0 || (s.robinNestingCompleted || []).includes(seasonKey) || (season === "winter" && !s.robinWinterBubbleActive)) return false;
+      setState(prev => ({ ...prev, robinNestingSeason: seasonKey, robinNestingStage: 1, robinNestingLastCheck: today }));
+      toast("Robin is preparing her nest. Check again tomorrow!");
+      return true;
+    }
+    if (!s.robinNestingStage || s.robinNestingStage >= 7 || s.robinNestingLastCheck === today) return false;
+    const next = s.robinNestingStage + 1;
+    setState(prev => ({ ...prev, robinNestingStage: next === 7 ? 0 : next, robinNestingLastCheck: today, robinNestingCompleted: next === 7 ? [...(prev.robinNestingCompleted || []), prev.robinNestingSeason] : prev.robinNestingCompleted }));
+    toast(next === 7 ? "Robin's fledglings have safely left the nest!" : "Robin's family is growing. Come back tomorrow!");
     return true;
   };
   const collectWindTreasure = (slot: number): string | null => {
@@ -2857,6 +2888,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       replaceRobinFeeder,
       giftRobin,
       fillRobinBirdbath,
+      robinNestingAction,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
