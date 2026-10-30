@@ -192,6 +192,7 @@ interface GameState {
   customJewelry: CustomJewelryPiece[];
   customSandBottles: CustomSandBottle[];
   flowerArrangements: SavedFlowerArrangement[];
+  flowerDesigns: SavedFlowerArrangement[];
   booSandClaimDate: string;
   booToolSetDelivered: boolean;
   honeybellStage: number;
@@ -351,6 +352,7 @@ const DEFAULT_STATE: GameState = {
   customJewelry: [],
   customSandBottles: [],
   flowerArrangements: [],
+  flowerDesigns: [],
   booSandClaimDate: "",
   booToolSetDelivered: false,
   honeybellStage: 0,
@@ -563,6 +565,7 @@ interface Ctx {
   flowerArrangementValue: (arrangement: SavedFlowerArrangement) => number;
   sellFlowerArrangement: (id:string) => boolean;
   giftFlowerArrangement: (id:string,villagerId:string) => boolean;
+  recreateFlowerDesign: (designId:string) => boolean;
   createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string, shape?: "classic" | "leaf" | "moon") => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
@@ -2679,7 +2682,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     for(const stem of stems)counts[stem.id]=(counts[stem.id]||0)+1;
     if(Object.entries(counts).some(([id,n])=>(current.inventory[id]||0)<n))return false;
     const arrangement:SavedFlowerArrangement={id:`flower-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:requestedName.trim().slice(0,50)||"Coastal Flower Arrangement",vaseId,stems:stems.map(x=>({...x})),createdAt:Date.now()};
-    setState(old=>{const inventory={...old.inventory};for(const [id,n] of Object.entries(counts))inventory[id]-=n;return {...old,inventory,flowerArrangements:[...(old.flowerArrangements||[]),arrangement]};});
+    setState(old=>{const inventory={...old.inventory};for(const [id,n] of Object.entries(counts))inventory[id]-=n;return {...old,inventory,flowerArrangements:[...(old.flowerArrangements||[]),arrangement],flowerDesigns:[...(old.flowerDesigns||[]),arrangement]};});
     toast(`${arrangement.name} saved to My Flower Arrangements!`);
     return true;
   };
@@ -2695,7 +2698,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const arrangement=(stateRef.current.flowerArrangements||[]).find(a=>a.id===id);
     if(!arrangement)return false;
     const value=flowerArrangementValue(arrangement);
-    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id),sandDollars:old.sandDollars+value}));
+    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id),flowerDesigns:(old.flowerDesigns||[]).some(a=>a.id===id)?old.flowerDesigns:[...(old.flowerDesigns||[]),arrangement],sandDollars:old.sandDollars+value}));
     play("sandDollarCoin");
     toast(`Seaweed paid ${value} Sand Dollars for ${arrangement.name}.`);
     return true;
@@ -2704,10 +2707,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const arrangement=(stateRef.current.flowerArrangements||[]).find(a=>a.id===id);
     const villager=VILLAGERS[villagerId];
     if(!arrangement||!villager)return false;
-    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id)}));
+    setState(old=>({...old,flowerArrangements:(old.flowerArrangements||[]).filter(a=>a.id!==id),flowerDesigns:(old.flowerDesigns||[]).some(a=>a.id===id)?old.flowerDesigns:[...(old.flowerDesigns||[]),arrangement]}));
     play("craftSuccess");
     toast(`${villager.name} happily received ${arrangement.name}!`);
     return true;
+  };
+
+  const recreateFlowerDesign = (designId:string) => {
+    const design=(stateRef.current.flowerDesigns||[]).find(a=>a.id===designId);
+    if(!design)return false;
+    return saveFlowerArrangement(design.vaseId,design.stems,design.name);
   };
 
   const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string, shape: "classic" | "leaf" | "moon" = "classic") => {
@@ -2950,6 +2959,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       flowerArrangementValue,
       sellFlowerArrangement,
       giftFlowerArrangement,
+      recreateFlowerDesign,
       toggleCustomSandBottleFavorite,
       sellCustomSandBottle,
       discoverBabyFish,
