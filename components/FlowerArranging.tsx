@@ -35,7 +35,7 @@ const POSITIONS = [
 ];
 function sound(file:string) { try { const a = new Audio("/audio/"+file); a.volume=.5; void a.play().catch(()=>{}); } catch {} }
 export default function FlowerArranging() {
- const {state,saveFlowerArrangement,flowerArrangementValue,sellFlowerArrangement,giftFlowerArrangement}=useGame();
+ const {state,saveFlowerArrangement,flowerArrangementValue,sellFlowerArrangement,giftFlowerArrangement,recreateFlowerDesign}=useGame();
  const [giftTargets,setGiftTargets]=useState<Record<string,string>>({});
  const [name,setName]=useState("");
  const [size,setSize]=useState<Size>("small");
@@ -74,6 +74,10 @@ export default function FlowerArranging() {
  <p role="status" aria-live="polite">{message}</p>
  <button type="button" disabled={!vase||!stems.length} onClick={finish} className="min-h-11 rounded-xl bg-rose-800 px-5 py-3 font-bold text-white disabled:opacity-50">Preview finished arrangement</button>
  <button type="button" disabled={!vase||!stems.length} onClick={save} className="min-h-11 rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white disabled:opacity-50">Finish & Save Arrangement</button>
+ <section aria-label="My Saved Flower Designs" className="space-y-3 rounded-xl border border-teal-300 bg-white p-3"><h3 className="text-xl font-bold">My Saved Designs</h3><p className="text-sm">Your designs stay here after you sell or gift the finished bouquet. Recreating uses fresh flowers and another vase.</p>
+ {!(state.flowerDesigns||[]).length && <p>New arrangements you save will appear here. Designs sold before this update cannot be recovered automatically.</p>}
+ {(state.flowerDesigns||[]).map(design=>{const required:Record<string,number>={[design.vaseId]:1};for(const stem of design.stems)required[stem.id]=(required[stem.id]||0)+1;const missing=Object.entries(required).filter(([id,count])=>(state.inventory[id]||0)<count).map(([id,count])=>`${ITEMS[id]?.name||id}: need ${count}, have ${state.inventory[id]||0}`);return <article key={design.id} className="rounded-xl border p-3"><h4 className="font-bold">{design.name}</h4><div className="overflow-hidden rounded-xl bg-gradient-to-b from-sky-50 to-rose-100">{bouquet(false,design.stems,design.vaseId)}</div><p className="text-sm">{design.stems.length} flowers in {ITEMS[design.vaseId]?.name||"a vase"}</p>{missing.length>0 && <p className="text-sm">Missing materials: {missing.join("; ")}</p>}<button type="button" disabled={missing.length>0} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50" onClick={()=>{if(recreateFlowerDesign(design.id))setMessage(`Recreated ${design.name} and added it to My Flower Arrangements.`);else setMessage("Could not recreate. Please check materials.");}}>Recreate arrangement</button></article>;})}
+ </section>
  <section aria-label="My Flower Arrangements" className="space-y-3 rounded-xl border border-rose-300 bg-white p-3"><h3 className="text-xl font-bold">My Flower Arrangements</h3>
  {!(state.flowerArrangements||[]).length && <p>No saved arrangements yet.</p>}
  {(state.flowerArrangements||[]).map(item=><article key={item.id} className="rounded-xl border p-3"><h4 className="font-bold">{item.name}</h4><p className="text-sm">{item.stems.length} flowers · {ITEMS[item.vaseId]?.name}</p>
