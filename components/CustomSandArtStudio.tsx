@@ -28,7 +28,15 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
     : "Empty frosted glass bottle.";
   return (
     <div role="img" aria-label={description} className={`mx-auto ${compact ? "w-20" : "w-36"}`}>
-      {shape === "leaf" && <Image src="/images/Leaf-shaped-sand-art-bottle-empty.PNG" alt="" width={220} height={260} unoptimized className="mx-auto h-auto w-full object-contain" />}
+      {shape === "leaf" && <div className="relative mx-auto aspect-[220/260] w-full">
+        <div className="absolute inset-0 z-0" style={{ clipPath: "polygon(18% 77%, 31% 60%, 45% 42%, 60% 29%, 82% 19%, 93% 34%, 83% 52%, 67% 68%, 48% 80%, 27% 88%)" }}>
+          <div className="absolute inset-x-0 bottom-0 flex h-[77%] flex-col-reverse">
+            {layers.map((itemId, index) => <div key={`${itemId}-leaf-${index}`} className="w-full border-t border-white/40" style={{ height: "20%", background: SAND_FILLS[itemId] || "#c7a77d" }} />)}
+          </div>
+        </div>
+        <Image src="/images/Leaf-shaped-sand-art-bottle-empty.PNG" alt="" fill unoptimized sizes={compact ? "80px" : "144px"} className="relative z-10 object-contain opacity-80" />
+        {accentId && <span className="absolute bottom-[27%] left-[45%] z-20 text-xl" aria-hidden="true">✦</span>}
+      </div>}
       {shape !== "leaf" && <><div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
       <div className={`custom-sand-bottle relative flex flex-col-reverse justify-start overflow-hidden rounded-[2.25rem] border-4 border-cyan-800/70 bg-white/45 shadow-inner ${compact ? "h-28" : "h-48"}`}>
         {layers.map((itemId, index) => (
@@ -37,7 +45,7 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
         {accentId && <div className="absolute inset-x-0 bottom-2 text-center text-2xl drop-shadow" aria-hidden="true">{ITEMS[accentId]?.isEmoji ? ITEMS[accentId].icon : "✦"}</div>}
         <div className="pointer-events-none absolute inset-2 rounded-[1.75rem] border-l-4 border-white/55" />
       </div></>}
-      {shape === "leaf" && layers.length > 0 && <p className="mt-1 text-xs font-semibold text-teal-900">{layers.length} sand layers selected for the leaf bottle.</p>}
+      
     </div>
   );
 }
