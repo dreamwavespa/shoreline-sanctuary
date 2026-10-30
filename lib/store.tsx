@@ -73,7 +73,7 @@ export interface CustomSandBottle {
   name: string;
   layers: string[];
   accentId: string | null;
-  shape?: "classic" | "leaf";
+  shape?: "classic" | "leaf" | "moon";
   value: number;
   favorite: boolean;
   createdAt: number;
@@ -563,7 +563,7 @@ interface Ctx {
   flowerArrangementValue: (arrangement: SavedFlowerArrangement) => number;
   sellFlowerArrangement: (id:string) => boolean;
   giftFlowerArrangement: (id:string,villagerId:string) => boolean;
-  createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string, shape?: "classic" | "leaf") => { ok: boolean; bottle?: CustomSandBottle };
+  createCustomSandBottle: (layers: string[], accentId?: string | null, name?: string, shape?: "classic" | "leaf" | "moon") => { ok: boolean; bottle?: CustomSandBottle };
   toggleCustomSandBottleFavorite: (bottleId: string) => void;
   sellCustomSandBottle: (bottleId: string) => boolean;
   discoverBabyFish: (speciesId: string) => boolean;
@@ -2710,8 +2710,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string, shape: "classic" | "leaf" = "classic") => {
+  const createCustomSandBottle = (layers: string[], accentId: string | null = null, requestedName?: string, shape: "classic" | "leaf" | "moon" = "classic") => {
     if (shape === "leaf" && !stateRef.current.crafted.includes("robin-friendship:3")) return { ok: false };
+    if (shape === "moon" && !stateRef.current.crafted.includes("moon-shaped-sand-bottle")) return { ok: false };
     if (layers.length !== 5 || layers.some((id) => !(CUSTOM_SAND_IDS as readonly string[]).includes(id)) || (accentId && !(CUSTOM_SAND_ACCENT_IDS as readonly string[]).includes(accentId))) return { ok: false };
     const costs: Record<string, number> = { "empty-glass-bottle": 1 };
     for (const layer of layers) costs[layer] = (costs[layer] || 0) + 1;
