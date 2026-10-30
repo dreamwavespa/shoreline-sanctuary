@@ -22,7 +22,7 @@ function ItemIcon({ itemId }: { itemId: string }) {
   return item.isEmoji ? <span className="text-2xl" aria-hidden="true">{item.icon}</span> : <Image src={item.icon} alt="" width={38} height={38} unoptimized className="h-9 w-9 object-contain" />;
 }
 
-function BottlePreview({ layers, accentId, compact = false, shape = "classic" }: { layers: string[]; accentId: string | null; compact?: boolean; shape?: "classic" | "leaf" }) {
+function BottlePreview({ layers, accentId, compact = false, shape = "classic" }: { layers: string[]; accentId: string | null; compact?: boolean; shape?: "classic" | "leaf" | "moon" }) {
   const description = layers.length
     ? `${layers.length} of 5 layers, bottom to top: ${layers.map((id) => ITEMS[id]?.name).join(", ")}${accentId ? `. Accent: ${ITEMS[accentId]?.name}` : ""}.`
     : "Empty frosted glass bottle.";
@@ -37,7 +37,16 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
         <Image src="/images/Leaf-shaped-sand-art-bottle-empty.PNG" alt="" fill unoptimized sizes={compact ? "80px" : "144px"} className="relative z-10 object-contain opacity-80" />
         {accentId && <span className="absolute bottom-[27%] left-[45%] z-20 text-xl" aria-hidden="true">✦</span>}
       </div>}
-      {shape !== "leaf" && <><div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
+      {shape === "moon" && <div className="relative mx-auto aspect-square w-full">
+        <div className="absolute inset-0 z-0" style={{ clipPath: "polygon(45% 17%, 62% 17%, 79% 30%, 86% 49%, 83% 68%, 70% 83%, 52% 89%, 32% 85%, 17% 73%, 30% 78%, 49% 75%, 63% 62%, 67% 45%, 62% 30%)" }}>
+          <div className="absolute inset-x-0 bottom-0 flex h-[83%] flex-col-reverse">
+            {layers.map((itemId, index) => <div key={`${itemId}-moon-${index}`} className="w-full border-t border-white/40" style={{ height: "20%", background: SAND_FILLS[itemId] || "#c7a77d" }} />)}
+          </div>
+        </div>
+        <Image src="/images/Moon-shaped-sand-art-bottle.PNG" alt="" fill unoptimized sizes={compact ? "80px" : "144px"} className="relative z-10 object-contain opacity-80" />
+        {accentId && <span className="absolute bottom-[25%] right-[23%] z-20 text-xl" aria-hidden="true">✦</span>}
+      </div>}
+      {shape === "classic" && <><div className="mx-auto h-8 w-12 rounded-t-md border-4 border-b-0 border-cyan-800/70 bg-white/40" />
       <div className={`custom-sand-bottle relative flex flex-col-reverse justify-start overflow-hidden rounded-[2.25rem] border-4 border-cyan-800/70 bg-white/45 shadow-inner ${compact ? "h-28" : "h-48"}`}>
         {layers.map((itemId, index) => (
           <div key={`${itemId}-${index}`} className="custom-sand-layer w-full border-t border-white/50" style={{ height: "20%", background: SAND_FILLS[itemId] }} />
@@ -53,7 +62,7 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
 export default function CustomSandArtStudio({ onClose }: { onClose: () => void }) {
   const { state, play, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
   const [layers, setLayers] = useState<string[]>([]);
-  const [shape, setShape] = useState<"classic" | "leaf">("classic");
+  const [shape, setShape] = useState<"classic" | "leaf" | "moon">("classic");
   const [accentId, setAccentId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [completed, setCompleted] = useState<CustomSandBottle | null>(null);
@@ -132,7 +141,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
 
           {!completed && (
             <>
-              {state.crafted.includes("robin-friendship:3") && <section aria-label="Bottle shape" className="rounded-xl bg-white p-4 ring-1 ring-amber-200"><h3 className="font-bold">Choose bottle shape</h3><div className="mt-2 flex flex-wrap gap-2"><button type="button" aria-pressed={shape === "classic"} onClick={() => setShape("classic")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Classic bottle</button><button type="button" aria-pressed={shape === "leaf"} onClick={() => setShape("leaf")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Robin's leaf-shaped bottle</button></div></section>}
+              {(state.crafted.includes("robin-friendship:3") || state.crafted.includes("moon-shaped-sand-bottle")) && <section aria-label="Bottle shape" className="rounded-xl bg-white p-4 ring-1 ring-amber-200"><h3 className="font-bold">Choose bottle shape</h3><div className="mt-2 flex flex-wrap gap-2"><button type="button" aria-pressed={shape === "classic"} onClick={() => setShape("classic")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Classic bottle</button>{state.crafted.includes("robin-friendship:3") && <button type="button" aria-pressed={shape === "leaf"} onClick={() => setShape("leaf")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Robin's leaf-shaped bottle</button>}{state.crafted.includes("moon-shaped-sand-bottle") && <button type="button" aria-pressed={shape === "moon"} onClick={() => setShape("moon")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Marella's moon-shaped bottle</button>}</div></section>}
               <section aria-labelledby="sand-preview-heading" className="rounded-2xl bg-gradient-to-br from-cyan-100 via-white to-orange-100 p-5 text-center ring-1 ring-cyan-300">
                 <h3 id="sand-preview-heading" className="font-serif text-xl font-bold text-slate-950">Bottle Preview</h3>
                 <p className="mb-3 text-sm text-slate-700">{state.inventory["empty-glass-bottle"] || 0} empty frosted bottle{(state.inventory["empty-glass-bottle"] || 0) === 1 ? "" : "s"} available</p>
