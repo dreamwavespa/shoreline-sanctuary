@@ -33,7 +33,7 @@ const SAND_PALETTE: Record<string, string> = {
 function AccentArtwork({ accentId }: { accentId: string | null }) {
   if (!accentId || !ITEMS[accentId]) return null;
   const item = ITEMS[accentId];
-  return item.isEmoji ? <span className="text-xl" aria-hidden="true">{item.icon}</span> : <Image src={item.icon} alt="" width={30} height={30} unoptimized className="h-7 w-7 object-contain drop-shadow" />;
+  return item.isEmoji ? <span className="text-xs" aria-hidden="true">{item.icon}</span> : <span className={`inline-flex h-3.5 w-3.5 items-center justify-center overflow-hidden ${accentId.startsWith("pearl-") ? "rounded-full" : "rounded-sm"}`}><Image src={item.icon} alt="" width={28} height={28} unoptimized className="h-full w-full object-cover" /></span>;
 }
 function BottlePreview({ layers, accentId, compact = false, shape = "classic" }: { layers: string[]; accentId: string | null; compact?: boolean; shape?: "classic" | "leaf" | "moon" }) {
   const description = layers.length
@@ -52,11 +52,11 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
         <svg viewBox="0 0 240 260" className="absolute inset-0 h-full w-full" aria-hidden="true">
           <defs><clipPath id={maskId}><path d={maskPath} /></clipPath></defs>
           <g clipPath={`url(#${maskId})`}>
-            {colors.map((color, i) => <rect key={i} x="0" y={260 - (i + 1) * 46} width="240" height="46" fill={color} opacity="0.9" />)}
+            {colors.map((color, i) => <rect key={i} x="0" y={260 - (i + 1) * 46} width="240" height="46" fill={color} opacity="1" />)}
           </g>
         </svg>
-        <Image src={leaf ? "/images/Leaf-shaped-sand-art-bottle-empty.PNG" : "/images/Moon-shaped-sand-art-bottle.PNG"} alt="" width={240} height={260} unoptimized className="relative z-10 h-auto w-full object-contain opacity-85" />
-        {accentId && <div className={`absolute z-20 ${leaf ? "bottom-[27%] left-[46%]" : "bottom-[27%] right-[23%]"}`}><AccentArtwork accentId={accentId} /></div>}
+        <Image src={leaf ? "/images/Leaf-shaped-sand-art-bottle-empty.PNG" : "/images/Moon-shaped-sand-art-bottle.PNG"} alt="" width={240} height={260} unoptimized className="relative z-10 h-auto w-full object-contain opacity-60" />
+        {accentId && <div className={`absolute z-20 ${leaf ? "bottom-[24%] left-[43%]" : "bottom-[22%] right-[26%]"}`}><AccentArtwork accentId={accentId} /></div>}
       </div>
     );
   }
