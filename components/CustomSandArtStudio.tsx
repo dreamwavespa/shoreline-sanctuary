@@ -55,8 +55,8 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
             {colors.map((color, i) => <rect key={i} x="0" y={260 - (i + 1) * 46} width="240" height="46" fill={color} opacity="1" />)}
           </g>
         </svg>
-        <Image src={leaf ? "/images/Leaf-shaped-sand-art-bottle-empty.PNG" : "/images/Moon-shaped-sand-art-bottle.PNG"} alt="" width={240} height={260} unoptimized className="relative z-10 h-auto w-full object-contain opacity-60" />
-        {accentId && <div className={`absolute z-20 ${leaf ? "bottom-[24%] left-[43%]" : "bottom-[22%] right-[26%]"}`}><AccentArtwork accentId={accentId} /></div>}
+        <Image src={leaf ? "/images/Leaf-shaped-sand-art-bottle-empty.PNG" : "/images/Moon-shaped-sand-art-bottle.PNG"} alt="" width={240} height={260} unoptimized className="relative z-10 h-auto w-full object-contain opacity-42" />
+        {accentId && <div className={`absolute z-20 ${leaf ? "bottom-[19%] left-[43%]" : "bottom-[17%] right-[26%]"}`}><AccentArtwork accentId={accentId} /></div>}
       </div>
     );
   }
