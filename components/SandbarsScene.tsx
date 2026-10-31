@@ -208,14 +208,14 @@ export default function SandbarsScene() {
     if (!lowTideActive) return;
     const saved = Number(localStorage.getItem(lowTideKey) || "0");
     if (saved >= 3) { setLowTideSearches(3); setLowTideAnnouncement("You've explored the exposed seabed for this low tide. Come back during the next unusually low tide."); return; }
-    const rewards = ["coastal-clay", "sea-glitter", "tideglow-pebble", "porcelain-clay"];
+    // Night begins at 7 PM, matching Shoreline\'s evening activities.\n    const hour = new Date().getHours();\n    const isNight = hour >= 19 || hour < 6;\n    const rewards = isNight\n      ? ["tideglow-pebble", "sea-glitter", "coastal-clay"]\n      : ["coastal-clay", "porcelain-clay", "sea-glitter"];
     const available = rewards.filter((id) => ITEMS[id]);
     if (!available.length) { setLowTideAnnouncement("No treasures are available yet."); return; }
     const itemId = available[Math.floor(Math.random() * available.length)];
     localStorage.setItem(lowTideKey, String(saved + 1));
     setLowTideSearches(saved + 1);
     collectItem(itemId, { silent: true });
-    setLowTideAnnouncement(`You discovered ${ITEMS[itemId].name}! Added to inventory. ${3 - saved - 1} searches remaining this low tide.`);
+    setLowTideAnnouncement(`You discovered ${ITEMS[itemId].name} during your ${isNight ? "nighttime" : "daytime"} seabed search! Added to inventory. ${3 - saved - 1} searches remaining this low tide.`);
   };
   const [destination, setDestination] = useState<string | null>(null);
   const [lunaStage, setLunaStage] = useState(0);
