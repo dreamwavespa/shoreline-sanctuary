@@ -208,7 +208,12 @@ export default function SandbarsScene() {
     if (!lowTideActive) return;
     const saved = Number(localStorage.getItem(lowTideKey) || "0");
     if (saved >= 3) { setLowTideSearches(3); setLowTideAnnouncement("You've explored the exposed seabed for this low tide. Come back during the next unusually low tide."); return; }
-    // Night begins at 7 PM, matching Shoreline\'s evening activities.\n    const hour = new Date().getHours();\n    const isNight = hour >= 19 || hour < 6;\n    const rewards = isNight\n      ? ["tideglow-pebble", "sea-glitter", "coastal-clay"]\n      : ["coastal-clay", "porcelain-clay", "sea-glitter"];
+    // Night begins at 7 PM, matching Shoreline's evening activities.
+    const hour = new Date().getHours();
+    const isNight = hour >= 19 || hour < 6;
+    const rewards = isNight
+      ? ["tideglow-pebble", "sea-glitter", "coastal-clay"]
+      : ["coastal-clay", "porcelain-clay", "sea-glitter"];
     const available = rewards.filter((id) => ITEMS[id]);
     if (!available.length) { setLowTideAnnouncement("No treasures are available yet."); return; }
     const itemId = available[Math.floor(Math.random() * available.length)];
