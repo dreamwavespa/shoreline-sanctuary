@@ -481,6 +481,7 @@ interface Ctx {
   giftRobin: (itemId: string) => boolean;
   fillRobinBirdbath: () => boolean;
   robinNestingAction: (action: "start" | "check") => boolean;
+  activateRobinGreenhouse: () => boolean;
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -913,6 +914,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!s.robinNestPlacedAt || s.robinBirdbathCareDate === today || (s.inventory["fresh-water-serving"] || 0) < 1) return false;
     setState(prev => ({ ...prev, robinBirdbathFilledAt: Date.now(), robinBirdbathCareDate: today, inventory: { ...prev.inventory, "fresh-water-serving": (prev.inventory["fresh-water-serving"] || 0) - 1 } }));
     toast("You filled the woodland birdbath. Robin chirps and splashes happily!");
+    return true;
+  };
+  const activateRobinGreenhouse = (): boolean => {
+    const s = stateRef.current;
+    const month = new Date().getMonth();
+    if (!s.robinNestPlacedAt || s.robinWinterBubbleActive || ![10, 11, 0, 1].includes(month)) return false;
+    setState(prev => ({ ...prev, robinWinterBubbleActive: true }));
+    toast("Robin's greenhouse bubble is active! Her nest will be sheltered throughout winter.");
     return true;
   };
   const robinNestingAction = (action: "start" | "check"): boolean => {
@@ -2916,6 +2925,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       giftRobin,
       fillRobinBirdbath,
       robinNestingAction,
+      activateRobinGreenhouse,
       packShelbyItem,
       sendShelbyShipment,
       claimShelbyShipment,
