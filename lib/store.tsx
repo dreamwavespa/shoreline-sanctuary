@@ -931,8 +931,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
     if (!s.robinNestingStage || s.robinNestingStage >= 7 || s.robinNestingLastCheck === today) return false;
     const next = s.robinNestingStage + 1;
-    setState(prev => ({ ...prev, robinNestingStage: next === 7 ? 0 : next, robinNestingLastCheck: today, robinNestingCompleted: next === 7 ? [...(prev.robinNestingCompleted || []), prev.robinNestingSeason] : prev.robinNestingCompleted }));
-    toast(next === 7 ? "Robin's fledglings have safely left the nest!" : "Robin's family is growing. Come back tomorrow!");
+    const completed = next === 7;
+    const completedSeason = s.robinNestingSeason.split("-").slice(1).join("-");
+    const featherBySeason: Record<string, string> = {
+      spring: "robin-blossom-feather",
+      summer: "robin-golden-sun-feather",
+      autumn: "robin-copper-leaf-feather",
+      winter: "robin-frosted-crystal-feather",
+    };
+    const featherId = featherBySeason[completedSeason];
+    setState(prev => {
+      const inventory = { ...prev.inventory };
+      const completedSeasons = completed ? [...(prev.robinNestingCompleted || []), prev.robinNestingSeason] : (prev.robinNestingCompleted || []);
+      if (completed && featherId) inventory[featherId] = (inventory[featherId] || 0) + 1;
+      const allSeasons = ["spring", "summer", "autumn", "winter"].every(season =>
+        completedSeasons.some(key => key.endsWith(`-${season}`))
+      );
+      const crafted = [...prev.crafted];
+      if (completed && allSeasons && !crafted.includes("robin-crystal-nest-awarded")) {
+        inventory["robin-crystal-nest"] = (inventory["robin-crystal-nest"] || 0) + 1;
+        crafted.push("robin-crystal-nest-awarded");
+      }
+      return {
+        ...prev, inventory, crafted,
+        robinNestingStage: completed ? 0 : next,
+        robinNestingLastCheck: today,
+        robinNestingCompleted: completedSeasons,
+      };
+    });
+    toast(completed ? `Robin's fledglings have safely left the nest! You received the ${featherId ? ITEMS[featherId]?.name : "seasonal feather"}.` : "Robin's family is growing. Come back tomorrow!");
     return true;
   };
   const collectWindTreasure = (slot: number): string | null => {
