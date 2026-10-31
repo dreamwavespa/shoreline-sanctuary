@@ -27,6 +27,54 @@ const BABY_FOODS = [
 const PIANO = ["/audio/Piano1.mp3", "/audio/Piano3.mp3", "/audio/Piano-cheerful.mp3"];
 const LULLABIES = ["cadence1", "cadence2", "cadence3"] as const;
 
+
+// Cadence's accessible seaside block games. Each control is a button; dragging is never required.
+const BLOCKS = ["shell", "starfish", "wave", "pearl", "fish", "moon"] as const;
+const BLOCK_ART = (block: string) => `/images/Driftwood-blocks/Seaside-${block}.png`;
+const BLOCK_GIFT_KEY = "shoreline-cadence-block-gift-v1";
+function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count: number; onGift: () => void; master: number }) {
+  const [gifted, setGifted] = useState(false);
+  const [mode, setMode] = useState<"stack" | "pattern" | "creative">("stack");
+  const [placed, setPlaced] = useState<string[]>([]);
+  const [pattern, setPattern] = useState<string[]>(["shell", "starfish", "shell"]);
+  const [feedback, setFeedback] = useState("Choose a block to begin.");
+  useEffect(() => { try { setGifted(localStorage.getItem(BLOCK_GIFT_KEY) === "yes"); } catch {} }, []);
+  const sound = (fall = false) => {
+    const src = fall ? "/audio/Block-tower-fall.mp3" : `/audio/Block-place-${1 + Math.floor(Math.random() * 3)}.mp3`;
+    const audio = new Audio(src); audio.volume = Math.min(1, master * .65); void audio.play().catch(() => undefined);
+  };
+  const choose = (block: string) => {
+    if (mode === "pattern") {
+      const expected = pattern[placed.length];
+      if (block !== expected) { setFeedback(`Try again. Choose the ${expected} block next.`); return; }
+      sound();
+      const next = [...placed, block]; setPlaced(next);
+      if (next.length === pattern.length) setFeedback("Pattern complete! Cadence cheers. Choose New Pattern to play again.");
+      else setFeedback(`Correct! ${next.length} of ${pattern.length} blocks matched. Choose the next block.`);
+      return;
+    }
+    if (placed.length >= 6) { setFeedback("All six blocks are in place. Reset to build again."); return; }
+    sound(); const next = [...placed, block]; setPlaced(next);
+    setFeedback(mode === "stack" ? `Tower height: ${next.length} blocks. Last placed: ${block}.` : `Your creation has ${next.length} blocks. Last added: ${block}.`);
+  };
+  const newPattern = () => { const options = [["shell","starfish","shell"],["wave","pearl","wave"],["fish","moon","fish","moon"],["shell","wave","pearl","shell"]]; setPattern(options[Math.floor(Math.random()*options.length)]); setPlaced([]); setFeedback("New pattern ready. Listen to the pattern and choose blocks in order."); };
+  return <section aria-labelledby="cadence-blocks-heading" className="rounded-2xl bg-white/95 p-4 shadow">
+    <h2 id="cadence-blocks-heading" className="font-serif text-lg font-bold text-rose-900">Cadence's Driftwood Block Play</h2>
+    {!gifted ? <div><p className="mt-2">Craft the Seaside Driftwood Blocks in Decorative Crafts, then give the finished set to Cadence.</p><p>Sets in inventory: {count}</p><button type="button" disabled={!owned || count < 1} onClick={() => { onGift(); try { localStorage.setItem(BLOCK_GIFT_KEY,"yes"); } catch {} setGifted(true); setFeedback("Cadence loves her new blocks!"); }} className="mt-2 rounded-lg bg-rose-700 px-4 py-3 font-bold text-white disabled:opacity-50">Gift Seaside Blocks to Cadence</button></div> : <>
+    <p className="mt-2 text-sm">Choose an activity. Use labeled buttons to place blocks; no dragging needed.</p>
+    <div className="mt-3 flex flex-wrap gap-2">{(["stack","pattern","creative"] as const).map(m => <button key={m} type="button" aria-pressed={mode===m} onClick={() => {setMode(m);setPlaced([]);setFeedback(`${m} activity ready.`);}} className="rounded-lg bg-violet-100 px-3 py-2 font-semibold capitalize aria-pressed:bg-violet-300">{m === "stack" ? "Tower Stacking" : m === "pattern" ? "Pattern Matching" : "Creative Building"}</button>)}</div>
+    {mode === "pattern" && <p className="mt-3 font-semibold">Copy this pattern: {pattern.join(", ")}. {placed.length === pattern.length ? "Completed!" : `Next position: ${placed.length+1}.`}</p>}
+    <div className="mt-3 flex flex-wrap items-end justify-center gap-2 rounded-xl bg-amber-50 p-3" aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
+      {placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className="h-16 w-16 object-contain"/>)}
+      {!placed.length && <p className="text-sm">No blocks placed yet.</p>}
+    </div>
+    <div className="mt-3 grid grid-cols-3 gap-2">{BLOCKS.map(b=><button type="button" key={b} onClick={()=>choose(b)} disabled={placed.length>=6 || (mode==="pattern" && placed.length===pattern.length)} className="rounded-xl bg-cyan-50 p-2 font-semibold capitalize ring-1 ring-cyan-300 disabled:opacity-50"><Image src={BLOCK_ART(b)} alt="" width={72} height={72} unoptimized className="mx-auto h-16 w-16 object-contain"/>{b}</button>)}</div>
+    <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>{setPlaced([]);setFeedback("Blocks reset.");}} className="rounded-lg bg-amber-200 px-3 py-2 font-bold">Reset Blocks</button>{mode==="stack" && <button type="button" onClick={()=>{sound(true);setPlaced([]);setFeedback("The tower tumbles! Cadence giggles.");}} disabled={!placed.length} className="rounded-lg bg-rose-200 px-3 py-2 font-bold">Knock Down Tower</button>}{mode==="pattern" && <button type="button" onClick={newPattern} className="rounded-lg bg-emerald-200 px-3 py-2 font-bold">New Pattern</button>}</div>
+    <p role="status" aria-live="polite" className="mt-3 font-semibold text-rose-900">{feedback}</p>
+    </>}
+  </section>;
+}
+
 export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
   const { state, craft, cook, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
@@ -86,6 +134,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
         <button type="button" disabled={!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"] && !state.notebookDiscovered["kitchen-bottle:water"] && !state.notebookDiscovered["kitchen-bottle:orange"]} onClick={feedBottle} className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 py-2 font-bold text-white disabled:opacity-50">Offer Filled Bottle to Cadence</button>
       </div>}<div className="mt-3 grid gap-2 sm:grid-cols-2">{BABY_FOODS.map(food => { const count = state.inventory[food.id] ?? 0; return <button key={food.id} type="button" onClick={() => feed(food)} aria-label={`${food.name}. ${count} servings ready.`} className="rounded-xl border border-pink-200 bg-pink-50 p-3 text-left"><span className="text-2xl" aria-hidden="true">{food.icon}</span><strong className="ml-2">{food.name}</strong><span className="mt-1 block text-xs text-slate-700">Servings ready: {count}</span><span className="mt-2 block text-sm font-semibold text-rose-800">{count > 0 ? "Feed Cadence" : "Cook in Kitchen first"}</span></button>; })}</div></section>
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-play"><h2 id="cadence-play" className="font-serif text-lg font-bold text-rose-900">Play & Care</h2><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={() => { play("beachBall", .6); play("babyLaugh", .3); announce("You roll the beach ball across the rug. Cadence splashes her tail and rolls it back."); }} className="rounded-xl bg-pink-100 p-3 font-semibold">🏖️ Toss Beach Ball</button><button type="button" onClick={playPiano} className="rounded-xl bg-emerald-100 p-3 font-semibold">🎹 Shell Piano Duet</button><button type="button" onClick={() => { play("rockingCradle", .55); announce("You gently rock Cadence's scallop cradle. She cuddles her toys and grows sleepy."); }} className="rounded-xl bg-violet-100 p-3 font-semibold">🌙 Rock the Cradle</button><button type="button" onClick={() => { play("babyRattle", .55); play("babyLaugh", .22); announce("The shimmering seashell rattle jingles. Cadence reaches for it and laughs."); }} className="rounded-xl bg-amber-100 p-3 font-semibold">✨ Shake the Rattle</button></div></section>
+      <CadenceBlocks owned={owned.has("cadence-seaside-blocks")} count={state.inventory["cadence-seaside-blocks"] || 0} master={state.audio.master} onGift={() => { cook([{itemId:"cadence-seaside-blocks",count:1}], "cadence-seaside-blocks", 0); play("babyLaugh", .3); announce("Cadence receives her seaside blocks and invites you to play."); }} />
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-craft"><h2 id="cadence-craft" className="font-serif text-lg font-bold text-rose-900">Nursery Crafting</h2><p className="mt-1 text-sm text-slate-700">Craft nursery decorations once. Rose Milk Bubble Bath is repeatable and stays available whenever you have its ingredients.</p><div className="mt-3 space-y-3">{RECIPES.map(r => { const repeatable = "repeatable" in r && r.repeatable; const isOwned = !repeatable && owned.has(r.id); const expanded = repeatable || !isOwned || expandedRecipes.includes(r.id); const detailsId = `${r.id}-recipe`; return <article key={r.id} className="rounded-xl border border-rose-200 p-3">{isOwned ? <button type="button" aria-expanded={expanded} aria-controls={detailsId} aria-label={`${r.name}, crafted and displayed. ${expanded ? "Hide recipe" : "Show recipe"}.`} onClick={() => toggleRecipe(r.id)} className="flex w-full items-center gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-rose-600"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><span><strong className="block">{r.name}</strong><span className="text-xs font-semibold text-emerald-800">Crafted & Displayed · {expanded ? "Hide recipe" : "Show recipe"}</span></span></button> : <div className="flex gap-3"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><div><h3 className="font-bold">{r.name}</h3><p className="text-xs text-slate-600">{r.description}</p>{repeatable && <p className="mt-1 text-xs font-semibold text-rose-800">Repeatable craft · In inventory: {state.inventory[r.id] ?? 0}</p>}</div></div>}{expanded && <div id={detailsId}>{isOwned && <p className="mt-2 text-xs text-slate-600">{r.description}</p>}<p className="mt-2 text-xs">Requires: {r.cost.map(c => `${c.count} ${c.itemId.replaceAll("-", " ")}`).join(", ")}</p>{isOwned ? <p className="mt-2 text-sm font-bold text-emerald-800">Crafted & Displayed</p> : <button type="button" onClick={() => make(r)} className="mt-2 w-full rounded-lg bg-rose-700 py-2 font-bold text-white">Craft {r.name}</button>}</div>}</article>; })}</div></section>
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-discoveries"><h2 id="cadence-discoveries" className="font-serif text-lg font-bold text-rose-900">Driftwood Toy Chest</h2><p className="mt-1 text-sm text-slate-700">Special toys discovered along the shoreline are kept here for Cadence.</p><div className="mt-3 grid gap-3">{DISCOVERIES.map(item => { const found = discovered.includes(item.id) || (state.inventory[item.id] ?? 0) > 0; return <button key={item.id} type="button" onClick={() => discover(item)} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-left"><Image src={item.image} alt="" width={64} height={64} unoptimized className="h-16 w-16 rounded-lg object-cover" /><span><strong className="block">{item.name}{found ? " • Found" : ""}</strong><span className="text-xs text-slate-700">{item.description}</span></span></button>})}</div></section>
     </main>

@@ -1243,7 +1243,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 Open Wind Chime Workshop
               </button>
             </section>)}
-            {DECOR_RECIPES.filter((r) => studioStation === "candles" ? ["coastal-beeswax-candle", "glowing-moonlight-candle", "angels-tidal-geode-candle"].includes(r.id) : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe", "moonlit-artisan-polish"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
+            {DECOR_RECIPES.filter((r) => studioStation === "candles" ? ["coastal-beeswax-candle", "glowing-moonlight-candle", "angels-tidal-geode-candle"].includes(r.id) : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe", "moonlit-artisan-polish", "cadence-seaside-blocks"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
             ))}
 
