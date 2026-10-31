@@ -15,6 +15,8 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "moonlit-artisan-polish-recipe": { id: "moonlit-artisan-polish-recipe", name: "Luna's Artisan Polish Recipe", category: "special", icon: "📜", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
+  "moonlit-artisan-polish": { id: "moonlit-artisan-polish", name: "Moonlit Artisan Polish (one use)", category: "special", icon: "🫙", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   // New orange harvest and breakfast dishes
   "food-classic-vanilla-ice-cream": { id: "food-classic-vanilla-ice-cream", name: "Classic Vanilla Ice Cream", category: "food", icon: "🍨", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "food-orange-float": { id: "food-orange-float", name: "Orange Float", category: "food", icon: "🥤", isEmoji: true, rarity: "common", sfx: "craftSuccess" },

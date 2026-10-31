@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
 import { localDateKey } from "@/lib/customSandArt";
 
-type LunaState = { day: string; polished: number; friendship: number; lastVisit: string; shelf: number; selected: number; strokes: number };
+type LunaState = { day: string; polished: number; friendship: number; lastVisit: string; shelf: number; selected: number; strokes: number; polishRecipeClaimed?: boolean };
 const KEY = "shoreline-luna-polishing-v1";
 const SHELLS = ["Pearl Spiral", "Silver Ripple", "Starlight Scallop"];
 const ICONS = ["🐚", "🪸", "✨"];
@@ -61,8 +61,13 @@ export default function LunaPolishing() {
     if (wax) collectItem("glowing-wax");
     if (fullMoonWax) collectItem("glowing-wax");
     if (fullMoon && completed === 3) collectItem("shell-opal-rare");
-    save({ ...d, strokes: 0, polished: completed, selected: completed % 3, shelf: d.shelf + 1, friendship: d.friendship + 1 });
-    setMessage("You polished " + SHELLS[d.selected] + ". Luna adds it to her display shelf." + (wax ? " She shares one Glowing Wax." : "") + (fullMoonWax ? " Full moon bonus: another Glowing Wax and a Rare Opal Shell!" : "") + (completed === 3 ? " All three shells are polished for tonight." : ""));
+    const firstPolishGift = !d.polishRecipeClaimed && d.shelf + 1 >= 3;
+    if (firstPolishGift) {
+      collectItem("moonlit-artisan-polish-recipe");
+      for (let i = 0; i < 3; i++) collectItem("moonlit-artisan-polish", { silent: true });
+    }
+    save({ ...d, strokes: 0, polished: completed, selected: completed % 3, shelf: d.shelf + 1, friendship: d.friendship + 1, polishRecipeClaimed: d.polishRecipeClaimed || firstPolishGift });
+    setMessage("You polished " + SHELLS[d.selected] + ". Luna adds it to her display shelf." + (wax ? " She shares one Glowing Wax." : "") + (fullMoonWax ? " Full moon bonus: another Glowing Wax and a Rare Opal Shell!" : "") + (completed === 3 ? " All three shells are polished for tonight." : "") + (firstPolishGift ? " Luna gifts you a jar of Moonlit Artisan Polish with three uses and teaches you the recipe in Decorative Crafts!" : ""));
   };
   const stop = () => { if (hold.current) clearInterval(hold.current); hold.current = null; touchX.current = null; };
   const begin = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -84,7 +89,7 @@ export default function LunaPolishing() {
   return (
     <section aria-labelledby="luna-polish-heading" className="rounded-xl bg-indigo-950/80 p-4 text-white ring-1 ring-cyan-300/50">
       <h3 id="luna-polish-heading" className="text-lg font-bold">Luna's Moonlight Shell Polishing</h3>
-      <p className="mt-1 text-sm text-cyan-100">Luna uses luminous wax to make her shells shine. Polish three shells each night. The third always earns Glowing Wax.</p>
+      <p className="mt-1 text-sm text-cyan-100">Luna uses luminous wax to make her shells shine. Polish three shells each night. The third always earns Glowing Wax. After three total shells, Luna shares her artisan polish recipe and a starter jar.</p>
       {fullMoon && <p className="mt-2 rounded-lg bg-sky-700 p-2 font-semibold">🌕 Full Moon Night! Finish all three shells for extra Glowing Wax and a Rare Opal Shell.</p>}
       <p className="mt-2 font-semibold">Friendship: {data.friendship} · Shells polished tonight: {data.polished}/3</p>
       <button type="button" disabled={data.lastVisit === localDateKey()} onClick={visit} className="mt-2 min-h-12 w-full rounded-lg bg-violet-700 px-3 py-2 font-bold disabled:opacity-60">{data.lastVisit === localDateKey() ? "Tonight's visit recorded" : "Spend a Quiet Moment with Luna"}</button>

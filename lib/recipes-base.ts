@@ -211,6 +211,7 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
 ];
 
 export const DECOR_RECIPES: CraftRecipe[] = [
+  { id: "moonlit-artisan-polish", name: "Moonlit Artisan Polish", description: "Blend beeswax, luminous sea-goo and glowing wax. Each jar supplies three polishing uses for wood and stone.", cost: [{ itemId: "beeswax-jar", count: 1 }, { itemId: "luminous-sea-goo", count: 1 }, { itemId: "glowing-wax", count: 1 }] },
   { id: "angels-tidal-geode-candle", name: "Angel’s Tidal Geode Candle", description: "A glowing crystal candle nestled inside Angel’s ocean geode, crafted with coastal beeswax, glowing wax, and a Tideglow Pebble.", cost: [{ itemId: "angel-geode", count: 1 }, { itemId: "beeswax-jar", count: 1 }, { itemId: "glowing-wax", count: 1 }, { itemId: "tideglow-pebble", count: 1 }] },
   { id: "glowing-moonlight-candle", name: "Glowing Moonlight Candle", description: "A softly luminous coastal candle crafted from glowing wax, a moonwashed shell, and moonlit sea glass gathered after dark.", cost: [{ itemId: "glowing-wax", count: 1 }, { itemId: "moonwashed-shell", count: 1 }, { itemId: "moonlit-sea-glass", count: 1 }] },
   {

@@ -1143,7 +1143,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!hasEnough(cost)) return false;
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
-      if (ITEMS[recipeId]) inv[recipeId] = (inv[recipeId] || 0) + 1;
+      if (ITEMS[recipeId]) inv[recipeId] = (inv[recipeId] || 0) + (recipeId === "moonlit-artisan-polish" ? 3 : 1);
       const next: GameState = {
         ...s,
         inventory: inv,
