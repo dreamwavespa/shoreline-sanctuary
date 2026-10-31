@@ -50,6 +50,15 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
     free: { title: "Free Building", positions: ["Top left", "Top middle", "Top right", "Bottom left", "Bottom middle", "Bottom right"], columns: 3 }
   };
   const layout = shapes[shape];
+  // Each slot has a real spatial position, independent of its accessible reading order.
+  const shapeCells: Record<string, [number, number][]> = {
+    pyramid: [[1,3],[3,3],[5,3],[2,2],[4,2],[3,1]],
+    towers: [[1,3],[1,2],[1,1],[5,3],[5,2],[5,1]],
+    bridge: [[1,3],[5,3],[2,2],[3,2],[4,2],[3,1]],
+    house: [[1,3],[5,3],[3,3],[2,2],[4,2],[3,1]],
+    free: [[1,1],[3,1],[5,1],[1,2],[3,2],[5,2]]
+  };
+
   const choosePosition = (index: number) => {
     if (moving !== null) {
       const next = [...slots]; [next[moving], next[index]] = [next[index], next[moving]];
@@ -96,8 +105,8 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
     <div className="mt-3 flex flex-wrap gap-2">{(["stack","pattern","creative"] as const).map(m => <button key={m} type="button" aria-pressed={mode===m} onClick={() => {setMode(m);setPlaced([]);setSelected(null);setMoving(null);setFeedback(`${m} activity ready.`);}} className="rounded-lg bg-violet-100 px-3 py-2 font-semibold capitalize aria-pressed:bg-violet-300">{m === "stack" ? "Tower Stacking" : m === "pattern" ? "Pattern Matching" : "Creative Building"}</button>)}</div>
     {mode === "creative" && <div className="mt-3"><p className="text-sm">Choose a shape, then select a position and a block. Select an occupied position and a destination to move or swap blocks.</p><div className="mt-2 flex flex-wrap gap-2">{Object.entries(shapes).map(([key, value]) => <button type="button" key={key} aria-pressed={shape === key} onClick={() => {setShape(key);setSlots(Array(6).fill(null));setSelected(null);setMoving(null);setFeedback(value.title + " ready.");}} className="rounded-lg bg-amber-100 px-3 py-2 aria-pressed:bg-amber-300">{value.title}</button>)}</div></div>}
     {mode === "pattern" && <p className="mt-3 font-semibold">Copy this pattern: {pattern.join(", ")}. {placed.length === pattern.length ? "Completed!" : `Next position: ${placed.length+1}.`}</p>}
-    <div className={`mt-3 rounded-xl bg-amber-50 p-3 ${mode === "stack" ? "flex min-h-72 flex-col-reverse items-center justify-start gap-0" : mode === "creative" ? "grid min-h-48 grid-cols-3 place-items-center gap-2" : "flex flex-wrap items-center justify-center gap-2"}`} aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
-      {mode === "creative" ? slots.map((block, i) => <button key={i} type="button" aria-pressed={selected === i} onClick={() => choosePosition(i)} className="flex min-h-20 flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-500 bg-white p-1 aria-pressed:bg-rose-100" aria-label={layout.positions[i] + ": " + (block || "empty") + ". Select position."}>{block ? <Image src={BLOCK_ART(block)} alt="" width={60} height={60} unoptimized className="h-14 w-14 object-contain"/> : <span className="text-xs">Empty</span>}<span className="text-xs">{layout.positions[i]}</span></button>) : placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className={`h-16 w-16 object-contain ${mode === "stack" ? "-mt-2 first:mt-0" : ""}`}/>)}
+    <div className={`mt-3 rounded-xl bg-amber-50 p-3 ${mode === "stack" ? "flex min-h-72 flex-col-reverse items-center justify-start gap-0" : mode === "creative" ? "grid min-h-72 grid-cols-5 grid-rows-3 items-center justify-items-center gap-1" : "flex flex-wrap items-center justify-center gap-2"}`} aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
+      {mode === "creative" ? slots.map((block, i) => <button key={i} type="button" aria-pressed={selected === i} onClick={() => choosePosition(i)} style={{ gridColumn: shapeCells[shape][i][0], gridRow: shapeCells[shape][i][1] }} className="flex h-20 w-full min-w-0 flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-500 bg-white p-0.5 aria-pressed:bg-rose-100" aria-label={layout.positions[i] + ": " + (block || "empty") + ". Select position."}>{block ? <Image src={BLOCK_ART(block)} alt="" width={60} height={60} unoptimized className="h-14 w-14 object-contain"/> : <span className="text-xs">Empty</span>}<span className="text-xs">{layout.positions[i]}</span></button>) : placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className={`h-16 w-16 object-contain ${mode === "stack" ? "-mt-2 first:mt-0" : ""}`}/>)}
       {mode !== "creative" && !placed.length && <p className="text-sm">No blocks placed yet.</p>}
     </div>
     <div className="mt-3 grid grid-cols-3 gap-2">{BLOCKS.map(b=><button type="button" key={b} onClick={()=>choose(b)} disabled={mode !== "creative" && (placed.length>=6 || (mode==="pattern" && placed.length===pattern.length))} className="rounded-xl bg-cyan-50 p-2 font-semibold capitalize ring-1 ring-cyan-300 disabled:opacity-50"><Image src={BLOCK_ART(b)} alt="" width={72} height={72} unoptimized className="mx-auto h-16 w-16 object-contain"/>{b}</button>)}</div>
