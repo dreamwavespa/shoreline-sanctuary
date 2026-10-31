@@ -11,7 +11,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath, robinNestingAction } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
@@ -131,6 +131,17 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
               ) : <p className="mt-2 text-emerald-800">Nest condition: secure. Spare nests: {state.inventory["wind-bird-nest"] || 0}.</p>}
             </>
           )}
+        </section>
+        <section aria-labelledby="robin-greenhouse-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="robin-greenhouse-title" className="text-xl font-bold text-emerald-950">Robin's Winter Greenhouse Bubble</h2>
+          {state.robinWinterBubbleActive ? (
+            <p className="mt-2" role="status">Greenhouse protection active. Robin's nest is sheltered for winter, and winter nesting will be available in December.</p>
+          ) : [10, 11, 0, 1].includes(month) ? (
+            <>
+              <p className="mt-2">Prepare Robin's protective greenhouse bubble for the winter months. This is a one-time sanctuary upgrade with no ingredients required.</p>
+              <button type="button" disabled={!arrived} onClick={() => { if (activateRobinGreenhouse()) setAnnouncement("Robin's greenhouse bubble is active and her nest is protected."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Activate greenhouse bubble</button>
+            </>
+          ) : <p className="mt-2">The greenhouse bubble can be activated beginning November 1 to prepare Robin's nest for winter.</p>}
         </section>
         <section aria-labelledby="robin-season-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
           <h2 id="robin-season-title" className="text-xl font-bold text-emerald-950">Robin's Seasonal Family</h2>
