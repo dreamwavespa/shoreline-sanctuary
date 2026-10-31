@@ -114,7 +114,7 @@ function RecipeCard({
     <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 mb-4">
       <h2 className="text-lg font-bold text-amber-900 mb-1">{title}</h2>
       <p className="text-sm text-amber-700 mb-3">{description}</p>
-      {imageSrc && (
+      {recipeId === "cadence-seaside-blocks" ? <div className="mb-4 rounded-2xl bg-amber-50 p-3 ring-1 ring-amber-200"><p className="sr-only">Preview of all six Seaside blocks: shell, starfish, wave, pearl, fish, moon.</p><div className="grid grid-cols-3 gap-2">{["shell","starfish","wave","pearl","fish","moon"].map(block => <Image key={block} src={`/images/Driftwood-blocks/Seaside-${block}.png`} alt={`${block} wooden block`} width={112} height={112} unoptimized className="mx-auto h-24 w-24 max-w-full object-contain" />)}</div></div> : imageSrc && (
         <div className="relative mb-4 h-48 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-200">
           <Image src={imageSrc} alt={imageAlt || `Finished ${title}`} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
         </div>

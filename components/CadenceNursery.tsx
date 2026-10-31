@@ -41,7 +41,7 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
   useEffect(() => { try { setGifted(localStorage.getItem(BLOCK_GIFT_KEY) === "yes"); } catch {} }, []);
   const sound = (fall = false) => {
     const src = fall ? "/audio/Block-tower-fall.mp3" : `/audio/Block-place-${1 + Math.floor(Math.random() * 3)}.mp3`;
-    const audio = new Audio(src); audio.volume = Math.min(1, master * .65); void audio.play().catch(() => undefined);
+    const audio = new Audio(src); audio.volume = Math.min(1, Math.max(.85, master)); void audio.play().catch(() => undefined);
   };
   const choose = (block: string) => {
     if (mode === "pattern") {
@@ -64,8 +64,8 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
     <p className="mt-2 text-sm">Choose an activity. Use labeled buttons to place blocks; no dragging needed.</p>
     <div className="mt-3 flex flex-wrap gap-2">{(["stack","pattern","creative"] as const).map(m => <button key={m} type="button" aria-pressed={mode===m} onClick={() => {setMode(m);setPlaced([]);setFeedback(`${m} activity ready.`);}} className="rounded-lg bg-violet-100 px-3 py-2 font-semibold capitalize aria-pressed:bg-violet-300">{m === "stack" ? "Tower Stacking" : m === "pattern" ? "Pattern Matching" : "Creative Building"}</button>)}</div>
     {mode === "pattern" && <p className="mt-3 font-semibold">Copy this pattern: {pattern.join(", ")}. {placed.length === pattern.length ? "Completed!" : `Next position: ${placed.length+1}.`}</p>}
-    <div className="mt-3 flex flex-wrap items-end justify-center gap-2 rounded-xl bg-amber-50 p-3" aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
-      {placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className="h-16 w-16 object-contain"/>)}
+    <div className={`mt-3 rounded-xl bg-amber-50 p-3 ${mode === "stack" ? "flex min-h-72 flex-col-reverse items-center justify-start gap-0" : mode === "creative" ? "grid min-h-48 grid-cols-3 place-items-center gap-2" : "flex flex-wrap items-center justify-center gap-2"}`} aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
+      {placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className={`h-16 w-16 object-contain ${mode === "stack" ? "-mt-2 first:mt-0" : ""}`}/>)}
       {!placed.length && <p className="text-sm">No blocks placed yet.</p>}
     </div>
     <div className="mt-3 grid grid-cols-3 gap-2">{BLOCKS.map(b=><button type="button" key={b} onClick={()=>choose(b)} disabled={placed.length>=6 || (mode==="pattern" && placed.length===pattern.length)} className="rounded-xl bg-cyan-50 p-2 font-semibold capitalize ring-1 ring-cyan-300 disabled:opacity-50"><Image src={BLOCK_ART(b)} alt="" width={72} height={72} unoptimized className="mx-auto h-16 w-16 object-contain"/>{b}</button>)}</div>
