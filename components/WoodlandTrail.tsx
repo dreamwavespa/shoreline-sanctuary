@@ -135,6 +135,9 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <section aria-labelledby="robin-season-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
           <h2 id="robin-season-title" className="text-xl font-bold text-emerald-950">Robin's Seasonal Family</h2>
           <p className="mt-2">Season: {season}. One nesting event per season. Missed days never harm the chicks.</p>
+          <p className="mt-2 text-sm text-emerald-900">Seasonal rewards: Spring — Blossom Feather; Summer — Golden Sun Feather; Autumn — Copper Leaf Feather; Winter — Frosted Crystal Feather.</p>
+          <p className="mt-1 text-sm text-emerald-900">Complete all four seasons to receive the Crystal Nest keepsake.</p>
+          <p className="mt-1 text-sm text-emerald-900">Seasons completed: {["spring", "summer", "autumn", "winter"].filter(s => (state.robinNestingCompleted || []).some(key => key.endsWith(`-${s}`))).length} of 4.</p>
           {nestingStage > 0 ? (
             <>
               <p className="mt-2" role="status">Nesting day {nestingStage} of 7. {nestingMessage}</p>
