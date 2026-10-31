@@ -97,8 +97,9 @@ function RecipeCard({
   const handleCraft = () => {
     if (!craft(recipeId, cost)) return;
     const craftedItem = ITEMS[recipeId];
-    const nextCount = craftedItem ? (state.inventory[recipeId] || 0) + 1 : 1;
-    setAnnouncement(craftedItem ? `${craftedItem.name} crafted. ${nextCount} now in inventory.` : `${title} crafted.`);
+    const yieldCount = recipeId === "moonlit-artisan-polish" ? 3 : 1;
+    const nextCount = craftedItem ? (state.inventory[recipeId] || 0) + yieldCount : yieldCount;
+    setAnnouncement(recipeId === "moonlit-artisan-polish" ? `Crafted one jar of Moonlit Artisan Polish containing 3 uses. ${nextCount} total uses now in inventory.` : craftedItem ? `${craftedItem.name} crafted. ${nextCount} now in inventory.` : `${title} crafted.`);
   };
 
   if (locked) {
