@@ -38,12 +38,43 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
   const [placed, setPlaced] = useState<string[]>([]);
   const [pattern, setPattern] = useState<string[]>(["shell", "starfish", "shell"]);
   const [feedback, setFeedback] = useState("Choose a block to begin.");
+  const [shape, setShape] = useState("pyramid");
+  const [slots, setSlots] = useState<(string | null)[]>(Array(6).fill(null));
+  const [selected, setSelected] = useState<number | null>(null);
+  const [moving, setMoving] = useState<number | null>(null);
+  const shapes: Record<string, { title: string; positions: string[]; columns: number }> = {
+    pyramid: { title: "Pyramid", positions: ["Bottom left", "Bottom middle", "Bottom right", "Middle left", "Middle right", "Top"], columns: 3 },
+    towers: { title: "Twin Towers", positions: ["Left bottom", "Left middle", "Left top", "Right bottom", "Right middle", "Right top"], columns: 2 },
+    bridge: { title: "Little Bridge", positions: ["Left support", "Right support", "Bridge left", "Bridge middle", "Bridge right", "Decoration"], columns: 3 },
+    house: { title: "Little House", positions: ["Left wall", "Right wall", "Floor", "Roof left", "Roof right", "Chimney"], columns: 3 },
+    free: { title: "Free Building", positions: ["Top left", "Top middle", "Top right", "Bottom left", "Bottom middle", "Bottom right"], columns: 3 }
+  };
+  const layout = shapes[shape];
+  const choosePosition = (index: number) => {
+    if (moving !== null) {
+      const next = [...slots]; [next[moving], next[index]] = [next[index], next[moving]];
+      setSlots(next); setMoving(null); setSelected(null); sound();
+      setFeedback("Moved or swapped blocks. " + layout.positions[index] + " now has " + (next[index] || "no block") + ".");
+    } else if (slots[index]) {
+      setMoving(index); setSelected(index);
+      setFeedback("Selected " + slots[index] + " at " + layout.positions[index] + ". Choose a destination to move or swap, or choose a block to replace it.");
+    } else {
+      setSelected(index); setFeedback("Selected " + layout.positions[index] + ". Choose a block to place.");
+    }
+  };
   useEffect(() => { try { setGifted(localStorage.getItem(BLOCK_GIFT_KEY) === "yes"); } catch {} }, []);
   const sound = (fall = false) => {
     const src = fall ? "/audio/Block-tower-fall.mp3" : `/audio/Block-place-${1 + Math.floor(Math.random() * 3)}.mp3`;
     const audio = new Audio(src); audio.volume = Math.min(1, Math.max(.85, master)); void audio.play().catch(() => undefined);
   };
   const choose = (block: string) => {
+    if (mode === "creative") {
+      const index = selected ?? slots.findIndex(x => x === null);
+      if (index < 0) { setFeedback("Choose a position to replace a block."); return; }
+      const next = [...slots]; next[index] = block; setSlots(next); setSelected(null); setMoving(null); sound();
+      setFeedback("Placed " + block + " at " + layout.positions[index] + ". " + next.filter(Boolean).length + " of 6 positions filled.");
+      return;
+    }
     if (mode === "pattern") {
       const expected = pattern[placed.length];
       if (block !== expected) { setFeedback(`Try again. Choose the ${expected} block next.`); return; }
@@ -62,14 +93,15 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
     <h2 id="cadence-blocks-heading" className="font-serif text-lg font-bold text-rose-900">Cadence's Driftwood Block Play</h2>
     {!gifted ? <div><p className="mt-2">Craft the Seaside Driftwood Blocks in Decorative Crafts, then give the finished set to Cadence.</p><p>Sets in inventory: {count}</p><button type="button" disabled={!owned || count < 1} onClick={() => { onGift(); try { localStorage.setItem(BLOCK_GIFT_KEY,"yes"); } catch {} setGifted(true); setFeedback("Cadence loves her new blocks!"); }} className="mt-2 rounded-lg bg-rose-700 px-4 py-3 font-bold text-white disabled:opacity-50">Gift Seaside Blocks to Cadence</button></div> : <>
     <p className="mt-2 text-sm">Choose an activity. Use labeled buttons to place blocks; no dragging needed.</p>
-    <div className="mt-3 flex flex-wrap gap-2">{(["stack","pattern","creative"] as const).map(m => <button key={m} type="button" aria-pressed={mode===m} onClick={() => {setMode(m);setPlaced([]);setFeedback(`${m} activity ready.`);}} className="rounded-lg bg-violet-100 px-3 py-2 font-semibold capitalize aria-pressed:bg-violet-300">{m === "stack" ? "Tower Stacking" : m === "pattern" ? "Pattern Matching" : "Creative Building"}</button>)}</div>
+    <div className="mt-3 flex flex-wrap gap-2">{(["stack","pattern","creative"] as const).map(m => <button key={m} type="button" aria-pressed={mode===m} onClick={() => {setMode(m);setPlaced([]);setSelected(null);setMoving(null);setFeedback(`${m} activity ready.`);}} className="rounded-lg bg-violet-100 px-3 py-2 font-semibold capitalize aria-pressed:bg-violet-300">{m === "stack" ? "Tower Stacking" : m === "pattern" ? "Pattern Matching" : "Creative Building"}</button>)}</div>
+    {mode === "creative" && <div className="mt-3"><p className="text-sm">Choose a shape, then select a position and a block. Select an occupied position and a destination to move or swap blocks.</p><div className="mt-2 flex flex-wrap gap-2">{Object.entries(shapes).map(([key, value]) => <button type="button" key={key} aria-pressed={shape === key} onClick={() => {setShape(key);setSlots(Array(6).fill(null));setSelected(null);setMoving(null);setFeedback(value.title + " ready.");}} className="rounded-lg bg-amber-100 px-3 py-2 aria-pressed:bg-amber-300">{value.title}</button>)}</div></div>}
     {mode === "pattern" && <p className="mt-3 font-semibold">Copy this pattern: {pattern.join(", ")}. {placed.length === pattern.length ? "Completed!" : `Next position: ${placed.length+1}.`}</p>}
     <div className={`mt-3 rounded-xl bg-amber-50 p-3 ${mode === "stack" ? "flex min-h-72 flex-col-reverse items-center justify-start gap-0" : mode === "creative" ? "grid min-h-48 grid-cols-3 place-items-center gap-2" : "flex flex-wrap items-center justify-center gap-2"}`} aria-label={`Placed blocks: ${placed.join(", ") || "none"}`}>
-      {placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className={`h-16 w-16 object-contain ${mode === "stack" ? "-mt-2 first:mt-0" : ""}`}/>)}
-      {!placed.length && <p className="text-sm">No blocks placed yet.</p>}
+      {mode === "creative" ? slots.map((block, i) => <button key={i} type="button" aria-pressed={selected === i} onClick={() => choosePosition(i)} className="flex min-h-20 flex-col items-center justify-center rounded-lg border-2 border-dashed border-amber-500 bg-white p-1 aria-pressed:bg-rose-100" aria-label={layout.positions[i] + ": " + (block || "empty") + ". Select position."}>{block ? <Image src={BLOCK_ART(block)} alt="" width={60} height={60} unoptimized className="h-14 w-14 object-contain"/> : <span className="text-xs">Empty</span>}<span className="text-xs">{layout.positions[i]}</span></button>) : placed.map((b,i)=><Image key={i} src={BLOCK_ART(b)} alt={`Position ${i+1}: ${b}`} width={64} height={64} unoptimized className={`h-16 w-16 object-contain ${mode === "stack" ? "-mt-2 first:mt-0" : ""}`}/>)}
+      {mode !== "creative" && !placed.length && <p className="text-sm">No blocks placed yet.</p>}
     </div>
-    <div className="mt-3 grid grid-cols-3 gap-2">{BLOCKS.map(b=><button type="button" key={b} onClick={()=>choose(b)} disabled={placed.length>=6 || (mode==="pattern" && placed.length===pattern.length)} className="rounded-xl bg-cyan-50 p-2 font-semibold capitalize ring-1 ring-cyan-300 disabled:opacity-50"><Image src={BLOCK_ART(b)} alt="" width={72} height={72} unoptimized className="mx-auto h-16 w-16 object-contain"/>{b}</button>)}</div>
-    <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>{setPlaced([]);setFeedback("Blocks reset.");}} className="rounded-lg bg-amber-200 px-3 py-2 font-bold">Reset Blocks</button>{mode==="stack" && <button type="button" onClick={()=>{sound(true);setPlaced([]);setFeedback("The tower tumbles! Cadence giggles.");}} disabled={!placed.length} className="rounded-lg bg-rose-200 px-3 py-2 font-bold">Knock Down Tower</button>}{mode==="pattern" && <button type="button" onClick={newPattern} className="rounded-lg bg-emerald-200 px-3 py-2 font-bold">New Pattern</button>}</div>
+    <div className="mt-3 grid grid-cols-3 gap-2">{BLOCKS.map(b=><button type="button" key={b} onClick={()=>choose(b)} disabled={mode !== "creative" && (placed.length>=6 || (mode==="pattern" && placed.length===pattern.length))} className="rounded-xl bg-cyan-50 p-2 font-semibold capitalize ring-1 ring-cyan-300 disabled:opacity-50"><Image src={BLOCK_ART(b)} alt="" width={72} height={72} unoptimized className="mx-auto h-16 w-16 object-contain"/>{b}</button>)}</div>
+    <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>{setPlaced([]);setSlots(Array(6).fill(null));setSelected(null);setMoving(null);setFeedback("Blocks reset.");}} className="rounded-lg bg-amber-200 px-3 py-2 font-bold">Reset Blocks</button>{mode==="stack" && <button type="button" onClick={()=>{sound(true);setPlaced([]);setFeedback("The tower tumbles! Cadence giggles.");}} disabled={!placed.length} className="rounded-lg bg-rose-200 px-3 py-2 font-bold">Knock Down Tower</button>}{mode==="pattern" && <button type="button" onClick={newPattern} className="rounded-lg bg-emerald-200 px-3 py-2 font-bold">New Pattern</button>}</div>
     <p role="status" aria-live="polite" className="mt-3 font-semibold text-rose-900">{feedback}</p>
     </>}
   </section>;
