@@ -58,7 +58,7 @@ function CadenceBlocks({ owned, count, onGift, master }: { owned: boolean; count
     setFeedback(mode === "stack" ? `Tower height: ${next.length} blocks. Last placed: ${block}.` : `Your creation has ${next.length} blocks. Last added: ${block}.`);
   };
   const newPattern = () => { const options = [["shell","starfish","shell"],["wave","pearl","wave"],["fish","moon","fish","moon"],["shell","wave","pearl","shell"]]; setPattern(options[Math.floor(Math.random()*options.length)]); setPlaced([]); setFeedback("New pattern ready. Listen to the pattern and choose blocks in order."); };
-  return <section aria-labelledby="cadence-blocks-heading" className="rounded-2xl bg-white/95 p-4 shadow">
+  return <section data-cadence-block-play={gifted ? "active" : "inactive"} aria-labelledby="cadence-blocks-heading" className="rounded-2xl bg-white/95 p-4 shadow">
     <h2 id="cadence-blocks-heading" className="font-serif text-lg font-bold text-rose-900">Cadence's Driftwood Block Play</h2>
     {!gifted ? <div><p className="mt-2">Craft the Seaside Driftwood Blocks in Decorative Crafts, then give the finished set to Cadence.</p><p>Sets in inventory: {count}</p><button type="button" disabled={!owned || count < 1} onClick={() => { onGift(); try { localStorage.setItem(BLOCK_GIFT_KEY,"yes"); } catch {} setGifted(true); setFeedback("Cadence loves her new blocks!"); }} className="mt-2 rounded-lg bg-rose-700 px-4 py-3 font-bold text-white disabled:opacity-50">Gift Seaside Blocks to Cadence</button></div> : <>
     <p className="mt-2 text-sm">Choose an activity. Use labeled buttons to place blocks; no dragging needed.</p>

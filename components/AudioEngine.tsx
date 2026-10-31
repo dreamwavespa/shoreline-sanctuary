@@ -222,7 +222,8 @@ export default function AudioEngine() {
         // Web Audio made the sliders work on iOS, but the old defaults now
         // sound quieter than the original full-volume media playback. Restore
         // that perceived level while preserving the user's slider controls.
-        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25);
+        const blockDucking = document.querySelector('[data-cadence-block-play="active"]') ? 0.35 : 1;
+        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * blockDucking);
         const ambienceTarget = ambience * master;
 
         const speed = 0.8; // volume units per second (~1.2s fade)
