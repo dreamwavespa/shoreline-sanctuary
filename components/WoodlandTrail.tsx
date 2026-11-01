@@ -67,6 +67,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[6%] top-[7%] h-[19%] w-[28%]" aria-hidden="true">
             <Image src={nestingStage ? `/images/Robin/${nestingImage}` : `/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="30vw" className="object-contain" />
+            {state.robinWinterBubbleActive && <Image src="/images/Robin/Greenhouse-bubble.PNG" alt="" fill unoptimized sizes="30vw" className="pointer-events-none object-contain opacity-65" />}
           </div>
         )}
         {state.robinFeederPlaced && (
