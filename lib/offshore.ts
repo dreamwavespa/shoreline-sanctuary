@@ -1,3 +1,4 @@
+import { WORRY_STONES, identifyWorryStone } from "./worry-stones";
 export interface OffshoreProgress {
   labAccess: boolean;
   photos: string[];
@@ -6,11 +7,13 @@ export interface OffshoreProgress {
   expedition: boolean;
   voyage: null | { kind: 'sail' | 'raft'; step: number };
   dives: number;
+  worryDiscovered?: string[];
+  worryCompleted?: string[];
 }
-export const DEFAULT_OFFSHORE: OffshoreProgress = { labAccess: false, photos: [], cabinet: [], tests: 0, expedition: false, voyage: null, dives: 0 };
+export const DEFAULT_OFFSHORE: OffshoreProgress = { labAccess: false, photos: [], cabinet: [], tests: 0, expedition: false, voyage: null, dives: 0, worryDiscovered: [], worryCompleted: [] };
 export const SIGHTINGS = ['A humpback whale lifts its tail beside the port rail.', 'Dolphins ride the bow wake.', 'A whale breaches beyond the starboard rail.'];
 export const SPECIMENS = ['cave-calcite', 'polished-enhydro', 'included-quartz', 'glowing-fluorite', 'tidal-heart'];
-export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string };
+export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string};
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
 export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
@@ -20,7 +23,25 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
   const add = (id: string, n = 1) => { inventory[id] = (inventory[id] || 0) + n; };
   const fail = (message: string) => ({ state: s, message, sound: '' });
   let message = '', sound = 'offshorelab';
-  if (action.type === 'charter') {
+  if(action.type==='worry-identify'){
+    if(!have('raw-stone'))return fail('Bring Walter a Smooth Stone to identify.');
+    const kind=identifyWorryStone(); const found=WORRY_STONES.find(x=>x.id===kind)!;
+    add('raw-stone',-1);add('identified-stone-'+kind);
+    o.worryDiscovered=[...new Set([...(o.worryDiscovered||[]),kind])];
+    message='Walter identifies a '+found.name+'! You may carve it whenever you like.';sound='stone';
+  } else if(action.type==='worry-carve'){
+    const kind=action.stone||'';
+    if(!WORRY_STONES.some(x=>x.id===kind)||!have('identified-stone-'+kind))return fail('Identify this stone first.');
+    add('identified-stone-'+kind,-1);add('carved-stone-'+kind);
+    message='Walter carves a smooth thumb indentation. Your stone is ready for polish.';sound='stone';
+  } else if(action.type==='worry-finish'){
+    const kind=action.stone||'';
+    if(!WORRY_STONES.some(x=>x.id===kind)||!have('carved-stone-'+kind))return fail('Carve this stone first.');
+    if(!have('moonlit-artisan-polish'))return fail('You need one use of Moonlit Artisan Polish.');
+    add('carved-stone-'+kind,-1);add('moonlit-artisan-polish',-1);add('worry-stone-'+kind);
+    o.worryCompleted=[...new Set([...(o.worryCompleted||[]),kind])];
+    message='Walter finishes your '+WORRY_STONES.find(x=>x.id===kind)!.name+' worry stone!';sound='stone';
+  } else if (action.type === 'charter') {
     if (!s.hasDivingGear) return fail('Find the basic Diving Gear in the cove treasure chest first.');
     if (o.labAccess) return fail('Your research charter is already cleared.');
     const ready = o.photos.length >= 3;
