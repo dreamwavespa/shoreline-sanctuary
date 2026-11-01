@@ -134,6 +134,25 @@ function RecipeCard({
   );
 }
 
+const CAULDRON_GLAZE_FILTERS: Record<string,string> = {
+  "glaze-ruby-red": "sepia(1) saturate(5) hue-rotate(305deg)",
+  "glaze-sunflower-yellow": "sepia(1) saturate(3) hue-rotate(350deg)",
+  "glaze-sky-blue": "saturate(1.35)",
+  "glaze-sea-foam-green": "sepia(.35) saturate(1.5) hue-rotate(35deg)",
+  "glaze-baby-pink": "sepia(.65) saturate(1.6) hue-rotate(285deg)",
+  "glaze-pearl-white": "saturate(.35) brightness(1.2)",
+  "glaze-midnight-black": "grayscale(.8) brightness(.42)",
+  "glaze-purple-grape": "sepia(.55) saturate(2) hue-rotate(105deg)",
+  "glaze-chocolate-brown": "sepia(.9) saturate(1.4) hue-rotate(335deg) brightness(.7)",
+  "glaze-metallic-gold": "sepia(.95) saturate(2) hue-rotate(350deg)",
+  "glaze-shimmering-silver": "grayscale(1) brightness(1.2)",
+  "orange-glaze": "sepia(1) saturate(3) hue-rotate(335deg)",
+};
+const cauldronGlazeFilter = (glaze: string) => {
+  const parts = glaze.split("+");
+  return parts.map(p=>CAULDRON_GLAZE_FILTERS[p]).filter(Boolean).join(" ") || undefined;
+};
+
 function GlowingCauldronCraft() {
   const { state, craft, hasEnough, play } = useGame();
   const [selected, setSelected] = useState("");
@@ -146,6 +165,7 @@ function GlowingCauldronCraft() {
   const options = Object.entries(state.inventory).filter(([id,count]) => count > 0 && (id === "cauldron-candle-holder" || id.startsWith("cauldron-candle-holder--")));
   const selectedId = options.some(([id])=>id===selected) ? selected : options[0]?.[0];
   const cost = selectedId ? [{itemId:selectedId,count:1},{itemId:"glowing-wax",count:1}] : [];
+  const selectedGlaze = [...glazeHistory].reverse().find(x=>x.itemId===selectedId)?.glaze || "clear-pottery-glaze";
   const create = () => {
     if (!selectedId || !hasEnough(cost)) return;
     const match = [...glazeHistory].reverse().find(x=>x.itemId===selectedId);
@@ -168,7 +188,8 @@ function GlowingCauldronCraft() {
   return <section className="mb-4 rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200" aria-label="Glowing Cauldron Candle">
     <h2 className="text-lg font-bold text-amber-900">Glowing Cauldron Candle</h2>
     <p className="my-2">Fill a finished glazed ceramic cauldron with one glowing wax. Your selected pottery glaze is recorded with the candle.</p>
-    <Image src="/images/Pottery/Glowing-Cauldron-Candle.png" width={220} height={220} alt="Purple ceramic cauldron with magical glowing wax" unoptimized className="mx-auto h-44 w-44 object-contain" />
+    <Image src="/images/Pottery/Glowing-Cauldron-Candle.png" width={220} height={220} alt={`Glowing cauldron candle with ${selectedGlaze.replaceAll("-"," ")} finish`} style={{filter: cauldronGlazeFilter(selectedGlaze)}} unoptimized className="mx-auto h-44 w-44 object-contain" />
+    <p className="text-sm">Selected glaze: {selectedGlaze.replaceAll("-"," ")}. Preview colors are approximate; the wax and decorations are tinted along with the pottery.</p>
     <label htmlFor="cauldron-choice" className="block font-semibold">Choose a finished cauldron</label>
     <select id="cauldron-choice" value={selectedId||""} onChange={e=>setSelected(e.target.value)} className="my-2 w-full rounded-lg border p-3">
       {options.length===0 ? <option value="">No finished cauldron in inventory</option> : options.map(([id,count])=><option key={id} value={id}>{id.replaceAll("-"," ")} ({count} available)</option>)}
