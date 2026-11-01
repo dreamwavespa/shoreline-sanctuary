@@ -134,6 +134,48 @@ function RecipeCard({
   );
 }
 
+function GlowingCauldronCraft() {
+  const { state, craft, hasEnough } = useGame();
+  const [selected, setSelected] = useState("");
+  const [notice, setNotice] = useState("");
+  const [glazeHistory, setGlazeHistory] = useState<{itemId:string;glaze:string;collectedAt:number}[]>([]);
+  useEffect(() => { try {
+    const saved = JSON.parse(localStorage.getItem("shoreline-pottery-v1") || "{}");
+    setGlazeHistory(Array.isArray(saved.finished) ? saved.finished.filter((x: {piece:string}) => x.piece === "cauldron-candle-holder") : []);
+  } catch {} }, []);
+  const options = Object.entries(state.inventory).filter(([id,count]) => count > 0 && (id === "cauldron-candle-holder" || id.startsWith("cauldron-candle-holder--")));
+  const selectedId = options.some(([id])=>id===selected) ? selected : options[0]?.[0];
+  const cost = selectedId ? [{itemId:selectedId,count:1},{itemId:"glowing-wax",count:1}] : [];
+  const create = () => {
+    if (!selectedId || !hasEnough(cost) || !craft("glowing-cauldron-candle",cost)) return;
+    const match = [...glazeHistory].reverse().find(x=>x.itemId===selectedId);
+    const glaze = match?.glaze || "custom glaze";
+    try {
+      const key = "shoreline-glowing-cauldron-glazes";
+      const previous = JSON.parse(localStorage.getItem(key)||"[]");
+      localStorage.setItem(key,JSON.stringify([...previous,{glaze,createdAt:Date.now()}]));
+    } catch {}
+    setNotice("Glowing Cauldron Candle created with " + glaze.replaceAll("-"," ") + ". The wax shimmers and gently bubbles.");
+  };
+  const bubble = () => {
+    try { const audio = new Audio("/audio/halloween/cauldron_bubbling.mp3"); audio.volume=.6; void audio.play().catch(()=>{}); } catch {}
+    setNotice("The glowing wax bubbles softly inside your magical cauldron.");
+  };
+  return <section className="mb-4 rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200" aria-label="Glowing Cauldron Candle">
+    <h2 className="text-lg font-bold text-amber-900">Glowing Cauldron Candle</h2>
+    <p className="my-2">Fill a finished glazed ceramic cauldron with one glowing wax. Your selected pottery glaze is recorded with the candle.</p>
+    <Image src="/images/Pottery/Glowing-Cauldron-Candle.png" width={220} height={220} alt="Purple ceramic cauldron with magical glowing wax" unoptimized className="mx-auto h-44 w-44 object-contain" />
+    <label htmlFor="cauldron-choice" className="block font-semibold">Choose a finished cauldron</label>
+    <select id="cauldron-choice" value={selectedId||""} onChange={e=>setSelected(e.target.value)} className="my-2 w-full rounded-lg border p-3">
+      {options.length===0 ? <option value="">No finished cauldron in inventory</option> : options.map(([id,count])=><option key={id} value={id}>{id.replaceAll("-"," ")} ({count} available)</option>)}
+    </select>
+    <p>Glowing wax: {state.inventory["glowing-wax"]||0} available</p>
+    <button type="button" disabled={!selectedId||!hasEnough(cost)} onClick={create} className="my-2 w-full rounded-xl bg-teal-700 p-3 font-bold text-white disabled:opacity-50">Create Glowing Cauldron Candle</button>
+    <button type="button" disabled={!(state.inventory["glowing-cauldron-candle"]>0)} onClick={bubble} className="w-full rounded-xl bg-purple-700 p-3 font-bold text-white disabled:opacity-50">Listen to Cauldron Bubble</button>
+    <p role="status" aria-live="polite" className="mt-2">{notice}</p>
+  </section>;
+}
+
 type FoodVisualDef =
   | { kind: "scene"; scene: keyof typeof SCENES; alt: string }
   | { kind: "grove"; position: string; alt: string }
@@ -1246,6 +1288,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 Open Wind Chime Workshop
               </button>
             </section>)}
+            {studioStation === "candles" && <GlowingCauldronCraft />}
             {DECOR_RECIPES.filter((r) => studioStation === "candles" ? ["coastal-beeswax-candle", "glowing-moonlight-candle", "angels-tidal-geode-candle"].includes(r.id) : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe", "moonlit-artisan-polish", "cadence-seaside-blocks", "cadence-garden-blocks", "cadence-night-sky-blocks", "cadence-winter-blocks"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
               <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "cadence-night-sky-blocks" && !seasonalBlocks.nightSky) || (r.id === "cadence-winter-blocks" && !seasonalBlocks.winter) || (r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "cadence-night-sky-blocks" ? "Visit Cadence in her nursery after 7 PM Eastern to discover this recipe permanently." : r.id === "cadence-winter-blocks" ? "Unlocks December 1 Eastern time, then stays available permanently." : r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
             ))}

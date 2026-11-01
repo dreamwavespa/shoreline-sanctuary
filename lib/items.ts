@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "glowing-cauldron-candle": { id: "glowing-cauldron-candle", name: "Glowing Cauldron Candle", category: "decor", icon: "/images/Pottery/Glowing-Cauldron-Candle.png", rarity: "rare", sfx: "craftSuccess", glows: true, artDescription: "A ceramic cauldron filled with luminous bubbling wax." },
   "ceramic-coffee-mug": { id: "ceramic-coffee-mug", name: "Ceramic Coffee Mug", category: "decor", icon: "/images/Pottery/Ceramic-Coffee-Mug.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
   "scalloped-dinner-plate": { id: "scalloped-dinner-plate", name: "Scalloped Dinner Plate", category: "decor", icon: "/images/Pottery/Scalloped-Dinner-Plate.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
   "cauldron-candle-holder": { id: "cauldron-candle-holder", name: "Cauldron Candle Holder", category: "decor", icon: "/images/Pottery/Cauldron-candle-holder-plain.PNG", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
