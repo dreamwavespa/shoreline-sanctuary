@@ -40,7 +40,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
   const { state, offshoreAction, buyFromSeaweed, play, giftVillager, admitBabyFish, releaseAquariumFish, careForAquariumFish } = useGame(); const [message, setMessage] = useState({ text: '', revision: 0 }); const [area, setArea] = useState('lab'); const [chamber, setChamber] = useState(1); const [uv, setUv] = useState(false); const [photoPreview, setPhotoPreview] = useState<number | null>(null);
   const [stoneSound,setStoneSound]=useState<string|null>(null);
   const stoneAudio=useRef<HTMLAudioElement>(null);
-  useEffect(()=>{if(stoneAudio.current){stoneAudio.current.volume=Math.max(0,Math.min(1,state.audio.master*state.audio.effects));}},[state.audio.master,state.audio.effects,stoneSound]);
+  useEffect(()=>{if(stoneAudio.current){stoneAudio.current.volume=Math.max(0,Math.min(1,state.audio.master));}},[state.audio.master,stoneSound]);
   const playStoneSound=(src:string)=>{setStoneSound(src);setTimeout(()=>stoneAudio.current?.play().catch(()=>{}),0);};
   const musicTrack = area === 'caves' ? (chamber === 2 ? 'deepSeaEchoes' : 'crystalCavern') : area === 'cabinet' ? 'specimenCabinet' : 'marineLab';
   useEffect(() => { if (kind === 'lab') onMusicChange?.(musicTrack); }, [kind, musicTrack, onMusicChange]); useEffect(() => () => { onMusicChange?.(null); }, [onMusicChange]);
