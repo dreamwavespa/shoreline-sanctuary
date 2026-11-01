@@ -135,7 +135,7 @@ function RecipeCard({
 }
 
 function GlowingCauldronCraft() {
-  const { state, craft, hasEnough } = useGame();
+  const { state, craft, hasEnough, play } = useGame();
   const [selected, setSelected] = useState("");
   const [notice, setNotice] = useState("");
   const [glazeHistory, setGlazeHistory] = useState<{itemId:string;glaze:string;collectedAt:number}[]>([]);
@@ -158,7 +158,7 @@ function GlowingCauldronCraft() {
     setNotice("Glowing Cauldron Candle created with " + glaze.replaceAll("-"," ") + ". The wax shimmers and gently bubbles.");
   };
   const bubble = () => {
-    try { const audio = new Audio("/audio/halloween/cauldron_bubbling.mp3"); audio.volume=.6; void audio.play().catch(()=>{}); } catch {}
+    play("cauldronBubble", 0.6);
     setNotice("The glowing wax bubbles softly inside your magical cauldron.");
   };
   return <section className="mb-4 rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200" aria-label="Glowing Cauldron Candle">
