@@ -15,6 +15,9 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "cadence-garden-blocks": { id: "cadence-garden-blocks", name: "Cadence's Garden Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Garden-Hibiscus.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "cadence-night-sky-blocks": { id: "cadence-night-sky-blocks", name: "Cadence's Night Sky Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Night-Sky-Crescent-Moon.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "cadence-winter-blocks": { id: "cadence-winter-blocks", name: "Cadence's Winter Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Winter-Snowflake.png", rarity: "uncommon", sfx: "craftSuccess" },
   "cadence-seaside-blocks": { id: "cadence-seaside-blocks", name: "Cadence's Seaside Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Seaside-shell.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Six carved seaside blocks: shell, starfish, wave, pearl, fish, and moon." },
   "moonlit-artisan-polish-recipe": { id: "moonlit-artisan-polish-recipe", name: "Luna's Artisan Polish Recipe", category: "special", icon: "📜", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "moonlit-artisan-polish": { id: "moonlit-artisan-polish", name: "Moonlit Artisan Polish — uses", category: "special", icon: "🫙", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
