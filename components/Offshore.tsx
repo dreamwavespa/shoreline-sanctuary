@@ -36,6 +36,12 @@ function AquariumAmbience() {
   }, [state.audio.master, state.audio.ambience]);
   return <audio ref={audioRef} src="/audio/Aquarium-ambiance.wav" loop preload="auto" />;
 }
+const TUMBLING_POUCHES=[
+{id:'coastal-polished-pebble-pouch',name:'Coastal Polished Pebble Pouch',price:8},
+{id:'colorful-gemstone-pouch',name:'Colorful Gemstone Pouch',price:15},
+{id:'rare-shimmering-stone-pouch',name:'Rare Shimmering Stone Pouch',price:25}
+] as const;
+const TUMBLED_NAMES:Record<string,string>={"coastal-white":"Coastal White Pebble","sea-blue":"Sea Blue Pebble","sunset-pink":"Sunset Pink Pebble","clear-quartz":"Tumbled Clear Quartz","ocean-jasper":"Tumbled Ocean Jasper","amethyst":"Tumbled Amethyst","moonstone":"Tumbled Moonstone","rainbow-fluorite":"Tumbled Rainbow Fluorite"};
 function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock'; onClose: () => void; onMusicChange?: (track: string | null) => void }) {
   const { state, offshoreAction, buyFromSeaweed, play, giftVillager, admitBabyFish, releaseAquariumFish, careForAquariumFish } = useGame(); const [message, setMessage] = useState({ text: '', revision: 0 }); const [area, setArea] = useState('lab'); const [chamber, setChamber] = useState(1); const [uv, setUv] = useState(false); const [photoPreview, setPhotoPreview] = useState<number | null>(null);
   const [stoneSound,setStoneSound]=useState<string|null>(null);
@@ -82,6 +88,21 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
         <button className={button} type="button" disabled={tumblingNow<o.tumblingBatch.readyAt} onClick={()=>act({type:'tumble-collect'})}>Collect Polished Stone Pouch</button>
         <button className={button} type="button" onClick={()=>playStoneSound('/audio/Walter-tumbling-stone.mp3')}>Listen to Tumbling Barrel</button>
       </> : <button className={button} type="button" disabled={count('raw-pebbles')<6} onClick={()=>{act({type:'tumble-start'});playStoneSound('/audio/Walter-tumbling-stone.mp3');}}>Start Tumbling · 6 Pebbles</button>}
+      {o.lastTumblingReward && TUMBLING_POUCHES.some(p=>p.id===o.lastTumblingReward) && <div className="rounded-xl border border-teal-300 bg-teal-50 p-3" aria-label="Most recent tumbling reward">
+       <h5 className="font-semibold">Your latest tumbling reward</h5>
+       <Image src={ITEMS[o.lastTumblingReward]?.icon||''} alt="" width={120} height={120} unoptimized className="h-28 w-28 object-contain"/>
+       <p>{ITEMS[o.lastTumblingReward]?.name}. {TUMBLING_POUCHES.find(p=>p.id===o.lastTumblingReward)?.price} Sand Dollars if sold to Seaweed.</p>
+      </div>}
+      <h5 className="font-semibold">Your Sealed Stone Pouches</h5>
+      <p>Open a pouch to keep its individual stones, or leave it sealed to sell to Seaweed. Opening consumes the pouch.</p>
+      {TUMBLING_POUCHES.map(pouch=><div key={pouch.id} className="rounded-lg border p-2">
+        <p>{pouch.name}: {count(pouch.id)} sealed. Seaweed price: {pouch.price} Sand Dollars.</p>
+        <button className={button} type="button" disabled={!count(pouch.id)} onClick={()=>act({type:'tumble-open',pouchId:pouch.id})}>Open {pouch.name}</button>
+      </div>)}
+      {o.lastOpenedPouch && <div className="rounded-xl border p-3"><h5 className="font-semibold">Last opened pouch</h5><p>{ITEMS[o.lastOpenedPouch.pouchId]?.name}: {o.lastOpenedPouch.contents.map(x=>TUMBLED_NAMES[x]||x).join(', ')}.</p></div>}
+      <h5 className="font-semibold">Tumbled Stone Discoveries</h5>
+      <p>{(o.tumbledStoneDiscovered||[]).length} of 8 stone varieties discovered.</p>
+      <ul>{Object.entries(TUMBLED_NAMES).map(([id,name])=><li key={id}>{(o.tumbledStoneDiscovered||[]).includes(id)?name+' — '+count('tumbled-stone-'+id)+' in inventory':'Undiscovered stone'}</li>)}</ul>
       <p>Possible results: Coastal Polished Pebble Pouch (65%, 8 Sand Dollars), Colorful Gemstone Pouch (25%, 15 Sand Dollars), Rare Shimmering Stone Pouch (10%, 25 Sand Dollars).</p>
       </>}
       </section>}

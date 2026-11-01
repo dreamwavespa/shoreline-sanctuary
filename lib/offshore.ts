@@ -1,4 +1,19 @@
 import { WORRY_STONES, identifyWorryStone } from "./worry-stones";
+const TUMBLED_VARIETIES = [
+{id:'coastal-white',name:'Coastal White Pebble'},
+{id:'sea-blue',name:'Sea Blue Pebble'},
+{id:'sunset-pink',name:'Sunset Pink Pebble'},
+{id:'clear-quartz',name:'Tumbled Clear Quartz'},
+{id:'ocean-jasper',name:'Tumbled Ocean Jasper'},
+{id:'amethyst',name:'Tumbled Amethyst'},
+{id:'moonstone',name:'Tumbled Moonstone'},
+{id:'rainbow-fluorite',name:'Tumbled Rainbow Fluorite'},
+] as const;
+const POUCH_CONTENTS:Record<string,{pool:string[];min:number;max:number}>={
+'coastal-polished-pebble-pouch':{pool:['coastal-white','sea-blue','sunset-pink'],min:3,max:5},
+'colorful-gemstone-pouch':{pool:['clear-quartz','ocean-jasper','amethyst'],min:2,max:3},
+'rare-shimmering-stone-pouch':{pool:['moonstone','rainbow-fluorite'],min:1,max:2},
+};
 export interface OffshoreProgress {
   labAccess: boolean;
   photos: string[];
@@ -10,11 +25,14 @@ export interface OffshoreProgress {
   worryDiscovered?: string[];
   worryCompleted?: string[];
   tumblingBatch?: {readyAt:number; resultId:string} | null;
+  lastTumblingReward?: string | null;
+  lastOpenedPouch?: {pouchId:string; contents:string[]} | null;
+  tumbledStoneDiscovered?: string[];
 }
 export const DEFAULT_OFFSHORE: OffshoreProgress = { labAccess: false, photos: [], cabinet: [], tests: 0, expedition: false, voyage: null, dives: 0, worryDiscovered: [], worryCompleted: [] };
 export const SIGHTINGS = ['A humpback whale lifts its tail beside the port rail.', 'Dolphins ride the bow wake.', 'A whale breaches beyond the starboard rail.'];
 export const SPECIMENS = ['cave-calcite', 'polished-enhydro', 'included-quartz', 'glowing-fluorite', 'tidal-heart'];
-export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'};
+export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
 export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
@@ -55,8 +73,22 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
     if(!o.tumblingBatch)return fail('There is no finished tumbling batch to collect.');
     if(Date.now()<o.tumblingBatch.readyAt)return fail('The barrel is still tumbling. Come back when the timer finishes.');
     const resultId=o.tumblingBatch.resultId;
-    add(resultId);o.tumblingBatch=null;
+    add(resultId);o.tumblingBatch=null;o.lastTumblingReward=resultId;
     message='Walter opens the barrel! You received '+({ 'coastal-polished-pebble-pouch':'a Coastal Polished Pebble Pouch','colorful-gemstone-pouch':'a Colorful Gemstone Pouch','rare-shimmering-stone-pouch':'a Rare Shimmering Stone Pouch'} as Record<string,string>)[resultId]+'.';sound='stone';
+  } else if(action.type==='tumble-open'){
+    const id=action.pouchId||'';
+    const recipe=POUCH_CONTENTS[id];
+    if(!recipe||!have(id))return fail('You need a sealed stone pouch to open.');
+    add(id,-1);
+    const amount=recipe.min+Math.floor(Math.random()*(recipe.max-recipe.min+1));
+    const found:string[]=[];
+    for(let n=0;n<amount;n++){
+      const kind=recipe.pool[Math.floor(Math.random()*recipe.pool.length)];
+      add('tumbled-stone-'+kind);found.push(kind);
+    }
+    o.lastOpenedPouch={pouchId:id,contents:found};
+    o.tumbledStoneDiscovered=[...new Set([...(o.tumbledStoneDiscovered||[]),...found])];
+    message='You opened your pouch and discovered '+found.map(kind=>TUMBLED_VARIETIES.find(v=>v.id===kind)?.name||kind).join(', ')+'.';sound='stone';
   } else if (action.type === 'charter') {
     if (!s.hasDivingGear) return fail('Find the basic Diving Gear in the cove treasure chest first.');
     if (o.labAccess) return fail('Your research charter is already cleared.');
