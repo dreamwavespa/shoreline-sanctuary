@@ -107,7 +107,7 @@ export default function HalloweenCauldron() {
     setBusy(true);
     setMessage("The cauldron bubbles and glows...");
     // Play the clearer cauldron bubbling recording before the trick.
-    playHalloween("cauldron.wav", 1);
+    playHalloween("cauldron-bubbling-short.mp3", 1);
     window.setTimeout(() => {
       const trick = TRICKS[Math.floor(Math.random() * TRICKS.length)];
       const reward = rollReward();
