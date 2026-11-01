@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
+import { blockUnlocks } from "@/lib/cadence-block-unlocks";
 import { ITEMS } from "@/lib/items";
 import { SCENES } from "@/lib/media";
 import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_RECIPES } from "@/lib/recipes";
@@ -875,6 +876,8 @@ type Tab = "crafting" | "kitchen" | "jewelry" | "decor" | "sandart";
 
 export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCottage }: { openKitchen?: boolean; onGoToNursery?: () => void; onGoToCottage?: () => void }) {
   const { state, setMusicOverride, claimKitchenReward, useBabyBottle } = useGame();
+  const [seasonalBlocks,setSeasonalBlocks] = useState({nightSky:false,winter:false});
+  useEffect(()=>{const refresh=()=>setSeasonalBlocks(blockUnlocks(state.inventory,state.crafted));refresh();window.addEventListener("focus",refresh);return()=>window.removeEventListener("focus",refresh);},[state.inventory,state.crafted]);
   const [tab, setTab] = useState<Tab>(openKitchen ? "kitchen" : "crafting");
   const [studioStation, setStudioStation] = useState<"general" | "jewelry" | "pottery" | "candles" | "sandart" | "decor" | "painting" | "sewing">("general");
   const chooseStudioStation = (station: typeof studioStation) => {
@@ -1244,7 +1247,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               </button>
             </section>)}
             {DECOR_RECIPES.filter((r) => studioStation === "candles" ? ["coastal-beeswax-candle", "glowing-moonlight-candle", "angels-tidal-geode-candle"].includes(r.id) : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe", "moonlit-artisan-polish", "cadence-seaside-blocks", "cadence-garden-blocks", "cadence-night-sky-blocks", "cadence-winter-blocks"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
-              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "cadence-night-sky-blocks" && !seasonalBlocks.nightSky) || (r.id === "cadence-winter-blocks" && !seasonalBlocks.winter) || (r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "cadence-night-sky-blocks" ? "Visit Cadence in her nursery after 7 PM Eastern to discover this recipe permanently." : r.id === "cadence-winter-blocks" ? "Unlocks December 1 Eastern time, then stays available permanently." : r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
             ))}
 
           </>
