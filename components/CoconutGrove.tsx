@@ -13,6 +13,7 @@ import WoodlandTrail from "./WoodlandTrail";
 type NodeId = "orange" | "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
 type HarvestTimes = Partial<Record<NodeId, number>>;
 
+const COLORED_PUMPKINS = ["white-pumpkin", "yellow-pumpkin", "green-pumpkin", "blue-pumpkin", "carnelian-crystal-pumpkin"] as const;
 const MYSTERY_HERB_KEY = "shoreline-imported-herb-v1";
 const MYSTERY_HERB_GROW_MS = 45 * 60_000;
 const MYSTERY_HERBS = ["island-vanilla-orchid", "moonmint-leaves", "tropical-hibiscus"] as const;
@@ -223,8 +224,9 @@ export default function CoconutGrove() {
     if (Math.random() < 0.22 && !woodlandFind) {
       const roll = Math.random();
       const options = [
-        ["sand-green-leaf", 0.40], ["pinecone", 0.20], ["beeswax-jar", 0.15],
-        ["coastal-honey-jar", 0.10], ["cotton-balls", 0.08], ["bird-feather", 0.05], ["amber-sap", 0.02],
+        ["sand-green-leaf", 0.34], ["pinecone", 0.19], ["beeswax-jar", 0.13],
+        ["coastal-honey-jar", 0.10], ["cotton-balls", 0.07], ["bird-feather", 0.05], ["amber-sap", 0.02],
+        ...COLORED_PUMPKINS.map(id => [id, 0.02] as const),
       ] as const;
       let cumulative = 0;
       for (const [itemId, chance] of options) {
@@ -291,6 +293,8 @@ export default function CoconutGrove() {
       : `You discovered ${item.name} beneath the leaves. Added one to your inventory.`);
   };
 
+  const pumpkinFound = COLORED_PUMPKINS.filter(id => state.notebookDiscovered[id] || (state.inventory[id] || 0) > 0);
+  const pumpkinCollectionComplete = pumpkinFound.length === COLORED_PUMPKINS.length;
   const leave = () => {
     play("groveSignTap");
     setScreen("beach");
@@ -377,6 +381,12 @@ export default function CoconutGrove() {
         <button type="button" onClick={leave} className="absolute bottom-3 left-3 z-10 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-bold text-amber-950 shadow-lg ring-2 ring-amber-700">🪧 Beach</button>
       </section>
       <div className="space-y-3 px-4 py-4">
+        <section aria-label="Colored pumpkin discovery collection" className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-300">
+          <h2 className="font-bold text-amber-950">Colored Pumpkin Collection</h2>
+          <p>{pumpkinFound.length} of {COLORED_PUMPKINS.length} colors discovered. Rare pumpkins can appear near the fallen leaves year-round. Previously collected pumpkins count.</p>
+          <ul className="mt-2 list-disc pl-5">{COLORED_PUMPKINS.map(id => <li key={id}>{ITEMS[id].name}: {pumpkinFound.includes(id) ? "Discovered" : "Undiscovered"}</li>)}</ul>
+          <p className="mt-2 font-semibold">{pumpkinCollectionComplete ? "Golden Island Pumpkin Pie recipe unlocked! Find it in Baking & Desserts." : "Discover all five colors to unlock Golden Island Pumpkin Pie."}</p>
+        </section>
         {postStorm && (
           <p className="rounded-xl bg-sky-100 p-3 text-sm font-semibold text-sky-950 ring-1 ring-sky-300">🌦️ Post-storm growth is active: rare plants may appear and every grove patch regrows twice as fast.</p>
         )}
