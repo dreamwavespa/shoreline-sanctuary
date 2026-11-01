@@ -15,6 +15,9 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "ceramic-coffee-mug": { id: "ceramic-coffee-mug", name: "Ceramic Coffee Mug", category: "decor", icon: "/images/Pottery/Ceramic-Coffee-Mug.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
+  "scalloped-dinner-plate": { id: "scalloped-dinner-plate", name: "Scalloped Dinner Plate", category: "decor", icon: "/images/Pottery/Scalloped-Dinner-Plate.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
+  "cauldron-candle-holder": { id: "cauldron-candle-holder", name: "Cauldron Candle Holder", category: "decor", icon: "/images/Pottery/Glowing-Cauldron-Candle.png", rarity: "uncommon", sfx: "craftSuccess", artDescription: "Customizable handmade pottery." },
   "cadence-garden-blocks": { id: "cadence-garden-blocks", name: "Cadence's Garden Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Garden-Hibiscus.png", rarity: "uncommon", sfx: "craftSuccess" },
   "cadence-night-sky-blocks": { id: "cadence-night-sky-blocks", name: "Cadence's Night Sky Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Night-Sky-Crescent-Moon.png", rarity: "uncommon", sfx: "craftSuccess" },
   "cadence-winter-blocks": { id: "cadence-winter-blocks", name: "Cadence's Winter Driftwood Blocks", category: "decor", icon: "/images/Driftwood-blocks/Winter-Snowflake.png", rarity: "uncommon", sfx: "craftSuccess" },

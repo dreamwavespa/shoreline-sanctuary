@@ -7,6 +7,10 @@ import Image from "next/image";
 type FinishedPottery = { piece: string; glaze: string; itemId: string; collectedAt: number };
 type Job = { id: string; piece: string; clay: "coastal" | "porcelain"; stage: "drying" | "ready-glaze" | "firing" | "ready"; readyAt: number; glaze?: string };
 const PIECES = [
+  { id: "ceramic-coffee-mug", name: "Ceramic Coffee Mug", clay: "coastal", cost: 1 },
+  { id: "scalloped-dinner-plate", name: "Scalloped Dinner Plate", clay: "porcelain", cost: 1 },
+  { id: "cauldron-candle-holder", name: "Cauldron Candle Holder", clay: "coastal", cost: 1 },
+
   { id: "flower-vase", name: "Flower Vase", clay: "coastal", cost: 1 },
   { id: "coastal-bowl", name: "Coastal Bowl", clay: "coastal", cost: 1 },
   { id: "seashell-cup", name: "Seashell Cup", clay: "coastal", cost: 1 },
@@ -29,7 +33,7 @@ const SPECIAL_GLAZES = [
 ] as const;
 const mixKey = (colors: readonly string[]) => [...colors].sort().join("+");
 const specialGlaze = (glaze?: string) => SPECIAL_GLAZES.find(s => mixKey(s.colors) === glaze);
-const COLORED_SHAPES = ["seashell-cup", "flower-vase", "coastal-bowl", "pearl-vase", "porcelain-bowl"];
+const COLORED_SHAPES = ["seashell-cup", "flower-vase", "coastal-bowl", "pearl-vase", "porcelain-bowl", "ceramic-coffee-mug", "scalloped-dinner-plate", "cauldron-candle-holder"];
 const GLAZE_FILTERS: Record<string, string> = {
   "glaze-ruby-red": "sepia(1) saturate(5) hue-rotate(305deg)",
   "glaze-sunflower-yellow": "sepia(1) saturate(3) hue-rotate(350deg)",
@@ -75,8 +79,8 @@ export default function PotteryStudio() {
   }, []);
   useEffect(() => { if (hydrated) localStorage.setItem(STORAGE, JSON.stringify({ jobs, completed, finished, lastKitClaim })); }, [jobs, completed, finished, lastKitClaim, hydrated]);
   const completedDesigns = new Set([...completed, ...finished.map(item => item.piece)]);
-  const coastalPieces = PIECES.filter(p => p.clay === "coastal");
-  const porcelainPieces = PIECES.filter(p => p.clay === "porcelain");
+  const coastalPieces = PIECES.filter(p => p.clay === "coastal" && !["ceramic-coffee-mug","cauldron-candle-holder"].includes(p.id));
+  const porcelainPieces = PIECES.filter(p => p.clay === "porcelain" && p.id !== "scalloped-dinner-plate");
   const coastalDone = coastalPieces.every(p => completedDesigns.has(p.id));
   const porcelainDone = porcelainPieces.every(p => completedDesigns.has(p.id));
   const teaSetUnlocked = (state.villagerGiftCounts.kaiana || 0) >= 9 || state.crafted.includes("recipe-porcelain-tea-set");
@@ -108,7 +112,7 @@ export default function PotteryStudio() {
     if (job.stage !== "ready" && !(job.stage === "firing" && now >= job.readyAt)) return;
     // Only register a finished item if the catalog defines it.
     const specialty = specialGlaze(job.glaze);
-    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl", "seashell-cup", "porcelain-tea-set", "moonlight-candleholder", "driftwood-candleholder"].includes(job.piece)
+    const variantId = specialty && ["flower-vase", "pearl-vase", "coastal-bowl", "porcelain-bowl", "seashell-cup", "porcelain-tea-set", "moonlight-candleholder", "driftwood-candleholder", "ceramic-coffee-mug", "scalloped-dinner-plate", "cauldron-candle-holder"].includes(job.piece)
       ? `${job.piece}--special-${specialty.name.toLowerCase().replace(/\s+/g, "-")}`
       : COLORED_SHAPES.includes(job.piece) && job.glaze && !job.glaze.includes("+") ? `${job.piece}--${job.glaze}` : job.piece;
     const collectibleId = ITEMS[variantId] ? variantId : job.piece;
