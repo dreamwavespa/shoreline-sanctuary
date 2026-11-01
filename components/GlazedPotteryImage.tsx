@@ -34,8 +34,16 @@ export function glazeFilter(glaze?:string) {
 }
 export default function GlazedPotteryImage({src,glaze,alt,size=100,preserveWax=false}:{src:string;glaze?:string;alt:string;size?:number;preserveWax?:boolean}) {
  const filter=glazeFilter(glaze);
+ const finish=(glaze||"").toLowerCase();
+ const metallic=/metallic|gold|silver/.test(finish);
+ const pearlescent=/iridescent|pearl|shimmer|aurora|mermaid/.test(finish);
+ const sheen=metallic||pearlescent;
+ const sheenGradient=metallic
+  ? "linear-gradient(125deg,transparent 15%,rgba(255,250,222,.12) 32%,rgba(255,255,255,.48) 43%,rgba(255,247,195,.15) 54%,transparent 72%)"
+  : "linear-gradient(125deg,transparent 12%,rgba(255,215,244,.18) 29%,rgba(255,255,255,.48) 43%,rgba(185,242,255,.22) 56%,transparent 76%)";
  return <span role="img" aria-label={alt} style={{position:"relative",display:"inline-block",width:size,height:size,maxWidth:"100%"}}>
    <Image src={src} alt="" width={size} height={size} unoptimized style={{width:"100%",height:"100%",objectFit:"contain",filter}} />
+   {sheen && <span aria-hidden="true" style={{position:"absolute",inset:0,pointerEvents:"none",background:sheenGradient,opacity:.8,maskImage:preserveWax ? "linear-gradient(to bottom, transparent 0%, transparent 26%, black 47%)" : undefined,WebkitMaskImage:preserveWax ? "linear-gradient(to bottom, transparent 0%, transparent 26%, black 47%)" : undefined}} />}
    {preserveWax && filter && <Image src={src} alt="" aria-hidden="true" width={size} height={size} unoptimized style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",maskImage:"linear-gradient(to bottom, black 0%, black 24%, transparent 43%)",WebkitMaskImage:"linear-gradient(to bottom, black 0%, black 24%, transparent 43%)"}} />}
  </span>;
 }
