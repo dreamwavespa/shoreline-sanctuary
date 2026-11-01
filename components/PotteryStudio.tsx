@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import Image from "next/image";
+import GlazedPotteryImage from "./GlazedPotteryImage";
 
 type FinishedPottery = { piece: string; glaze: string; itemId: string; collectedAt: number };
 type Job = { id: string; piece: string; clay: "coastal" | "porcelain"; stage: "drying" | "ready-glaze" | "firing" | "ready"; readyAt: number; glaze?: string };
@@ -225,7 +226,7 @@ export default function PotteryStudio() {
       const readyGlaze = job.stage === "ready-glaze" || (job.stage === "drying" && now >= job.readyAt);
       const readyCollect = job.stage === "ready" || (job.stage === "firing" && now >= job.readyAt);
       return <article key={job.id} className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-        {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <Image src={potteryImage(job.piece, job.glaze)} style={{ filter: potteryFilter(job.piece, job.glaze) }} alt="" width={88} height={88} unoptimized className="h-22 w-22 object-contain" />}
+        {potteryImage(job.piece, job.glaze) && !ITEMS[job.piece]?.isEmoji && <GlazedPotteryImage src={potteryImage(job.piece, job.glaze)} glaze={job.glaze} alt={`${job.piece.replaceAll("-", " ")} with ${glazeName(job.glaze || "")} glaze`} size={88} />}
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
         {job.glaze && <p className="text-sm">Applied glaze: {glazeName(job.glaze)}</p>}
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
@@ -242,7 +243,7 @@ export default function PotteryStudio() {
       {groupedFinished.length === 0 ? <p>No finished pieces recorded in this version yet. Your previously collected pottery remains in inventory.</p> :
         <div className="grid grid-cols-2 gap-3">{groupedFinished.map(({ item, count }) =>
           <article key={item.piece + "::" + item.glaze} className="rounded-xl border border-teal-200 p-2">
-            <Image src={potteryImage(item.piece, item.glaze)} style={{ filter: potteryFilter(item.piece, item.glaze) }} alt="" width={100} height={100} unoptimized className="mx-auto h-24 w-24 object-contain"/>
+            <GlazedPotteryImage src={potteryImage(item.piece, item.glaze)} glaze={item.glaze} alt={`${item.piece.replaceAll("-", " ")} with ${glazeName(item.glaze)} glaze`} size={100} />
             <p className="font-semibold">{PIECES.find(p => p.id === item.piece)?.name || item.piece}</p>
             <p className="text-sm">{glazeName(item.glaze)} glaze</p>
             <p className="text-sm font-semibold">Crafted: {count}</p>

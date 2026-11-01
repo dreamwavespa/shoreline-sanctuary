@@ -14,6 +14,7 @@ import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
 import ShellPaintingStudio from "./ShellPaintingStudio";
 import PotteryStudio from "./PotteryStudio";
+import GlazedPotteryImage from "./GlazedPotteryImage";
 import CoastalSewingStudio from "./CoastalSewingStudio";
 
 const WIND_CHIME_COST = [
@@ -188,7 +189,7 @@ function GlowingCauldronCraft() {
   return <section className="mb-4 rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200" aria-label="Glowing Cauldron Candle">
     <h2 className="text-lg font-bold text-amber-900">Glowing Cauldron Candle</h2>
     <p className="my-2">Fill a finished glazed ceramic cauldron with one glowing wax. Your selected pottery glaze is recorded with the candle.</p>
-    <Image src="/images/Pottery/Glowing-Cauldron-Candle.png" width={220} height={220} alt={`Glowing cauldron candle with ${selectedGlaze.replaceAll("-"," ")} finish`} style={{filter: cauldronGlazeFilter(selectedGlaze)}} unoptimized className="mx-auto h-44 w-44 object-contain" />
+    <div className="text-center"><GlazedPotteryImage src="/images/Pottery/Glowing-Cauldron-Candle.png" glaze={selectedGlaze} alt={`Glowing cauldron candle with ${selectedGlaze.replaceAll("-"," ")} finish`} size={176} preserveWax /></div>
     <p className="text-sm">Selected glaze: {selectedGlaze.replaceAll("-"," ")}. Preview colors are approximate; the wax and decorations are tinted along with the pottery.</p>
     <label htmlFor="cauldron-choice" className="block font-semibold">Choose a finished cauldron</label>
     <select id="cauldron-choice" value={selectedId||""} onChange={e=>setSelected(e.target.value)} className="my-2 w-full rounded-lg border p-3">
