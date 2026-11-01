@@ -386,12 +386,13 @@ export default function CoconutGrove() {
           <p>{pumpkinFound.length} of {COLORED_PUMPKINS.length} colors discovered. Rare pumpkins can appear near the fallen leaves year-round. Previously collected pumpkins count.</p>
           <ul className="mt-2 space-y-2">{COLORED_PUMPKINS.map(id => {
             const discovered = pumpkinFound.includes(id);
-            const pumpkinColors: Record<string, string> = {
-              "white-pumpkin": "🤍", "yellow-pumpkin": "💛", "green-pumpkin": "💚",
-              "blue-pumpkin": "💙", "carnelian-crystal-pumpkin": "🎃",
+            const pumpkinImages: Record<string, string> = {
+              "white-pumpkin": "white_pumpkin.png", "yellow-pumpkin": "yellow_pumpkin.png",
+              "green-pumpkin": "green_pumpkin.png", "blue-pumpkin": "blue_pumpkin.png",
+              "carnelian-crystal-pumpkin": "orange_pumpkin.png",
             };
             return <li key={id} className="flex items-center gap-2">
-              {discovered ? <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xl">{pumpkinColors[id]}</span> : <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600">?</span>}
+              {discovered ? <span aria-hidden="true" className="relative block h-10 w-10 shrink-0"><Image src={`/images/Pumpkins/${pumpkinImages[id]}`} alt="" fill unoptimized sizes="40px" className="object-contain" /></span> : <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600">?</span>}
               <span>{ITEMS[id].name}: {discovered ? "Discovered" : "Undiscovered"}</span>
             </li>;
           })}</ul>
