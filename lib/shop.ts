@@ -85,6 +85,7 @@ export const SELL_PRICES: Record<string, number> = {
 
 // Finished pottery can be traded without selling permanent mastery or glaze-kit rewards.
 const POTTERY_BASE_VALUES: Record<string, number> = {
+  "ceramic-coffee-mug": 12, "scalloped-dinner-plate": 16, "cauldron-candle-holder": 14, "glowing-cauldron-candle": 30,
   "flower-vase": 10, "coastal-bowl": 8, "seashell-cup": 9, "driftwood-candleholder": 11,
   "porcelain-tea-set": 20, "pearl-vase": 14, "porcelain-bowl": 12, "moonlight-candleholder": 15,
 };

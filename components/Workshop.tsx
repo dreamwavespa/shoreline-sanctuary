@@ -147,9 +147,13 @@ function GlowingCauldronCraft() {
   const selectedId = options.some(([id])=>id===selected) ? selected : options[0]?.[0];
   const cost = selectedId ? [{itemId:selectedId,count:1},{itemId:"glowing-wax",count:1}] : [];
   const create = () => {
-    if (!selectedId || !hasEnough(cost) || !craft("glowing-cauldron-candle",cost)) return;
+    if (!selectedId || !hasEnough(cost)) return;
     const match = [...glazeHistory].reverse().find(x=>x.itemId===selectedId);
     const glaze = match?.glaze || "custom glaze";
+    const special = ["mermaid-shimmer","sunset-pearl","moonlit-silver","royal-coral","sea-glass-mist","blushing-pearl","aurora-tide","golden-driftwood"].find(name=>glaze.includes(name));
+    const variant = special ? "glowing-cauldron-candle--special-"+special : "glowing-cauldron-candle--"+glaze;
+    const resultId = ITEMS[variant] ? variant : "glowing-cauldron-candle";
+    if (!craft(resultId,cost)) return;
     try {
       const key = "shoreline-glowing-cauldron-glazes";
       const previous = JSON.parse(localStorage.getItem(key)||"[]");
@@ -171,7 +175,7 @@ function GlowingCauldronCraft() {
     </select>
     <p>Glowing wax: {state.inventory["glowing-wax"]||0} available</p>
     <button type="button" disabled={!selectedId||!hasEnough(cost)} onClick={create} className="my-2 w-full rounded-xl bg-teal-700 p-3 font-bold text-white disabled:opacity-50">Create Glowing Cauldron Candle</button>
-    <button type="button" disabled={!(state.inventory["glowing-cauldron-candle"]>0)} onClick={bubble} className="w-full rounded-xl bg-purple-700 p-3 font-bold text-white disabled:opacity-50">Listen to Cauldron Bubble</button>
+    <button type="button" disabled={!Object.entries(state.inventory).some(([id,count])=>id.startsWith("glowing-cauldron-candle") && count>0)} onClick={bubble} className="w-full rounded-xl bg-purple-700 p-3 font-bold text-white disabled:opacity-50">Listen to Cauldron Bubble</button>
     <p role="status" aria-live="polite" className="mt-2">{notice}</p>
   </section>;
 }
