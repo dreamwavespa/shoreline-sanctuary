@@ -66,7 +66,11 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <button type="button" onClick={onBack} aria-label="Return to Coconut Grove" className="absolute left-3 top-[13%] z-20 min-h-11 rounded-lg border-2 border-amber-200 bg-[#60432b]/95 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">← Coconut Grove</button>
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[3%] top-[5%] z-10 h-[27%] w-[40%]" role="img" aria-label={nestingStage >= 2 && nestingStage <= 4 ? "Robin's nest holds three pale blue eggs beneath the protective greenhouse bubble." : nestingStage === 5 ? "Robin's newly hatched chicks rest safely in the nest." : nestingStage === 6 ? "Robin's growing fledglings rest in the nest." : "Robin's sheltered nest in the woodland tree."}>
-            {state.robinWinterBubbleActive && <Image src="/images/Robin/Greenhouse-bubble.PNG" alt="" fill unoptimized sizes="45vw" className="object-contain opacity-45" />}
+            {state.robinWinterBubbleActive && (
+              <div className="absolute -inset-[12%] rounded-full border-2 border-cyan-200/70 bg-cyan-100/10 shadow-[0_0_18px_5px_rgba(165,243,252,0.35)]">
+                <Image src="/images/Robin/Greenhouse-bubble.PNG" alt="" fill unoptimized sizes="50vw" className="object-contain opacity-70" />
+              </div>
+            )}
             <div className="absolute inset-[12%] z-10">
               <Image src={nestingStage ? `/images/Robin/${nestingImage}` : `/images/Robin-nest.PNG?v=${ASSET_VERSION}`} alt="" fill unoptimized sizes="40vw" className="object-contain drop-shadow-lg" />
             </div>
