@@ -1174,6 +1174,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
   const cook = (cost: { itemId: string; count: number }[], outputItemId: string, outputCount = 1) => {
+    if (outputItemId === "food-golden-island-pumpkin-pie") {
+      const pumpkins = ["white-pumpkin", "yellow-pumpkin", "green-pumpkin", "blue-pumpkin", "carnelian-crystal-pumpkin"];
+      if (!pumpkins.every(id => stateRef.current.notebookDiscovered[id] || (stateRef.current.inventory[id] || 0) > 0)) {
+        toast("Discover all five colored pumpkins in Coconut Grove to unlock this pie.");
+        return false;
+      }
+    }
     if (!hasEnough(cost)) return false;
     setState((s) => {
       const inv = deductCost({ ...s.inventory }, cost);
