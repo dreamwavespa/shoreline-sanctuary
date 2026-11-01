@@ -485,6 +485,7 @@ interface Ctx {
   emptyBucket: () => void;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
+  giveCadenceBlocks: (itemId: string) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand", spice?: "pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves") => boolean;
   jelloAction: (action: "start" | "collect") => boolean;
   iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
@@ -1166,6 +1167,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const giveCadenceBlocks = (itemId: string): boolean => {
+    if (!["cadence-seaside-blocks","cadence-garden-blocks","cadence-night-sky-blocks","cadence-winter-blocks"].includes(itemId)) return false;
+    if ((stateRef.current.inventory[itemId] || 0) < 1) return false;
+    setState(prev => ({ ...prev, inventory: { ...prev.inventory, [itemId]: Math.max(0, (prev.inventory[itemId] || 0) - 1) } }));
+    return true;
+  };
   const cook = (cost: { itemId: string; count: number }[], outputItemId: string, outputCount = 1) => {
     if (!hasEnough(cost)) return false;
     setState((s) => {
@@ -2935,6 +2942,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       emptyBucket,
       craft,
       cook,
+      giveCadenceBlocks,
       claimKitchenReward,
       jelloAction,
       iceCreamAction,
