@@ -9,11 +9,12 @@ export interface OffshoreProgress {
   dives: number;
   worryDiscovered?: string[];
   worryCompleted?: string[];
+  tumblingBatch?: {readyAt:number; resultId:string} | null;
 }
 export const DEFAULT_OFFSHORE: OffshoreProgress = { labAccess: false, photos: [], cabinet: [], tests: 0, expedition: false, voyage: null, dives: 0, worryDiscovered: [], worryCompleted: [] };
 export const SIGHTINGS = ['A humpback whale lifts its tail beside the port rail.', 'Dolphins ride the bow wake.', 'A whale breaches beyond the starboard rail.'];
 export const SPECIMENS = ['cave-calcite', 'polished-enhydro', 'included-quartz', 'glowing-fluorite', 'tidal-heart'];
-export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string};
+export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'};
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
 export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
@@ -41,6 +42,21 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
     add('carved-stone-'+kind,-1);add('moonlit-artisan-polish',-1);add('worry-stone-'+kind);
     o.worryCompleted=[...new Set([...(o.worryCompleted||[]),kind])];
     message='Walter finishes your '+WORRY_STONES.find(x=>x.id===kind)!.name+' worry stone!';sound='stone';
+  } else if(action.type==='tumble-start'){
+    if((o.worryCompleted||[]).length<8)return fail('Finish all eight worry stone varieties to unlock Walter’s tumbling barrel.');
+    if(o.tumblingBatch)return fail('A tumbling batch is already underway. Collect it before starting another.');
+    if((inventory['raw-pebbles']||0)<6)return fail('You need six Pebbles to start tumbling.');
+    add('raw-pebbles',-6);
+    const roll=Math.random()*100;
+    const resultId=roll<65?'coastal-polished-pebble-pouch':roll<90?'colorful-gemstone-pouch':'rare-shimmering-stone-pouch';
+    o.tumblingBatch={readyAt:Date.now()+20*60*1000,resultId};
+    message='Walter loads six pebbles into the barrel. Your polished stone pouch will be ready in 20 minutes.';sound='stone';
+  } else if(action.type==='tumble-collect'){
+    if(!o.tumblingBatch)return fail('There is no finished tumbling batch to collect.');
+    if(Date.now()<o.tumblingBatch.readyAt)return fail('The barrel is still tumbling. Come back when the timer finishes.');
+    const resultId=o.tumblingBatch.resultId;
+    add(resultId);o.tumblingBatch=null;
+    message='Walter opens the barrel! You received '+({ 'coastal-polished-pebble-pouch':'a Coastal Polished Pebble Pouch','colorful-gemstone-pouch':'a Colorful Gemstone Pouch','rare-shimmering-stone-pouch':'a Rare Shimmering Stone Pouch'} as Record<string,string>)[resultId]+'.';sound='stone';
   } else if (action.type === 'charter') {
     if (!s.hasDivingGear) return fail('Find the basic Diving Gear in the cove treasure chest first.');
     if (o.labAccess) return fail('Your research charter is already cleared.');

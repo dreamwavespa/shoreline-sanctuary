@@ -37,6 +37,9 @@ export const SHOP_STOCK: ShopStockItem[] = [
 ];
 
 export const SELL_PRICES: Record<string, number> = {
+  "coastal-polished-pebble-pouch": 8,
+  "colorful-gemstone-pouch": 15,
+  "rare-shimmering-stone-pouch": 25,
   "crystal-walrus": 12,
   "crystal-dolphin": 12,
   "polished-enhydro": 6,

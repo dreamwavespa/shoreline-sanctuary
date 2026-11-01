@@ -15,6 +15,9 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "coastal-polished-pebble-pouch": { id: "coastal-polished-pebble-pouch", name: "Coastal Polished Pebble Pouch", category: "decor", icon: "/images/WorryStones/Coastal-Polished-Pebble-Pouch.png", rarity: "common", sfx: "stone" },
+  "colorful-gemstone-pouch": { id: "colorful-gemstone-pouch", name: "Colorful Gemstone Pouch", category: "decor", icon: "/images/WorryStones/Colorful-Gemstone-Pouch.png", rarity: "uncommon", sfx: "stone" },
+  "rare-shimmering-stone-pouch": { id: "rare-shimmering-stone-pouch", name: "Rare Shimmering Stone Pouch", category: "decor", icon: "/images/WorryStones/Rare-Shimmering-Stone-Pouch.png", rarity: "rare", sfx: "stone" },
   "identified-stone-clear-quartz": { id: "identified-stone-clear-quartz", name: "Identified Stone: Clear Quartz", category: "special", icon: "/images/WorryStones/Worry-Stone-Clear-Quartz.png", rarity: "uncommon", sfx: "stone" },
   "identified-stone-rose-quartz": { id: "identified-stone-rose-quartz", name: "Identified Stone: Rose Quartz", category: "special", icon: "/images/WorryStones/Worry-Stone-Rose-Quartz.png", rarity: "uncommon", sfx: "stone" },
   "identified-stone-ocean-jasper": { id: "identified-stone-ocean-jasper", name: "Identified Stone: Ocean Jasper", category: "special", icon: "/images/WorryStones/Worry-Stone-Ocean-Jasper.png", rarity: "uncommon", sfx: "stone" },
