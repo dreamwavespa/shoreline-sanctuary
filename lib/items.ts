@@ -15,14 +15,14 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
-  "tumbled-stone-coastal-white": {id:"tumbled-stone-coastal-white",name:"Coastal White Pebble",category:"special",icon:"/images/WorryStones/Coastal-Polished-Pebble-Pouch.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-sea-blue": {id:"tumbled-stone-sea-blue",name:"Sea Blue Pebble",category:"special",icon:"/images/WorryStones/Coastal-Polished-Pebble-Pouch.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-sunset-pink": {id:"tumbled-stone-sunset-pink",name:"Sunset Pink Pebble",category:"special",icon:"/images/WorryStones/Coastal-Polished-Pebble-Pouch.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-clear-quartz": {id:"tumbled-stone-clear-quartz",name:"Tumbled Clear Quartz",category:"special",icon:"/images/WorryStones/Worry-Stone-Clear-Quartz.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-ocean-jasper": {id:"tumbled-stone-ocean-jasper",name:"Tumbled Ocean Jasper",category:"special",icon:"/images/WorryStones/Worry-Stone-Ocean-Jasper.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-amethyst": {id:"tumbled-stone-amethyst",name:"Tumbled Amethyst",category:"special",icon:"/images/WorryStones/Worry-Stone-Amethyst.png",rarity:"common",sfx:"stone"},
-  "tumbled-stone-moonstone": {id:"tumbled-stone-moonstone",name:"Tumbled Moonstone",category:"special",icon:"/images/WorryStones/Worry-Stone-Moonstone.png",rarity:"rare",sfx:"stone"},
-  "tumbled-stone-rainbow-fluorite": {id:"tumbled-stone-rainbow-fluorite",name:"Tumbled Rainbow Fluorite",category:"special",icon:"/images/WorryStones/Worry-Stone-Rainbow-Fluorite.png",rarity:"rare",sfx:"stone"},
+  "tumbled-stone-coastal-white": {id:"tumbled-stone-coastal-white",name:"Coastal White Pebble",category:"special",icon:"/images/WorryStones/Coastal-White-Pebble.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-sea-blue": {id:"tumbled-stone-sea-blue",name:"Sea Blue Pebble",category:"special",icon:"/images/WorryStones/Sea-Blue-Pebble.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-sunset-pink": {id:"tumbled-stone-sunset-pink",name:"Sunset Pink Pebble",category:"special",icon:"/images/WorryStones/Sunset-Pink-Pebble.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-clear-quartz": {id:"tumbled-stone-clear-quartz",name:"Tumbled Clear Quartz",category:"special",icon:"/images/WorryStones/Tumbled-Clear-Quartz.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-ocean-jasper": {id:"tumbled-stone-ocean-jasper",name:"Tumbled Ocean Jasper",category:"special",icon:"/images/WorryStones/Tumbled-Ocean-Jasper.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-amethyst": {id:"tumbled-stone-amethyst",name:"Tumbled Amethyst",category:"special",icon:"/images/WorryStones/Tumbled-Amethyst.png",rarity:"common",sfx:"stone"},
+  "tumbled-stone-moonstone": {id:"tumbled-stone-moonstone",name:"Tumbled Moonstone",category:"special",icon:"/images/WorryStones/Tumbled-Moonstone.png",rarity:"rare",sfx:"stone"},
+  "tumbled-stone-rainbow-fluorite": {id:"tumbled-stone-rainbow-fluorite",name:"Tumbled Rainbow Fluorite",category:"special",icon:"/images/WorryStones/Tumbled-Rainbow-Fluorite.png",rarity:"rare",sfx:"stone"},
   "coastal-polished-pebble-pouch": { id: "coastal-polished-pebble-pouch", name: "Coastal Polished Pebble Pouch", category: "decor", icon: "/images/WorryStones/Coastal-Polished-Pebble-Pouch.png", rarity: "common", sfx: "stone" },
   "colorful-gemstone-pouch": { id: "colorful-gemstone-pouch", name: "Colorful Gemstone Pouch", category: "decor", icon: "/images/WorryStones/Colorful-Gemstone-Pouch.png", rarity: "uncommon", sfx: "stone" },
   "rare-shimmering-stone-pouch": { id: "rare-shimmering-stone-pouch", name: "Rare Shimmering Stone Pouch", category: "decor", icon: "/images/WorryStones/Rare-Shimmering-Stone-Pouch.png", rarity: "rare", sfx: "stone" },

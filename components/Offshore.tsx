@@ -99,10 +99,10 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
         <p>{pouch.name}: {count(pouch.id)} sealed. Seaweed price: {pouch.price} Sand Dollars.</p>
         <button className={button} type="button" disabled={!count(pouch.id)} onClick={()=>act({type:'tumble-open',pouchId:pouch.id})}>Open {pouch.name}</button>
       </div>)}
-      {o.lastOpenedPouch && <div className="rounded-xl border p-3"><h5 className="font-semibold">Last opened pouch</h5><p>{ITEMS[o.lastOpenedPouch.pouchId]?.name}: {o.lastOpenedPouch.contents.map(x=>TUMBLED_NAMES[x]||x).join(', ')}.</p></div>}
+      {o.lastOpenedPouch && <div className="rounded-xl border p-3"><h5 className="font-semibold">Last opened pouch</h5><p>{ITEMS[o.lastOpenedPouch.pouchId]?.name} contained {o.lastOpenedPouch.contents.length} stones:</p><ul className="grid grid-cols-2 gap-2">{Object.entries(o.lastOpenedPouch.contents.reduce((acc, id)=>({...acc,[id]:(acc[id]||0)+1}),{} as Record<string,number>)).map(([id,qty])=><li key={id} className="flex flex-col items-center rounded-lg border p-2"><Image src={ITEMS['tumbled-stone-'+id]?.icon||''} alt="" width={80} height={80} unoptimized className="h-20 w-20 object-contain"/><span>{TUMBLED_NAMES[id]||id} × {qty}</span></li>)}</ul></div>}
       <h5 className="font-semibold">Tumbled Stone Discoveries</h5>
       <p>{(o.tumbledStoneDiscovered||[]).length} of 8 stone varieties discovered.</p>
-      <ul>{Object.entries(TUMBLED_NAMES).map(([id,name])=><li key={id}>{(o.tumbledStoneDiscovered||[]).includes(id)?name+' — '+count('tumbled-stone-'+id)+' in inventory':'Undiscovered stone'}</li>)}</ul>
+      <ul className="grid grid-cols-2 gap-2">{Object.entries(TUMBLED_NAMES).map(([id,name])=><li key={id} className="rounded-lg border p-2">{(o.tumbledStoneDiscovered||[]).includes(id)?<><Image src={ITEMS['tumbled-stone-'+id]?.icon||''} alt="" width={96} height={96} unoptimized className="h-20 w-20 object-contain"/><p>{name} — {count('tumbled-stone-'+id)} in inventory</p></>:<p>Undiscovered stone</p>}</li>)}</ul>
       <p>Possible results: Coastal Polished Pebble Pouch (65%, 8 Sand Dollars), Colorful Gemstone Pouch (25%, 15 Sand Dollars), Rare Shimmering Stone Pouch (10%, 25 Sand Dollars).</p>
       </>}
       </section>}
