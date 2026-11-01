@@ -384,7 +384,17 @@ export default function CoconutGrove() {
         <section aria-label="Colored pumpkin discovery collection" className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-300">
           <h2 className="font-bold text-amber-950">Colored Pumpkin Collection</h2>
           <p>{pumpkinFound.length} of {COLORED_PUMPKINS.length} colors discovered. Rare pumpkins can appear near the fallen leaves year-round. Previously collected pumpkins count.</p>
-          <ul className="mt-2 list-disc pl-5">{COLORED_PUMPKINS.map(id => <li key={id}>{ITEMS[id].name}: {pumpkinFound.includes(id) ? "Discovered" : "Undiscovered"}</li>)}</ul>
+          <ul className="mt-2 space-y-2">{COLORED_PUMPKINS.map(id => {
+            const discovered = pumpkinFound.includes(id);
+            const pumpkinColors: Record<string, string> = {
+              "white-pumpkin": "🤍", "yellow-pumpkin": "💛", "green-pumpkin": "💚",
+              "blue-pumpkin": "💙", "carnelian-crystal-pumpkin": "🎃",
+            };
+            return <li key={id} className="flex items-center gap-2">
+              {discovered ? <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xl">{pumpkinColors[id]}</span> : <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600">?</span>}
+              <span>{ITEMS[id].name}: {discovered ? "Discovered" : "Undiscovered"}</span>
+            </li>;
+          })}</ul>
           <p className="mt-2 font-semibold">{pumpkinCollectionComplete ? "Golden Island Pumpkin Pie recipe unlocked! Find it in Baking & Desserts." : "Discover all five colors to unlock Golden Island Pumpkin Pie."}</p>
         </section>
         {postStorm && (
