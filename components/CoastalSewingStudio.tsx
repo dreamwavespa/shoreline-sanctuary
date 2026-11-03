@@ -57,10 +57,10 @@ export default function CoastalSewingStudio() {
   const pinUnlocked = !!state.inventory["seashell-pin-cushion"] || state.crafted.includes("sewing-pin-cushion-reward");
   const today = new Date().toLocaleDateString("en-CA");
   const project = ALL_PROJECTS.find(p => p[0] === selected) || PROJECTS[0];
+  const [id,name,fabric,cotton,feathers,ribbons,catnip] = project;
   const month = new Date().getMonth();
   const season = SEASONAL_PROJECTS[id] || "year-round";
   const seasonAvailable = season === "year-round" || (season === "winter" ? [11,0,1].includes(month) : [8,9,10].includes(month));
-  const [id,name,fabric,cotton,feathers,ribbons,catnip] = project;
   const cost = [
     ...(fabric ? [{itemId:"recycled-fabric",count:fabric}] : []),
     {itemId:"hemp-thread",count:1},
