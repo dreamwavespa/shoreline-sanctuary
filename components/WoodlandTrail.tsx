@@ -11,7 +11,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, giveRobinBirdhouse, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
@@ -64,6 +64,11 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-emerald-950/75 to-transparent" />
         <h1 className="pointer-events-none absolute left-4 top-3 z-10 font-serif text-3xl font-bold text-white drop-shadow-lg">Woodland Trail</h1>
         <button type="button" onClick={onBack} aria-label="Return to Coconut Grove" className="absolute left-3 top-[13%] z-20 min-h-11 rounded-lg border-2 border-amber-200 bg-[#60432b]/95 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">← Coconut Grove</button>
+        {state.robinBirdhousePlaced && (
+          <button type="button" onClick={() => setAnnouncement("Robin's handmade birdhouse hangs beside her original nest, decorated with seashells and pink roses.")} aria-label="Examine Robin's Birdhouse" className="absolute right-[42%] top-[18%] z-20 h-[23%] w-[24%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+            <Image src="/images/Robins-Birdhouse.png" alt="" fill unoptimized sizes="25vw" className="object-contain drop-shadow-lg" />
+          </button>
+        )}
         {state.robinNestPlacedAt > 0 && (
           <div className="pointer-events-none absolute right-[3%] top-[5%] z-10 h-[27%] w-[40%]" role="img" aria-label={nestingStage >= 2 && nestingStage <= 4 ? "Robin's nest holds three pale blue eggs beneath the protective greenhouse bubble." : nestingStage === 5 ? "Robin's newly hatched chicks rest safely in the nest." : nestingStage === 6 ? "Robin's growing fledglings rest in the nest." : "Robin's sheltered nest in the woodland tree."}>
             {state.robinWinterBubbleActive && (
@@ -119,6 +124,11 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-emerald-950">{announcement}</p>
         <section aria-labelledby="robin-nest-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
           <h2 id="robin-nest-title" className="text-xl font-bold text-emerald-950">Robin's Bird Sanctuary</h2>
+          {state.robinBirdhousePlaced ? (
+            <p className="mt-2 font-semibold text-emerald-800">Robin's Birdhouse is permanently hanging beside her original nest.</p>
+          ) : arrived && (state.inventory["robins-birdhouse"] || 0) > 0 ? (
+            <button type="button" onClick={() => { if (giveRobinBirdhouse()) { greetRobin(); setAnnouncement("Robin chirps happily! Her handmade birdhouse is now hanging beside her nest."); } }} className="mt-3 min-h-12 w-full rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white">Give Robin Her Birdhouse</button>
+          ) : null}
           {!state.robinNestPlacedAt ? (
             <>
               <p className="mt-2">A sheltered branch is ready for a rescued nest. Place one here and Robin will arrive after 24 hours.</p>
