@@ -68,6 +68,8 @@ export const SELL_PRICES: Record<string, number> = {
   "food-seaweed-chips": 2,
   "food-sea-lettuce-wrap": 4,
   "bottled-rose-milk": 7,
+  "seashell-treasure-chest": 28,
+  "sea-glass-mirror": 35,
   "sewing-seashell-pillow": 12,
   "sewing-moon-pillow": 12,
   "sewing-luxury-feather-pillow": 20,
