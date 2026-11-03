@@ -68,6 +68,24 @@ export const SELL_PRICES: Record<string, number> = {
   "food-seaweed-chips": 2,
   "food-sea-lettuce-wrap": 4,
   "bottled-rose-milk": 7,
+  "sewing-seashell-pillow": 12,
+  "sewing-moon-pillow": 12,
+  "sewing-luxury-feather-pillow": 20,
+  "sewing-patchwork-beach-blanket": 24,
+  "sewing-cozy-fluffy-baby-blanket": 18,
+  "sewing-turtle-plushie": 17,
+  "sewing-octopus-plushie": 18,
+  "sewing-moon-jelly-plushie": 21,
+  "sewing-fluffy-snowball-cat-toy": 9,
+  "sewing-catnip-moon": 12,
+  "sewing-crinkly-starfish": 12,
+  "sewing-seaside-knit-hat": 19,
+  "sewing-seaside-mittens": 17,
+  "sewing-cozy-christmas-sweater": 32,
+  "sewing-pumpkin-spice-latte-plush": 21,
+  "sewing-fluffy-snowman-plush": 23,
+  "sewing-rainbow-and-cloud-plush": 24,
+  "sewing-plush-flower-pillow": 19,
   "beach-umbrella": 8,
   "picnic-basket": 8,
   "coastal-salt-lamp": 10,
@@ -102,6 +120,11 @@ export function potterySalePrice(itemId: string): number {
   return base + (rareGlazes.includes(finish) ? 10 : 2);
 }
 export function seaweedSalePrice(itemId: string): number {
+  if (itemId.startsWith("sewing-embroidered-")) {
+    // Custom embroidery commands a premium without selling the tools or friendship rewards.
+    const base = itemId.includes("blanket") ? 24 : 15;
+    return base + 6;
+  }
   return SELL_PRICES[itemId] || potterySalePrice(itemId);
 }
 
