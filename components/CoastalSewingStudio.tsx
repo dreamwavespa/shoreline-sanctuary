@@ -45,6 +45,8 @@ export default function CoastalSewingStudio() {
   const [embroideryPattern,setEmbroideryPattern] = useState<string>("seashell");
   const [embroideryThread,setEmbroideryThread] = useState(THREADS[0]);
   const [needleReward,setNeedleReward] = useState(() => {try{return localStorage.getItem("shoreline-lacey-pin-search-last-reward") || "";}catch{return "";}});
+  const [dailyRewardAnnouncement,setDailyRewardAnnouncement] = useState("");
+  const [pinRewardAnnouncement,setPinRewardAnnouncement] = useState("");
   const lacey = VILLAGERS.lacey;
   const giftCount = state.villagerGiftCounts.lacey || 0;
   const friendshipMilestones = [[3,"Sea-Urchin Pincushion"],[5,"Clam-Shell Satchel"],[8,"Turret-Shell Thimble"],[12,"Embroidery Hoop"]] as const;
@@ -107,6 +109,7 @@ export default function CoastalSewingStudio() {
     collectItem(reward,{silent:true});
     try {localStorage.setItem("shoreline-lacey-pin-search-date",today);localStorage.setItem("shoreline-lacey-pin-search-count",String(count));localStorage.setItem("shoreline-lacey-pin-search-last-reward",reward);}catch{}
     setNeedleReward(reward);
+    setDailyRewardAnnouncement("Needle search reward: 1 "+(ITEMS[reward]?.name || reward)+". Added to inventory.");
     setNeedleSearchDate(today);setNeedleSearchCount(count);
     playFile("sewing-reward.mp3");
     const pinName = pinChoice === "urchin" ? "Sea-Urchin" : pinChoice === "clam" ? "Clam-Shell" : "Starfish";
@@ -130,7 +133,10 @@ export default function CoastalSewingStudio() {
     const pool = ["wind-fabric-scrap","cotton-balls","hemp-thread","catnip","bird-feather"];
     const item = pool[Math.floor(Math.random()*pool.length)];
     collectItem(item,{silent:true});try{localStorage.setItem("shoreline-sewing-pin-daily",today);}catch{}
-    setLastClaim(today);playFile("sewing-reward.mp3");setMessage("Seashell Pin Cushion: received one "+(ITEMS[item]?.name || item)+".");
+    setLastClaim(today);playFile("sewing-reward.mp3");
+    const rewardText = "Seashell Pin Cushion reward: 1 "+(ITEMS[item]?.name || item)+". Added to inventory.";
+    setPinRewardAnnouncement(rewardText);
+    setMessage(rewardText);
   };
   return <section className="space-y-5 rounded-2xl bg-amber-50 p-3 text-teal-950" aria-label="Coastal Sewing Studio">
     <div className="relative h-64 overflow-hidden rounded-xl bg-sky-100 sm:h-96"><Image src={IMAGE_ROOT+"Sewing-corner-background.PNG"} alt="Coastal sewing room overlooking the sea" fill unoptimized className="object-cover" sizes="100vw" /></div>
@@ -163,6 +169,7 @@ export default function CoastalSewingStudio() {
         </fieldset>
         <p>Searches completed: {needleSearchCount}. {needleSearchDate===today ? "Today's search is complete. Come back tomorrow." : "One search available today."}</p>
         <button type="button" disabled={needleSearchDate===today} onClick={dailyNeedleSearch} className="rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{needleSearchDate===today ? "Today's search completed" : "Search selected pin cushion"}</button>
+        <p role="status" aria-live="polite" aria-atomic="true" className="text-sm">{dailyRewardAnnouncement || (needleSearchDate===today && needleReward ? "Last needle search reward: 1 "+(ITEMS[needleReward]?.name || needleReward)+"." : "")}</p>
         <p className="text-sm">Every seventh search discovers a special seashell embroidery pattern. Rare thread and pearl-tipped needles may appear sooner. The pattern is a collectible for future embroidery customization.</p>
       </>}
     </section>
@@ -190,6 +197,6 @@ export default function CoastalSewingStudio() {
       <button type="button" disabled={!needleUnlocked || !hasEnough(embroideryCost)} onClick={embroider} className="rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">Embroider selected project</button>
       <p className="text-sm">Your new embroidered item is stored separately in inventory. The selected motif is visible in the preview. Thread color variations and saved customized artwork are planned for a later update.</p>
     </section>
-    <div className="rounded-xl bg-white p-3"><h3 className="font-bold">Seashell Pin Cushion</h3><div className="relative h-24 w-24"><Image src={IMAGE_ROOT+"seashell-pin-cushion.png"} alt="Seashell Pin Cushion with sewing pins" fill unoptimized className="object-contain" sizes="96px" /></div><p>Projects completed: {PROJECTS.filter(([p])=>state.crafted.includes("sewing-"+p)).length} of {PROJECTS.length}. Finish each project once to earn the Seashell Pin Cushion, then collect one free sewing supply daily.</p>{allMade && !pinUnlocked && <button type="button" onClick={claimPin} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect Seashell Pin Cushion reward</button>}{pinUnlocked && <p>Seashell Pin Cushion unlocked and added to inventory.</p>}<button type="button" disabled={!pinUnlocked || lastClaim===today} onClick={claim} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{!pinUnlocked ? "Earn the Seashell Pin Cushion first" : lastClaim===today ? "Today's supply collected" : "Collect today's sewing supply"}</button></div>
+    <div className="rounded-xl bg-white p-3"><h3 className="font-bold">Seashell Pin Cushion</h3><div className="relative h-24 w-24"><Image src={IMAGE_ROOT+"seashell-pin-cushion.png"} alt="Seashell Pin Cushion with sewing pins" fill unoptimized className="object-contain" sizes="96px" /></div><p>Projects completed: {PROJECTS.filter(([p])=>state.crafted.includes("sewing-"+p)).length} of {PROJECTS.length}. Finish each project once to earn the Seashell Pin Cushion, then collect one free sewing supply daily.</p>{allMade && !pinUnlocked && <button type="button" onClick={claimPin} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white">Collect Seashell Pin Cushion reward</button>}{pinUnlocked && <p>Seashell Pin Cushion unlocked and added to inventory.</p>}<button type="button" disabled={!pinUnlocked || lastClaim===today} onClick={claim} className="mt-2 rounded-lg bg-teal-800 px-4 py-2 text-white disabled:opacity-50">{!pinUnlocked ? "Earn the Seashell Pin Cushion first" : lastClaim===today ? "Today's supply collected" : "Collect today's sewing supply"}</button><p role="status" aria-live="polite" aria-atomic="true" className="mt-2 text-sm">{pinRewardAnnouncement}</p></div>
   </section>;
 }
