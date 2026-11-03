@@ -15,6 +15,13 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "sewing-seaside-knit-hat": {id:"sewing-seaside-knit-hat",name:"Seaside Knit Hat",category:"decor",icon:"/images/Sewing/Seaside-Knit-Hat.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-seaside-mittens": {id:"sewing-seaside-mittens",name:"Seaside Mittens",category:"decor",icon:"/images/Sewing/Seaside-mittens.PNG",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-cozy-christmas-sweater": {id:"sewing-cozy-christmas-sweater",name:"Cozy Christmas Sweater",category:"decor",icon:"/images/Sewing/Cozy-Christmas-sweater.PNG",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-pumpkin-spice-latte-plush": {id:"sewing-pumpkin-spice-latte-plush",name:"Pumpkin Spice Latte Plush",category:"decor",icon:"/images/Sewing/Pumpkin-Spice-Latte-Plush.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-fluffy-snowman-plush": {id:"sewing-fluffy-snowman-plush",name:"Fluffy Snowman Plush",category:"decor",icon:"/images/Sewing/Fluffy-Snowman-Plush.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-rainbow-and-cloud-plush": {id:"sewing-rainbow-and-cloud-plush",name:"Rainbow and Cloud Plush",category:"decor",icon:"/images/Sewing/Rainbow-and-Cloud-Plush.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "sewing-plush-flower-pillow": {id:"sewing-plush-flower-pillow",name:"Plush Flower Pillow",category:"decor",icon:"/images/Sewing/Plush-Flower-Pillow.png",rarity:"uncommon",sfx:"craftSuccess"},
   "tumbled-stone-coastal-white": {id:"tumbled-stone-coastal-white",name:"Coastal White Pebble",category:"special",icon:"/images/WorryStones/Coastal-White-Pebble.png",rarity:"common",sfx:"stone"},
   "tumbled-stone-sea-blue": {id:"tumbled-stone-sea-blue",name:"Sea Blue Pebble",category:"special",icon:"/images/WorryStones/Sea-Blue-Pebble.png",rarity:"common",sfx:"stone"},
   "tumbled-stone-sunset-pink": {id:"tumbled-stone-sunset-pink",name:"Sunset Pink Pebble",category:"special",icon:"/images/WorryStones/Sunset-Pink-Pebble.png",rarity:"common",sfx:"stone"},
