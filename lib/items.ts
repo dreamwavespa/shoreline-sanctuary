@@ -15,6 +15,9 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "robins-birdhouse": {id:"robins-birdhouse",name:"Robin's Birdhouse",category:"decor",icon:"/images/Robins-Birdhouse.png",rarity:"uncommon",sfx:"craftSuccess",artDescription:"A shell-and-rose birdhouse for Robin in Coconut Grove; save for future garden placement."},
+  "seashell-treasure-chest": {id:"seashell-treasure-chest",name:"Seashell Treasure Chest",category:"decor",icon:"/images/Seashell-Treasure-Chest.png",rarity:"uncommon",sfx:"craftSuccess",artDescription:"A decorative coastal treasure chest for future beach hut furnishings."},
+  "sea-glass-mirror": {id:"sea-glass-mirror",name:"Sea Glass Mirror",category:"decor",icon:"/images/Sea-Glass-Mirror.png",rarity:"rare",sfx:"craftSuccess",artDescription:"A luminous driftwood-framed mirror for the future beach hut, adorned with two glowing sand dollars."},
   "sewing-seaside-knit-hat": {id:"sewing-seaside-knit-hat",name:"Seaside Knit Hat",category:"decor",icon:"/images/Sewing/Seaside-Knit-Hat.png",rarity:"uncommon",sfx:"craftSuccess"},
   "sewing-seaside-mittens": {id:"sewing-seaside-mittens",name:"Seaside Mittens",category:"decor",icon:"/images/Sewing/Seaside-mittens.PNG",rarity:"uncommon",sfx:"craftSuccess"},
   "sewing-cozy-christmas-sweater": {id:"sewing-cozy-christmas-sweater",name:"Cozy Christmas Sweater",category:"decor",icon:"/images/Sewing/Cozy-Christmas-sweater.PNG",rarity:"uncommon",sfx:"craftSuccess"},
