@@ -118,7 +118,7 @@ function RecipeCard({
       <p className="text-sm text-amber-700 mb-3">{description}</p>
       {recipeId.startsWith("cadence-") && recipeId.endsWith("-blocks") ? <div className="mb-4 rounded-2xl bg-amber-50 p-3 ring-1 ring-amber-200"><p className="sr-only">Preview of all six Seaside blocks: shell, starfish, wave, pearl, fish, moon.</p><div className="grid grid-cols-3 gap-2">{(recipeId === "cadence-garden-blocks" ? ["Hibiscus","Sunflower","Butterfly","Strawberry","Watering-Can","Bee"] : recipeId === "cadence-night-sky-blocks" ? ["Crescent-Moon","Star","Constellation","Shooting-Star","Full-Moon","Owl"] : recipeId === "cadence-winter-blocks" ? ["Snowflake","Snowman","Snowy-Tree","Hot-Chocolate","Ice-Skates","Pinecones"] : ["shell","starfish","wave","pearl","fish","moon"]).map(block => <Image key={block} src={`/images/Driftwood-blocks/${recipeId === "cadence-garden-blocks" ? "Garden" : recipeId === "cadence-night-sky-blocks" ? "Night-Sky" : recipeId === "cadence-winter-blocks" ? "Winter" : "Seaside"}-${block}.png`} alt={`${block} wooden block`} width={112} height={112} unoptimized className="mx-auto h-24 w-24 max-w-full object-contain" />)}</div></div> : imageSrc && (
         <div className="relative mb-4 h-48 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-200">
-          <Image src={imageSrc} alt={imageAlt || `Finished ${title}`} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+          <Image src={imageSrc} alt={imageAlt || `Finished ${title}`} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-contain p-2" />
         </div>
       )}
       <CostRow cost={cost} />
