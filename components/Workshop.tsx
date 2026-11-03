@@ -1101,12 +1101,13 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           <>
 
 
-            {DECOR_RECIPES.filter((r) => ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id)).map((r) => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable />)}
+            {DECOR_RECIPES.filter((r) => ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id)).map((r) => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={({ "beach-bag": "/images/Beach-bag-clean.png", "beach-umbrella": "/images/Beach-umbrella-clean.png", "picnic-basket": "/images/Picnic-basket-clean.png", "woven-sun-hat": "/images/Woven-sun-hat-clean.png" } as Record<string, string>)[r.id]} />)}
             {studioStation === "general" && <RecipeCard
               title={RAFT_RECIPE.name}
               description={RAFT_RECIPE.description}
               cost={RAFT_RECIPE.cost}
               recipeId={RAFT_RECIPE.id}
+              imageSrc="/images/Rubber-raft-clean.png"
             />}
             <RecipeCard
               title="Kelp Resin"
@@ -1156,12 +1157,14 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                   description="A warm, glowing housing to help light the coastal path up to the lighthouse."
                   cost={LANTERN_COST}
                   recipeId="sea-glass-lantern"
+                  imageSrc="/images/Coastal-lantern-clean.png"
                 />
                 <RecipeCard
                   title="Interactive Fish Grotto"
                   description="A colorful sea-glass arch placed in the shallows — rumor has it Rainbow Seahorses love to hide here."
                   cost={FISH_GROTTO_COST}
                   recipeId="fish-grotto"
+                  imageSrc="/images/Fish-grotto-clean.png"
                 />
               </>
             )}
@@ -1299,6 +1302,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
               cost={WIND_CHIME_COST}
               recipeId="wind-chime"
+              imageSrc="/images/Melodic-wind-chime.png"
               repeatable
             />}
             {studioStation === "decor" && (<section aria-labelledby="wind-chime-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-amber-50 p-4 mb-4 shadow-md ring-1 ring-cyan-200">
@@ -1316,7 +1320,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
             </section>)}
             {studioStation === "candles" && <GlowingCauldronCraft />}
             {DECOR_RECIPES.filter((r) => studioStation === "candles" ? ["coastal-beeswax-candle", "glowing-moonlight-candle", "angels-tidal-geode-candle"].includes(r.id) : studioStation === "decor" ? ["coastal-salt-lamp", "shoreline-snow-globe", "moonlit-artisan-polish", "cadence-seaside-blocks", "cadence-garden-blocks", "cadence-night-sky-blocks", "cadence-winter-blocks", "robins-birdhouse", "seashell-treasure-chest", "sea-glass-mirror"].includes(r.id) : studioStation === "general" ? ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id) : false).map((r) => (
-              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "cadence-night-sky-blocks" && !seasonalBlocks.nightSky) || (r.id === "cadence-winter-blocks" && !seasonalBlocks.winter) || (r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "cadence-night-sky-blocks" ? "Visit Cadence in her nursery after 7 PM Eastern to discover this recipe permanently." : r.id === "cadence-winter-blocks" ? "Unlocks December 1 Eastern time, then stays available permanently." : r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
+              <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={({ "coastal-salt-lamp": "/images/Coastal-salt-lamp.png", "shoreline-snow-globe": "/images/Coastal-snow-globe.png", "beach-bag": "/images/Beach-bag-clean.png", "beach-umbrella": "/images/Beach-umbrella-clean.png", "picnic-basket": "/images/Picnic-basket-clean.png", "woven-sun-hat": "/images/Woven-sun-hat-clean.png" } as Record<string, string>)[r.id] || (r.sceneImage ? SCENES[r.sceneImage as keyof typeof SCENES] : ITEMS[r.id]?.icon?.startsWith("/") ? ITEMS[r.id].icon : undefined)} imageAlt={ITEMS[r.id]?.artDescription} locked={(r.id === "cadence-night-sky-blocks" && !seasonalBlocks.nightSky) || (r.id === "cadence-winter-blocks" && !seasonalBlocks.winter) || (r.id === "coastal-beeswax-candle" && state.honeybellStage < 3) || (r.id === "moonlit-artisan-polish" && !state.inventory["moonlit-artisan-polish-recipe"])} lockedMessage={r.id === "cadence-night-sky-blocks" ? "Visit Cadence in her nursery after 7 PM Eastern to discover this recipe permanently." : r.id === "cadence-winter-blocks" ? "Unlocks December 1 Eastern time, then stays available permanently." : r.id === "moonlit-artisan-polish" ? "Polish three shells with Luna to receive her first jar and unlock this recipe." : "Grow the Golden Honeybell in the Coconut Grove to welcome the bees and unlock their candle recipe."} />
             ))}
 
           </>
