@@ -108,6 +108,7 @@ interface GameState {
   weatherForecastDate: string;
   windTreasureRewards: Record<string, string>;
   robinNestPlacedAt: number;
+  robinBirdhousePlaced: boolean;
   robinNestRepairNeeded: boolean;
   robinNestStormDate: string;
   robinFeederRefills: number;
@@ -273,6 +274,7 @@ const DEFAULT_STATE: GameState = {
   weatherForecastDate: "",
   windTreasureRewards: {},
   robinNestPlacedAt: 0,
+  robinBirdhousePlaced: false,
   robinNestRepairNeeded: false,
   robinNestStormDate: "",
   robinFeederRefills: 0,
@@ -479,6 +481,7 @@ interface Ctx {
   refillRobinFeeder: () => boolean;
   replaceRobinFeeder: () => boolean;
   giftRobin: (itemId: string) => boolean;
+  giveRobinBirdhouse: () => boolean;
   fillRobinBirdbath: () => boolean;
   robinNestingAction: (action: "start" | "check") => boolean;
   activateRobinGreenhouse: () => boolean;
@@ -886,6 +889,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (!s.robinFeederPlaced || (s.robinFeederRefills || 0) < 12 || (s.inventory["food-pinecone-bird-feeder"] || 0) < 1) return false;
     setState(prev => ({ ...prev, robinFeederRefills: 0, robinFeederLastFilledAt: Date.now(), inventory: { ...prev.inventory, "food-pinecone-bird-feeder": (prev.inventory["food-pinecone-bird-feeder"] || 0) - 1 } }));
     toast("Robin's old pinecone feeder has been replaced!");
+    return true;
+  };
+  const giveRobinBirdhouse = (): boolean => {
+    const current = stateRef.current;
+    if (!current.robinNestPlacedAt || Date.now() - current.robinNestPlacedAt < 24 * 60 * 60 * 1000 || current.robinBirdhousePlaced || (current.inventory["robins-birdhouse"] || 0) < 1) return false;
+    setState(prev => ({
+      ...prev,
+      robinBirdhousePlaced: true,
+      inventory: { ...prev.inventory, "robins-birdhouse": (prev.inventory["robins-birdhouse"] || 0) - 1 },
+    }));
+    toast("Robin chirps happily! Her new birdhouse is hanging beside her nest.");
     return true;
   };
   const giftRobin = (itemId: string): boolean => {
@@ -2937,6 +2951,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       refillRobinFeeder,
       replaceRobinFeeder,
       giftRobin,
+      giveRobinBirdhouse,
       fillRobinBirdbath,
       robinNestingAction,
       activateRobinGreenhouse,
