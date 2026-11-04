@@ -164,7 +164,7 @@ function MaevesKettleCard() {
 }
 
 export default function CoveScene() {
-  const { state, collectItem, setMusicOverride } = useGame();
+  const { state, collectItem, setMusicOverride, recoverMaevesKettle } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
@@ -236,7 +236,7 @@ export default function CoveScene() {
           <Image src={coveImage(state.chestOpened ? "Cove-treasure-chest-open.png" : "Cove-treasure-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
         </button>
         {!state.questProgress.keeperkettle && !state.kettleRecovered && (
-          <button type="button" aria-label="Discover Maeve's copper kettle among the rocks" onClick={() => setShowChest(false)}
+          <button type="button" aria-label="Discover Maeve's copper kettle among the rocks" onClick={() => { recoverMaevesKettle(); setAnnouncement("Maeve’s copper kettle recovered. Return it through The Keeper’s Kettle bottle quest."); }}
             className="absolute right-[4%] top-[43%] w-[30%] h-[18%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400"
 >
             <Image src={coveImage("Copper-kettle.PNG")} alt="" fill unoptimized className="object-contain" />
