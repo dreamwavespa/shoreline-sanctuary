@@ -67,6 +67,15 @@ function TidekeeperRestoration({ inventory, crafted, craft }: {
   craft: (id: string, cost: { itemId: string; count: number }[]) => boolean;
 }) {
   const [placed, setPlaced] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("shoreline-tidekeeper-placement-v1") || "[]");
+      if (Array.isArray(saved)) setPlaced(saved.filter((part: string) => TIDEKEEPER_FRAGMENTS.some(p => p === part)));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem("shoreline-tidekeeper-placement-v1", JSON.stringify(placed)); } catch {}
+  }, [placed]);
   const [message, setMessage] = useState("");
   const restored = crafted.includes("tidekeeper-vase");
   const allFound = TIDEKEEPER_FRAGMENTS.every(part => (inventory["pottery-fragment-" + part] || 0) > 0);
@@ -88,6 +97,18 @@ function TidekeeperRestoration({ inventory, crafted, craft }: {
       ) : (
         <>
           <p className="font-semibold">{TIDEKEEPER_FRAGMENTS.filter(part => (inventory["pottery-fragment-" + part] || 0) > 0).length} of 5 unique fragments in inventory. {placed.length} of 5 placed.</p>
+          <div className="rounded-xl border border-amber-300 bg-white p-3">
+            <h4 className="mb-2 text-center font-semibold">Vase restoration puzzle</h4>
+            <p className="mb-3 text-center text-sm">Each placed fragment reveals another section of the blue-and-white vase.</p>
+            <div role="img" aria-label={"Tidekeeper's Vase puzzle: " + placed.length + " of 5 sections revealed. " + (placed.length ? "Placed: " + placed.join(", ") : "No fragments placed yet")} className="relative mx-auto h-[260px] w-[200px] overflow-hidden rounded-xl bg-amber-100">
+              <Image src="/images/Cove/Tidekeeper-vase.png" alt="" fill unoptimized className="object-contain opacity-15 grayscale" />
+              {TIDEKEEPER_FRAGMENTS.map((part, index) => placed.includes(part) && (
+                <div key={part} aria-hidden="true" className="absolute inset-0" style={{ clipPath: "inset(" + (index * 20) + "% 0 " + (80 - index * 20) + "% 0)" }}>
+                  <Image src="/images/Cove/Tidekeeper-vase.png" alt="" fill unoptimized className="object-contain" />
+                </div>
+              ))}
+            </div>
+          </div>
           <ol aria-label="Placed vase fragments" className="space-y-1">
             {placed.map((part, index) => <li key={part}>{index + 1}. {part} fragment placed</li>)}
           </ol>
