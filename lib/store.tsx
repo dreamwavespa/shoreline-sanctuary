@@ -168,6 +168,7 @@ interface GameState {
   sandbarsUnlocked: boolean;
   villagerGiftCounts: Record<string, number>;
   notebookDiscovered: Record<string, boolean>;
+  coveTreasuresDiscovered: Record<string, boolean>;
   notebookSeenCount: number;
   notebookRewardsClaimed: string[];
   sandcastleGallery: SavedSandcastle[];
@@ -334,6 +335,7 @@ const DEFAULT_STATE: GameState = {
   sandbarsUnlocked: false,
   villagerGiftCounts: {},
   notebookDiscovered: {},
+  coveTreasuresDiscovered: {},
   notebookSeenCount: 0,
   notebookRewardsClaimed: [],
   sandcastleGallery: [],
@@ -668,6 +670,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           ...parsed,
           offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
+          coveTreasuresDiscovered: { ...Object.fromEntries(Object.entries(inventory).filter(([id, count]) => (id.startsWith('pottery-fragment-') || id.startsWith('tide-trinket-') || ['pearl-cream', 'pearl-chocolate', 'pearl-globe'].includes(id)) && Number(count) > 0).map(([id]) => [id, true])), ...(parsed.coveTreasuresDiscovered || {}) },
           blueprints,
           nightVisitorVisits: parsed.nightVisitorVisits || {},
           nightVisitorLastVisitDate: parsed.nightVisitorLastVisitDate || {},
@@ -1022,6 +1025,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return {
         ...s,
         inventory: isSandDollar ? s.inventory : { ...s.inventory, [itemId]: nextCount },
+        coveTreasuresDiscovered: itemId.startsWith('pottery-fragment-') || itemId.startsWith('tide-trinket-') || ['pearl-cream', 'pearl-chocolate', 'pearl-globe'].includes(itemId)
+          ? { ...s.coveTreasuresDiscovered, [itemId]: true } : s.coveTreasuresDiscovered,
         sandDollars: isSandDollar ? s.sandDollars + 1 : s.sandDollars,
         notebookDiscovered: isSandDollar
           ? { ...s.notebookDiscovered, "shell-sanddollar": true }
