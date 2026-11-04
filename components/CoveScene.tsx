@@ -168,6 +168,8 @@ export default function CoveScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
+  const [dockOpen, setDockOpen] = useState(false);
+  const dockButtonRef = useRef<HTMLButtonElement>(null);
   const [shellMatchOpen, setShellMatchOpen] = useState(false);
   const [nighttime, setNighttime] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -226,13 +228,13 @@ export default function CoveScene() {
           alt={nighttime ? "Moonlit Hidden Cove with rocky pools and a sheltered sandy shore" : "Sunlit Hidden Cove with rocky pools and a sheltered sandy shore"}
           fill unoptimized priority className="object-fill"
         />
-        <button type="button" aria-label="Explore the dock and rowboat" onClick={() => setAnnouncement("The repaired rowboat rests at the Hidden Cove dock.")}
+        <button type="button" ref={dockButtonRef} aria-label="Visit Cove Dock for wildlife photography and salvage voyages" aria-expanded={dockOpen} onClick={() => { setDockOpen(true); setShowChest(false); }}
           className="absolute left-[3%] top-[38%] w-[37%] h-[23%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Cove-dock-rowboat.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
         <button type="button" aria-label={state.chestOpened ? "Open daily treasure chest activities" : "Inspect locked treasure chest"}
-          onClick={() => setShowChest(true)}
-          className="absolute left-[5%] top-[23%] w-[34%] h-[20%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          onClick={() => { setShowChest(true); setDockOpen(false); }}
+          className="absolute left-[8%] top-[27%] w-[26%] h-[15%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage(state.chestOpened ? "Cove-treasure-chest-open.png" : "Cove-treasure-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
         </button>
         {!state.questProgress.keeperkettle && !state.kettleRecovered && (
@@ -250,9 +252,9 @@ export default function CoveScene() {
           const def = ITEMS[spot.itemId];
           return (
             <button key={spot.key} type="button" onClick={() => handleTap(spot)} aria-label={`Collect ${def.name}`}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 shadow ring-1 ring-white/70 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${poppingKeys[spot.key] ? "opacity-0" : "animate-bob"}`}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full drop-shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${poppingKeys[spot.key] ? "opacity-0" : "animate-bob"}`}
               style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 44, height: 44 }}>
-              <Image src={def.icon} alt="" width={32} height={32} unoptimized className="object-contain" />
+              {def.icon.startsWith("/") || def.icon.startsWith("http") ? <Image src={def.icon} alt="" width={32} height={32} unoptimized className="object-contain" /> : <span aria-hidden="true" className="text-2xl">{def.icon}</span>}
             </button>
           );
         })}
@@ -260,7 +262,7 @@ export default function CoveScene() {
       <div className="mx-auto max-w-[780px] px-4 pt-4 space-y-3">
         {showChest && <section aria-label="Treasure chest"><button type="button" onClick={() => setShowChest(false)} className="mb-3 rounded-lg bg-amber-800 px-4 py-3 font-semibold text-white">Return to Cove</button><ChestCard /></section>}
         {!state.questProgress.keeperkettle && <MaevesKettleCard />}
-        <OffshoreEntry kind="dock" />
+        <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={() => { setDockOpen(false); window.setTimeout(() => dockButtonRef.current?.focus(), 0); }} />
       </div>
       {shellMatchOpen && <ShellMatch onClose={closeShellMatch} />}
     </div>
