@@ -19,6 +19,19 @@ const COVE_FIND_ART: Record<string, string> = {
   "shell-sanddollar": "Cove-sand-dollar.png",
   "shell-abalone": "Cove-abalone-shell.png",
   "raw-driftwood-planks": "Cove-driftwood.png",
+  "pearl-cream": "Pearl-cream.png",
+  "pearl-chocolate": "Pearl-chocolate.png",
+  "pearl-globe": "Pearl-globe.png",
+  "pottery-fragment-lighthouse": "Pottery-fragment-lighthouse.png",
+  "pottery-fragment-wave": "Pottery-fragment-wave.png",
+  "pottery-fragment-flower": "Pottery-fragment-flower.png",
+  "pottery-fragment-shell": "Pottery-fragment-shell.png",
+  "pottery-fragment-starfish": "Pottery-fragment-starfish.png",
+  "tide-trinket-anchor": "Tide-trinket-anchor.png",
+  "tide-trinket-locket": "Tide-trinket-locket.png",
+  "tide-trinket-compass": "Tide-trinket-compass.png",
+  "tide-trinket-shell": "Tide-trinket-shell.png",
+  "tide-trinket-key": "Tide-trinket-key.png",
 };
 function coveFindArt(id: string): string | null {
   if (COVE_FIND_ART[id]) return coveImage(COVE_FIND_ART[id]);
@@ -254,7 +267,11 @@ export default function CoveScene() {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
     collectItem(spot.itemId);
-    setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.`);
+    const isFirstFragment = spot.itemId.startsWith("pottery-fragment-") && !Object.keys(state.inventory).some(id => id.startsWith("pottery-fragment-") && (state.inventory[id] || 0) > 0);
+    const specialMessage = isFirstFragment
+      ? " The Broken Tidekeeper's Vase: This patterned piece belongs to an old coastal vase. Find all five different fragments to uncover its story and restore it in a future Pottery Studio update."
+      : spot.itemId === "tide-trinket-key" ? " A mysterious inscription hints that this key may open a hidden time capsule one day. Keep it safe." : "";
+    setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.${specialMessage}`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 5 ? [...cur, ...randomSpots(1, cur)] : cur));
