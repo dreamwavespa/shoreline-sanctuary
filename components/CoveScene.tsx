@@ -188,11 +188,36 @@ export default function CoveScene() {
   const [showChest, setShowChest] = useState(false);
   const [dockOpen, setDockOpen] = useState(false);
   const dockButtonRef = useRef<HTMLButtonElement>(null);
+  const chestButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [shellMatchOpen, setShellMatchOpen] = useState(false);
   const [nighttime, setNighttime] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const shellMatchButtonRef = useRef<HTMLButtonElement>(null);
 
+  const closeActivity = () => {
+    const wasDock = dockOpen;
+    setDockOpen(false);
+    setShowChest(false);
+    window.setTimeout(() => (wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
+  };
+  useEffect(() => {
+    if (!dockOpen && !showChest) return;
+    const dialog = dialogRef.current;
+    const first = dialog?.querySelector<HTMLElement>('button');
+    first?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); closeActivity(); return; }
+      if (event.key !== 'Tab' || !dialog) return;
+      const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(el => el.getClientRects().length > 0);
+      if (!controls.length) return;
+      const firstControl = controls[0], lastControl = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === firstControl) { event.preventDefault(); lastControl.focus(); }
+      else if (!event.shiftKey && document.activeElement === lastControl) { event.preventDefault(); firstControl.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [dockOpen, showChest]);
   const closeShellMatch = () => {
     setShellMatchOpen(false);
     window.setTimeout(() => shellMatchButtonRef.current?.focus(), 0);
@@ -250,7 +275,7 @@ export default function CoveScene() {
           className="absolute left-[3%] top-[38%] w-[37%] h-[23%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Cove-dock-rowboat.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
-        <button type="button" aria-label={state.chestOpened ? "Open daily treasure chest activities" : "Inspect locked treasure chest"}
+        <button ref={chestButtonRef} type="button" aria-label={state.chestOpened ? "Open daily treasure chest activities" : "Inspect locked treasure chest"}
           onClick={() => { setShowChest(true); setDockOpen(false); }}
           className="absolute left-[8%] top-[27%] w-[26%] h-[15%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage(state.chestOpened ? "Cove-chest-open.png" : "Cove-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
@@ -266,7 +291,7 @@ export default function CoveScene() {
           className="absolute right-[4%] top-[62%] h-[19%] w-[37%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Shell-match.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
-        {!showChest && spots.map(spot => {
+        {spots.map(spot => {
           const def = ITEMS[spot.itemId];
           const art = coveFindArt(spot.itemId);
           return (
@@ -278,11 +303,21 @@ export default function CoveScene() {
           );
         })}
       </div>
-      <div className="mx-auto max-w-[780px] px-4 pt-4 space-y-3">
-        {showChest && <section aria-label="Treasure chest"><button type="button" onClick={() => setShowChest(false)} className="mb-3 rounded-lg bg-amber-800 px-4 py-3 font-semibold text-white">Return to Cove</button><ChestCard /></section>}
-        {!state.questProgress.keeperkettle && <MaevesKettleCard />}
-        <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={() => { setDockOpen(false); window.setTimeout(() => dockButtonRef.current?.focus(), 0); }} />
-      </div>
+      {(showChest || dockOpen) && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
+            className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#fbf3e3] shadow-2xl">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
+              <h2 className="text-lg font-bold text-amber-950">{dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
+              <button type="button" onClick={closeActivity} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Close and return to Cove</button>
+            </div>
+            <div className="min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5">
+              {showChest && <ChestCard />}
+              <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={closeActivity} />
+            </div>
+          </div>
+        </div>
+      )}
       {shellMatchOpen && <ShellMatch onClose={closeShellMatch} />}
     </div>
   );
