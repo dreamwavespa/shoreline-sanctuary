@@ -15,6 +15,17 @@ interface Spot {
 }
 
 const coveImage = (name: string) => `/images/Cove/${name}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`;
+const COVE_FIND_ART: Record<string, string> = {
+  "shell-sanddollar": "Cove-sand-dollar.png",
+  "shell-abalone": "Cove-abalone-shell.png",
+  "raw-driftwood-planks": "Cove-driftwood.png",
+};
+function coveFindArt(id: string): string | null {
+  if (COVE_FIND_ART[id]) return coveImage(COVE_FIND_ART[id]);
+  if (id.startsWith("glass-")) return coveImage("Cove-sea-glass.png");
+  if (id.startsWith("pearl-")) return coveImage("Cove-pearl-oyster.png");
+  return null;
+}
 const coveNight = () => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; };
 
 function randomSpots(n: number): Spot[] {
@@ -235,7 +246,7 @@ export default function CoveScene() {
         <button type="button" aria-label={state.chestOpened ? "Open daily treasure chest activities" : "Inspect locked treasure chest"}
           onClick={() => { setShowChest(true); setDockOpen(false); }}
           className="absolute left-[8%] top-[27%] w-[26%] h-[15%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
-          <Image src={coveImage(state.chestOpened ? "Cove-treasure-chest-open.png" : "Cove-treasure-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
+          <Image src={coveImage(state.chestOpened ? "Cove-chest-open.png" : "Cove-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
         </button>
         {!state.questProgress.keeperkettle && !state.kettleRecovered && (
           <button type="button" aria-label="Discover Maeve's copper kettle among the rocks" onClick={() => { recoverMaevesKettle(); setAnnouncement("Maeve’s copper kettle recovered. Return it through The Keeper’s Kettle bottle quest."); }}
@@ -250,11 +261,12 @@ export default function CoveScene() {
         </button>
         {!showChest && spots.map(spot => {
           const def = ITEMS[spot.itemId];
+          const art = coveFindArt(spot.itemId);
           return (
             <button key={spot.key} type="button" onClick={() => handleTap(spot)} aria-label={`Collect ${def.name}`}
               className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full drop-shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${poppingKeys[spot.key] ? "opacity-0" : "animate-bob"}`}
               style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 44, height: 44 }}>
-              {def.icon.startsWith("/") || def.icon.startsWith("http") ? <Image src={def.icon} alt="" width={32} height={32} unoptimized className="object-contain" /> : <span aria-hidden="true" className="text-2xl">{def.icon}</span>}
+              {art ? <Image src={art} alt="" width={38} height={38} unoptimized className="object-contain" /> : <span aria-hidden="true" className="text-2xl drop-shadow-md">{def.category === "shell" ? "🐚" : def.category === "raw" ? "🪵" : def.category === "food" ? "🍒" : def.category === "special" ? "✨" : "💎"}</span>}
             </button>
           );
         })}
