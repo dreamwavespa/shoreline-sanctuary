@@ -28,17 +28,24 @@ function coveFindArt(id: string): string | null {
 }
 const coveNight = () => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; };
 
-function randomSpots(n: number): Spot[] {
-  const spots: Spot[] = [];
-  for (let i = 0; i < n; i++) {
-    spots.push({
-      key: `${Date.now()}-${i}-${Math.random()}`,
-      itemId: rollCoveSpawn(),
-      x: 14 + Math.random() * 72,
-      y: 60 + Math.random() * 31,
-    });
+// Hand-picked sandy zones keep finds away from the dock, chest, rocks and Shell Match.
+const COVE_SAND_POSITIONS = [
+  [44, 62], [53, 66], [38, 71], [50, 75], [62, 73],
+  [32, 80], [44, 84], [56, 85], [67, 88], [36, 91],
+  [49, 92], [64, 94], [77, 84], [25, 87],
+] as const;
+function randomSpots(n: number, occupied: Spot[] = []): Spot[] {
+  const used = new Set(occupied.map(s => `${s.x},${s.y}`));
+  const positions = [...COVE_SAND_POSITIONS].filter(([x,y]) => !used.has(`${x},${y}`));
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
   }
-  return spots;
+  return positions.slice(0, n).map(([x,y], i) => ({
+    key: `${Date.now()}-${i}-${Math.random()}`,
+    itemId: rollCoveSpawn(),
+    x, y,
+  }));
 }
 
 const CHEST_COST = [
@@ -225,7 +232,7 @@ export default function CoveScene() {
     setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
-      setSpots((cur) => (cur.length < 5 ? [...cur, ...randomSpots(1)] : cur));
+      setSpots((cur) => (cur.length < 5 ? [...cur, ...randomSpots(1, cur)] : cur));
     }, 220);
   };
 
