@@ -61,6 +61,61 @@ function playPotterySound(kind: keyof typeof POTTERY_SOUNDS, next?: keyof typeof
 const STORAGE = "shoreline-pottery-v1";
 const MINUTE = 60000;
 function duration(ms: number) { const n = Math.max(0, Math.ceil(ms / MINUTE)); return n ? n + " min remaining" : "Ready"; }
+const TIDEKEEPER_FRAGMENTS = ["lighthouse", "wave", "flower", "shell", "starfish"] as const;
+function TidekeeperRestoration({ inventory, crafted, craft }: {
+  inventory: Record<string, number>; crafted: string[];
+  craft: (id: string, cost: { itemId: string; count: number }[]) => boolean;
+}) {
+  const [placed, setPlaced] = useState<string[]>([]);
+  const [message, setMessage] = useState("");
+  const restored = crafted.includes("tidekeeper-vase");
+  const allFound = TIDEKEEPER_FRAGMENTS.every(part => (inventory["pottery-fragment-" + part] || 0) > 0);
+  const restore = () => {
+    if (restored || !allFound || placed.length !== 5) return;
+    const cost = TIDEKEEPER_FRAGMENTS.map(part => ({ itemId: "pottery-fragment-" + part, count: 1 }));
+    if (craft("tidekeeper-vase", cost)) setMessage("The five fragments have been joined! You restored the Tidekeeper's Vase. It is now in your inventory.");
+    else setMessage("The fragments could not be restored. Check your inventory.");
+  };
+  return (
+    <section aria-labelledby="tidekeeper-restoration-heading" className="space-y-3 rounded-xl border border-amber-300 bg-amber-50 p-4">
+      <h3 id="tidekeeper-restoration-heading" className="text-lg font-bold">The Broken Tidekeeper's Vase</h3>
+      <p className="text-sm">Arrange five different pottery fragments found in the Cove. Once all are placed, restore the vase as a permanent keepsake.</p>
+      {restored ? (
+        <div>
+          <Image src="/images/Cove/Tidekeeper-vase.png" alt="Restored Tidekeeper's Vase" width={180} height={220} unoptimized className="mx-auto object-contain" />
+          <p className="font-semibold">Restoration complete! The Tidekeeper's Vase has been added to your inventory.</p>
+        </div>
+      ) : (
+        <>
+          <p className="font-semibold">{TIDEKEEPER_FRAGMENTS.filter(part => (inventory["pottery-fragment-" + part] || 0) > 0).length} of 5 unique fragments in inventory. {placed.length} of 5 placed.</p>
+          <ol aria-label="Placed vase fragments" className="space-y-1">
+            {placed.map((part, index) => <li key={part}>{index + 1}. {part} fragment placed</li>)}
+          </ol>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {TIDEKEEPER_FRAGMENTS.map(part => {
+              const id = "pottery-fragment-" + part;
+              const owned = (inventory[id] || 0) > 0;
+              const isPlaced = placed.includes(part);
+              return <div key={part} className="rounded-lg bg-white p-2 text-center">
+                <Image src={"/images/Cove/Pottery-fragment-" + part + ".png"} alt="" width={90} height={90} unoptimized className="mx-auto h-24 w-24 object-contain" />
+                <p className="text-sm font-semibold capitalize">{part} fragment</p>
+                <button type="button" disabled={!owned} onClick={() => {
+                  setPlaced(current => isPlaced ? current.filter(x => x !== part) : [...current, part]);
+                  setMessage(isPlaced ? part + " fragment removed." : part + " fragment placed.");
+                }} className="mt-2 min-h-11 rounded-lg bg-teal-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">
+                  {!owned ? "Not yet found" : isPlaced ? "Remove fragment" : "Place fragment"}
+                </button>
+              </div>;
+            })}
+          </div>
+          <button type="button" disabled={!allFound || placed.length !== 5} onClick={restore} className="min-h-12 w-full rounded-xl bg-amber-800 p-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Join fragments and restore vase</button>
+        </>
+      )}
+      <p role="status" aria-live="polite" className="text-sm">{message}</p>
+    </section>
+  );
+}
+
 export default function PotteryStudio() {
   const { state, craft, hasEnough } = useGame();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -178,6 +233,7 @@ export default function PotteryStudio() {
   if (!hydrated) return <p>Loading pottery studio…</p>;
   return <section className="space-y-4 rounded-2xl bg-white/90 p-4 text-teal-950" aria-label="Pottery Studio">
     <p>Shape pottery, wait for it to dry, choose a glaze, then fire it in the kiln. Timers continue while this page is closed.</p>
+    <TidekeeperRestoration inventory={state.inventory} crafted={state.crafted} craft={craft} />
     <p className="font-semibold">Pottery spaces: {active} of {slots} in use</p>
     <section aria-labelledby="pottery-mastery-heading" className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-3">
       <h3 id="pottery-mastery-heading" className="text-lg font-bold">Pottery mastery rewards</h3>
