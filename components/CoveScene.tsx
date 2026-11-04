@@ -82,6 +82,42 @@ const CHEST_TREASURE_NOTES: Record<string, string> = {
   "bag-old-coins": "A weathered pouch filled with old coins from distant ports.",
 };
 
+
+const COVE_COLLECTIONS = [
+  { title: "Tidekeeper's Vase", ids: ["pottery-fragment-lighthouse", "pottery-fragment-wave", "pottery-fragment-flower", "pottery-fragment-shell", "pottery-fragment-starfish"], description: "Collect five unique fragments to prepare for the future pottery restoration project." },
+  { title: "Lost Tide Trinkets", ids: ["tide-trinket-anchor", "tide-trinket-locket", "tide-trinket-compass", "tide-trinket-shell", "tide-trinket-key"], description: "The Forgotten Tide Key may someday open a hidden time capsule." },
+  { title: "Rare Cove Pearls", ids: ["pearl-cream", "pearl-chocolate", "pearl-globe"], description: "Chocolate and Globe Pearls will arrive with the unusually low tide discoveries." },
+] as const;
+
+function CoveTreasuresCollection({ discovered }: { discovered: Record<string, boolean> }) {
+  return (
+    <section aria-label="Cove Treasures collection" className="space-y-5">
+      <p className="text-sm text-amber-900">Treasures remain recorded here even after they leave your inventory.</p>
+      {COVE_COLLECTIONS.map(group => {
+        const found = group.ids.filter(id => discovered[id]).length;
+        return (
+          <section key={group.title} className="rounded-xl bg-white p-4 ring-1 ring-amber-200" aria-label={group.title}>
+            <h3 className="font-bold text-amber-950">{group.title} — {found} of {group.ids.length} discovered</h3>
+            <p className="mb-3 text-sm text-amber-800">{group.description}</p>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {group.ids.map(id => {
+                const foundItem = !!discovered[id];
+                return (
+                  <li key={id} className="rounded-lg bg-amber-50 p-3 text-center">
+                    {foundItem ? <Image src={ITEMS[id].icon} alt="" width={76} height={76} unoptimized className="mx-auto h-20 w-20 object-contain" /> : <div aria-hidden="true" className="mx-auto flex h-20 w-20 items-center justify-center text-3xl">?</div>}
+                    <span className="mt-2 block text-sm font-semibold text-amber-950">{foundItem ? ITEMS[id].name : "Undiscovered treasure"}</span>
+                    <span className="block text-xs text-amber-800">{foundItem ? "Discovered" : "Not yet found"}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })}
+    </section>
+  );
+}
+
 function ChestCard() {
   const { state, openChest, searchChest, hasEnough } = useGame();
   const [todayKey, setTodayKey] = useState("");
@@ -199,6 +235,8 @@ export default function CoveScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
+  const [showCollection, setShowCollection] = useState(false);
+  const collectionButtonRef = useRef<HTMLButtonElement>(null);
   const [dockOpen, setDockOpen] = useState(false);
   const dockButtonRef = useRef<HTMLButtonElement>(null);
   const chestButtonRef = useRef<HTMLButtonElement>(null);
@@ -210,12 +248,14 @@ export default function CoveScene() {
 
   const closeActivity = () => {
     const wasDock = dockOpen;
+    const wasCollection = showCollection;
     setDockOpen(false);
     setShowChest(false);
-    window.setTimeout(() => (wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
+    setShowCollection(false);
+    window.setTimeout(() => (wasCollection ? collectionButtonRef : wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
   };
   useEffect(() => {
-    if (!dockOpen && !showChest) return;
+    if (!dockOpen && !showChest && !showCollection) return;
     const dialog = dialogRef.current;
     const first = dialog?.querySelector<HTMLElement>('button');
     first?.focus();
@@ -230,7 +270,7 @@ export default function CoveScene() {
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [dockOpen, showChest]);
+  }, [dockOpen, showChest, showCollection]);
   const closeShellMatch = () => {
     setShellMatchOpen(false);
     window.setTimeout(() => shellMatchButtonRef.current?.focus(), 0);
@@ -320,16 +360,18 @@ export default function CoveScene() {
           );
         })}
       </div>
-      {(showChest || dockOpen) && (
+      <div className="mx-auto max-w-[780px] px-4 py-4"><button ref={collectionButtonRef} type="button" onClick={() => { setShowCollection(true); setShowChest(false); setDockOpen(false); }} className="min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Open Cove Treasures Collection</button></div>
+      {(showChest || dockOpen || showCollection) && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
             className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#fbf3e3] shadow-2xl">
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
-              <h2 className="text-lg font-bold text-amber-950">{dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
+              <h2 className="text-lg font-bold text-amber-950">{showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
               <button type="button" onClick={closeActivity} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Close and return to Cove</button>
             </div>
             <div className="min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5">
               {showChest && <ChestCard />}
+              {showCollection && <CoveTreasuresCollection discovered={state.coveTreasuresDiscovered || {}} />}
               <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={closeActivity} />
             </div>
           </div>
