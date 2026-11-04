@@ -248,6 +248,8 @@ export default function CoveScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
   const [showCollection, setShowCollection] = useState(false);
+  const [showLowTide, setShowLowTide] = useState(false);
+  const lowTideButtonRef = useRef<HTMLButtonElement>(null);
   const collectionButtonRef = useRef<HTMLButtonElement>(null);
   const [dockOpen, setDockOpen] = useState(false);
   const dockButtonRef = useRef<HTMLButtonElement>(null);
@@ -285,13 +287,15 @@ export default function CoveScene() {
   const closeActivity = () => {
     const wasDock = dockOpen;
     const wasCollection = showCollection;
+    const wasLowTide = showLowTide;
     setDockOpen(false);
     setShowChest(false);
     setShowCollection(false);
-    window.setTimeout(() => (wasCollection ? collectionButtonRef : wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
+    setShowLowTide(false);
+    window.setTimeout(() => (wasLowTide ? lowTideButtonRef : wasCollection ? collectionButtonRef : wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
   };
   useEffect(() => {
-    if (!dockOpen && !showChest && !showCollection) return;
+    if (!dockOpen && !showChest && !showCollection && !showLowTide) return;
     const dialog = dialogRef.current;
     const first = dialog?.querySelector<HTMLElement>('button');
     first?.focus();
@@ -306,7 +310,7 @@ export default function CoveScene() {
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [dockOpen, showChest, showCollection]);
+  }, [dockOpen, showChest, showCollection, showLowTide]);
   const closeShellMatch = () => {
     setShellMatchOpen(false);
     window.setTimeout(() => shellMatchButtonRef.current?.focus(), 0);
@@ -384,6 +388,14 @@ export default function CoveScene() {
           className="absolute right-[4%] top-[62%] h-[19%] w-[37%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Shell-match.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
+        {lowTideActive && (
+          <button type="button" ref={lowTideButtonRef} aria-label="Explore exposed Cove rocks during unusually low tide" aria-expanded={showLowTide}
+            onClick={() => { setShowLowTide(true); setShowChest(false); setDockOpen(false); setShowCollection(false); }}
+            className="absolute right-[4%] top-[42%] h-[15%] w-[31%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+            <span aria-hidden="true" className="absolute bottom-0 right-0 rounded-full bg-teal-900/90 px-3 py-2 text-2xl text-white shadow-lg">🔎</span>
+            <span className="sr-only">Exposed Cove rocks</span>
+          </button>
+        )}
         {spots.map(spot => {
           const def = ITEMS[spot.itemId];
           const art = coveFindArt(spot.itemId);
@@ -396,27 +408,22 @@ export default function CoveScene() {
           );
         })}
       </div>
-      {lowTideActive && (
-        <section aria-label="Unusually low tide Cove discoveries" className="mx-auto max-w-[780px] px-4 py-4">
-          <div className="rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
-            <h2 className="text-lg font-bold text-teal-950">Unusually Low Tide — Exposed Cove Rocks</h2>
-            <p className="mt-1 text-sm text-teal-900">The Lighthouse forecast reveals porcelain clay, sea glitter, rare pearls, pottery fragments and lost trinkets.</p>
-            <p className="mt-2 font-semibold text-teal-950">{lowTideSearches} of 3 searches completed today.</p>
-            <button type="button" disabled={lowTideSearches >= 3} onClick={searchLowTideCove} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">{lowTideSearches >= 3 ? "All low-tide searches completed" : "Search the exposed Cove rocks"}</button>
-            <p role="status" aria-live="polite" className="mt-2 text-sm text-teal-950">{lowTideMessage}</p>
-          </div>
-        </section>
-      )}
       <div className="mx-auto max-w-[780px] px-4 py-4"><button ref={collectionButtonRef} type="button" onClick={() => { setShowCollection(true); setShowChest(false); setDockOpen(false); }} className="min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Open Cove Treasures Collection</button></div>
-      {(showChest || dockOpen || showCollection) && (
+      {(showChest || dockOpen || showCollection || showLowTide) && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showLowTide ? "Unusually low tide Cove discoveries" : showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
             className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#fbf3e3] shadow-2xl">
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
-              <h2 className="text-lg font-bold text-amber-950">{showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
+              <h2 className="text-lg font-bold text-amber-950">{showLowTide ? "Exposed Cove Rocks" : showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
               <button type="button" onClick={closeActivity} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Close and return to Cove</button>
             </div>
             <div className="min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5">
+              {showLowTide && <section aria-label="Low tide searches" className="rounded-xl bg-sky-50 p-4 space-y-3"><h2 className="text-lg font-bold text-teal-950">Unusually Low Tide — Exposed Cove Rocks</h2>
+<p className="mt-1 text-sm text-teal-900">The Lighthouse forecast reveals porcelain clay, sea glitter, rare pearls, pottery fragments and lost trinkets.</p>
+<p className="mt-2 font-semibold text-teal-950">{lowTideSearches} of 3 searches completed today.</p>
+<button type="button" disabled={lowTideSearches >= 3} onClick={searchLowTideCove} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">{lowTideSearches >= 3 ? "All low-tide searches completed" : "Search the exposed Cove rocks"}</button>
+<p role="status" aria-live="polite" className="mt-2 text-sm text-teal-950">{lowTideMessage}</p>
+</section>}
               {showChest && <ChestCard />}
               {showCollection && <CoveTreasuresCollection discovered={state.coveTreasuresDiscovered || {}} />}
               <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={closeActivity} />
