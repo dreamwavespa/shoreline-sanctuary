@@ -62,6 +62,15 @@ const STORAGE = "shoreline-pottery-v1";
 const MINUTE = 60000;
 function duration(ms: number) { const n = Math.max(0, Math.ceil(ms / MINUTE)); return n ? n + " min remaining" : "Ready"; }
 const TIDEKEEPER_FRAGMENTS = ["lighthouse", "wave", "flower", "shell", "starfish"] as const;
+// Interlocking, irregular ceramic shard boundaries. Each mask spans a different
+// section of the same completed vase, with jagged rather than horizontal seams.
+const TIDEKEEPER_PUZZLE_SHAPES = [
+  "polygon(0% 0%, 100% 0%, 100% 17%, 89% 21%, 76% 18%, 63% 24%, 49% 19%, 36% 23%, 22% 18%, 10% 24%, 0% 20%)",
+  "polygon(0% 20%, 10% 24%, 22% 18%, 36% 23%, 49% 19%, 63% 24%, 76% 18%, 89% 21%, 100% 17%, 100% 40%, 88% 44%, 74% 39%, 61% 45%, 47% 41%, 32% 46%, 18% 40%, 7% 44%, 0% 41%)",
+  "polygon(0% 41%, 7% 44%, 18% 40%, 32% 46%, 47% 41%, 61% 45%, 74% 39%, 88% 44%, 100% 40%, 100% 60%, 90% 65%, 77% 61%, 64% 67%, 50% 62%, 35% 66%, 21% 60%, 9% 66%, 0% 62%)",
+  "polygon(0% 62%, 9% 66%, 21% 60%, 35% 66%, 50% 62%, 64% 67%, 77% 61%, 90% 65%, 100% 60%, 100% 81%, 88% 85%, 74% 79%, 61% 84%, 48% 80%, 34% 86%, 20% 81%, 8% 85%, 0% 80%)",
+  "polygon(0% 80%, 8% 85%, 20% 81%, 34% 86%, 48% 80%, 61% 84%, 74% 79%, 88% 85%, 100% 81%, 100% 100%, 0% 100%)",
+] as const;
 function TidekeeperRestoration({ inventory, crafted, craft }: {
   inventory: Record<string, number>; crafted: string[];
   craft: (id: string, cost: { itemId: string; count: number }[]) => boolean;
@@ -103,7 +112,7 @@ function TidekeeperRestoration({ inventory, crafted, craft }: {
             <div role="img" aria-label={"Tidekeeper's Vase puzzle: " + placed.length + " of 5 sections revealed. " + (placed.length ? "Placed: " + placed.join(", ") : "No fragments placed yet")} className="relative mx-auto h-[260px] w-[200px] overflow-hidden rounded-xl bg-amber-100">
               <Image src="/images/Cove/Tidekeeper-vase.png" alt="" fill unoptimized className="object-contain opacity-15 grayscale" />
               {TIDEKEEPER_FRAGMENTS.map((part, index) => placed.includes(part) && (
-                <div key={part} aria-hidden="true" className="absolute inset-0" style={{ clipPath: "inset(" + (index * 20) + "% 0 " + (80 - index * 20) + "% 0)" }}>
+                <div key={part} aria-hidden="true" className="absolute inset-0" style={{ clipPath: TIDEKEEPER_PUZZLE_SHAPES[index] }}>
                   <Image src="/images/Cove/Tidekeeper-vase.png" alt="" fill unoptimized className="object-contain" />
                 </div>
               ))}
