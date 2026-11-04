@@ -39,6 +39,18 @@ function coveFindArt(id: string): string | null {
   if (id.startsWith("pearl-")) return coveImage("Cove-pearl-oyster.png");
   return null;
 }
+const LOW_TIDE_COVE_POOL = [
+  { id: "white-porcelain-clay", weight: 30 }, { id: "glitter", weight: 24 },
+  { id: "pearl-cream", weight: 12 }, { id: "pearl-chocolate", weight: 6 }, { id: "pearl-globe", weight: 1 },
+  ...["lighthouse","wave","flower","shell","starfish"].map(x => ({ id: "pottery-fragment-" + x, weight: 3 })),
+  ...["anchor","locket","compass","shell"].map(x => ({ id: "tide-trinket-" + x, weight: 2.5 })),
+  { id: "tide-trinket-key", weight: 2 },
+];
+function rollLowTideCove(): string {
+  let n = Math.random() * LOW_TIDE_COVE_POOL.reduce((sum, e) => sum + e.weight, 0);
+  for (const e of LOW_TIDE_COVE_POOL) { n -= e.weight; if (n < 0) return e.id; }
+  return "white-porcelain-clay";
+}
 const coveNight = () => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; };
 
 // Hand-picked sandy zones keep finds away from the dock, chest, rocks and Shell Match.
@@ -244,6 +256,30 @@ export default function CoveScene() {
   const [shellMatchOpen, setShellMatchOpen] = useState(false);
   const [nighttime, setNighttime] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [lowTideSearches, setLowTideSearches] = useState(0);
+  const [lowTideMessage, setLowTideMessage] = useState("");
+  const lowTideDate = state.weatherForecastDate;
+  const today = new Date().toLocaleDateString("en-CA");
+  const lowTideActive = state.currentForecast?.id === "low-tide" && lowTideDate === today;
+  const lowTideKey = "shoreline-low-tide-cove-" + lowTideDate;
+  useEffect(() => {
+    if (!lowTideActive) { setLowTideSearches(0); return; }
+    try { setLowTideSearches(Math.min(3, Math.max(0, Number(localStorage.getItem(lowTideKey) || "0")))); }
+    catch { setLowTideSearches(0); }
+  }, [lowTideActive, lowTideKey]);
+  const searchLowTideCove = () => {
+    if (!lowTideActive) return;
+    let saved = 0;
+    try { saved = Math.min(3, Math.max(0, Number(localStorage.getItem(lowTideKey) || "0"))); } catch {}
+    if (saved >= 3) { setLowTideSearches(3); setLowTideMessage("All three low-tide searches are complete."); return; }
+    const id = rollLowTideCove();
+    if (!ITEMS[id]) return;
+    try { localStorage.setItem(lowTideKey, String(saved + 1)); } catch {}
+    setLowTideSearches(saved + 1);
+    collectItem(id, { silent: true });
+    setLowTideMessage("You discovered " + ITEMS[id].name + " among the exposed Cove rocks! Added to inventory. " + (2 - saved) + " searches remaining.");
+  };
+
   const shellMatchButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeActivity = () => {
@@ -360,6 +396,17 @@ export default function CoveScene() {
           );
         })}
       </div>
+      {lowTideActive && (
+        <section aria-label="Unusually low tide Cove discoveries" className="mx-auto max-w-[780px] px-4 py-4">
+          <div className="rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
+            <h2 className="text-lg font-bold text-teal-950">Unusually Low Tide — Exposed Cove Rocks</h2>
+            <p className="mt-1 text-sm text-teal-900">The Lighthouse forecast reveals porcelain clay, sea glitter, rare pearls, pottery fragments and lost trinkets.</p>
+            <p className="mt-2 font-semibold text-teal-950">{lowTideSearches} of 3 searches completed today.</p>
+            <button type="button" disabled={lowTideSearches >= 3} onClick={searchLowTideCove} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">{lowTideSearches >= 3 ? "All low-tide searches completed" : "Search the exposed Cove rocks"}</button>
+            <p role="status" aria-live="polite" className="mt-2 text-sm text-teal-950">{lowTideMessage}</p>
+          </div>
+        </section>
+      )}
       <div className="mx-auto max-w-[780px] px-4 py-4"><button ref={collectionButtonRef} type="button" onClick={() => { setShowCollection(true); setShowChest(false); setDockOpen(false); }} className="min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Open Cove Treasures Collection</button></div>
       {(showChest || dockOpen || showCollection) && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
