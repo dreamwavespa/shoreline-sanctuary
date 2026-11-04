@@ -33,6 +33,8 @@ export default function ShipScene() {
   const [listenGameOpen, setListenGameOpen] = useState(false);
   const [ringTossOpen, setRingTossOpen] = useState(false);
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
+  const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
+  const [deckPanel, setDeckPanel] = useState<"piano" | "games" | null>(null);
   const listenButtonRef = useRef<HTMLButtonElement>(null);
   const ringTossButtonRef = useRef<HTMLButtonElement>(null);
   const smoothieButtonRef = useRef<HTMLButtonElement>(null);
@@ -44,26 +46,41 @@ export default function ShipScene() {
 
   if (!state.gameCompleted) return <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#0b3d3a] flex items-center justify-center"><div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm"><p className="text-3xl mb-2">⛵</p><p className="font-semibold text-amber-900 mb-1">The harbor gathering hasn&apos;t begun yet</p><p className="text-sm text-amber-700">Restore the shipwreck and complete The Grand Reunion to welcome everyone aboard the Community Ship.</p></div></div>;
 
-  return <div className="h-full overflow-y-auto pb-24 bg-[#0b3d3a]">
-    <div className="relative w-full h-48"><Image src={SCENES.shipDeck} alt="Community Ship deck" fill unoptimized className="object-cover" /><div className="absolute inset-0 bg-gradient-to-t from-[#0b3d3a] via-transparent to-black/10" /></div>
-    <div className="px-4 -mt-6 relative space-y-4">
-      <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-teal-100 p-5 shadow-md ring-1 ring-amber-300 text-center"><p className="text-3xl mb-1">⛵🎉</p><p className="font-semibold text-amber-900">Welcome aboard the Community Ship</p><p className="text-xs text-amber-800">Every friend of the sanctuary gathers here now.</p></div>
-      <section aria-labelledby="smoothie-bar-heading" className="rounded-2xl bg-gradient-to-br from-lime-50 via-amber-50 to-pink-100 p-4 shadow-md ring-1 ring-lime-300">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Community Ship Party Activity</p>
-        <h2 id="smoothie-bar-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">Shoreline Smoothie Bar</h2>
-        <p className="mt-1 text-sm text-teal-800">Blend fruit and herbs gathered around the sanctuary into fresh drinks for the party. Recipes use ingredients from your inventory.</p>
-        <button ref={smoothieButtonRef} type="button" onClick={() => setSmoothieBarOpen(true)} aria-label="Visit the Shoreline Smoothie Bar" className="mt-3 w-full overflow-hidden rounded-2xl bg-white text-left shadow ring-2 ring-teal-700 active:ring-4">
-          <span className="relative block h-44 w-full sm:h-56">
-            <Image src="/images/IMG_6341.jpeg" alt="" fill unoptimized className="object-cover" />
-          </span>
-          <span className="block min-h-12 bg-teal-700 px-4 py-3 text-center font-bold text-white">Visit the Smoothie Bar</span>
-        </button>
-      </section>
-      <SaltyCard />
-      <section aria-labelledby="olli-ring-toss-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-100 p-4 shadow-md ring-1 ring-amber-300"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Community Ship Party Game</p><h2 id="olli-ring-toss-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">⭕ Olli&apos;s Ring Toss</h2><p className="mt-1 text-sm text-sky-800">Match the direction and distance of Olli&apos;s raised tentacle, then toss a reusable woven seagrass ring. Nothing is timed.</p><button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 py-3 font-bold text-white shadow active:bg-amber-700">Play Ring Toss</button></section>
-      <section aria-labelledby="listen-shell-game-heading" className="rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-100 p-4 shadow-md ring-1 ring-cyan-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-800">Community Ship Mini-Game</p><h2 id="listen-shell-game-heading" className="mt-1 font-serif text-lg font-bold text-blue-950">🐚 Listen to the Shell</h2><p className="mt-1 text-sm text-blue-800">Identify sounds carried from around the island, including waves, gulls, rain, whale song, and wind chimes.</p><button ref={listenButtonRef} type="button" onClick={() => setListenGameOpen(true)} className="mt-3 w-full rounded-xl bg-cyan-700 py-3 font-bold text-white shadow active:bg-cyan-800">Play Listen to the Shell</button></section>
-      <PianoCard />
+  const hotspots = deckArea === "main" ? [
+    { label: "Visit the Shoreline Smoothie Bar", top: 30, left: 4, width: 30, height: 28, action: () => setSmoothieBarOpen(true) },
+    { label: "Play the community piano", top: 34, left: 35, width: 31, height: 27, action: () => setDeckPanel("piano") },
+    { label: "Explore ship games", top: 46, left: 67, width: 30, height: 27, action: () => setDeckPanel("games") },
+    { label: "Go down to the lower cabin", top: 78, left: 60, width: 37, height: 18, action: () => { setDeckArea("cabin"); setDeckPanel(null); } },
+  ] : [
+    { label: "Return to the main deck", top: 76, left: 55, width: 40, height: 21, action: () => { setDeckArea("main"); setDeckPanel(null); } },
+  ];
+
+  return <div className="h-full overflow-y-auto pb-24 bg-[#0b3d3a] text-white">
+    <h1 className="px-4 pt-4 text-xl font-bold">{deckArea === "main" ? "Community Ship — Main Deck" : "Community Ship — Lower Cabin"}</h1>
+    <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. All activities are also available using the accessible buttons below.</p>
+    <div className="relative w-full">
+      <Image src={deckArea === "main" ? "/images/Ship/shipwreck_main_deck_portrait.png" : "/images/Ship/shipwreck_lower_cabin_portrait.png"} alt={deckArea === "main" ? "Illustrated main deck with smoothie bar, music and games" : "Illustrated lower cabin with nautical treasures and a staircase"} width={1024} height={1536} unoptimized className="block h-auto w-full" priority />
+      {hotspots.map((spot) => <button key={spot.label} type="button" aria-label={spot.label} title={spot.label} onClick={spot.action}
+        className="absolute rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300"
+        style={{ top: spot.top + "%", left: spot.left + "%", width: spot.width + "%", height: spot.height + "%" }} />)}
     </div>
+    <nav aria-label="Ship activities" className="mx-4 mt-4 grid grid-cols-2 gap-3">
+      {deckArea === "main" ? <>
+        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setSmoothieBarOpen(true)}>Smoothie Bar</button>
+        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setDeckPanel("piano")}>Community Piano</button>
+        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setDeckPanel("games")}>Ship Games</button>
+        <button className="rounded-xl bg-amber-700 p-3 font-semibold" onClick={() => { setDeckArea("cabin"); setDeckPanel(null); }}>Lower Cabin</button>
+      </> : <button className="col-span-2 rounded-xl bg-amber-700 p-3 font-semibold" onClick={() => { setDeckArea("main"); setDeckPanel(null); }}>Return to Main Deck</button>}
+    </nav>
+    {deckArea === "cabin" && <p className="mx-4 mt-4 rounded-xl bg-teal-900 p-4 text-sm">Explore the captain's cabin. More treasure and navigation activities can be connected here in a future update.</p>}
+    {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
+      <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={() => setDeckPanel(null)}>Close activity</button>
+      {deckPanel === "piano" ? <PianoCard /> : <>
+        <SaltyCard />
+        <button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="w-full rounded-xl bg-amber-600 p-3 font-bold text-white">Play Olli's Ring Toss</button>
+        <button ref={listenButtonRef} type="button" onClick={() => setListenGameOpen(true)} className="w-full rounded-xl bg-cyan-700 p-3 font-bold text-white">Play Listen to the Shell</button>
+      </>}
+    </section>}
     {smoothieBarOpen && <SmoothieBar onClose={closeSmoothieBar} />}
     {listenGameOpen && <ListenToShell onClose={closeListenGame} />}
     {ringTossOpen && <OlliRingToss onClose={closeRingToss} />}
