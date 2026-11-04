@@ -150,7 +150,7 @@ function MaevesKettleCard() {
   return (
     <section aria-labelledby="kettle-heading" className="overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-amber-300">
       <div className="relative h-40 w-full">
-        <Image src={SCENES.maevesKettle} alt="Maeve's weathered copper kettle caught among rocks and seaweed" fill unoptimized className="object-cover" />
+        <Image src={coveImage("Copper-kettle.PNG")} alt="Maeve's weathered copper kettle caught among rocks and seaweed" fill unoptimized className="object-cover" />
       </div>
       <div className="p-4">
         <h2 id="kettle-heading" className="font-serif text-lg font-bold text-amber-950">A copper glint in the kelp</h2>
@@ -243,8 +243,8 @@ export default function CoveScene() {
           </button>
         )}
         <button ref={shellMatchButtonRef} type="button" aria-label="Play Shell Match" onClick={() => setShellMatchOpen(true)}
-          className="absolute right-[4%] top-[62%] min-h-12 rounded-xl bg-sky-900/85 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
-          🐚 Shell Match
+          className="absolute right-[4%] top-[62%] h-[19%] w-[37%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          <Image src={coveImage("Shell-match.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
         {!showChest && spots.map(spot => {
           const def = ITEMS[spot.itemId];
