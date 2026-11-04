@@ -4,7 +4,6 @@ import Image from "next/image";
 import { OffshoreEntry } from "./Offshore";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
-import { SCENES } from "@/lib/media";
 import { getShopDateKey } from "@/lib/shop";
 import ShellMatch from "./ShellMatch";
 
@@ -15,14 +14,17 @@ interface Spot {
   y: number;
 }
 
+const coveImage = (name: string) => `/images/Cove/${name}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}`;
+const coveNight = () => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; };
+
 function randomSpots(n: number): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
     spots.push({
       key: `${Date.now()}-${i}-${Math.random()}`,
       itemId: rollCoveSpawn(),
-      x: 8 + Math.random() * 84,
-      y: 40 + Math.random() * 48,
+      x: 14 + Math.random() * 72,
+      y: 60 + Math.random() * 31,
     });
   }
   return spots;
@@ -167,6 +169,8 @@ export default function CoveScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
   const [shellMatchOpen, setShellMatchOpen] = useState(false);
+  const [nighttime, setNighttime] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const shellMatchButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeShellMatch = () => {
@@ -175,7 +179,11 @@ export default function CoveScene() {
   };
 
   useEffect(() => {
+    const updateTime = () => setNighttime(coveNight());
+    updateTime();
+    const interval = window.setInterval(updateTime, 60000);
     setSpots(randomSpots(7));
+    return () => window.clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -201,6 +209,7 @@ export default function CoveScene() {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
     collectItem(spot.itemId);
+    setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 5 ? [...cur, ...randomSpots(1)] : cur));
@@ -209,57 +218,50 @@ export default function CoveScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
-      <OffshoreEntry kind="dock" />
-      <div className="relative w-full h-[55%] min-h-[280px] overflow-hidden select-none">
-        <Image src={SCENES.treasureCove} alt="Hidden Cove" fill unoptimized className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
-        {!showChest &&
-          spots.map((spot) => {
-            const def = ITEMS[spot.itemId];
-            const popping = poppingKeys[spot.key];
-            return (
-              <button
-                key={spot.key}
-                onClick={() => handleTap(spot)}
-                aria-label={`Collect ${def.name}`}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm shadow-lg ring-1 ring-white/60 transition-all duration-200 active:scale-90 ${
-                  popping ? "opacity-0 scale-150" : "opacity-100 scale-100 animate-bob"
-                }`}
-                style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 52, height: 52 }}
-              >
-                <Image src={def.icon} alt={def.name} width={36} height={36} unoptimized className="object-contain drop-shadow" />
-              </button>
-            );
-          })}
-        <button
-          type="button"
-          onClick={() => setShowChest((v) => !v)}
-          className="absolute bottom-3 right-3 bg-amber-900/80 text-amber-50 text-xs font-semibold px-3 py-2 rounded-full shadow-lg"
-        >
-          {showChest ? "🏖️ Back to Cove" : "🔒 View Chest"}
+      <p className="sr-only" role="status">{announcement}</p>
+      <p className="sr-only" role="status">{nighttime ? "Night has fallen over the Hidden Cove." : "It is daytime at the Hidden Cove."}</p>
+      <div className="relative mx-auto w-full max-w-[780px] aspect-[2/3] select-none">
+        <Image
+          src={coveImage(nighttime ? "Cove-background-night-time.PNG" : "Cove-background-day-time.PNG")}
+          alt={nighttime ? "Moonlit Hidden Cove with rocky pools and a sheltered sandy shore" : "Sunlit Hidden Cove with rocky pools and a sheltered sandy shore"}
+          fill unoptimized priority className="object-fill"
+        />
+        <button type="button" aria-label="Explore the dock and rowboat" onClick={() => setAnnouncement("The repaired rowboat rests at the Hidden Cove dock.")}
+          className="absolute left-[3%] top-[38%] w-[37%] h-[23%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          <Image src={coveImage("Cove-dock-rowboat.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
-      </div>
-
-      <div className="px-4 pt-4 space-y-4">{showChest ? <ChestCard /> : (
-        <>
-          <p className="text-xs text-amber-700/80 text-center">Tap the sparkling treasures in the cove above to collect them.</p>
-          <MaevesKettleCard />
-          <section aria-labelledby="cove-game-heading" className="rounded-2xl bg-gradient-to-br from-sky-50 to-amber-50 p-4 shadow-md ring-1 ring-sky-200">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-800">Cove Mini-Game</p>
-            <h2 id="cove-game-heading" className="mt-1 font-serif text-lg font-bold text-sky-950">🐚 Shell Match</h2>
-            <p className="mt-1 text-sm text-sky-800">Turn over shell cards to find matching pairs. Higher levels introduce similar shapes and a rare shell.</p>
-            <button
-              ref={shellMatchButtonRef}
-              type="button"
-              onClick={() => setShellMatchOpen(true)}
-              className="mt-3 w-full rounded-xl bg-sky-800 py-3 font-bold text-white shadow active:bg-sky-900"
-            >
-              Play Shell Match
+        <button type="button" aria-label={state.chestOpened ? "Open daily treasure chest activities" : "Inspect locked treasure chest"}
+          onClick={() => setShowChest(true)}
+          className="absolute left-[5%] top-[23%] w-[34%] h-[20%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          <Image src={coveImage(state.chestOpened ? "Cove-treasure-chest-open.png" : "Cove-treasure-chest-closed.png")} alt="" fill unoptimized className="object-contain" />
+        </button>
+        {!state.questProgress.keeperkettle && !state.kettleRecovered && (
+          <button type="button" aria-label="Discover Maeve's copper kettle among the rocks" onClick={() => setShowChest(false)}
+            className="absolute right-[4%] top-[43%] w-[30%] h-[18%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400"
+>
+            <Image src={coveImage("Copper-kettle.PNG")} alt="" fill unoptimized className="object-contain" />
+          </button>
+        )}
+        <button ref={shellMatchButtonRef} type="button" aria-label="Play Shell Match" onClick={() => setShellMatchOpen(true)}
+          className="absolute right-[4%] top-[62%] min-h-12 rounded-xl bg-sky-900/85 px-3 py-2 text-sm font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          🐚 Shell Match
+        </button>
+        {!showChest && spots.map(spot => {
+          const def = ITEMS[spot.itemId];
+          return (
+            <button key={spot.key} type="button" onClick={() => handleTap(spot)} aria-label={`Collect ${def.name}`}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 shadow ring-1 ring-white/70 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${poppingKeys[spot.key] ? "opacity-0" : "animate-bob"}`}
+              style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 44, height: 44 }}>
+              <Image src={def.icon} alt="" width={32} height={32} unoptimized className="object-contain" />
             </button>
-          </section>
-        </>
-      )}</div>
-
+          );
+        })}
+      </div>
+      <div className="mx-auto max-w-[780px] px-4 pt-4 space-y-3">
+        {showChest && <section aria-label="Treasure chest"><button type="button" onClick={() => setShowChest(false)} className="mb-3 rounded-lg bg-amber-800 px-4 py-3 font-semibold text-white">Return to Cove</button><ChestCard /></section>}
+        {!state.questProgress.keeperkettle && <MaevesKettleCard />}
+        <OffshoreEntry kind="dock" />
+      </div>
       {shellMatchOpen && <ShellMatch onClose={closeShellMatch} />}
     </div>
   );
