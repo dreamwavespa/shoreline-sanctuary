@@ -15,6 +15,19 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "pottery-fragment-lighthouse": { id: "pottery-fragment-lighthouse", name: "Tidekeeper Vase Fragment: Lighthouse", category: "special", icon: "/images/Pottery-fragment-lighthouse.png", rarity: "rare", sfx: "stone" },
+  "pottery-fragment-wave": { id: "pottery-fragment-wave", name: "Tidekeeper Vase Fragment: Wave", category: "special", icon: "/images/Pottery-fragment-wave.png", rarity: "rare", sfx: "stone" },
+  "pottery-fragment-flower": { id: "pottery-fragment-flower", name: "Tidekeeper Vase Fragment: Flower", category: "special", icon: "/images/Pottery-fragment-flower.png", rarity: "rare", sfx: "stone" },
+  "pottery-fragment-shell": { id: "pottery-fragment-shell", name: "Tidekeeper Vase Fragment: Shell", category: "special", icon: "/images/Pottery-fragment-shell.png", rarity: "rare", sfx: "stone" },
+  "pottery-fragment-starfish": { id: "pottery-fragment-starfish", name: "Tidekeeper Vase Fragment: Starfish", category: "special", icon: "/images/Pottery-fragment-starfish.png", rarity: "rare", sfx: "stone" },
+  "pearl-cream": { id: "pearl-cream", name: "Cream Pearl", category: "pearl", icon: "/images/Pearl-cream.png", rarity: "rare", sfx: "stone" },
+  "tide-trinket-anchor": { id: "tide-trinket-anchor", name: "Captain's Brass Anchor", category: "special", icon: "/images/Tide-trinket-anchor.png", rarity: "rare", sfx: "stone" },
+  "tide-trinket-locket": { id: "tide-trinket-locket", name: "Sea Glass Locket", category: "special", icon: "/images/Tide-trinket-locket.png", rarity: "rare", sfx: "stone" },
+  "tide-trinket-compass": { id: "tide-trinket-compass", name: "Sailor's Compass Pendant", category: "special", icon: "/images/Tide-trinket-compass.png", rarity: "rare", sfx: "stone" },
+  "tide-trinket-shell": { id: "tide-trinket-shell", name: "Carved Shell Charm", category: "special", icon: "/images/Tide-trinket-shell.png", rarity: "rare", sfx: "stone" },
+  "tide-trinket-key": { id: "tide-trinket-key", name: "Forgotten Tide Key", category: "special", icon: "/images/Tide-trinket-key.png", rarity: "rare", sfx: "stone" },
+  "pearl-chocolate": { id: "pearl-chocolate", name: "Chocolate Pearl", category: "pearl", icon: "/images/Pearl-chocolate.png", rarity: "rare", sfx: "stone" },
+  "pearl-globe": { id: "pearl-globe", name: "Globe Pearl", category: "pearl", icon: "/images/Pearl-globe.png", rarity: "rare", sfx: "stone" },
   "robins-birdhouse": {id:"robins-birdhouse",name:"Robin's Birdhouse",category:"decor",icon:"/images/Robins-Birdhouse.png",rarity:"uncommon",sfx:"craftSuccess",artDescription:"A shell-and-rose birdhouse for Robin in Coconut Grove; save for future garden placement."},
   "seashell-treasure-chest": {id:"seashell-treasure-chest",name:"Seashell Treasure Chest",category:"decor",icon:"/images/Seashell-Treasure-Chest.png",rarity:"uncommon",sfx:"craftSuccess",artDescription:"A decorative coastal treasure chest for future beach hut furnishings."},
   "sea-glass-mirror": {id:"sea-glass-mirror",name:"Sea Glass Mirror",category:"decor",icon:"/images/Sea-Glass-Mirror.png",rarity:"rare",sfx:"craftSuccess",artDescription:"A luminous driftwood-framed mirror for the future beach hut, adorned with two glowing sand dollars."},
@@ -1020,6 +1033,17 @@ export const COVE_SPAWN_POOL: { id: string; weight: number }[] = [
   { id: "sand-pink", weight: 6 },
   { id: "sand-black-obsidian", weight: 4 },
   { id: "salt-crystal-pink", weight: 5 },
+  { id: "pottery-fragment-lighthouse", weight: 0.65 },
+  { id: "pottery-fragment-wave", weight: 0.65 },
+  { id: "pottery-fragment-flower", weight: 0.65 },
+  { id: "pottery-fragment-shell", weight: 0.65 },
+  { id: "pottery-fragment-starfish", weight: 0.65 },
+  { id: "pearl-cream", weight: 2 },
+  { id: "tide-trinket-anchor", weight: 0.25 },
+  { id: "tide-trinket-locket", weight: 0.25 },
+  { id: "tide-trinket-compass", weight: 0.25 },
+  { id: "tide-trinket-shell", weight: 0.25 },
+  { id: "tide-trinket-key", weight: 0.12 },
 ];
 
 export const REEF_SPAWN_POOL: { id: string; weight: number }[] = [
