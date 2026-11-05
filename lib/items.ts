@@ -567,7 +567,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "robin-copper-leaf-feather": { id: "robin-copper-leaf-feather", name: "Copper Leaf Feather", category: "special", icon: "/images/Robin/robin_copper_leaf_feather.png", isEmoji: false, rarity: "rare", sfx: "questComplete" },
   "robin-frosted-crystal-feather": { id: "robin-frosted-crystal-feather", name: "Frosted Crystal Feather", category: "special", icon: "/images/Robin/robin_frosted_crystal_feather.png", isEmoji: false, rarity: "rare", sfx: "questComplete" },
   "robin-crystal-nest": { id: "robin-crystal-nest", name: "Crystal Nest", category: "decor", icon: "/images/Robin/robin_crystal_nest.png", isEmoji: false, rarity: "rare", sfx: "questComplete" },
-  "robin-crystal-keepsake": { id: "robin-crystal-keepsake", name: "Carved Crystal Robin", category: "special", icon: "💎", isEmoji: true, rarity: "rare", sfx: "questComplete" },
+  "robin-crystal-keepsake": { id: "robin-crystal-keepsake", name: "Carved Crystal Robin", category: "special", icon: "/images/Robin/Robin-crystal-carving.PNG", isEmoji: false, rarity: "rare", sfx: "questComplete" },
   "bird-feather": { id: "bird-feather", name: "Soft Bird Feather", category: "raw", icon: "🪶", isEmoji: true, rarity: "common", sfx: "bagRustle" },
   "cotton-plant-seeds": { id: "cotton-plant-seeds", name: "Cotton Plant Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
   "catnip-plant-seeds": { id: "catnip-plant-seeds", name: "Catnip Plant Seeds", category: "raw", icon: "🌱", isEmoji: true, rarity: "uncommon", sfx: "bagRustle" },
