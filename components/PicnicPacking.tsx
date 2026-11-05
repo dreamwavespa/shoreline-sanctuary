@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
+import { ITEMS } from "@/lib/items";
 
 interface PicnicItem {
   id: string;
@@ -36,6 +37,9 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
   const [announcement, setAnnouncement] = useState("Begin when you are ready to pack the picnic basket.");
+  const [lastIngredientDate, setLastIngredientDate] = useState("");
+  const [bonusMessage, setBonusMessage] = useState("");
+  const today = new Date().toLocaleDateString("en-CA");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const selectedItem = tray.find((item) => item.id === selectedItemId) || null;
   const packedCount = PICNIC_ITEMS.length - tray.length;
@@ -43,6 +47,7 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     headingRef.current?.focus();
+    try { setLastIngredientDate(localStorage.getItem("shoreline-picnic-ingredient-date") || ""); } catch {}
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -56,6 +61,7 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
     setOccupied({});
     setMistakes(0);
     setComplete(false);
+    setBonusMessage("");
     setPlaying(true);
     setAnnouncement("Packing started. Choose an item from the picnic table, then choose its starting space in the basket.");
   };
@@ -93,6 +99,16 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
     if (nextTray.length === 0) {
       window.setTimeout(() => {
         collectItem("picnic-packed-keepsake");
+        if (lastIngredientDate !== today) {
+          const pool = ["flour", "flour", "eggs", "eggs", "cocoa-powder", "cocoa-powder", "vanilla"];
+          const ingredient = pool[Math.floor(Math.random() * pool.length)];
+          collectItem(ingredient);
+          try { localStorage.setItem("shoreline-picnic-ingredient-date", today); } catch {}
+          setLastIngredientDate(today);
+          setBonusMessage(`Picnic Packing bonus: 1 ${ITEMS[ingredient]?.name || ingredient} added to your inventory!`);
+        } else {
+          setBonusMessage("Today's baking ingredient bonus has already been collected.");
+        }
         setComplete(true);
         setPlaying(false);
         setAnnouncement(`Picnic basket packed with ${mistakes} ${mistakes === 1 ? "mistake" : "mistakes"}. The food, flowers, dishes, treats, drinks, and blanket all fit safely.`);
