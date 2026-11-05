@@ -10,6 +10,7 @@ import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
 import PicnicPacking from "./PicnicPacking";
 import CupcakeMatching from "./CupcakeMatching";
+import SeashellBakingChallenge from "./SeashellBakingChallenge";
 import JewelryCounter from "./JewelryCounter";
 import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
@@ -967,6 +968,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
   const [cupcakeMatchingOpen, setCupcakeMatchingOpen] = useState(false);
+  const [seashellBakingOpen, setSeashellBakingOpen] = useState(false);
   const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
   const [customSandArtOpen, setCustomSandArtOpen] = useState(false);
   const [olliInkOpen, setOlliInkOpen] = useState(false);
@@ -974,6 +976,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
   const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
   const cupcakeMatchingButtonRef = useRef<HTMLButtonElement>(null);
+  const seashellBakingButtonRef = useRef<HTMLButtonElement>(null);
   const jewelryCounterButtonRef = useRef<HTMLButtonElement>(null);
   const customSandArtButtonRef = useRef<HTMLButtonElement>(null);
   const olliInkButtonRef = useRef<HTMLButtonElement>(null);
@@ -982,6 +985,11 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const closeWindChime = () => {
     setWindChimeOpen(false);
     window.setTimeout(() => windChimeButtonRef.current?.focus(), 0);
+  };
+
+  const closeSeashellBaking = () => {
+    setSeashellBakingOpen(false);
+    window.setTimeout(() => seashellBakingButtonRef.current?.focus(), 0);
   };
 
   const closeCupcakeMatching = () => {
@@ -1284,6 +1292,11 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               <p className="mt-1 text-sm text-amber-800">Find matching cupcakes, pair frosting with cake, and complete decorated cupcakes in three levels.</p>
               <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} aria-label="Play Cupcake Matching" className="mx-auto mt-3 flex min-h-44 min-w-44 items-center justify-center rounded-xl p-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800"><Image src="/images/Cupcakes/Cupcake-game-button.png" alt="" width={220} height={220} unoptimized className="h-44 w-auto max-w-full object-contain" /></button>
             </section>
+            <section aria-labelledby="seashell-baking-heading" className="mb-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
+              <h2 id="seashell-baking-heading" className="font-serif text-lg font-bold text-amber-950">Seashell Baking Challenge</h2>
+              <p className="mt-1 text-sm text-amber-800">Choose ingredients, mix batter, fill seashell molds, bake, and decorate treats.</p>
+              <button ref={seashellBakingButtonRef} type="button" onClick={() => setSeashellBakingOpen(true)} className="mt-3 min-h-12 rounded-xl bg-amber-800 px-6 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">Start Seashell Baking Challenge</button>
+            </section>
           </>
         ) : tab === "jewelry" ? (
           <>
@@ -1458,6 +1471,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
       {cupcakeMatchingOpen && <CupcakeMatching onClose={closeCupcakeMatching} />}
+      {seashellBakingOpen && <SeashellBakingChallenge onClose={closeSeashellBaking} />}
       {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
       {customSandArtOpen && <CustomSandArtStudio onClose={closeCustomSandArt} />}
       {olliInkOpen && <OlliInkStudio onClose={closeOlliInk} />}
