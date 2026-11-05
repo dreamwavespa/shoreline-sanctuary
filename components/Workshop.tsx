@@ -1282,7 +1282,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
             <section aria-labelledby="cupcake-matching-heading" className="mb-4 rounded-2xl bg-rose-50 p-4 text-center ring-1 ring-rose-200">
               <h2 id="cupcake-matching-heading" className="font-serif text-lg font-bold text-amber-950">Cupcake Matching</h2>
               <p className="mt-1 text-sm text-amber-800">Find matching cupcakes, pair frosting with cake, and complete decorated cupcakes in three levels.</p>
-              <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} className="mt-3 min-h-12 rounded-xl bg-rose-700 px-6 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800">Play Cupcake Matching</button>
+              <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} aria-label="Play Cupcake Matching" className="mx-auto mt-3 flex min-h-44 min-w-44 items-center justify-center rounded-xl p-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800"><Image src="/images/Cupcakes/Cupcake-game-button.png" alt="" width={220} height={220} unoptimized className="h-44 w-auto max-w-full object-contain" /></button>
             </section>
           </>
         ) : tab === "jewelry" ? (
