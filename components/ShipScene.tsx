@@ -34,7 +34,7 @@ export default function ShipScene() {
   const [ringTossOpen, setRingTossOpen] = useState(false);
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
-  const [deckPanel, setDeckPanel] = useState<"piano" | "games" | null>(null);
+  const [deckPanel, setDeckPanel] = useState<"piano" | "games" | "treasure" | "navigation" | "wheel" | "musicbox" | null>(null);
   const listenButtonRef = useRef<HTMLButtonElement>(null);
   const ringTossButtonRef = useRef<HTMLButtonElement>(null);
   const smoothieButtonRef = useRef<HTMLButtonElement>(null);
@@ -46,33 +46,34 @@ export default function ShipScene() {
 
   if (!state.gameCompleted) return <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#0b3d3a] flex items-center justify-center"><div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm"><p className="text-3xl mb-2">⛵</p><p className="font-semibold text-amber-900 mb-1">The harbor gathering hasn&apos;t begun yet</p><p className="text-sm text-amber-700">Restore the shipwreck and complete The Grand Reunion to welcome everyone aboard the Community Ship.</p></div></div>;
 
+  const changeDeck = (area: "main" | "cabin") => { setDeckArea(area); setDeckPanel(null); };
   const hotspots = deckArea === "main" ? [
-    { label: "Visit the Shoreline Smoothie Bar", top: 30, left: 4, width: 30, height: 28, action: () => setSmoothieBarOpen(true) },
-    { label: "Play the community piano", top: 34, left: 35, width: 31, height: 27, action: () => setDeckPanel("piano") },
-    { label: "Explore ship games", top: 46, left: 67, width: 30, height: 27, action: () => setDeckPanel("games") },
-    { label: "Go down to the lower cabin", top: 78, left: 60, width: 37, height: 18, action: () => { setDeckArea("cabin"); setDeckPanel(null); } },
+    { label: "Visit the Shoreline Smoothie Bar", top: 18, left: 3, width: 31, height: 49, action: () => setSmoothieBarOpen(true) },
+    { label: "Play the community piano", top: 18, left: 39, width: 25, height: 42, action: () => setDeckPanel("piano") },
+    { label: "Explore ship games", top: 25, left: 80, width: 19, height: 46, action: () => setDeckPanel("games") },
+    { label: "Go down the staircase to the lower cabin", top: 68, left: 33, width: 35, height: 27, action: () => changeDeck("cabin") },
   ] : [
-    { label: "Return to the main deck", top: 76, left: 55, width: 40, height: 21, action: () => { setDeckArea("main"); setDeckPanel(null); } },
+    { label: "Go up the staircase to the main deck", top: 5, left: 0, width: 21, height: 83, action: () => changeDeck("main") },
+    { label: "Open the treasure chest", top: 38, left: 15, width: 22, height: 45, action: () => setDeckPanel("treasure") },
+    { label: "Explore the navigation table and sea charts", top: 43, left: 38, width: 41, height: 44, action: () => setDeckPanel("navigation") },
+    { label: "Examine the ship's wheel", top: 19, left: 25, width: 20, height: 30, action: () => setDeckPanel("wheel") },
+    { label: "Open the music box", top: 26, left: 81, width: 17, height: 33, action: () => setDeckPanel("musicbox") },
   ];
 
   return <div className="h-full overflow-y-auto pb-24 bg-[#0b3d3a] text-white">
     <h1 className="px-4 pt-4 text-xl font-bold">{deckArea === "main" ? "Community Ship — Main Deck" : "Community Ship — Lower Cabin"}</h1>
-    <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. All activities are also available using the accessible buttons below.</p>
+    <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. Use the labeled interactive objects to explore each room. Swipe through the objects with VoiceOver or use Tab and Enter with a keyboard.</p>
     <div className="relative w-full">
       <Image src={deckArea === "main" ? "/images/Ship/shipwreck_main_deck_portrait.png" : "/images/Ship/shipwreck_lower_cabin_portrait.png"} alt={deckArea === "main" ? "Illustrated main deck with smoothie bar, music and games" : "Illustrated lower cabin with nautical treasures and a staircase"} width={1024} height={1536} unoptimized className="block h-auto w-full" priority />
       {hotspots.map((spot) => <button key={spot.label} type="button" aria-label={spot.label} title={spot.label} onClick={spot.action}
         className="absolute rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300"
         style={{ top: spot.top + "%", left: spot.left + "%", width: spot.width + "%", height: spot.height + "%" }} />)}
     </div>
-    <nav aria-label="Ship activities" className="mx-4 mt-4 grid grid-cols-2 gap-3">
-      {deckArea === "main" ? <>
-        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setSmoothieBarOpen(true)}>Smoothie Bar</button>
-        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setDeckPanel("piano")}>Community Piano</button>
-        <button className="rounded-xl bg-teal-700 p-3 font-semibold" onClick={() => setDeckPanel("games")}>Ship Games</button>
-        <button className="rounded-xl bg-amber-700 p-3 font-semibold" onClick={() => { setDeckArea("cabin"); setDeckPanel(null); }}>Lower Cabin</button>
-      </> : <button className="col-span-2 rounded-xl bg-amber-700 p-3 font-semibold" onClick={() => { setDeckArea("main"); setDeckPanel(null); }}>Return to Main Deck</button>}
-    </nav>
-    {deckArea === "cabin" && <p className="mx-4 mt-4 rounded-xl bg-teal-900 p-4 text-sm">Explore the captain's cabin. More treasure and navigation activities can be connected here in a future update.</p>}
+    {deckArea === "cabin" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label="Lower cabin discovery">
+      <h2 className="text-lg font-bold">{deckPanel === "treasure" ? "Captain's Treasure Chest" : deckPanel === "navigation" ? "Navigation Table" : deckPanel === "wheel" ? "Ship's Wheel" : "The Lost Music Box"}</h2>
+      <p>{deckPanel === "treasure" ? "The old chest is open, revealing polished gemstones, pearls, and sea treasures. The captain's collection is safe aboard the Community Ship." : deckPanel === "navigation" ? "Unroll the sea charts and examine the compass, telescope, and maps. The navigation table holds memories of voyages across the sanctuary waters." : deckPanel === "wheel" ? "The polished wooden wheel once guided the ship through wind and waves. Imagine choosing a course toward the reef, the sandbar, or a new horizon." : "A delicate music box rests on the cabin shelf beside the captain's old sheet music. Its tiny melody is waiting to be rediscovered."}</p>
+      <button type="button" className="rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white" onClick={() => setDeckPanel(null)}>Close {deckPanel === "treasure" ? "treasure chest" : deckPanel === "navigation" ? "navigation table" : deckPanel === "wheel" ? "ship's wheel" : "music box"}</button>
+    </section>}
     {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
       <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={() => setDeckPanel(null)}>Close activity</button>
       {deckPanel === "piano" ? <PianoCard /> : <>
