@@ -48,6 +48,7 @@ jobs:
             server.js
 
       - name: Upload deployment archive
+        id: upload
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -57,6 +58,7 @@ jobs:
           passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
           source: deploy.tar.gz
           target: /home/aflomfbj/shoreline.dreamwavespa.com/app
+          tar_tmp_path: /home/aflomfbj/shoreline.dreamwavespa.com/app/tmp
           overwrite: true
 
       - name: Install deployment and restart app
@@ -71,6 +73,22 @@ jobs:
             set -e
             cd /home/aflomfbj/shoreline.dreamwavespa.com/app
             tar -xzf deploy.tar.gz
-            rm -f deploy.tar.gz
             mkdir -p tmp
             touch tmp/restart.txt
+
+      - name: Remove temporary deployment archives even after failure
+        if: ${{ always() && steps.upload.outcome != 'skipped' }}
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_KEY_PASSPHRASE }}
+          script: |
+            set -e
+            cd /home/aflomfbj/shoreline.dreamwavespa.com/app
+            rm -f deploy.tar.gz
+            if [ -d tmp ]; then
+              find tmp -maxdepth 1 -type f -name '*.tar.gz' -delete
+            fi
