@@ -109,6 +109,7 @@ interface GameState {
   windTreasureRewards: Record<string, string>;
   robinNestPlacedAt: number;
   robinBirdhousePlaced: boolean;
+  robinNestDecorationsPlaced: boolean;
   robinNestRepairNeeded: boolean;
   robinNestStormDate: string;
   robinFeederRefills: number;
@@ -276,6 +277,7 @@ const DEFAULT_STATE: GameState = {
   windTreasureRewards: {},
   robinNestPlacedAt: 0,
   robinBirdhousePlaced: false,
+  robinNestDecorationsPlaced: false,
   robinNestRepairNeeded: false,
   robinNestStormDate: "",
   robinFeederRefills: 0,
@@ -484,6 +486,7 @@ interface Ctx {
   replaceRobinFeeder: () => boolean;
   giftRobin: (itemId: string) => boolean;
   giveRobinBirdhouse: () => boolean;
+  placeRobinNestDecorations: () => boolean;
   fillRobinBirdbath: () => boolean;
   robinNestingAction: (action: "start" | "check") => boolean;
   activateRobinGreenhouse: () => boolean;
@@ -903,6 +906,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       inventory: { ...prev.inventory, "robins-birdhouse": (prev.inventory["robins-birdhouse"] || 0) - 1 },
     }));
     toast("Robin chirps happily! Her new birdhouse is hanging beside her nest.");
+    return true;
+  };
+  const placeRobinNestDecorations = (): boolean => {
+    const s = stateRef.current;
+    if (!s.robinNestPlacedAt || s.robinNestDecorationsPlaced || (s.inventory["robin-nest-decorations"] || 0) < 1) return false;
+    setState(prev => ({
+      ...prev,
+      robinNestDecorationsPlaced: true,
+      inventory: { ...prev.inventory, "robin-nest-decorations": (prev.inventory["robin-nest-decorations"] || 0) - 1 },
+    }));
+    toast("Robin's woodland nest decorations are now placed around her nest!");
     return true;
   };
   const giftRobin = (itemId: string): boolean => {
@@ -2957,6 +2971,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       replaceRobinFeeder,
       giftRobin,
       giveRobinBirdhouse,
+      placeRobinNestDecorations,
       fillRobinBirdbath,
       robinNestingAction,
       activateRobinGreenhouse,
