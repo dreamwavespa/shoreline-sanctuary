@@ -82,7 +82,7 @@ export default function ShipScene() {
     { label: "Open the music box", top: 26, left: 81, width: 17, height: 33, action: () => setDeckPanel("musicbox") },
   ];
 
-  return <div className="h-full overflow-y-auto pb-24 bg-[#0b3d3a] text-white">
+  return <div className="min-h-0 pb-4 bg-[#0b3d3a] text-white">
     <h1 className="px-4 pt-4 text-xl font-bold">{deckArea === "main" ? "Community Ship — Main Deck" : "Community Ship — Lower Cabin"}</h1>
     <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. Use the labeled interactive objects to explore each room. Swipe through the objects with VoiceOver or use Tab and Enter with a keyboard.</p>
     <div className="relative w-full">
