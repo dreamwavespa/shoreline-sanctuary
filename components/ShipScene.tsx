@@ -89,27 +89,39 @@ function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "pia
       {(["piano", "drums", "ukulele"] as const).map((name) => <button key={name} type="button" aria-pressed={instrument === name} onClick={() => setInstrument(name)} className={`rounded-lg px-2 py-3 font-semibold capitalize focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${instrument === name ? "bg-teal-800 text-white" : "bg-teal-100 text-teal-900"}`}>{name}</button>)}
     </div>
     {instrument === "piano" && <section aria-label="Two octave piano">
-      <h3 className="mb-2 font-bold">Two-octave piano: C4 through B5</h3>
-      <p className="mb-3 text-sm">Includes all white and black keys. Each key announces its note name.</p>
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-        {PIANO_NOTES.map((note) => <button key={note.label} type="button" aria-label={`Play piano note ${note.label}`} onClick={() => tone(note.freq, "piano")} className={`min-h-12 rounded-lg border px-1 py-3 text-sm font-bold shadow focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${note.black ? "border-slate-600 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-900"}`}>{note.short}{note.label.endsWith("4") ? "4" : "5"}</button>)}
+      <h3 className="mb-2 font-bold">Two-octave piano keyboard</h3>
+      <p className="mb-3 text-sm">Swipe horizontally to reach all keys. White and black keys are individually labeled for VoiceOver.</p>
+      <div className="overflow-x-auto rounded-xl bg-amber-950 p-3" aria-label="Scrollable piano keyboard">
+        <div className="relative h-44 w-[672px]" role="group" aria-label="Piano keys C4 through B5">
+          {PIANO_NOTES.filter(note => !note.black).map((note, index) => <button key={note.label} type="button" aria-label={`Play piano note ${note.label}`} onClick={() => tone(note.freq, "piano")} style={{ left: `${index * 48}px`, width: "48px" }} className="absolute top-0 h-44 rounded-b-lg border-2 border-slate-500 bg-gradient-to-b from-white to-slate-200 pb-3 text-sm font-bold text-slate-900 shadow-inner active:from-amber-100 active:to-amber-300 focus-visible:z-30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 flex items-end justify-center">{note.label.replace(" sharp", "")}</button>)}
+          {PIANO_NOTES.filter(note => note.black).map(note => {
+            const index = PIANO_NOTES.findIndex(n => n.label === note.label);
+            const whiteBefore = PIANO_NOTES.slice(0, index).filter(n => !n.black).length;
+            return <button key={note.label} type="button" aria-label={`Play piano note ${note.label}`} onClick={() => tone(note.freq, "piano")} style={{ left: `${whiteBefore * 48 - 15}px`, width: "30px" }} className="absolute top-0 z-10 h-28 rounded-b-md border border-slate-600 bg-gradient-to-b from-slate-700 to-black text-[10px] font-bold text-white shadow-lg active:bg-indigo-700 focus-visible:z-30 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 flex items-end justify-center pb-2">{note.short}</button>;
+          })}
+        </div>
       </div>
     </section>}
-    {instrument === "drums" && <section aria-label="Playable drums">
-      <h3 className="mb-2 font-bold">Drum kit</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {([{ label: "Bass drum", kind: "bass" }, { label: "Snare drum", kind: "snare" }, { label: "Cymbal", kind: "cymbal" }, { label: "Hand drum", kind: "hand" }] as const).map((item) => <button key={item.kind} type="button" onClick={() => drum(item.kind)} className="min-h-20 rounded-xl bg-amber-200 px-3 py-4 font-semibold text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">{item.label}</button>)}
+    {instrument === "drums" && <section aria-label="Playable drum kit">
+      <h3 className="mb-2 font-bold">Tap the drum kit</h3>
+      <p className="mb-3 text-sm">Each drum and cymbal is a labeled playable surface.</p>
+      <div className="relative mx-auto grid max-w-sm grid-cols-2 gap-4 rounded-2xl bg-slate-800 p-4">
+        {([{ label: "Cymbal", kind: "cymbal", style: "bg-gradient-to-br from-yellow-200 via-amber-400 to-yellow-700 border-yellow-800" }, { label: "Hand drum", kind: "hand", style: "bg-gradient-to-br from-orange-100 via-amber-200 to-orange-600 border-amber-900" }, { label: "Snare drum", kind: "snare", style: "bg-gradient-to-br from-slate-100 via-slate-300 to-slate-500 border-slate-600" }, { label: "Bass drum", kind: "bass", style: "bg-gradient-to-br from-teal-100 via-teal-300 to-teal-800 border-teal-950" }] as const).map(item => <button key={item.kind} type="button" aria-label={`Play ${item.label}`} onClick={() => drum(item.kind)} className={`aspect-square min-h-28 rounded-full border-[9px] p-3 text-center font-bold text-slate-950 shadow-[0_8px_0_#111827] active:translate-y-1 active:shadow-sm focus-visible:outline focus-visible:outline-4 focus-visible:outline-white ${item.style}`}>{item.label}</button>)}
       </div>
     </section>}
     {instrument === "ukulele" && <section aria-label="Playable ukulele">
-      <h3 className="mb-2 font-bold">Ukulele strings and chords</h3>
-      <p className="mb-2 text-sm">Pluck individual strings or strum a chord.</p>
-      <div className="grid grid-cols-2 gap-2">
-        {UKULELE_STRINGS.map((string) => <button key={string.label} type="button" onClick={() => tone(string.freq, "ukulele")} className="rounded-lg bg-sky-100 px-3 py-4 font-semibold text-sky-950">{string.label}</button>)}
+      <h3 className="mb-2 font-bold">Pluck the ukulele</h3>
+      <p className="mb-3 text-sm">Select one of the four strings on the wooden ukulele, or strum a chord below.</p>
+      <div className="relative mx-auto max-w-sm rounded-[45%] border-[12px] border-amber-950 bg-gradient-to-r from-amber-700 via-amber-400 to-amber-800 px-6 py-10 shadow-xl">
+        <div className="mx-auto mb-5 h-20 w-20 rounded-full border-[8px] border-amber-900 bg-amber-950 shadow-inner" aria-hidden="true" />
+        <div className="space-y-3" role="group" aria-label="Ukulele strings">
+          {UKULELE_STRINGS.map((string, index) => <button key={string.label} type="button" aria-label={`Pluck ${string.label}`} onClick={() => tone(string.freq, "ukulele")} className="relative block h-10 w-full rounded-md bg-amber-100/20 text-center text-sm font-bold text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white"><span aria-hidden="true" className="absolute inset-x-0 top-1/2 border-t-2 border-slate-100 shadow-sm" /><span className="relative rounded bg-amber-100/90 px-2">{string.label}</span></button>)}
+        </div>
+        <div className="mx-auto mt-5 h-4 w-24 rounded bg-amber-950" aria-hidden="true" />
       </div>
       <h4 className="mb-2 mt-4 font-semibold">Strum a chord</h4>
       <div className="grid grid-cols-2 gap-2">
-        {UKULELE_CHORDS.map((chord) => <button key={chord.label} type="button" onClick={() => chord.freqs.forEach((freq, index) => tone(freq, "ukulele", index * 0.045))} className="rounded-lg bg-teal-100 px-3 py-4 font-semibold text-teal-950">{chord.label}</button>)}
+        {UKULELE_CHORDS.map(chord => <button key={chord.label} type="button" onClick={() => chord.freqs.forEach((freq, index) => tone(freq, "ukulele", index * 0.045))} className="rounded-lg bg-teal-100 px-3 py-4 font-semibold text-teal-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{chord.label}</button>)}
       </div>
     </section>}
   </div>;
