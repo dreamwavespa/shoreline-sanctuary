@@ -1125,6 +1125,18 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               recipeId={RAFT_RECIPE.id}
               imageSrc="/images/Rubber-raft-clean.png"
             />}
+            <section aria-label="Rubber crafts" className="mb-6">
+              <h2 className="text-xl font-bold text-teal-900 mb-3">Rubber Crafts</h2>
+              <p className="mb-3 text-sm text-teal-900">Make seaside toys and useful gear from recycled rubber. Interactive activities will be added later.</p>
+              {[
+                { id: "tide-pool-wading-boots", name: "Tide Pool Wading Boots", description: "Protective boots for future tide pool exploration.", image: "/images/Tide_Pool_Wading_Boots.png", cost: [{"itemId":"recycled-rubber","count":3},{"itemId":"kelp-resin","count":1}] },
+                { id: "seashell-rubber-duck", name: "Seashell Rubber Duck", description: "A cheerful floating duck for seaside play.", image: "/images/Seashell_Rubber_Duck.png", cost: [{"itemId":"recycled-rubber","count":2},{"itemId":"kelp-resin","count":1}] },
+                { id: "sea-glass-bouncy-ball", name: "Sea Glass Bouncy Ball", description: "A colorful bouncing ball with sea glass inside.", image: "/images/Sea_Glass_Bouncy_Ball.png", cost: [{"itemId":"recycled-rubber","count":2},{"itemId":"glass-blue","count":1}] },
+                { id: "firefly-bouncy-ball", name: "Firefly Bouncy Ball", description: "A glowing-looking bouncing ball decorated with fireflies.", image: "/images/Firefly_Bouncy_Ball.png", cost: [{"itemId":"recycled-rubber","count":2},{"itemId":"kelp-resin","count":1}] },
+                { id: "seashell-beach-ball", name: "Seashell Beach Ball", description: "A bright inflatable ball for future beach games.", image: "/images/Seashell_Beach_Ball.png", cost: [{"itemId":"recycled-rubber","count":2},{"itemId":"kelp-resin","count":1}] },
+                { id: "buoy-stacking-rings", name: "Buoy Stacking Rings", description: "A colorful stacking toy for a future activity with Cadence.", image: "/images/Buoy_Stacking_Rings.png", cost: [{"itemId":"recycled-rubber","count":4},{"itemId":"kelp-resin","count":2}] },
+              ].map((r) => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} imageSrc={r.image} repeatable />)}
+            </section>
             <RecipeCard
               title="Kelp Resin"
               description="Press fresh reef kelp with soothing sea salt into a useful natural resin. This recipe can be crafted whenever you have enough ingredients."
