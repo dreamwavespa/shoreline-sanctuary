@@ -34,6 +34,7 @@ export default function ShipScene() {
   const [ringTossOpen, setRingTossOpen] = useState(false);
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
   const [cabinDiscovery, setCabinDiscovery] = useState<string | null>(null);
+  const discoveryAnnouncementRef = useRef<HTMLParagraphElement>(null);
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
   const [deckPanel, setDeckPanel] = useState<"piano" | "games" | "treasure" | "navigation" | "wheel" | "musicbox" | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -57,6 +58,7 @@ export default function ShipScene() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [dialogOpen]);
+  const selectDiscovery = (item: string) => { setCabinDiscovery(item); window.setTimeout(() => discoveryAnnouncementRef.current?.focus(), 0); };
   const openFrom = (event: React.MouseEvent<HTMLButtonElement>, action: () => void) => { triggerRef.current = event.currentTarget; action(); };
   const listenButtonRef = useRef<HTMLButtonElement>(null);
   const ringTossButtonRef = useRef<HTMLButtonElement>(null);
@@ -101,9 +103,9 @@ export default function ShipScene() {
       {(deckPanel === "treasure" || deckPanel === "navigation") && <div className="space-y-3">
         <p className="text-sm">Choose an object to examine. These discoveries are for exploration and do not remove or award inventory items.</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {(deckPanel === "treasure" ? ["Pearl necklace", "Polished gemstones", "Carved seashell", "Captain's keepsake"] : ["Compass", "Sea charts", "Telescope", "Voyage journal"]).map((item) => <button key={item} type="button" onClick={() => setCabinDiscovery(item)} aria-pressed={cabinDiscovery === item} className="rounded-lg bg-teal-700 px-4 py-3 text-left font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{item}</button>)}
+          {(deckPanel === "treasure" ? ["Pearl necklace", "Polished gemstones", "Carved seashell", "Captain's keepsake"] : ["Compass", "Sea charts", "Telescope", "Voyage journal"]).map((item) => <button key={item} type="button" onClick={() => selectDiscovery(item)} aria-pressed={cabinDiscovery === item} className="rounded-lg bg-teal-700 px-4 py-3 text-left font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{item}</button>)}
         </div>
-        {cabinDiscovery && <div role="status" aria-live="polite" className="rounded-lg bg-amber-50 p-3 text-slate-900"><strong>{cabinDiscovery}</strong><p>{({
+        {cabinDiscovery && <div className="rounded-lg bg-amber-50 p-3 text-slate-900"><strong>{cabinDiscovery}</strong><p ref={discoveryAnnouncementRef} tabIndex={-1} role="status" aria-live="polite">{({
           "Pearl necklace": "A strand of luminous pearls, carefully kept among the captain's treasures.",
           "Polished gemstones": "Colorful stones catch the lantern light inside the open chest.",
           "Carved seashell": "A delicate shell carving recalls the sanctuary's shores.",
@@ -114,7 +116,7 @@ export default function ShipScene() {
           "Voyage journal": "The captain's journal holds notes from earlier journeys."
         } as Record<string, string>)[cabinDiscovery]}</p></div>}
       </div>}
-      <button type="button" className="rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white" onClick={closePanel}>Close {deckPanel === "treasure" ? "treasure chest" : deckPanel === "navigation" ? "navigation table" : deckPanel === "wheel" ? "ship's wheel" : "music box"}</button>
+
     </section>}
     {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
       <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={closePanel}>Close activity</button>
