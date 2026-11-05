@@ -348,6 +348,7 @@ function BeachBagCard() {
 export default function BeachScene() {
   const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [collectionAnnouncement, setCollectionAnnouncement] = useState("");
   const [windTreasureAnnouncement, setWindTreasureAnnouncement] = useState("");
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
@@ -413,6 +414,7 @@ export default function BeachScene() {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
     collectItem(spot.itemId);
+    setCollectionAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => {
@@ -436,6 +438,7 @@ export default function BeachScene() {
 
   return (
     <div className="relative w-full h-full overflow-y-auto select-none">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{collectionAnnouncement}</p>
       <div className="relative w-full aspect-[2/3] min-h-[560px] overflow-hidden rounded-b-2xl">
         <Image
           src={versionedImage(nighttime ? "/images/Beach-background-night.PNG" : "/images/Beach-background-day.PNG")}
