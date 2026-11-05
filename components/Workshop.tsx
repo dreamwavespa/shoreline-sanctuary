@@ -9,6 +9,7 @@ import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_
 import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
 import PicnicPacking from "./PicnicPacking";
+import CupcakeMatching from "./CupcakeMatching";
 import JewelryCounter from "./JewelryCounter";
 import CustomSandArtStudio from "./CustomSandArtStudio";
 import OlliInkStudio from "./OlliInkStudio";
@@ -965,12 +966,14 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
+  const [cupcakeMatchingOpen, setCupcakeMatchingOpen] = useState(false);
   const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
   const [customSandArtOpen, setCustomSandArtOpen] = useState(false);
   const [olliInkOpen, setOlliInkOpen] = useState(false);
   const [shellPaintingOpen, setShellPaintingOpen] = useState(false);
   const windChimeButtonRef = useRef<HTMLButtonElement>(null);
   const picnicPackingButtonRef = useRef<HTMLButtonElement>(null);
+  const cupcakeMatchingButtonRef = useRef<HTMLButtonElement>(null);
   const jewelryCounterButtonRef = useRef<HTMLButtonElement>(null);
   const customSandArtButtonRef = useRef<HTMLButtonElement>(null);
   const olliInkButtonRef = useRef<HTMLButtonElement>(null);
@@ -979,6 +982,11 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const closeWindChime = () => {
     setWindChimeOpen(false);
     window.setTimeout(() => windChimeButtonRef.current?.focus(), 0);
+  };
+
+  const closeCupcakeMatching = () => {
+    setCupcakeMatchingOpen(false);
+    window.setTimeout(() => cupcakeMatchingButtonRef.current?.focus(), 0);
   };
 
   const closePicnicPacking = () => {
@@ -1271,6 +1279,11 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                 <span className="font-semibold">Pack a Picnic Basket</span>
               </button>
             </section>
+            <section aria-labelledby="cupcake-matching-heading" className="mb-4 rounded-2xl bg-rose-50 p-4 text-center ring-1 ring-rose-200">
+              <h2 id="cupcake-matching-heading" className="font-serif text-lg font-bold text-amber-950">Cupcake Matching</h2>
+              <p className="mt-1 text-sm text-amber-800">Find matching cupcakes, pair frosting with cake, and complete decorated cupcakes in three levels.</p>
+              <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} className="mt-3 min-h-12 rounded-xl bg-rose-700 px-6 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800">Play Cupcake Matching</button>
+            </section>
           </>
         ) : tab === "jewelry" ? (
           <>
@@ -1444,6 +1457,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
+      {cupcakeMatchingOpen && <CupcakeMatching onClose={closeCupcakeMatching} />}
       {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
       {customSandArtOpen && <CustomSandArtStudio onClose={closeCustomSandArt} />}
       {olliInkOpen && <OlliInkStudio onClose={closeOlliInk} />}
