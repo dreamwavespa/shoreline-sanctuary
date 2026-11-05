@@ -413,7 +413,7 @@ export default function BeachScene() {
   const handleTap = (spot: Spot) => {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
-    collectItem(spot.itemId);
+    collectItem(spot.itemId, { silent: true });
     setCollectionAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
