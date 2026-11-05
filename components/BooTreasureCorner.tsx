@@ -18,11 +18,20 @@ export default function BooTreasureCorner() {
   const today = new Date().toLocaleDateString("en-CA");
   const claimKitchenGift = () => {
     if (lastTreatDate === today) return;
-    const itemId = Math.random() < 0.5 ? "chocolate-seashells" : "golden-island-pumpkin";
-    collectItem(itemId);
+    // Keep Boo's original year-round seasonal treats while adding useful baking staples.
+    const gifts = [
+      { id: "chocolate-seashells", count: 1 },
+      { id: "golden-island-pumpkin", count: 1 },
+      { id: "flour", count: 2 },
+      { id: "eggs", count: 2 },
+      { id: "cocoa-powder", count: 2 },
+      { id: "vanilla", count: 1 },
+    ];
+    const gift = gifts[Math.floor(Math.random() * gifts.length)];
+    for (let i = 0; i < gift.count; i++) collectItem(gift.id);
     try { localStorage.setItem("shoreline-boo-kitchen-gift-date", today); } catch {}
     setLastTreatDate(today);
-    setTreatMessage(itemId === "chocolate-seashells" ? "Boo gifted you Chocolate Seashells!" : "Boo gifted you a Golden Island Pumpkin!");
+    setTreatMessage(`Boo gifted you ${gift.count} ${ITEMS[gift.id]?.name || gift.id}!`);
   };
   const [view, setView] = useState<"home" | "collection">("home");
   const sands = BOO_SAND_IDS.map(id => [id, ITEMS[id].name] as const);
@@ -51,7 +60,7 @@ export default function BooTreasureCorner() {
         </div>}
         <section aria-label="Boo's kitchen gifts" className="rounded-xl bg-indigo-900/70 p-4 ring-1 ring-indigo-300/40">
           <h3 className="font-bold">Boo's Kitchen Gifts</h3>
-          <p className="mt-1 text-sm text-indigo-100">Boo shares a surprise cooking ingredient each day, year-round: Chocolate Seashells or a Golden Island Pumpkin.</p>
+          <p className="mt-1 text-sm text-indigo-100">Boo shares one surprise kitchen gift each day, year-round. His seasonal treats, Chocolate Seashells and Golden Island Pumpkins, now appear alongside flour, eggs, cocoa powder, and rare vanilla.</p>
           <button type="button" disabled={lastTreatDate === today} onClick={claimKitchenGift} className="mt-3 min-h-12 w-full rounded-xl bg-amber-600 px-3 py-3 font-bold text-white disabled:opacity-60 focus-visible:ring-4 focus-visible:ring-amber-300">{lastTreatDate === today ? "Today's gift collected" : "Accept Boo's Kitchen Gift"}</button>
           <p role="status" aria-live="polite" className="mt-2 text-sm">{treatMessage}</p>
         </section>
