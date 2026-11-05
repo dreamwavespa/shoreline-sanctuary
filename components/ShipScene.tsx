@@ -33,12 +33,13 @@ export default function ShipScene() {
   const [listenGameOpen, setListenGameOpen] = useState(false);
   const [ringTossOpen, setRingTossOpen] = useState(false);
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
+  const [cabinDiscovery, setCabinDiscovery] = useState<string | null>(null);
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
   const [deckPanel, setDeckPanel] = useState<"piano" | "games" | "treasure" | "navigation" | "wheel" | "musicbox" | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const dialogOpen = Boolean(deckPanel || smoothieBarOpen || listenGameOpen || ringTossOpen);
-  const closePanel = () => { setDeckPanel(null); window.setTimeout(() => triggerRef.current?.focus(), 0); };
+  const closePanel = () => { setCabinDiscovery(null); setDeckPanel(null); window.setTimeout(() => triggerRef.current?.focus(), 0); };
   useEffect(() => {
     if (!dialogOpen) return;
     const previous = document.activeElement;
@@ -68,7 +69,7 @@ export default function ShipScene() {
 
   if (!state.gameCompleted) return <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#0b3d3a] flex items-center justify-center"><div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm"><p className="text-3xl mb-2">⛵</p><p className="font-semibold text-amber-900 mb-1">The harbor gathering hasn&apos;t begun yet</p><p className="text-sm text-amber-700">Restore the shipwreck and complete The Grand Reunion to welcome everyone aboard the Community Ship.</p></div></div>;
 
-  const changeDeck = (area: "main" | "cabin") => { setDeckArea(area); setDeckPanel(null); };
+  const changeDeck = (area: "main" | "cabin") => { setDeckArea(area); setCabinDiscovery(null); setDeckPanel(null); };
   const hotspots = deckArea === "main" ? [
     { label: "Visit the Shoreline Smoothie Bar", top: 18, left: 3, width: 31, height: 49, action: () => setSmoothieBarOpen(true) },
     { label: "Play the community piano", top: 18, left: 39, width: 25, height: 42, action: () => setDeckPanel("piano") },
@@ -82,7 +83,7 @@ export default function ShipScene() {
     { label: "Open the music box", top: 26, left: 81, width: 17, height: 33, action: () => setDeckPanel("musicbox") },
   ];
 
-  return <div className="min-h-0 pb-4 bg-[#0b3d3a] text-white">
+  return <div className="min-h-full bg-[#0b3d3a] text-white" style={{ backgroundImage: "linear-gradient(180deg, #0b3d3a 0%, #104c49 70%, #0b3d3a 100%)" }}>
     <h1 className="px-4 pt-4 text-xl font-bold">{deckArea === "main" ? "Community Ship — Main Deck" : "Community Ship — Lower Cabin"}</h1>
     <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. Use the labeled interactive objects to explore each room. Swipe through the objects with VoiceOver or use Tab and Enter with a keyboard.</p>
     <div className="relative w-full">
@@ -97,6 +98,22 @@ export default function ShipScene() {
     {deckArea === "cabin" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label="Lower cabin discovery">
       <h2 className="text-lg font-bold">{deckPanel === "treasure" ? "Captain's Treasure Chest" : deckPanel === "navigation" ? "Navigation Table" : deckPanel === "wheel" ? "Ship's Wheel" : "The Lost Music Box"}</h2>
       <p>{deckPanel === "treasure" ? "The old chest is open, revealing polished gemstones, pearls, and sea treasures. The captain's collection is safe aboard the Community Ship." : deckPanel === "navigation" ? "Unroll the sea charts and examine the compass, telescope, and maps. The navigation table holds memories of voyages across the sanctuary waters." : deckPanel === "wheel" ? "The polished wooden wheel once guided the ship through wind and waves. Imagine choosing a course toward the reef, the sandbar, or a new horizon." : "A delicate music box rests on the cabin shelf beside the captain's old sheet music. Its tiny melody is waiting to be rediscovered."}</p>
+      {(deckPanel === "treasure" || deckPanel === "navigation") && <div className="space-y-3">
+        <p className="text-sm">Choose an object to examine. These discoveries are for exploration and do not remove or award inventory items.</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {(deckPanel === "treasure" ? ["Pearl necklace", "Polished gemstones", "Carved seashell", "Captain's keepsake"] : ["Compass", "Sea charts", "Telescope", "Voyage journal"]).map((item) => <button key={item} type="button" onClick={() => setCabinDiscovery(item)} aria-pressed={cabinDiscovery === item} className="rounded-lg bg-teal-700 px-4 py-3 text-left font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{item}</button>)}
+        </div>
+        {cabinDiscovery && <div role="status" aria-live="polite" className="rounded-lg bg-amber-50 p-3 text-slate-900"><strong>{cabinDiscovery}</strong><p>{({
+          "Pearl necklace": "A strand of luminous pearls, carefully kept among the captain's treasures.",
+          "Polished gemstones": "Colorful stones catch the lantern light inside the open chest.",
+          "Carved seashell": "A delicate shell carving recalls the sanctuary's shores.",
+          "Captain's keepsake": "A small keepsake preserved as a memory of the ship's voyages.",
+          "Compass": "The compass needle points north, ready to guide another voyage.",
+          "Sea charts": "The charts mark familiar waters near the reef, sandbar, and shore.",
+          "Telescope": "A brass telescope rests beside the maps, ready for a lookout.",
+          "Voyage journal": "The captain's journal holds notes from earlier journeys."
+        } as Record<string, string>)[cabinDiscovery]}</p></div>}
+      </div>}
       <button type="button" className="rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white" onClick={closePanel}>Close {deckPanel === "treasure" ? "treasure chest" : deckPanel === "navigation" ? "navigation table" : deckPanel === "wheel" ? "ship's wheel" : "music box"}</button>
     </section>}
     {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
