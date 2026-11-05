@@ -7,11 +7,21 @@ import ListenToShell from "./ListenToShell";
 import OlliRingToss from "./OlliRingToss";
 import SmoothieBar from "./SmoothieBar";
 
-const NOTES: { label: string; freq: number }[] = [
-  { label: "C", freq: 261.63 }, { label: "D", freq: 293.66 }, { label: "E", freq: 329.63 },
-  { label: "F", freq: 349.23 }, { label: "G", freq: 392.0 }, { label: "A", freq: 440.0 }, { label: "B", freq: 493.88 },
+const PIANO_NOTES = Array.from({ length: 24 }, (_, i) => {
+  const names = ["C", "C sharp", "D", "D sharp", "E", "F", "F sharp", "G", "G sharp", "A", "A sharp", "B"];
+  const octave = i < 12 ? 4 : 5;
+  return { label: names[i % 12] + octave, short: names[i % 12].replace(" sharp", "♯"), freq: 261.625565 * Math.pow(2, i / 12), black: names[i % 12].includes("sharp") };
+});
+const UKULELE_STRINGS = [
+  { label: "G4 string", freq: 392 }, { label: "C4 string", freq: 261.63 },
+  { label: "E4 string", freq: 329.63 }, { label: "A4 string", freq: 440 },
 ];
-
+const UKULELE_CHORDS = [
+  { label: "C major", freqs: [392, 261.63, 329.63, 523.25] },
+  { label: "F major", freqs: [440, 349.23, 261.63, 440] },
+  { label: "G major", freqs: [392, 293.66, 392, 493.88] },
+  { label: "A minor", freqs: [440, 261.63, 329.63, 440] },
+];
 function SaltyCard() {
   const { state, throwBallToSalty } = useGame();
   const balls = state.inventory["beach-ball"] || 0;
@@ -22,10 +32,87 @@ function SaltyCard() {
   </div>;
 }
 
-function PianoCard() {
+function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "piano" | "drums" | "ukulele" }) {
+  const [instrument, setInstrument] = useState<"piano" | "drums" | "ukulele">(initialInstrument);
   const ctxRef = useRef<AudioContext | null>(null);
-  const playNote = (freq: number) => { try { if (!ctxRef.current) { const Ctx = window.AudioContext || (window as any).webkitAudioContext; ctxRef.current = new Ctx(); } const ctx = ctxRef.current; const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.frequency.value = freq; osc.type = "triangle"; gain.gain.setValueAtTime(0.0001, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1); osc.connect(gain).connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 1.15); } catch {} };
-  return <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-indigo-200"><h2 className="text-lg font-bold text-indigo-900 mb-1">The Community Piano</h2><p className="text-sm text-indigo-700 mb-3">Sailors and sanctuary friends gather here in the evenings to play a tune.</p><div className="grid grid-cols-7 gap-1.5">{NOTES.map((n) => <button key={n.label} type="button" onClick={() => playNote(n.freq)} className="aspect-square rounded-lg bg-indigo-100 active:bg-indigo-300 text-indigo-900 font-bold text-sm shadow-sm">{n.label}</button>)}</div></div>;
+  useEffect(() => () => { void ctxRef.current?.close(); ctxRef.current = null; }, []);
+  const audio = () => {
+    if (!ctxRef.current) {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+      ctxRef.current = new Ctx();
+    }
+    if (ctxRef.current?.state === "suspended") void ctxRef.current.resume();
+    return ctxRef.current!;
+  };
+  const tone = (freq: number, kind: "piano" | "ukulele", delay = 0) => {
+    try {
+      const ctx = audio(), at = ctx.currentTime + delay;
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = kind === "piano" ? "triangle" : "sawtooth";
+      osc.frequency.setValueAtTime(freq, at);
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(kind === "piano" ? 0.18 : 0.085, at + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + (kind === "piano" ? 1.1 : 0.75));
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(at); osc.stop(at + (kind === "piano" ? 1.15 : 0.8));
+    } catch {}
+  };
+  const drum = (kind: "bass" | "snare" | "cymbal" | "hand") => {
+    try {
+      const ctx = audio(), at = ctx.currentTime;
+      if (kind === "bass" || kind === "hand") {
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(kind === "bass" ? 140 : 220, at);
+        osc.frequency.exponentialRampToValueAtTime(kind === "bass" ? 48 : 110, at + 0.2);
+        gain.gain.setValueAtTime(0.35, at);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.3);
+        osc.connect(gain).connect(ctx.destination); osc.start(at); osc.stop(at + 0.31);
+      } else {
+        const length = Math.floor(ctx.sampleRate * (kind === "snare" ? 0.18 : 0.7));
+        const buffer = ctx.createBuffer(1, length, ctx.sampleRate), data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+        const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+        source.buffer = buffer;
+        filter.type = "highpass"; filter.frequency.value = kind === "snare" ? 1200 : 5000;
+        gain.gain.setValueAtTime(kind === "snare" ? 0.23 : 0.14, at);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + (kind === "snare" ? 0.18 : 0.7));
+        source.connect(filter).connect(gain).connect(ctx.destination);
+        source.start(at); source.stop(at + (kind === "snare" ? 0.18 : 0.7));
+      }
+    } catch {}
+  };
+  return <div className="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-md">
+    <h2 className="mb-2 text-lg font-bold">Community Music Corner</h2>
+    <p className="mb-3 text-sm">Choose an instrument, then select labeled notes, strings, or drums to play. All controls work with VoiceOver and a keyboard.</p>
+    <div className="mb-4 grid grid-cols-3 gap-2" role="group" aria-label="Choose an instrument">
+      {(["piano", "drums", "ukulele"] as const).map((name) => <button key={name} type="button" aria-pressed={instrument === name} onClick={() => setInstrument(name)} className={`rounded-lg px-2 py-3 font-semibold capitalize focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${instrument === name ? "bg-teal-800 text-white" : "bg-teal-100 text-teal-900"}`}>{name}</button>)}
+    </div>
+    {instrument === "piano" && <section aria-label="Two octave piano">
+      <h3 className="mb-2 font-bold">Two-octave piano: C4 through B5</h3>
+      <p className="mb-3 text-sm">Includes all white and black keys. Each key announces its note name.</p>
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+        {PIANO_NOTES.map((note) => <button key={note.label} type="button" aria-label={`Play piano note ${note.label}`} onClick={() => tone(note.freq, "piano")} className={`min-h-12 rounded-lg border px-1 py-3 text-sm font-bold shadow focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${note.black ? "border-slate-600 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-900"}`}>{note.short}{note.label.endsWith("4") ? "4" : "5"}</button>)}
+      </div>
+    </section>}
+    {instrument === "drums" && <section aria-label="Playable drums">
+      <h3 className="mb-2 font-bold">Drum kit</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {([{ label: "Bass drum", kind: "bass" }, { label: "Snare drum", kind: "snare" }, { label: "Cymbal", kind: "cymbal" }, { label: "Hand drum", kind: "hand" }] as const).map((item) => <button key={item.kind} type="button" onClick={() => drum(item.kind)} className="min-h-20 rounded-xl bg-amber-200 px-3 py-4 font-semibold text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">{item.label}</button>)}
+      </div>
+    </section>}
+    {instrument === "ukulele" && <section aria-label="Playable ukulele">
+      <h3 className="mb-2 font-bold">Ukulele strings and chords</h3>
+      <p className="mb-2 text-sm">Pluck individual strings or strum a chord.</p>
+      <div className="grid grid-cols-2 gap-2">
+        {UKULELE_STRINGS.map((string) => <button key={string.label} type="button" onClick={() => tone(string.freq, "ukulele")} className="rounded-lg bg-sky-100 px-3 py-4 font-semibold text-sky-950">{string.label}</button>)}
+      </div>
+      <h4 className="mb-2 mt-4 font-semibold">Strum a chord</h4>
+      <div className="grid grid-cols-2 gap-2">
+        {UKULELE_CHORDS.map((chord) => <button key={chord.label} type="button" onClick={() => chord.freqs.forEach((freq, index) => tone(freq, "ukulele", index * 0.045))} className="rounded-lg bg-teal-100 px-3 py-4 font-semibold text-teal-950">{chord.label}</button>)}
+      </div>
+    </section>}
+  </div>;
 }
 
 export default function ShipScene() {
@@ -35,6 +122,7 @@ export default function ShipScene() {
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
   const [cabinDiscovery, setCabinDiscovery] = useState<string | null>(null);
   const discoveryAnnouncementRef = useRef<HTMLParagraphElement>(null);
+  const [musicInstrument, setMusicInstrument] = useState<"piano" | "drums" | "ukulele">("piano");
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
   const [deckPanel, setDeckPanel] = useState<"piano" | "games" | "treasure" | "navigation" | "wheel" | "musicbox" | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -74,7 +162,9 @@ export default function ShipScene() {
   const changeDeck = (area: "main" | "cabin") => { setDeckArea(area); setCabinDiscovery(null); setDeckPanel(null); };
   const hotspots = deckArea === "main" ? [
     { label: "Visit the Shoreline Smoothie Bar", top: 18, left: 3, width: 31, height: 49, action: () => setSmoothieBarOpen(true) },
-    { label: "Play the community piano", top: 18, left: 39, width: 25, height: 42, action: () => setDeckPanel("piano") },
+    { label: "Play the community piano", top: 18, left: 39, width: 20, height: 42, action: () => { setMusicInstrument("piano"); setDeckPanel("piano"); } },
+    { label: "Play the ukulele", top: 34, left: 60, width: 9, height: 30, action: () => { setMusicInstrument("ukulele"); setDeckPanel("piano"); } },
+    { label: "Play the drums", top: 30, left: 69, width: 12, height: 35, action: () => { setMusicInstrument("drums"); setDeckPanel("piano"); } },
     { label: "Explore ship games", top: 25, left: 80, width: 19, height: 46, action: () => setDeckPanel("games") },
     { label: "Go down the staircase to the lower cabin", top: 68, left: 33, width: 35, height: 27, action: () => changeDeck("cabin") },
   ] : [
@@ -120,7 +210,7 @@ export default function ShipScene() {
     </section>}
     {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
       <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={closePanel}>Close activity</button>
-      {deckPanel === "piano" ? <PianoCard /> : <>
+      {deckPanel === "piano" ? <MusicStudio key={musicInstrument} initialInstrument={musicInstrument} /> : <>
         <SaltyCard />
         <button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="w-full rounded-xl bg-amber-600 p-3 font-bold text-white">Play Olli's Ring Toss</button>
         <button ref={listenButtonRef} type="button" onClick={() => setListenGameOpen(true)} className="w-full rounded-xl bg-cyan-700 p-3 font-bold text-white">Play Listen to the Shell</button>
