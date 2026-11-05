@@ -351,6 +351,11 @@ export default function BeachScene() {
   const [collectionAnnouncement, setCollectionAnnouncement] = useState("");
   const [windTreasureAnnouncement, setWindTreasureAnnouncement] = useState("");
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
+  useEffect(() => {
+    const openOlli = () => setSelectedResident("olli");
+    window.addEventListener("shoreline:visit-olli", openOlli);
+    return () => window.removeEventListener("shoreline:visit-olli", openOlli);
+  }, []);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
   const [nighttime, setNighttime] = useState(false);
   const [seagullDialogOpen, setSeagullDialogOpen] = useState(false);
