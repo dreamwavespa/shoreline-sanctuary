@@ -1410,9 +1410,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return true;
     }
     if (kind === "daily-cooling") {
-      setState(prev => ({ ...prev, sandDollars: prev.sandDollars + 2, notebookDiscovered: { ...prev.notebookDiscovered, [`kitchen-daily-cooling:${date}`]: true } }));
+      // Every third daily cooling session awards an extra pair of baking supplies.
+      const completed = Object.keys(current.notebookDiscovered).filter(key => key.startsWith("kitchen-daily-cooling:") && current.notebookDiscovered[key]).length + 1;
+      const bonusReady = completed % 3 === 0;
+      const ingredientPool = ["flour", "eggs", "cocoa-powder", "vanilla"];
+      const bonusIds = bonusReady ? Array.from({ length: 2 }, () => ingredientPool[Math.floor(Math.random() * ingredientPool.length)]) : [];
+      setState(prev => {
+        const inventory = { ...prev.inventory };
+        for (const id of bonusIds) inventory[id] = (inventory[id] || 0) + 1;
+        return { ...prev, sandDollars: prev.sandDollars + 2, inventory, notebookDiscovered: { ...prev.notebookDiscovered, [`kitchen-daily-cooling:${date}`]: true } };
+      });
       play("sparkle");
-      toast("Baking cooled! Earned 2 bonus Sand Dollars.");
+      toast(bonusReady
+        ? `Baking cooled! Earned 2 Sand Dollars and Baker's Bonus: ${bonusIds.map(id => ITEMS[id]?.name || id).join(" and ")}!`
+        : `Baking cooled! Earned 2 Sand Dollars. ${completed % 3} of 3 cooling sessions toward Baker's Bonus.`);
       return true;
     }
     if (kind === "daily-pumpkin" && !["pumpkin-spice", "cinnamon", "nutmeg", "ginger-spice", "cloves"].includes(spice)) return false;
