@@ -98,20 +98,22 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
 
     if (nextTray.length === 0) {
       window.setTimeout(() => {
-        collectItem("picnic-packed-keepsake");
+        collectItem("picnic-packed-keepsake", { silent: true });
+        let rewardAnnouncement = "Today’s baking ingredient bonus has already been collected.";
         if (lastIngredientDate !== today) {
           const pool = ["flour", "flour", "eggs", "eggs", "cocoa-powder", "cocoa-powder", "vanilla"];
           const ingredient = pool[Math.floor(Math.random() * pool.length)];
-          collectItem(ingredient);
+          collectItem(ingredient, { silent: true });
           try { localStorage.setItem("shoreline-picnic-ingredient-date", today); } catch {}
           setLastIngredientDate(today);
-          setBonusMessage(`Picnic Packing bonus: 1 ${ITEMS[ingredient]?.name || ingredient} added to your inventory!`);
+          rewardAnnouncement = `Baking ingredient reward: 1 ${ITEMS[ingredient]?.name || ingredient} added to your inventory.`;
+          setBonusMessage(rewardAnnouncement);
         } else {
-          setBonusMessage("Today's baking ingredient bonus has already been collected.");
+          setBonusMessage(rewardAnnouncement);
         }
         setComplete(true);
         setPlaying(false);
-        setAnnouncement(`Picnic basket packed with ${mistakes} ${mistakes === 1 ? "mistake" : "mistakes"}. The food, flowers, dishes, treats, drinks, and blanket all fit safely.`);
+        setAnnouncement(`Picnic basket packed successfully. Picnic keepsake added to your inventory. ${rewardAnnouncement}`);
       }, 450);
     } else {
       setAnnouncement(`${selectedItem.label} packed safely. ${nextTray.length} ${nextTray.length === 1 ? "item remains" : "items remain"}.`);
