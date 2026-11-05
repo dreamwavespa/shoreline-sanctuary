@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
+import Image from "next/image";
+
+const ART = "/images/Baking/";
+const ingredientImages: Record<string, string> = { Flour: "Flour-jar.png", Eggs: "Eggs.png", Vanilla: "Vanilla.png", "Cocoa powder": "Cocoa-powder.png", "Coconut cream": "Coconut.png", Strawberries: "Berries.png" };
+const cakeImages = ["Vanilla-seashell-cake.png", "Chocolate-seashell-cake.png", "Coconut-seashell-cake.png", "Berry-seashell-cake.png"];
+function BakingArt({ file, name, size = 160 }: { file: string; name: string; size?: number }) {
+  return <Image src={ART + file} alt={name} width={size} height={size} unoptimized className="mx-auto max-h-44 w-auto max-w-full object-contain" />;
+}
 
 const orders = [
   { name: "Vanilla Seashell Cakes", ingredients: ["Flour", "Eggs", "Vanilla"], decoration: "Pearl sprinkles" },
@@ -97,19 +105,20 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
         {stage === "ingredients" && <>
           <p className="mt-2">Recipe: {order.ingredients.join(", ")}. Choose all three.</p>
           <div className="mt-3 grid grid-cols-2 gap-2">{ingredients.map(item =>
-            <button key={item} type="button" disabled={chosen.includes(item)} onClick={() => chooseIngredient(item)} className="min-h-12 rounded-lg bg-rose-100 p-3 disabled:opacity-50">{item}{chosen.includes(item) ? " — added" : ""}</button>
+            <button key={item} type="button" disabled={chosen.includes(item)} onClick={() => chooseIngredient(item)} aria-label={item + (chosen.includes(item) ? ", added" : ", add ingredient")} className="min-h-12 rounded-lg bg-rose-100 p-3 font-semibold disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">{ingredientImages[item] && <BakingArt file={ingredientImages[item]} name="" size={120} />}{item}{chosen.includes(item) ? " — added" : ""}</button>
           )}</div>
         </>}
-        {stage === "mix" && <button type="button" onClick={() => step("molds", "Batter mixed. Fill three seashell molds.", "Stir")} className="mt-3 min-h-12 rounded-lg bg-teal-800 p-3 text-white">Stir batter ({progress}/3)</button>}
-        {stage === "molds" && <button type="button" onClick={() => step("bake", "All three molds filled. Bake the tray.", "Mold")} className="mt-3 min-h-12 rounded-lg bg-teal-800 p-3 text-white">Fill seashell mold ({progress}/3)</button>}
-        {stage === "bake" && <button type="button" onClick={() => advance("decorate", "Cakes baked and cooled. Choose " + order.decoration + ".")} className="mt-3 min-h-12 rounded-lg bg-teal-800 p-3 text-white">Bake and cool cakes</button>}
+        {stage === "mix" && <button type="button" onClick={() => step("molds", "Batter mixed. Fill three seashell molds.", "Stir")} aria-label={"Stir batter, " + progress + " of 3 stirs complete"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Mixing-bowl.png" name="" size={220} />Stir batter ({progress}/3)</button>}
+        {stage === "molds" && <button type="button" onClick={() => step("bake", "All three molds filled. Bake the tray.", "Mold")} aria-label={"Fill seashell mold, " + progress + " of 3 filled"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-baking-tray.png" name="" size={240} />Fill seashell mold ({progress}/3)</button>}
+        {stage === "bake" && <button type="button" onClick={() => advance("decorate", "Cakes baked and cooled. Choose " + order.decoration + ".")} aria-label="Bake and cool the seashell cakes" className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-oven.png" name="" size={240} />Bake and cool cakes</button>}
         {stage === "decorate" && <>
           <p className="mt-2">Finish with {order.decoration}.</p>
+          <BakingArt file={cakeImages[orderIndex!]} name={"Undecorated preview for " + order.name} size={200} />
           <div className="mt-3 grid grid-cols-2 gap-2">{decorations.map(item =>
             <button key={item} type="button" onClick={() => finish(item)} className="min-h-12 rounded-lg bg-rose-100 p-3">{item}</button>
           )}</div>
         </>}
-        {stage === "complete" && <p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p>}
+        {stage === "complete" && <div className="mt-3 text-center"><BakingArt file="Cake-display-stand.png" name="Glass cake display stand" size={180} /><BakingArt file={cakeImages[orderIndex!]} name={order.name} size={220} /><p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p></div>}
       </section>}
       <button type="button" onClick={start} className="mt-5 min-h-12 rounded-xl bg-rose-700 px-5 py-3 font-bold text-white">{order ? "Start another order" : "Start baking challenge"}</button>
       <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">{announcement}</p>
