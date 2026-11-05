@@ -31,7 +31,7 @@ export default function OlliHuntOverlay() {
           <p role="status" aria-live="polite" className="font-bold">🐙 A bubbly pop echoes across Shoreline!</p>
           <p className="mt-1 text-sm text-cyan-50">Olli has disappeared in a cloud of ink. Visit his Beach spot for a clue.</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => { dismissOlliNotification(); setScreen("beach"); }} className="min-h-11 rounded-xl bg-cyan-500 px-3 py-2 text-sm font-bold text-slate-950">Visit Olli</button>
+            <button type="button" onClick={() => { dismissOlliNotification(); setScreen("beach"); window.setTimeout(() => window.dispatchEvent(new Event("shoreline:visit-olli")), 50); }} className="min-h-11 rounded-xl bg-cyan-500 px-3 py-2 text-sm font-bold text-slate-950">Visit Olli</button>
             <button type="button" onClick={dismissOlliNotification} className="min-h-11 rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-white ring-1 ring-white/30">Keep Exploring</button>
           </div>
         </aside>
