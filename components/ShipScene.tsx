@@ -35,15 +35,27 @@ function SaltyCard() {
 function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "piano" | "drums" | "ukulele" }) {
   const [instrument, setInstrument] = useState<"piano" | "drums" | "ukulele">(initialInstrument);
   const ctxRef = useRef<AudioContext | null>(null);
+  const instrumentOutputRef = useRef<GainNode | null>(null);
+  const [instrumentVolume, setInstrumentVolume] = useState(85);
   useEffect(() => () => { void ctxRef.current?.close(); ctxRef.current = null; }, []);
   const audio = () => {
     if (!ctxRef.current) {
       const Ctx = window.AudioContext || (window as any).webkitAudioContext;
       ctxRef.current = new Ctx();
+      const compressor = ctxRef.current.createDynamicsCompressor();
+      compressor.threshold.value = -16;
+      compressor.ratio.value = 4;
+      const output = ctxRef.current.createGain();
+      output.gain.value = 0.85;
+      compressor.connect(output).connect(ctxRef.current.destination);
+      instrumentOutputRef.current = output;
+      (ctxRef.current as AudioContext & { instrumentCompressor?: DynamicsCompressorNode }).instrumentCompressor = compressor;
     }
     if (ctxRef.current?.state === "suspended") void ctxRef.current.resume();
     return ctxRef.current!;
   };
+  useEffect(() => { if (instrumentOutputRef.current) instrumentOutputRef.current.gain.value = instrumentVolume / 100; }, [instrumentVolume]);
+  const outputNode = (ctx: AudioContext) => (ctx as AudioContext & { instrumentCompressor?: DynamicsCompressorNode }).instrumentCompressor || ctx.destination;
   const tone = (freq: number, kind: "piano" | "ukulele", delay = 0) => {
     try {
       const ctx = audio(), at = ctx.currentTime + delay;
@@ -51,9 +63,9 @@ function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "pia
       osc.type = kind === "piano" ? "triangle" : "sawtooth";
       osc.frequency.setValueAtTime(freq, at);
       gain.gain.setValueAtTime(0.0001, at);
-      gain.gain.exponentialRampToValueAtTime(kind === "piano" ? 0.18 : 0.085, at + 0.012);
+      gain.gain.exponentialRampToValueAtTime(kind === "piano" ? 0.5 : 0.28, at + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.0001, at + (kind === "piano" ? 1.1 : 0.75));
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(outputNode(ctx));
       osc.start(at); osc.stop(at + (kind === "piano" ? 1.15 : 0.8));
     } catch {}
   };
@@ -65,7 +77,7 @@ function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "pia
         osc.type = "sine";
         osc.frequency.setValueAtTime(kind === "bass" ? 140 : 220, at);
         osc.frequency.exponentialRampToValueAtTime(kind === "bass" ? 48 : 110, at + 0.2);
-        gain.gain.setValueAtTime(0.35, at);
+        gain.gain.setValueAtTime(0.75, at);
         gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.3);
         osc.connect(gain).connect(ctx.destination); osc.start(at); osc.stop(at + 0.31);
       } else {
@@ -75,9 +87,9 @@ function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "pia
         const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
         source.buffer = buffer;
         filter.type = "highpass"; filter.frequency.value = kind === "snare" ? 1200 : 5000;
-        gain.gain.setValueAtTime(kind === "snare" ? 0.23 : 0.14, at);
+        gain.gain.setValueAtTime(kind === "snare" ? 0.52 : 0.38, at);
         gain.gain.exponentialRampToValueAtTime(0.0001, at + (kind === "snare" ? 0.18 : 0.7));
-        source.connect(filter).connect(gain).connect(ctx.destination);
+        source.connect(filter).connect(gain).connect(outputNode(ctx));
         source.start(at); source.stop(at + (kind === "snare" ? 0.18 : 0.7));
       }
     } catch {}
@@ -85,6 +97,8 @@ function MusicStudio({ initialInstrument = "piano" }: { initialInstrument?: "pia
   return <div className="rounded-2xl bg-white/95 p-4 text-slate-900 shadow-md">
     <h2 className="mb-2 text-lg font-bold">Community Music Corner</h2>
     <p className="mb-3 text-sm">Choose an instrument, then select labeled notes, strings, or drums to play. All controls work with VoiceOver and a keyboard.</p>
+    <label className="mb-3 block text-sm font-semibold" htmlFor="ship-instrument-volume">Instrument volume: {instrumentVolume}%</label>
+    <input id="ship-instrument-volume" type="range" min="0" max="100" step="5" value={instrumentVolume} onChange={event => setInstrumentVolume(Number(event.target.value))} className="mb-4 w-full accent-teal-700" />
     <div className="mb-4 grid grid-cols-3 gap-2" role="group" aria-label="Choose an instrument">
       {(["piano", "drums", "ukulele"] as const).map((name) => <button key={name} type="button" aria-pressed={instrument === name} onClick={() => setInstrument(name)} className={`rounded-lg px-2 py-3 font-semibold capitalize focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${instrument === name ? "bg-teal-800 text-white" : "bg-teal-100 text-teal-900"}`}>{name}</button>)}
     </div>
