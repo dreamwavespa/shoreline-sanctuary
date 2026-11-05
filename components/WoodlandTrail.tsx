@@ -17,6 +17,8 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
   const [activeGarden, setActiveGarden] = useState<"coffee" | "cotton" | "catnip" | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const gardenCloseRef = useRef<HTMLButtonElement | null>(null);
+  const gardenTriggerRef = useRef<HTMLButtonElement | null>(null);
   const arrived = !!state.robinNestPlacedAt && now - state.robinNestPlacedAt >= ARRIVAL_MS;
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
@@ -27,9 +29,26 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     audioRef.current = null;
   }, []);
   const openGarden = (garden: "coffee" | "cotton" | "catnip") => {
+    gardenTriggerRef.current = document.activeElement instanceof HTMLButtonElement ? document.activeElement : null;
     setActiveGarden(garden);
-    setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} selected. Planting and harvesting controls are below the forest scene.`);
+    setAnnouncement(`${garden === "coffee" ? "Coffee shrubs" : garden === "cotton" ? "Cotton patch" : "Catnip plants"} controls opened.`);
   };
+  useEffect(() => {
+    if (!activeGarden) return;
+    gardenCloseRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setActiveGarden(null); gardenTriggerRef.current?.focus(); }
+      if (event.key !== "Tab") return;
+      const dialog = document.getElementById("woodland-garden-dialog");
+      const controls = Array.from(dialog?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]') || []);
+      if (!controls.length) return;
+      if (event.shiftKey && document.activeElement === controls[0]) { event.preventDefault(); controls[controls.length - 1].focus(); }
+      else if (!event.shiftKey && document.activeElement === controls[controls.length - 1]) { event.preventDefault(); controls[0].focus(); }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [activeGarden]);
+  const closeGarden = () => { setActiveGarden(null); setAnnouncement("Returned to the Woodland Trail clearing."); gardenTriggerRef.current?.focus(); };
   const giftIds = Object.keys(state.inventory).filter(id => (id === "dried-sugar-berries" || id === "cotton-balls" || id === "wind-fabric-scrap" || id.startsWith("flower-") || id === "rain-lily-blossom") && (state.inventory[id] || 0) > 0 && ITEMS[id]);
   const date = new Date(now);
   const month = date.getMonth();
@@ -223,18 +242,21 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
         <section aria-label="Woodland Trail plantings" className="space-y-4">
           <h2 className="text-xl font-bold text-emerald-950">Forest Garden</h2>
           <p>Choose the coffee shrubs, cotton patch or catnip plants in the clearing to tend them. Each plant keeps its existing growth and harvest schedule.</p>
-          {activeGarden && (
-            <div className="rounded-2xl bg-white p-3 shadow-md ring-1 ring-emerald-300">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-bold text-emerald-950">{activeGarden === "coffee" ? "Coffee Shrubs" : activeGarden === "cotton" ? "Cotton Patch" : "Catnip Plants"}</h3>
-                <button type="button" onClick={() => { setActiveGarden(null); setAnnouncement("Returned to the Woodland Trail clearing."); }} className="min-h-11 rounded-lg bg-emerald-800 px-3 py-2 font-semibold text-white">Close garden controls</button>
-              </div>
-              {activeGarden === "coffee" ? <GroveCoffeePlant /> : <GroveFiberPatch kind={activeGarden} />}
-            </div>
-          )}
+
         </section>
         <button type="button" onClick={onBack} className="min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white">Return to Coconut Grove</button>
       </div>
+      {activeGarden && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4" onMouseDown={event => { if (event.target === event.currentTarget) closeGarden(); }}>
+          <div id="woodland-garden-dialog" role="dialog" aria-modal="true" aria-labelledby="woodland-garden-dialog-title" className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="woodland-garden-dialog-title" className="text-xl font-bold text-emerald-950">{activeGarden === "coffee" ? "Coffee Shrubs" : activeGarden === "cotton" ? "Cotton Patch" : "Catnip Plants"}</h2>
+              <button ref={gardenCloseRef} type="button" onClick={closeGarden} className="min-h-11 rounded-lg bg-emerald-800 px-4 py-2 font-semibold text-white">Close</button>
+            </div>
+            <div className="mt-3">{activeGarden === "coffee" ? <GroveCoffeePlant /> : <GroveFiberPatch kind={activeGarden} />}</div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
