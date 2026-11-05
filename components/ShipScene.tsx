@@ -35,6 +35,28 @@ export default function ShipScene() {
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
   const [deckPanel, setDeckPanel] = useState<"piano" | "games" | "treasure" | "navigation" | "wheel" | "musicbox" | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const dialogOpen = Boolean(deckPanel || smoothieBarOpen || listenGameOpen || ringTossOpen);
+  const closePanel = () => { setDeckPanel(null); window.setTimeout(() => triggerRef.current?.focus(), 0); };
+  useEffect(() => {
+    if (!dialogOpen) return;
+    const previous = document.activeElement;
+    if (previous instanceof HTMLElement && !triggerRef.current) triggerRef.current = previous;
+    window.setTimeout(() => dialogRef.current?.focus(), 0);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setDeckPanel(null); setSmoothieBarOpen(false); setListenGameOpen(false); setRingTossOpen(false); window.setTimeout(() => triggerRef.current?.focus(), 0); }
+      if (event.key === "Tab" && dialogRef.current) {
+        const controls = Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (!controls.length) { event.preventDefault(); return; }
+        if (event.shiftKey && document.activeElement === controls[0]) { event.preventDefault(); controls[controls.length - 1].focus(); }
+        else if (!event.shiftKey && document.activeElement === controls[controls.length - 1]) { event.preventDefault(); controls[0].focus(); }
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [dialogOpen]);
+  const openFrom = (event: React.MouseEvent<HTMLButtonElement>, action: () => void) => { triggerRef.current = event.currentTarget; action(); };
   const listenButtonRef = useRef<HTMLButtonElement>(null);
   const ringTossButtonRef = useRef<HTMLButtonElement>(null);
   const smoothieButtonRef = useRef<HTMLButtonElement>(null);
@@ -65,17 +87,20 @@ export default function ShipScene() {
     <p className="px-4 py-2 text-sm text-teal-100">Explore the illustrated ship by selecting an object. Use the labeled interactive objects to explore each room. Swipe through the objects with VoiceOver or use Tab and Enter with a keyboard.</p>
     <div className="relative w-full">
       <Image src={deckArea === "main" ? "/images/Ship/shipwreck_main_deck_portrait.png" : "/images/Ship/shipwreck_lower_cabin_portrait.png"} alt={deckArea === "main" ? "Illustrated main deck with smoothie bar, music and games" : "Illustrated lower cabin with nautical treasures and a staircase"} width={1024} height={1536} unoptimized className="block h-auto w-full" priority />
-      {hotspots.map((spot) => <button key={spot.label} type="button" aria-label={spot.label} title={spot.label} onClick={spot.action}
+      {hotspots.map((spot) => <button key={spot.label} type="button" aria-label={spot.label} title={spot.label} onClick={(event) => openFrom(event, spot.action)}
         className="absolute rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300"
         style={{ top: spot.top + "%", left: spot.left + "%", width: spot.width + "%", height: spot.height + "%" }} />)}
     </div>
+    {dialogOpen && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 sm:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget) { setDeckPanel(null); setSmoothieBarOpen(false); setListenGameOpen(false); setRingTossOpen(false); window.setTimeout(() => triggerRef.current?.focus(), 0); } }}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={deckPanel === "piano" ? "Community Piano" : deckPanel === "games" ? "Ship Games" : deckPanel === "treasure" ? "Captain's Treasure Chest" : deckPanel === "navigation" ? "Navigation Table" : deckPanel === "wheel" ? "Ship's Wheel" : deckPanel === "musicbox" ? "Lost Music Box" : smoothieBarOpen ? "Smoothie Bar" : ringTossOpen ? "Olli's Ring Toss" : "Listen to the Shell"} tabIndex={-1} className="w-full max-w-xl max-h-[90dvh] overflow-y-auto overscroll-contain rounded-2xl bg-[#0b3d3a] p-3 text-white shadow-2xl outline-none sm:p-5">
+        <button type="button" className="mb-3 rounded-xl bg-amber-700 px-5 py-3 font-bold text-white" onClick={() => { setDeckPanel(null); setSmoothieBarOpen(false); setListenGameOpen(false); setRingTossOpen(false); window.setTimeout(() => triggerRef.current?.focus(), 0); }}>Close popup</button>
     {deckArea === "cabin" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label="Lower cabin discovery">
       <h2 className="text-lg font-bold">{deckPanel === "treasure" ? "Captain's Treasure Chest" : deckPanel === "navigation" ? "Navigation Table" : deckPanel === "wheel" ? "Ship's Wheel" : "The Lost Music Box"}</h2>
       <p>{deckPanel === "treasure" ? "The old chest is open, revealing polished gemstones, pearls, and sea treasures. The captain's collection is safe aboard the Community Ship." : deckPanel === "navigation" ? "Unroll the sea charts and examine the compass, telescope, and maps. The navigation table holds memories of voyages across the sanctuary waters." : deckPanel === "wheel" ? "The polished wooden wheel once guided the ship through wind and waves. Imagine choosing a course toward the reef, the sandbar, or a new horizon." : "A delicate music box rests on the cabin shelf beside the captain's old sheet music. Its tiny melody is waiting to be rediscovered."}</p>
-      <button type="button" className="rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white" onClick={() => setDeckPanel(null)}>Close {deckPanel === "treasure" ? "treasure chest" : deckPanel === "navigation" ? "navigation table" : deckPanel === "wheel" ? "ship's wheel" : "music box"}</button>
+      <button type="button" className="rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white" onClick={closePanel}>Close {deckPanel === "treasure" ? "treasure chest" : deckPanel === "navigation" ? "navigation table" : deckPanel === "wheel" ? "ship's wheel" : "music box"}</button>
     </section>}
     {deckArea === "main" && deckPanel && <section className="mx-4 mt-4 space-y-3 rounded-xl bg-white p-4 text-slate-900" aria-label={deckPanel === "piano" ? "Piano activity" : "Ship games"}>
-      <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={() => setDeckPanel(null)}>Close activity</button>
+      <button type="button" className="rounded-lg bg-slate-700 px-4 py-2 text-white" onClick={closePanel}>Close activity</button>
       {deckPanel === "piano" ? <PianoCard /> : <>
         <SaltyCard />
         <button ref={ringTossButtonRef} type="button" onClick={() => setRingTossOpen(true)} className="w-full rounded-xl bg-amber-600 p-3 font-bold text-white">Play Olli's Ring Toss</button>
@@ -85,5 +110,7 @@ export default function ShipScene() {
     {smoothieBarOpen && <SmoothieBar onClose={closeSmoothieBar} />}
     {listenGameOpen && <ListenToShell onClose={closeListenGame} />}
     {ringTossOpen && <OlliRingToss onClose={closeRingToss} />}
+      </div>
+    </div>}
   </div>;
 }
