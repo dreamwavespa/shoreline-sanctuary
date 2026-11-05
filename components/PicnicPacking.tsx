@@ -146,6 +146,7 @@ export default function PicnicPacking({ onClose }: { onClose: () => void }) {
               <div className="mt-2 text-3xl" aria-hidden="true">🥪 💐 🍽️ 🍓 🧁 🧃</div>
             </div>
             <h3 className="mt-4 text-xl font-bold text-amber-950">Picnic Packed Perfectly!</h3>
+            <p role="status" aria-live="polite" className="mt-3 font-semibold text-emerald-900">{bonusMessage}</p>
             <p className="mt-2 text-amber-800">Nothing was squished · Mistakes: {mistakes}</p>
             <p className="mt-2 font-semibold text-emerald-800">Picnic baskets packed: {basketsPacked}</p>
             <div className="mt-5 grid grid-cols-2 gap-3">
