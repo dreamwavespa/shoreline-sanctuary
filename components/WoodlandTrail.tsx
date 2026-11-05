@@ -11,7 +11,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, giveRobinBirdhouse, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, giveRobinBirdhouse, placeRobinNestDecorations, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
@@ -93,6 +93,14 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
             {state.robinWinterBubbleActive && (
               <div className="absolute -inset-[12%] rounded-full border-2 border-cyan-200/70 bg-cyan-100/10 shadow-[0_0_18px_5px_rgba(165,243,252,0.35)]">
                 <Image src="/images/Robin/Greenhouse-bubble.PNG" alt="" fill unoptimized sizes="50vw" className="object-contain opacity-70" />
+              </div>
+            )}
+            {state.robinNestDecorationsPlaced && (
+              <div className="absolute inset-0 z-20" aria-hidden="true">
+                <span className="absolute left-[3%] top-[27%] text-lg drop-shadow-md">🌸</span>
+                <span className="absolute right-[3%] top-[30%] text-lg drop-shadow-md">🌼</span>
+                <span className="absolute bottom-[4%] left-[20%] text-lg drop-shadow-md">🍃</span>
+                <span className="absolute bottom-[3%] right-[20%] text-lg drop-shadow-md">🌷</span>
               </div>
             )}
             <div className="absolute inset-[12%] z-10">
@@ -224,6 +232,13 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           <h2 id="robin-gifts-title" className="text-xl font-bold text-emerald-950">Robin's Friendship & Gifts</h2>
           <p className="mt-2">Gifts given: {state.robinGiftCount || 0}. Robin enjoys sugar berries, cotton balls, fabric scraps and flowers. Give one gift each day after she arrives.</p>
           <p className="mt-1 text-sm text-emerald-900">Rewards: 3 gifts — Robin's Feather and leaf-shaped sand art bottle unlock; 6 gifts — Woodland Nest Decorations; 10 gifts — Carved Crystal Robin.</p>
+          {state.robinNestDecorationsPlaced ? (
+            <p className="mt-2 font-semibold text-emerald-900" role="status">Woodland Nest Decorations placed. Robin's nest is decorated with flowers and leaves.</p>
+          ) : (state.inventory["robin-nest-decorations"] || 0) > 0 ? (
+            <button type="button" onClick={() => { if (placeRobinNestDecorations()) setAnnouncement("Robin's woodland nest decorations have been placed around her nest."); }} className="mt-3 min-h-12 w-full rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white">Decorate Robin's Nest</button>
+          ) : (state.robinGiftCount || 0) >= 6 ? (
+            <p className="mt-2">Your sixth-gift decorations should be in inventory. Check your rewards if the placement option is missing.</p>
+          ) : null}
           {giftIds.length ? (
             <div className="mt-3 space-y-2">
               <label htmlFor="robin-gift-choice" className="block font-semibold">Choose a gift</label>
