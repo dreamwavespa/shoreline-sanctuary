@@ -719,7 +719,7 @@ export default function BeachScene() {
       <SnappyBeachVolleyball inventory={state.inventory} crafted={state.crafted} />
       <BeachBouncyBall nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} />
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
-      {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
+      {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} nighttime={nighttime} />}
     </div>
   );
 }
