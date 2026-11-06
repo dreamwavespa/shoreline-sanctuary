@@ -15,11 +15,11 @@ const decorationImages: Record<string, string> = {
   "Pearl sprinkles": "Pearl-sprinkles.png",
   "Chocolate curls": "Chocolate-curls.png",
   "Coconut flakes": "Coconut-flakes.png",
-  "Berry glaze": "Strawberries.png",
+  "Berry glaze": "Berry-glaze.png",
   "Pastel icing": "Pink-frosting.png",
   "Vanilla cream": "Vanilla-frosting.png",
   "Blueberry topping": "Blueberries.png",
-  "Chocolate drizzle": "Chocolate-frosting.png",
+  "Chocolate drizzle": "Chocolate-drizzle.png",
   "Whipped cream": "Whipped-cream.png",
 };
 
