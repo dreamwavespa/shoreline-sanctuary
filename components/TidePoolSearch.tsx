@@ -319,7 +319,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
             <h3 id="teapot-restoration-title" className="text-xl font-bold">Shipwreck Teapot Restoration</h3>
             <p>Recover one of each of the five porcelain pieces, then assemble them in order. Each restoration uses one complete set of fragments.</p>
             {showRestoredTeapot ? <>
-              <Image src="/images/TidePool/Shipwreck-Teapot-Restored.png" alt="Restored white porcelain teapot decorated with pink flowers, blue waves, and gold trim" width={280} height={280} unoptimized className="mx-auto h-48 w-48 object-contain" />
+              <Image src="/images/TidePool/Teapot-restored.PNG" alt="Restored white porcelain teapot decorated with pink flowers, blue waves, and gold trim" width={280} height={280} unoptimized className="mx-auto h-48 w-48 object-contain" />
               <p className="font-bold">Restoration complete! Your antique teapot is in your inventory.</p>
               <button type="button" onClick={() => { setShowRestoredTeapot(false); setTeapotMessage("Collect all five pieces to restore another teapot."); }} className="min-h-11 w-full rounded-xl bg-amber-800 p-3 font-bold text-white">Restore Another Teapot</button>
             </> : <>
