@@ -71,6 +71,11 @@ export const PWA_ICONS = {
 const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  bakingEggCrack: "/audio/Baking-egg-crack.mp3",
+  bakingMixing: "/audio/Baking-mixing.mp3",
+  bakingMixingSoft: "/audio/Baking-mixing-soft.mp3",
+  bakingSprinkles: "/audio/Baking-sprinkles.mp3",
+  cupcakeCardFlip: "/audio/Cupcake-card-flip.mp3",
   kitchenSizzle: "/audio/Kitchen-sizzle.mp3",
   kitchenCoffeeBrewing: "/audio/Kitchen-coffee-brewing.mp3",
   kitchenPageTurn: "/audio/Kitchen-page-turn.mp3",
