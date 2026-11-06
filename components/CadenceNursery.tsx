@@ -185,13 +185,15 @@ function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate:
         <div className="absolute bottom-9 left-1/2 h-44 w-4 -translate-x-1/2 rounded-t-full bg-amber-500 shadow-sm" />
         {stack.map((size, index) => {
           const ring = rings.find(r => r.size === size)!;
-          return <div key={size} className={`absolute left-1/2 h-7 -translate-x-1/2 rounded-[50%] border-4 border-white/60 shadow-md ${ring.className} ${lastPlaced === size ? "animate-buoy-drop" : ""}`} style={{ width: `${52 + size * 24}px`, bottom: `${36 + index * 23}px` }}>
-            <div className="absolute left-1/2 top-1/2 h-2 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-700/70" />
+          return <div key={size} className={`absolute left-1/2 h-8 -translate-x-1/2 rounded-[50%] border-[3px] border-white/35 shadow-[0_5px_6px_rgba(36,55,74,0.25),inset_0_-5px_5px_rgba(0,0,0,0.16),inset_0_4px_4px_rgba(255,255,255,0.5)] ${ring.className} ${lastPlaced === size ? "animate-buoy-drop" : ""}`} style={{ width: `${52 + size * 24}px`, bottom: `${36 + index * 23}px` }}>
+            <div className="absolute inset-x-3 top-[3px] h-[7px] rounded-[50%] bg-white/35 blur-[2px]" />
+            <div className="absolute inset-x-2 bottom-[2px] h-[5px] rounded-[50%] bg-black/10 blur-[2px]" />
+            <div className="absolute left-1/2 top-1/2 h-2 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-700/70 shadow-inner" />
           </div>;
         })}
         {finished && <div className="absolute right-3 top-3 text-3xl animate-bounce">✨</div>}
       </div>
-      <style jsx>{`@keyframes buoy-drop { from { opacity: .55; transform: translate(-50%, -125px) scale(1.08); } 75% { transform: translate(-50%, 6px) scale(.98); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } } .animate-buoy-drop { animation: buoy-drop 650ms ease-out both; } @media (prefers-reduced-motion: reduce) { .animate-buoy-drop { animation: none; } }`}</style>
+      <style jsx>{`@keyframes buoy-drop { from { opacity: .55; transform: translate(-50%, -125px) scale(1.08); } 70% { transform: translate(-50%, 8px) scale(.96, .88); } 86% { transform: translate(-50%, -4px) scale(1.02, 1.05); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } } .animate-buoy-drop { animation: buoy-drop 650ms ease-out both; } @media (prefers-reduced-motion: reduce) { .animate-buoy-drop { animation: none; } }`}</style>
       <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-rose-900">{feedback}</p>
       <div className="grid grid-cols-2 gap-2">
         {rings.map(ring => <button key={ring.size} type="button" disabled={stack.includes(ring.size) || finished} onClick={() => addRing(ring.size)} className="min-h-11 rounded-xl bg-teal-800 px-3 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">
