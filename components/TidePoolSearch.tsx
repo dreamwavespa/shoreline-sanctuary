@@ -53,6 +53,9 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
   const [announcement, setAnnouncement] = useState("Begin when you are ready to explore the tide pool.");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const lowTide = state.currentForecast?.id === "low-tide";
+  const hasBoots = (state.inventory["tide-pool-wading-boots"] || 0) > 0 || state.crafted.includes("tide-pool-wading-boots");
+  const [deepFinds, setDeepFinds] = useState<string[]>([]);
+  const [deepAnnouncement, setDeepAnnouncement] = useState("The deeper tide pool awaits.");
   const barnabyHelped = !!state.questProgress.shellseeker;
   const searchedCount = Object.keys(areaFinds).length;
 
@@ -66,6 +69,31 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
+
+  const deepTreasures = [
+    { id: "recycled-rubber", weight: 38, description: "A clean, reusable rubber strip washed into the rocks." },
+    { id: "shipwreck-teapot-fragment-spout", weight: 10, description: "A porcelain spout from an old shipwreck teapot." },
+    { id: "shipwreck-teapot-fragment-handle", weight: 10, description: "A curved handle from an old shipwreck teapot." },
+    { id: "shipwreck-teapot-fragment-lid", weight: 10, description: "A porcelain teapot lid with a gold seashell finial." },
+    { id: "shipwreck-teapot-fragment-body", weight: 10, description: "A piece of the shipwreck teapot's painted body." },
+    { id: "ancient-tide-crystal", weight: 7, description: "An ancient blue-banded crystal rests beneath a rock." },
+    { id: "tidepool-ammonite-fossil", weight: 7, description: "A spiral ammonite fossil is embedded in a smooth pebble." },
+    { id: "rainbow-clear-pearl", weight: 4, description: "A nearly invisible pearl reveals a suspended rainbow when it catches the light." },
+    { id: "whispering-seashell", weight: 4, description: "An opalescent spiral shell seems to carry the sound of distant waves." },
+  ];
+  const exploreDeep = (hidden: boolean) => {
+    if (!hasBoots || (hidden && !lowTide)) return;
+    const pool = deepTreasures.map(item => ({ ...item, weight: item.weight * (hidden && item.id !== "recycled-rubber" ? 2 : 1) }));
+    const total = pool.reduce((sum, item) => sum + item.weight, 0);
+    let pick = Math.random() * total;
+    const found = pool.find(item => (pick -= item.weight) < 0) || pool[0];
+    collectItem(found.id, { silent: true });
+    const label = found.id === "recycled-rubber" ? "Recycled Rubber Strip" : found.id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    const result = `${hidden ? "Hidden tide pool" : "Deeper tide pool"}: ${found.description} ${label} added to your inventory.`;
+    setDeepFinds(previous => [...previous, found.id]);
+    setDeepAnnouncement(result);
+    play("shell");
+  };
 
   const startSearch = () => {
     setDeck(shuffled(DISCOVERIES));
@@ -199,6 +227,18 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
+          <section aria-labelledby="deep-tidepool-heading" className="mt-6 rounded-2xl bg-white/90 p-4 ring-1 ring-teal-200">
+            <h3 id="deep-tidepool-heading" className="text-xl font-bold text-teal-950">Deeper Tide Pool Treasures</h3>
+            <p className="mt-2 text-teal-900">Search for washed-up recycled rubber, shipwreck teapot pieces, ancient crystals, fossils, rainbow-clear pearls, and the rare Whispering Seashell.</p>
+            {!hasBoots ? <p className="mt-2 font-semibold text-teal-900">Craft Tide Pool Wading Boots in the Workshop to unlock deeper exploration.</p> : <>
+              <p className="mt-2 text-teal-900">Your reusable wading boots let you explore the deeper rocks safely.</p>
+              <button type="button" onClick={() => exploreDeep(false)} className="mt-3 min-h-11 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">Search Deeper Tide Pool</button>
+              {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="mt-3 min-h-11 w-full rounded-xl bg-indigo-800 px-4 py-3 font-bold text-white">Explore Hidden Pool — Unusually Low Tide</button>}
+              <p className="mt-2 text-sm text-teal-800">Deeper finds this visit: {deepFinds.length}. Searches are repeatable; rare treasures are less common.</p>
+              <p className="mt-2 font-semibold text-teal-950" role="status" aria-live="polite" aria-atomic="true">{deepAnnouncement}</p>
+              {(state.inventory["whispering-seashell"] || 0) > 0 && <button type="button" onClick={() => { play("oceanWaterSplash"); setDeepAnnouncement("You hold the opalescent Whispering Seashell to your ear and hear the gentle rhythm of the ocean."); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-teal-800 px-4 py-3 font-bold text-teal-900">Listen to Whispering Seashell</button>}
+            </>}
+          </section>
           <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
         </div>
       </div>
