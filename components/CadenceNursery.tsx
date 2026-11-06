@@ -146,6 +146,53 @@ function CadenceBlocks({ inventory, onGift, master, onDailyReward }: { inventory
   </section>;
 }
 
+function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate: () => void }) {
+  const rings = [
+    { color: "Purple", size: 5, className: "bg-purple-500" },
+    { color: "Blue", size: 4, className: "bg-sky-500" },
+    { color: "Green", size: 3, className: "bg-emerald-500" },
+    { color: "Yellow", size: 2, className: "bg-yellow-400" },
+    { color: "Pink", size: 1, className: "bg-pink-400" },
+  ];
+  const [stack, setStack] = useState<number[]>([]);
+  const [feedback, setFeedback] = useState("Choose the largest ring first, then work toward the smallest.");
+  const finished = stack.length === rings.length;
+  const addRing = (size: number) => {
+    if (stack.includes(size)) return;
+    const expected = 5 - stack.length;
+    if (size !== expected) {
+      setFeedback(`Try a larger ring first. The next ring should be size ${expected} of 5.`);
+      return;
+    }
+    const next = [...stack, size];
+    setStack(next);
+    const ring = rings.find(r => r.size === size)!;
+    if (next.length === rings.length) {
+      setFeedback("You stacked all five rings from largest to smallest! Cadence laughs and claps.");
+      onCelebrate();
+    } else {
+      setFeedback(`${ring.color} ring placed, size ${size} of 5. ${next.length} of 5 rings stacked.`);
+    }
+  };
+  return <section className="rounded-2xl bg-white/95 p-4 shadow space-y-3" aria-labelledby="cadence-buoy-rings">
+    <h2 id="cadence-buoy-rings" className="font-serif text-lg font-bold text-rose-900">Buoy Stacking Rings</h2>
+    <p className="text-sm text-slate-700">Build a colorful buoy tower with Cadence, starting with the largest ring.</p>
+    {!owned ? <p>Craft Buoy Stacking Rings in the Workshop to unlock this activity.</p> : <>
+      <Image src="/images/Buoy_Stacking_Rings.png" alt="Colorful buoy stacking rings toy" width={220} height={220} unoptimized className="mx-auto h-40 w-40 object-contain" />
+      <div aria-hidden="true" className="flex flex-col-reverse items-center gap-1 rounded-xl bg-sky-50 p-3 min-h-36">
+        {stack.map(size => { const ring = rings.find(r => r.size === size)!; return <div key={size} className={`h-5 rounded-full border-2 border-white shadow-sm ${ring.className}`} style={{ width: `${45 + size * 22}px` }} />; })}
+      </div>
+      <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-rose-900">{feedback}</p>
+      <div className="grid grid-cols-2 gap-2">
+        {rings.map(ring => <button key={ring.size} type="button" disabled={stack.includes(ring.size) || finished} onClick={() => addRing(ring.size)} className="min-h-11 rounded-xl bg-teal-800 px-3 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">
+          {ring.color} ring, size {ring.size} of 5{stack.includes(ring.size) ? ", placed" : ""}
+        </button>)}
+      </div>
+      <button type="button" onClick={() => { setStack([]); setFeedback("Tower reset. Choose the largest ring first."); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-2 font-semibold text-teal-900">Start Over</button>
+    </>}
+  </section>;
+}
+
 export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
   const { state, craft, cook, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
@@ -206,6 +253,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
         <button type="button" disabled={!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"] && !state.notebookDiscovered["kitchen-bottle:water"] && !state.notebookDiscovered["kitchen-bottle:orange"]} onClick={feedBottle} className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 py-2 font-bold text-white disabled:opacity-50">Offer Filled Bottle to Cadence</button>
       </div>}<div className="mt-3 grid gap-2 sm:grid-cols-2">{BABY_FOODS.map(food => { const count = state.inventory[food.id] ?? 0; return <button key={food.id} type="button" onClick={() => feed(food)} aria-label={`${food.name}. ${count} servings ready.`} className="rounded-xl border border-pink-200 bg-pink-50 p-3 text-left"><span className="text-2xl" aria-hidden="true">{food.icon}</span><strong className="ml-2">{food.name}</strong><span className="mt-1 block text-xs text-slate-700">Servings ready: {count}</span><span className="mt-2 block text-sm font-semibold text-rose-800">{count > 0 ? "Feed Cadence" : "Cook in Kitchen first"}</span></button>; })}</div></section>
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-play"><h2 id="cadence-play" className="font-serif text-lg font-bold text-rose-900">Play & Care</h2><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={() => { play("beachBall", .6); play("babyLaugh", .3); announce("You roll the beach ball across the rug. Cadence splashes her tail and rolls it back."); }} className="rounded-xl bg-pink-100 p-3 font-semibold">🏖️ Toss Beach Ball</button><button type="button" onClick={playPiano} className="rounded-xl bg-emerald-100 p-3 font-semibold">🎹 Shell Piano Duet</button><button type="button" onClick={() => { play("rockingCradle", .55); announce("You gently rock Cadence's scallop cradle. She cuddles her toys and grows sleepy."); }} className="rounded-xl bg-violet-100 p-3 font-semibold">🌙 Rock the Cradle</button><button type="button" onClick={() => { play("babyRattle", .55); play("babyLaugh", .22); announce("The shimmering seashell rattle jingles. Cadence reaches for it and laughs."); }} className="rounded-xl bg-amber-100 p-3 font-semibold">✨ Shake the Rattle</button></div></section>
+      <CadenceBuoyRings owned={(state.inventory["buoy-stacking-rings"] || 0) > 0 || state.crafted.includes("buoy-stacking-rings")} onCelebrate={() => { play("babyLaugh", .4); }} />
       <CadenceBlocks inventory={state.inventory} master={state.audio.master} onDailyReward={() => collectItem("shell-sanddollar", { silent: true })} onGift={(itemId) => { if (!giveCadenceBlocks(itemId)) return; play("babyLaugh", .3); announce("Cadence receives her seaside blocks and invites you to play."); }} />
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-craft"><h2 id="cadence-craft" className="font-serif text-lg font-bold text-rose-900">Nursery Crafting</h2><p className="mt-1 text-sm text-slate-700">Craft nursery decorations once. Rose Milk Bubble Bath is repeatable and stays available whenever you have its ingredients.</p><div className="mt-3 space-y-3">{RECIPES.map(r => { const repeatable = "repeatable" in r && r.repeatable; const isOwned = !repeatable && owned.has(r.id); const expanded = repeatable || !isOwned || expandedRecipes.includes(r.id); const detailsId = `${r.id}-recipe`; return <article key={r.id} className="rounded-xl border border-rose-200 p-3">{isOwned ? <button type="button" aria-expanded={expanded} aria-controls={detailsId} aria-label={`${r.name}, crafted and displayed. ${expanded ? "Hide recipe" : "Show recipe"}.`} onClick={() => toggleRecipe(r.id)} className="flex w-full items-center gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-rose-600"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><span><strong className="block">{r.name}</strong><span className="text-xs font-semibold text-emerald-800">Crafted & Displayed · {expanded ? "Hide recipe" : "Show recipe"}</span></span></button> : <div className="flex gap-3"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><div><h3 className="font-bold">{r.name}</h3><p className="text-xs text-slate-600">{r.description}</p>{repeatable && <p className="mt-1 text-xs font-semibold text-rose-800">Repeatable craft · In inventory: {state.inventory[r.id] ?? 0}</p>}</div></div>}{expanded && <div id={detailsId}>{isOwned && <p className="mt-2 text-xs text-slate-600">{r.description}</p>}<p className="mt-2 text-xs">Requires: {r.cost.map(c => `${c.count} ${c.itemId.replaceAll("-", " ")}`).join(", ")}</p>{isOwned ? <p className="mt-2 text-sm font-bold text-emerald-800">Crafted & Displayed</p> : <button type="button" onClick={() => make(r)} className="mt-2 w-full rounded-lg bg-rose-700 py-2 font-bold text-white">Craft {r.name}</button>}</div>}</article>; })}</div></section>
       <section className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-discoveries"><h2 id="cadence-discoveries" className="font-serif text-lg font-bold text-rose-900">Driftwood Toy Chest</h2><p className="mt-1 text-sm text-slate-700">Special toys discovered along the shoreline are kept here for Cadence.</p><div className="mt-3 grid gap-3">{DISCOVERIES.map(item => { const found = discovered.includes(item.id) || (state.inventory[item.id] ?? 0) > 0; return <button key={item.id} type="button" onClick={() => discover(item)} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-left"><Image src={item.image} alt="" width={64} height={64} unoptimized className="h-16 w-16 rounded-lg object-cover" /><span><strong className="block">{item.name}{found ? " • Found" : ""}</strong><span className="text-xs text-slate-700">{item.description}</span></span></button>})}</div></section>
