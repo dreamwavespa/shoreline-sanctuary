@@ -43,8 +43,9 @@ function shuffled<T>(items: readonly T[]) {
   return copy;
 }
 
-export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
+export default function TidePoolSearch({ onClose, nighttime = false }: { onClose: () => void; nighttime?: boolean }) {
   const { state, play, collectItem, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
+  const [scenePanel, setScenePanel] = useState<"shallow" | "deep" | "treasures" | null>(null);
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
   const [areaFinds, setAreaFinds] = useState<Record<string, Discovery>>({});
@@ -197,20 +198,23 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#042f36]/95 px-3 py-5" role="dialog" aria-modal="true" aria-labelledby="tide-pool-title">
       <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl bg-gradient-to-b from-cyan-50 via-sky-50 to-teal-100 shadow-2xl ring-1 ring-cyan-200">
-        <div className="relative h-52 sm:h-64">
-          <Image src={SCENES.tidePool} alt="A clear turquoise tide pool with rocky search areas, sea plants, and small marine creatures" fill priority unoptimized sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 via-transparent to-black/20" />
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-white">
-            <div>
-              <p className="text-sm font-semibold text-cyan-100">Beach Mini-Game</p>
-              <h2 id="tide-pool-title" ref={headingRef} tabIndex={-1} className="font-serif text-2xl font-bold outline-none">🌊 Tide-Pool Search</h2>
-            </div>
-            <button type="button" onClick={onClose} className="rounded-full bg-white px-4 py-2 font-semibold text-teal-950 ring-1 ring-cyan-200">Close</button>
+        <div className="relative">
+          <div className="flex items-center justify-between gap-3 bg-teal-950 px-4 py-3 text-white">
+            <h2 id="tide-pool-title" ref={headingRef} tabIndex={-1} className="font-serif text-xl font-bold outline-none">Tide Pool</h2>
+            <button type="button" onClick={onClose} className="min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-teal-950">Return to Beach</button>
           </div>
+          <div className="relative mx-auto w-full max-w-2xl">
+            <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pools among rocky ledges, sea creatures, and glowing shells" : "Sunlit turquoise tide pools, rocky ledges, starfish, anemones, and shells"} width={1024} height={1536} priority unoptimized className="h-auto w-full" />
+            <button type="button" onClick={() => setScenePanel("shallow")} aria-label="Explore shallow pool and sea creatures" className="absolute left-[24%] top-[48%] min-h-11 w-[49%] rounded-xl border-2 border-white bg-teal-950/75 px-2 py-2 font-bold text-white shadow-lg">Shallow Pool</button>
+            <button type="button" onClick={() => setScenePanel("deep")} aria-label="Explore deeper tide pool and hidden crevice" className="absolute left-[28%] top-[27%] min-h-11 w-[47%] rounded-xl border-2 border-white bg-indigo-950/80 px-2 py-2 font-bold text-white shadow-lg">Deeper Rocks</button>
+            <button type="button" onClick={() => setScenePanel("treasures")} aria-label="Open treasure shelf, teapot restoration and magical collectibles" className="absolute left-[10%] top-[80%] min-h-11 w-[55%] rounded-xl border-2 border-white bg-amber-950/80 px-2 py-2 font-bold text-white shadow-lg">Treasure Shelf</button>
+          </div>
+          <p className="bg-cyan-50 px-4 py-3 text-sm text-teal-950">Choose an area in the scene to explore. All areas are also accessible using VoiceOver.</p>
         </div>
 
-        <div className="p-5">
-          {!playing && !complete ? (
+        {scenePanel && <div className="p-5">
+          <button type="button" onClick={() => setScenePanel(null)} className="mb-4 min-h-11 rounded-xl border-2 border-teal-800 px-4 py-2 font-bold text-teal-950">Back to Tide Pool Scene</button>
+          {scenePanel === "shallow" && (!playing && !complete ? (
             <div>
               <p className="text-teal-950">Search seven rocky pockets and record every creature and plant you discover. Nothing is timed, and all living creatures stay safely in their habitat.</p>
               {lowTide && <p className="mt-3 rounded-xl bg-amber-100 p-3 font-semibold text-amber-950 ring-1 ring-amber-300">Maeve forecast an unusually low tide. Sea lettuce gathered during this search is doubled.</p>}
@@ -270,9 +274,9 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
                 })}
               </div>
             </div>
-          )}
+          ))}
 
-          <section aria-labelledby="deep-tidepool-heading" className="mt-6 rounded-2xl bg-white/90 p-4 ring-1 ring-teal-200">
+          {scenePanel === "deep" && <section aria-labelledby="deep-tidepool-heading" className="mt-6 rounded-2xl bg-white/90 p-4 ring-1 ring-teal-200">
             <h3 id="deep-tidepool-heading" className="text-xl font-bold text-teal-950">Deeper Tide Pool Treasures</h3>
             <p className="mt-2 text-teal-900">Search for washed-up recycled rubber, shipwreck teapot pieces, ancient crystals, fossils, rainbow-clear pearls, and the rare Whispering Seashell.</p>
             {!hasBoots ? <p className="mt-2 font-semibold text-teal-900">Craft Tide Pool Wading Boots in the Workshop to unlock deeper exploration.</p> : <>
@@ -297,7 +301,8 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
               </section>}
               {(state.inventory["whispering-seashell"] || 0) > 0 && <button type="button" onClick={() => { play("oceanWaterSplash"); setDeepAnnouncement("You hold the opalescent Whispering Seashell to your ear and hear the gentle rhythm of the ocean."); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-teal-800 px-4 py-3 font-bold text-teal-900">Listen to Whispering Seashell</button>}
             </>}
-          </section>
+          </section>}
+          {scenePanel === "treasures" && <>
           <section aria-labelledby="teapot-restoration-title" className="mt-5 space-y-3 rounded-2xl bg-amber-50 p-4 text-amber-950">
             <h3 id="teapot-restoration-title" className="text-xl font-bold">Shipwreck Teapot Restoration</h3>
             <p>Recover the five porcelain pieces from the deeper tide pool, then put them together in the correct order. Your fragments remain in your collection.</p>
@@ -317,8 +322,9 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
               {allTeapotPieces && <button type="button" onClick={() => { setTeapotSteps(0); setTeapotMessage("Puzzle reset. Begin with the lower body."); }} className="min-h-11 w-full rounded-xl border-2 border-amber-800 p-2 font-semibold">Reset Puzzle</button>}
             </>}
           </section>
+          </>}
           <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
-        </div>
+        </div>}
       </div>
     </div>
   );
