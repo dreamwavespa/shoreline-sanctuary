@@ -345,6 +345,65 @@ function BeachBagCard() {
   );
 }
 
+function SnappyBeachVolleyball({ inventory, crafted }: { inventory: Record<string, number>; crafted: string[] }) {
+  const owned = (inventory["seashell-beach-ball"] || 0) > 0 || crafted.includes("seashell-beach-ball");
+  const [mode, setMode] = useState<"relaxed" | "challenge">("relaxed");
+  const [rally, setRally] = useState(0);
+  const [best, setBest] = useState(0);
+  const [target, setTarget] = useState<"high" | "low">("high");
+  const [message, setMessage] = useState("Choose a game mode, then start a friendly rally with Snappy.");
+  const [ballSide, setBallSide] = useState<"player" | "snappy">("player");
+  const [completed, setCompleted] = useState(false);
+  const start = (nextMode: "relaxed" | "challenge") => {
+    setMode(nextMode); setRally(0); setCompleted(false); setTarget("high"); setBallSide("player");
+    setMessage(nextMode === "relaxed" ? "Relaxed play! Hit the ball to volley with Snappy. Every hit succeeds." : "Challenge play! Snappy sends a high return. Choose High Hit to send it back. Reach 10 successful volleys!");
+  };
+  const hit = (choice: "high" | "low") => {
+    if (completed) return;
+    if (mode === "challenge" && choice !== target) {
+      setBest(Math.max(best, rally));
+      setRally(0); setBallSide("player"); setTarget("high");
+      setMessage(`Oops, Snappy's ${target} return got past you! Your rally was ${rally}. Try again: Snappy sends a high return.`);
+      return;
+    }
+    const next = rally + 1;
+    setRally(next); setBest(Math.max(best, next)); setBallSide(next % 2 === 0 ? "player" : "snappy");
+    if (mode === "challenge" && next >= 10) {
+      setCompleted(true);
+      setMessage("Ten successful volleys! You and Snappy win the friendly beach challenge. Snappy cheers!");
+      return;
+    }
+    const nextTarget = next % 3 === 0 ? "low" : "high";
+    setTarget(nextTarget);
+    setMessage(mode === "relaxed" ? `Volley ${next}! Snappy taps the seashell ball back across the net. Keep playing!` : `Volley ${next} of 10! Snappy sends a ${nextTarget} return. Choose ${nextTarget === "high" ? "High Hit" : "Low Hit"}.`);
+  };
+  return <section aria-labelledby="snappy-volleyball-title" className="rounded-2xl bg-white/95 p-4 shadow-md space-y-3">
+    <h2 id="snappy-volleyball-title" className="text-lg font-bold text-teal-950">Beach Volleyball with Snappy</h2>
+    {!owned ? <p>Craft the Seashell Beach Ball in the Workshop to unlock volleyball with Snappy.</p> : <>
+      <p>Choose relaxed play for endless friendly volleys, or challenge play to complete ten correct returns. No timed reactions are required.</p>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" aria-pressed={mode === "relaxed"} onClick={() => start("relaxed")} className="min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">Relaxed Play</button>
+        <button type="button" aria-pressed={mode === "challenge"} onClick={() => start("challenge")} className="min-h-11 rounded-xl bg-indigo-800 px-4 py-2 font-semibold text-white">Challenge Play</button>
+      </div>
+      <div aria-hidden="true" className="relative mx-auto h-44 w-full max-w-md overflow-hidden rounded-2xl bg-sky-100">
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-amber-100" />
+        <div className="absolute bottom-6 left-1/2 h-24 w-1 -translate-x-1/2 bg-amber-700" />
+        <div className="absolute bottom-7 left-1/2 h-16 w-1/2 -translate-x-1/2 border-2 border-white/90 bg-white/20" />
+        <Image src="/images/Snappy-transparent.PNG" alt="" width={100} height={100} unoptimized className="absolute bottom-2 right-4 h-24 w-24 object-contain" />
+        <Image key={mode + "-" + rally + "-" + ballSide} src="/images/Seashell_Beach_Ball.png" alt="" width={88} height={88} unoptimized className={`absolute top-5 h-16 w-16 object-contain motion-safe:animate-bounce ${ballSide === "snappy" ? "right-[28%]" : "left-[18%]"}`} />
+      </div>
+      <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-teal-950">{message}</p>
+      <p>Current rally: {rally}. Best rally this visit: {best}.</p>
+      {!completed && (mode === "relaxed" ? <button type="button" onClick={() => hit("high")} className="min-h-11 w-full rounded-xl bg-teal-800 p-3 font-semibold text-white">Hit the Ball</button> :
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => hit("high")} className="min-h-11 rounded-xl bg-teal-800 p-3 font-semibold text-white">High Hit</button>
+          <button type="button" onClick={() => hit("low")} className="min-h-11 rounded-xl bg-teal-800 p-3 font-semibold text-white">Low Hit</button>
+        </div>)}
+      <button type="button" onClick={() => start(mode)} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-3 font-semibold text-teal-900">Start Over</button>
+    </>}
+  </section>;
+}
+
 function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[] }) {
   const id = nighttime ? "firefly-bouncy-ball" : "sea-glass-bouncy-ball";
   const name = nighttime ? "Firefly Bouncy Ball" : "Sea Glass Bouncy Ball";
@@ -657,6 +716,7 @@ export default function BeachScene() {
           </section>
         </div>
       )}
+      <SnappyBeachVolleyball inventory={state.inventory} crafted={state.crafted} />
       <BeachBouncyBall nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} />
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
