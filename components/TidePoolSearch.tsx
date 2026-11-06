@@ -46,6 +46,11 @@ function shuffled<T>(items: readonly T[]) {
 export default function TidePoolSearch({ onClose, nighttime = false }: { onClose: () => void; nighttime?: boolean }) {
   const { state, play, collectItem, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
   const [scenePanel, setScenePanel] = useState<"shallow" | "deep" | "treasures" | null>(null);
+  const panelHeadingRef = useRef<HTMLHeadingElement>(null);
+  const lastSceneTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const openScenePanel = (panel: "shallow" | "deep" | "treasures", trigger: HTMLButtonElement | null) => { lastSceneTriggerRef.current = trigger; setScenePanel(panel); };
+  const closeScenePanel = () => { setScenePanel(null); window.setTimeout(() => lastSceneTriggerRef.current?.focus(), 0); };
+  useEffect(() => { if (scenePanel) panelHeadingRef.current?.focus(); }, [scenePanel]);
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
   const [areaFinds, setAreaFinds] = useState<Record<string, Discovery>>({});
@@ -205,15 +210,19 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           </div>
           <div className="relative mx-auto w-full max-w-2xl">
             <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pools among rocky ledges, sea creatures, and glowing shells" : "Sunlit turquoise tide pools, rocky ledges, starfish, anemones, and shells"} width={1024} height={1536} priority unoptimized className="h-auto w-full" />
-            <button type="button" onClick={() => setScenePanel("shallow")} aria-label="Explore shallow pool and sea creatures" className="absolute left-[24%] top-[48%] min-h-11 w-[49%] rounded-xl border-2 border-white bg-teal-950/75 px-2 py-2 font-bold text-white shadow-lg">Shallow Pool</button>
-            <button type="button" onClick={() => setScenePanel("deep")} aria-label="Explore deeper tide pool and hidden crevice" className="absolute left-[28%] top-[27%] min-h-11 w-[47%] rounded-xl border-2 border-white bg-indigo-950/80 px-2 py-2 font-bold text-white shadow-lg">Deeper Rocks</button>
-            <button type="button" onClick={() => setScenePanel("treasures")} aria-label="Open treasure shelf, teapot restoration and magical collectibles" className="absolute left-[10%] top-[80%] min-h-11 w-[55%] rounded-xl border-2 border-white bg-amber-950/80 px-2 py-2 font-bold text-white shadow-lg">Treasure Shelf</button>
+            <button type="button" onClick={(event) => openScenePanel("shallow", event.currentTarget)} aria-label="Explore shallow pool and sea creatures" className="absolute left-[24%] top-[48%] min-h-11 w-[49%] rounded-xl border-2 border-white bg-teal-950/75 px-2 py-2 font-bold text-white shadow-lg">Shallow Pool</button>
+            <button type="button" onClick={(event) => openScenePanel("deep", event.currentTarget)} aria-label="Explore deeper tide pool and hidden crevice" className="absolute left-[28%] top-[27%] min-h-11 w-[47%] rounded-xl border-2 border-white bg-indigo-950/80 px-2 py-2 font-bold text-white shadow-lg">Deeper Rocks</button>
+            <button type="button" onClick={(event) => openScenePanel("treasures", event.currentTarget)} aria-label="Open treasure shelf, teapot restoration and magical collectibles" className="absolute left-[10%] top-[80%] min-h-11 w-[55%] rounded-xl border-2 border-white bg-amber-950/80 px-2 py-2 font-bold text-white shadow-lg">Treasure Shelf</button>
           </div>
           <p className="bg-cyan-50 px-4 py-3 text-sm text-teal-950">Choose an area in the scene to explore. All areas are also accessible using VoiceOver.</p>
         </div>
 
-        {scenePanel && <div className="p-5">
-          <button type="button" onClick={() => setScenePanel(null)} className="mb-4 min-h-11 rounded-xl border-2 border-teal-800 px-4 py-2 font-bold text-teal-950">Back to Tide Pool Scene</button>
+        {scenePanel && <div role="dialog" aria-modal="true" aria-labelledby="tide-pool-activity-title" className="fixed inset-0 z-[60] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
+          <div className="mx-auto max-w-2xl rounded-2xl bg-cyan-50 p-4 shadow-2xl sm:p-6">
+            <div className="sticky top-0 z-10 mb-4 flex items-center justify-between gap-3 rounded-xl bg-teal-950 p-3 text-white">
+              <h3 id="tide-pool-activity-title" ref={panelHeadingRef} tabIndex={-1} className="text-xl font-bold outline-none">{scenePanel === "shallow" ? "Shallow Pool" : scenePanel === "deep" ? "Deeper Rocks" : "Treasure Shelf"}</h3>
+              <button type="button" onClick={closeScenePanel} className="min-h-11 rounded-lg bg-white px-3 py-2 font-bold text-teal-950">Back to Tide Pool Scene</button>
+            </div>
           {scenePanel === "shallow" && (!playing && !complete ? (
             <div>
               <p className="text-teal-950">Search seven rocky pockets and record every creature and plant you discover. Nothing is timed, and all living creatures stay safely in their habitat.</p>
@@ -324,6 +333,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           </section>
           </>}
           <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+          </div>
         </div>}
       </div>
     </div>
