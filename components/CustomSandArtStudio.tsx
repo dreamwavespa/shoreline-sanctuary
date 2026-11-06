@@ -73,7 +73,13 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
 }
 
 export default function CustomSandArtStudio({ onClose }: { onClose: () => void }) {
-  const { state, play, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
+  const { state, play, craft, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
+  const hourglassIds = ["hourglass-cap", "hourglass-upper-chamber", "hourglass-lower-chamber", "hourglass-connector", "hourglass-base"];
+  const hourglassUnlocked = state.foundBottleMessages.includes("sands-of-time");
+  const hourglassMade = state.crafted.includes("hourglass-restored");
+  const canRestoreHourglass = hourglassIds.every(id => (state.inventory[id] || 0) > 0) && !hourglassMade;
+  const [hourglassFlippedAt, setHourglassFlippedAt] = useState<number | null>(null);
+  const [hourglassMessage, setHourglassMessage] = useState("Find all five pieces to restore the hourglass.");
   const [layers, setLayers] = useState<string[]>([]);
   const [shape, setShape] = useState<"classic" | "leaf" | "moon">("classic");
   const [accentId, setAccentId] = useState<string | null>(null);
@@ -152,6 +158,20 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
         <div className="space-y-5 p-5">
           <p role="status" aria-live="polite" aria-atomic="true" className="rounded-xl bg-orange-50 p-4 text-sm font-semibold leading-relaxed text-orange-950 ring-1 ring-orange-200">{announcement}</p>
 
+          {hourglassUnlocked && <section className="rounded-2xl bg-cyan-50 p-4 ring-1 ring-teal-300" aria-labelledby="hourglass-studio-heading">
+            <h3 id="hourglass-studio-heading" className="font-serif text-xl font-bold text-teal-950">Sands of Time Hourglass</h3>
+            {hourglassMade ? <>
+              <Image src="/images/Hourglass/hourglass-restored.png" alt="Restored coastal hourglass with shells, driftwood and colorful sand" width={240} height={280} unoptimized className="mx-auto h-56 w-48 object-contain" />
+              <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
+              <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
+              {hourglassFlippedAt && <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-teal-200"><div key={hourglassFlippedAt} className="h-full w-full origin-left bg-amber-500" style={{ animation: "hourglass-flow 60s linear forwards" }} /></div>}
+              <style>{`@keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }`}</style>
+            </> : <>
+              <p className="text-teal-900">{hourglassIds.filter(id => (state.inventory[id] || 0) > 0).length} of 5 pieces collected. Find missing pieces in the Tide Pool.</p>
+              <button type="button" disabled={!canRestoreHourglass} onClick={() => { if (craft("hourglass-restored", hourglassIds.map(itemId => ({ itemId, count: 1 })))) { setHourglassMessage("Hourglass restored! You can now flip it."); play("sparkle"); } }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white disabled:bg-slate-400">Restore Hourglass</button>
+            </>}
+            <p role="status" aria-live="polite" className="mt-2 text-sm text-teal-950">{hourglassMessage}</p>
+          </section>}
           {!completed && (
             <>
               {(state.crafted.includes("robin-friendship:3") || state.crafted.includes("moon-shaped-sand-bottle")) && <section aria-label="Bottle shape" className="rounded-xl bg-white p-4 ring-1 ring-amber-200"><h3 className="font-bold">Choose bottle shape</h3><div className="mt-2 flex flex-wrap gap-2"><button type="button" aria-pressed={shape === "classic"} onClick={() => setShape("classic")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Classic bottle</button>{state.crafted.includes("robin-friendship:3") && <button type="button" aria-pressed={shape === "leaf"} onClick={() => setShape("leaf")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Robin's leaf-shaped bottle</button>}{state.crafted.includes("moon-shaped-sand-bottle") && <button type="button" aria-pressed={shape === "moon"} onClick={() => setShape("moon")} className="min-h-11 rounded-lg bg-teal-100 px-4 py-2 text-teal-950">Marella's moon-shaped bottle</button>}</div></section>}
