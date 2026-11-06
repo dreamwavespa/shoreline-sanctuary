@@ -31,11 +31,6 @@ const orders: BakingOrder[] = [
 const ingredients = ["Flour", "Eggs", "Vanilla", "Cocoa powder", "Coconut cream", "Strawberries", "Butter", "Sugar", "Almond flour", "Cream cheese", "Biscuits", "Blueberries", "Lemons", "Sea salt", "Mint"];
 const decorations = ["Pearl sprinkles", "Chocolate curls", "Coconut flakes", "Berry glaze", "Pastel icing", "Vanilla cream", "Blueberry topping", "Chocolate drizzle", "Whipped cream"];
 const day = () => new Date().toLocaleDateString("en-CA");
-const playBakingSound = (file: string, volume = 0.65) => {
-  const audio = new Audio("/audio/" + file);
-  audio.volume = volume;
-  void audio.play().catch(() => {});
-};
 type Stage = "ingredients" | "mix" | "molds" | "bake" | "decorate" | "complete";
 
 export default function SeashellBakingChallenge({ onClose }: { onClose: () => void }) {
@@ -75,7 +70,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
     }
     const next = [...chosen, ingredient];
     setChosen(next);
-    if (ingredient === "Eggs") playBakingSound("Baking-egg-crack.mp3");
+    if (ingredient === "Eggs") play("bakingEggCrack", 0.95);
     else play("bagRustle");
     if (next.length === 3) {
       setStage("mix");
@@ -88,7 +83,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
   const step = (next: Stage, message: string, verb: string) => {
     const count = progress + 1;
     setProgress(count);
-    if (stage === "mix") playBakingSound(order?.name === "Mermaid Macarons" ? "Baking-mixing-soft.mp3" : "Baking-mixing.mp3");
+    if (stage === "mix") play(order?.name === "Mermaid Macarons" ? "bakingMixingSoft" : "bakingMixing", 1);
     else play("bagRustle");
     if (count === 3) advance(next, message);
     else setAnnouncement(verb + " " + count + " of 3 completed.");
@@ -110,7 +105,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
         result = "Daily reward: one " + (item === "cocoa-powder" ? "cocoa powder" : item) + " added to your inventory.";
       }
     } catch { result = "Daily reward could not be saved."; }
-    playBakingSound("Baking-sprinkles.mp3", 0.8);
+    play("bakingSprinkles", 0.95);
     setReward(result); setStage("complete");
     setAnnouncement("Order completed: " + order.name + ". " + mistakes + " mistakes. " + result);
   };
