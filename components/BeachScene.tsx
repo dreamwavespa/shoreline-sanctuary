@@ -345,6 +345,37 @@ function BeachBagCard() {
   );
 }
 
+function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[] }) {
+  const id = nighttime ? "firefly-bouncy-ball" : "sea-glass-bouncy-ball";
+  const name = nighttime ? "Firefly Bouncy Ball" : "Sea Glass Bouncy Ball";
+  const owned = (inventory[id] || 0) > 0 || crafted.includes(id);
+  const [bounces, setBounces] = useState(0);
+  const [message, setMessage] = useState("Bounce the ball and see how high it goes!");
+  const [animating, setAnimating] = useState(false);
+  const bounce = () => {
+    const next = bounces + 1;
+    setBounces(next);
+    setAnimating(false);
+    window.requestAnimationFrame(() => setAnimating(true));
+    setMessage(nighttime ? `Bounce ${next}! The fireflies shimmer inside the glowing ball.` : `Bounce ${next}! Sea glass glitters as the ball springs into the air.`);
+  };
+  useEffect(() => { setBounces(0); setAnimating(false); setMessage("Bounce the ball and see how high it goes!"); }, [nighttime]);
+  return <section aria-labelledby="beach-bouncy-ball-title" className="rounded-2xl bg-white/95 p-4 shadow-md space-y-3">
+    <h2 id="beach-bouncy-ball-title" className="text-lg font-bold text-teal-950">{name} — {nighttime ? "Nighttime" : "Daytime"}</h2>
+    {!owned ? <p>Craft the {name} in the Workshop to unlock this beach activity.</p> : <>
+      <div className={`relative mx-auto h-44 w-full max-w-sm overflow-hidden rounded-2xl ${nighttime ? "bg-indigo-950" : "bg-sky-100"}`} aria-hidden="true">
+        <div className="absolute inset-x-5 bottom-3 h-4 rounded-full bg-amber-200/70" />
+        <Image key={id + "-" + bounces} src={nighttime ? "/images/Firefly_Bouncy_Ball.png" : "/images/Sea_Glass_Bouncy_Ball.png"} alt="" width={112} height={112} unoptimized className={`absolute bottom-4 left-1/2 h-24 w-24 -translate-x-1/2 object-contain ${animating ? "motion-safe:animate-bounce" : ""}`} />
+        {bounces > 0 && <span className="absolute right-5 top-3 text-2xl">{nighttime ? "✨" : "💎"}</span>}
+      </div>
+      <p role="status" aria-live="polite" aria-atomic="true">{message}</p>
+      <p>Bounces: {bounces}</p>
+      <button type="button" onClick={bounce} className="min-h-11 w-full rounded-xl bg-teal-800 p-3 font-semibold text-white">Bounce the Ball</button>
+      <button type="button" onClick={() => { setBounces(0); setAnimating(false); setMessage("Ball reset. Ready for another bounce!"); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-3 font-semibold text-teal-900">Start Over</button>
+    </>}
+  </section>;
+}
+
 export default function BeachScene() {
   const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
@@ -626,6 +657,7 @@ export default function BeachScene() {
           </section>
         </div>
       )}
+      <BeachBouncyBall nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} />
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} />}
     </div>
