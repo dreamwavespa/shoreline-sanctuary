@@ -134,9 +134,23 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
     { id: "whispering-seashell", weight: 4, description: "An opalescent spiral shell seems to carry the sound of distant waves." },
     { id: "shoreline-looking-glass", weight: 1, description: "A rose quartz crystal reveals a tiny shoreline through its window." },
   ];
+  const hourglassPieceIds = ["hourglass-upper-chamber", "hourglass-lower-chamber", "hourglass-connector", "hourglass-base"];
+  const hourglassStarted = state.foundBottleMessages.includes("sands-of-time");
+  const hourglassRestored = state.crafted.includes("hourglass-restored");
+  const missingHourglassPieces = hourglassPieceIds.filter(id => (state.inventory[id] || 0) < 1);
   const exploreDeep = (hidden: boolean) => {
     if (!hasBoots || (hidden && !lowTide)) return;
     const pool = deepTreasures.filter(item => item.id !== "shoreline-looking-glass" || ((state.inventory["shoreline-looking-glass"] || 0) === 0 && !deepFinds.includes("shoreline-looking-glass"))).map(item => ({ ...item, weight: item.weight * (hidden && item.id !== "recycled-rubber" ? 2 : 1) }));
+    // Quest discoveries take priority over ordinary treasure rolls, without repeating pieces.
+    if (hourglassStarted && !hourglassRestored && missingHourglassPieces.length && Math.random() < 0.28) {
+      const id = missingHourglassPieces[Math.floor(Math.random() * missingHourglassPieces.length)];
+      collectItem(id, { silent: true });
+      setDeepFinds(previous => [...previous, id]);
+      setLastDeepTreasure(id);
+      setDeepAnnouncement(`Sands of Time: You found ${id.replace("hourglass-", "").replace("-", " ")}! ${4 - missingHourglassPieces.length + 1} of 4 Tide Pool pieces discovered. Added to inventory.`);
+      play("sparkle");
+      return;
+    }
     const total = pool.reduce((sum, item) => sum + item.weight, 0);
     let pick = Math.random() * total;
     const found = pool.find(item => (pick -= item.weight) < 0) || pool[0];
@@ -315,6 +329,14 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
             </>}
           </section>}
           {scenePanel === "treasures" && <>
+          <section className="mt-4 rounded-2xl bg-cyan-50 p-4 text-teal-950" aria-labelledby="hourglass-treasure-title">
+            <h3 id="hourglass-treasure-title" className="text-xl font-bold">Sands of Time Collection</h3>
+            {!hourglassStarted ? <p>Find the mysterious message bottle to begin the hourglass quest.</p> : <>
+              <p>{hourglassRestored ? "Hourglass restored! Visit the sand art studio to flip it." : "Find the remaining glass and wood pieces in the deeper Tide Pool, then restore the hourglass at the sand art studio."}</p>
+              <p>{["hourglass-cap", ...hourglassPieceIds].filter(id => (state.inventory[id] || 0) > 0).length} of 5 pieces currently in inventory.</p>
+              <ul className="mt-2 space-y-2">{["hourglass-cap", ...hourglassPieceIds].map(id => <li key={id} className="flex items-center gap-3"><Image src={`/images/Hourglass/${id}.png`} alt="" width={54} height={54} unoptimized className="h-12 w-12 object-contain" /><span>{id.replace("hourglass-", "").replace("-", " ")}: {(state.inventory[id] || 0) > 0 ? "Found" : hourglassRestored ? "Used in restoration" : "Not found"}</span></li>)}</ul>
+            </>}
+          </section>
           <section aria-labelledby="teapot-restoration-title" className="mt-5 space-y-3 rounded-2xl bg-amber-50 p-4 text-amber-950">
             <h3 id="teapot-restoration-title" className="text-xl font-bold">Shipwreck Teapot Restoration</h3>
             <p>Recover one of each of the five porcelain pieces, then assemble them in order. Each restoration uses one complete set of fragments.</p>
