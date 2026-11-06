@@ -5,25 +5,38 @@ import Image from "next/image";
 
 const ART = "/images/Baking/";
 const ingredientImages: Record<string, string> = { Flour: "Flour-jar.png", Eggs: "Eggs.png", Vanilla: "Vanilla.png", "Cocoa powder": "Cocoa-powder.png", "Coconut cream": "Coconut.png", Strawberries: "Berries.png" };
-const cakeImages = ["Vanilla-seashell-cake.png", "Chocolate-seashell-cake.png", "Coconut-seashell-cake.png", "Berry-seashell-cake.png"];
+
+function OrderArt({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+  if (failed) return <p className="text-sm italic">{alt}</p>;
+  return <Image src={src} alt={alt} width={220} height={220} unoptimized onError={() => setFailed(true)} className="mx-auto max-h-44 w-auto max-w-full object-contain" />;
+}
 function BakingArt({ file, name, size = 160 }: { file: string; name: string; size?: number }) {
   return <Image src={ART + file} alt={name} width={size} height={size} unoptimized className="mx-auto max-h-44 w-auto max-w-full object-contain" />;
 }
 
-const orders = [
-  { name: "Vanilla Seashell Cakes", ingredients: ["Flour", "Eggs", "Vanilla"], decoration: "Pearl sprinkles" },
-  { name: "Chocolate Tide Cakes", ingredients: ["Flour", "Eggs", "Cocoa powder"], decoration: "Chocolate curls" },
-  { name: "Coconut Shore Cakes", ingredients: ["Flour", "Eggs", "Coconut cream"], decoration: "Coconut flakes" },
-  { name: "Berry Seashell Cakes", ingredients: ["Flour", "Eggs", "Strawberries"], decoration: "Berry glaze" },
+type BakingOrder = { name: string; ingredients: string[]; decoration: string; image: string; steps: string[] };
+const orders: BakingOrder[] = [
+  { name: "Vanilla Seashell Cakes", ingredients: ["Flour", "Eggs", "Vanilla"], decoration: "Pearl sprinkles", image: "/images/Baking/Vanilla-seashell-cake.png", steps: ["Stir batter", "Fill seashell mold", "Bake and cool cakes"] },
+  { name: "Chocolate Tide Cakes", ingredients: ["Flour", "Eggs", "Cocoa powder"], decoration: "Chocolate curls", image: "/images/Baking/Chocolate-seashell-cake.png", steps: ["Stir batter", "Fill seashell mold", "Bake and cool cakes"] },
+  { name: "Coconut Shore Cakes", ingredients: ["Flour", "Eggs", "Coconut cream"], decoration: "Coconut flakes", image: "/images/Baking/Coconut-seashell-cake.png", steps: ["Stir batter", "Fill seashell mold", "Bake and cool cakes"] },
+  { name: "Berry Seashell Cakes", ingredients: ["Flour", "Eggs", "Strawberries"], decoration: "Berry glaze", image: "/images/Baking/Berry-seashell-cake.png", steps: ["Stir batter", "Fill seashell mold", "Bake and cool cakes"] },
+  { name: "Seashell Sugar Cookies", ingredients: ["Flour", "Butter", "Sugar"], decoration: "Pastel icing", image: "/images/Bakery/Seashell-sugar-cookies.png", steps: ["Roll cookie dough", "Cut seashell cookies", "Bake cookies"] },
+  { name: "Mermaid Macarons", ingredients: ["Almond flour", "Eggs", "Sugar"], decoration: "Vanilla cream", image: "/images/Bakery/Mermaid-macarons.png", steps: ["Fold macaron batter", "Pipe macaron shells", "Bake macaron shells"] },
+  { name: "Blueberry Tide Cheesecake", ingredients: ["Cream cheese", "Biscuits", "Blueberries"], decoration: "Blueberry topping", image: "/images/Bakery/Blueberry-tide-cheesecake.png", steps: ["Crush biscuit crust", "Press cheesecake crust", "Bake and cool cheesecake"] },
+  { name: "Toasted Coconut Macaroons", ingredients: ["Coconut cream", "Eggs", "Sugar"], decoration: "Chocolate drizzle", image: "/images/Bakery/Toasted-coconut-macaroons.png", steps: ["Mix coconut batter", "Scoop coconut mounds", "Bake coconut macaroons"] },
+  { name: "Sunshine Lemon Tart", ingredients: ["Flour", "Eggs", "Lemons"], decoration: "Whipped cream", image: "/images/Bakery/Sunshine-lemon-tart.png", steps: ["Mix lemon filling", "Press tart pastry", "Bake lemon tart"] },
 ];
-const ingredients = ["Flour", "Eggs", "Vanilla", "Cocoa powder", "Coconut cream", "Strawberries", "Sea salt", "Mint"];
-const decorations = ["Pearl sprinkles", "Chocolate curls", "Coconut flakes", "Berry glaze"];
+const ingredients = ["Flour", "Eggs", "Vanilla", "Cocoa powder", "Coconut cream", "Strawberries", "Butter", "Sugar", "Almond flour", "Cream cheese", "Biscuits", "Blueberries", "Lemons", "Sea salt", "Mint"];
+const decorations = ["Pearl sprinkles", "Chocolate curls", "Coconut flakes", "Berry glaze", "Pastel icing", "Vanilla cream", "Blueberry topping", "Chocolate drizzle", "Whipped cream"];
 const day = () => new Date().toLocaleDateString("en-CA");
 type Stage = "ingredients" | "mix" | "molds" | "bake" | "decorate" | "complete";
 
 export default function SeashellBakingChallenge({ onClose }: { onClose: () => void }) {
   const { collectItem, play } = useGame();
   const [orderIndex, setOrderIndex] = useState<number | null>(null);
+  const [lastOrder, setLastOrder] = useState<number | null>(null);
   const [stage, setStage] = useState<Stage>("ingredients");
   const [chosen, setChosen] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
@@ -41,7 +54,9 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
     return () => window.removeEventListener("keydown", keydown);
   }, []);
   const start = () => {
-    const index = Math.floor(Math.random() * orders.length);
+    const available = orders.map((_, i) => i).filter(i => i !== lastOrder);
+    const index = available[Math.floor(Math.random() * available.length)];
+    setLastOrder(index);
     setOrderIndex(index); setStage("ingredients"); setChosen([]);
     setProgress(0); setMistakes(0); setReward("");
     setAnnouncement("New order: " + orders[index].name + ". Choose " + orders[index].ingredients.join(", ") + ".");
@@ -58,7 +73,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
     play("bagRustle");
     if (next.length === 3) {
       setStage("mix");
-      setAnnouncement("All ingredients selected. Stir the batter three times.");
+      setAnnouncement("All ingredients selected. " + order.steps[0] + " three times.");
     } else setAnnouncement(ingredient + " added. " + (3 - next.length) + " ingredients remain.");
   };
   const advance = (next: Stage, message: string) => {
@@ -108,17 +123,17 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
             <button key={item} type="button" disabled={chosen.includes(item)} onClick={() => chooseIngredient(item)} aria-label={item + (chosen.includes(item) ? ", added" : ", add ingredient")} className="min-h-12 rounded-lg bg-rose-100 p-3 font-semibold disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">{ingredientImages[item] && <BakingArt file={ingredientImages[item]} name="" size={120} />}{item}{chosen.includes(item) ? " — added" : ""}</button>
           )}</div>
         </>}
-        {stage === "mix" && <button type="button" onClick={() => step("molds", "Batter mixed. Fill three seashell molds.", "Stir")} aria-label={"Stir batter, " + progress + " of 3 stirs complete"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Mixing-bowl.png" name="" size={220} />Stir batter ({progress}/3)</button>}
-        {stage === "molds" && <button type="button" onClick={() => step("bake", "All three molds filled. Bake the tray.", "Mold")} aria-label={"Fill seashell mold, " + progress + " of 3 filled"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-baking-tray.png" name="" size={240} />Fill seashell mold ({progress}/3)</button>}
-        {stage === "bake" && <button type="button" onClick={() => advance("decorate", "Cakes baked and cooled. Choose " + order.decoration + ".")} aria-label="Bake and cool the seashell cakes" className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-oven.png" name="" size={240} />Bake and cool cakes</button>}
+        {stage === "mix" && <button type="button" onClick={() => step("molds", order.steps[0] + " complete. " + order.steps[1] + " three times.", order.steps[0])} aria-label={order.steps[0] + ", " + progress + " of 3 complete"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Mixing-bowl.png" name="" size={220} />{order.steps[0]} ({progress}/3)</button>}
+        {stage === "molds" && <button type="button" onClick={() => step("bake", order.steps[1] + " complete. " + order.steps[2] + ".", order.steps[1])} aria-label={order.steps[1] + ", " + progress + " of 3 complete"} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-baking-tray.png" name="" size={240} />{order.steps[1]} ({progress}/3)</button>}
+        {stage === "bake" && <button type="button" onClick={() => advance("decorate", "Baking complete. Choose " + order.decoration + ".")} aria-label={order.steps[2]} className="mt-3 min-h-12 w-full rounded-xl bg-teal-50 p-3 font-bold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><BakingArt file="Seashell-oven.png" name="" size={240} />{order.steps[2]}</button>}
         {stage === "decorate" && <>
           <p className="mt-2">Finish with {order.decoration}.</p>
-          <BakingArt file={cakeImages[orderIndex!]} name={"Undecorated preview for " + order.name} size={200} />
+          <OrderArt src={order.image} alt={order.name + " illustration"} />
           <div className="mt-3 grid grid-cols-2 gap-2">{decorations.map(item =>
             <button key={item} type="button" onClick={() => finish(item)} className="min-h-12 rounded-lg bg-rose-100 p-3">{item}</button>
           )}</div>
         </>}
-        {stage === "complete" && <div className="mt-3 text-center"><BakingArt file="Cake-display-stand.png" name="Glass cake display stand" size={180} /><BakingArt file={cakeImages[orderIndex!]} name={order.name} size={220} /><p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p></div>}
+        {stage === "complete" && <div className="mt-3 text-center"><BakingArt file="Cake-display-stand.png" name="Glass cake display stand" size={180} /><OrderArt src={order.image} alt={order.name} /><p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p></div>}
       </section>}
       <button type="button" onClick={start} className="mt-5 min-h-12 rounded-xl bg-rose-700 px-5 py-3 font-bold text-white">{order ? "Start another order" : "Start baking challenge"}</button>
       <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">{announcement}</p>
