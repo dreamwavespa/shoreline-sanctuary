@@ -13,6 +13,11 @@ const IMAGE_DIR = "/images/Cupcakes";
 const label = (flavor: Flavor) => flavor[0].toUpperCase() + flavor.slice(1);
 const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
 const localDay = () => new Date().toLocaleDateString("en-CA");
+const playFlip = () => {
+  const audio = new Audio("/audio/Cupcake-card-flip.mp3");
+  audio.volume = 0.75;
+  void audio.play().catch(() => {});
+};
 
 export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
   const { collectItem, play } = useGame();
@@ -74,8 +79,8 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
     const selected = [...selectedRef.current, card.id];
     selectedRef.current = selected;
     setRevealed(selected);
+    playFlip();
     if (selected.length === 1) {
-      play("bagRustle");
       setMessage(`Card ${position + 1}: ${card.label}. Choose a second card.`);
       return;
     }
@@ -131,7 +136,7 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={() => start("intermediate")} className="rounded-lg bg-teal-800 px-4 py-3 font-semibold text-white">Intermediate: 6 pairs</button>
           <button type="button" onClick={() => start("advanced")} className="rounded-lg bg-purple-800 px-4 py-3 font-semibold text-white">Advanced: 6 pairs</button>
         </div>
-        <p className="mt-3 text-sm">One surprise baking ingredient per day for your first completed round. No ingredients are spent to play. Sounds use existing Shoreline effects for now.</p>
+        <p className="mt-3 text-sm">One surprise baking ingredient per day for your first completed round. No ingredients are spent to play. Flip cards to hear the bubble pop sound.</p>
         {started && (
           <>
             <p className="mt-4 font-semibold">Level: {mode}. Moves: {moves}. Pairs matched: {matched.length / 2} of {cards.length / 2}.</p>
