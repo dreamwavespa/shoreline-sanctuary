@@ -4,6 +4,7 @@ export interface FoundBottleMessage {
 }
 
 export const FOUND_BOTTLE_MESSAGES: FoundBottleMessage[] = [
+  { id: "sands-of-time", text: "The sea has scattered the pieces of a little hourglass. I saved its decorated cap inside this bottle. Search the deeper Tide Pool for the four missing pieces, then bring them to the sand art studio. Some treasures are worth taking time to make. — A friend of the tides" },
   { id: "silver-road", text: "The moon makes a silver road across the water. I hope it leads you somewhere kind." },
   { id: "crystal-bells", text: "If you hear bells beneath the waves, the crystal cave may be closer than it seems." },
   { id: "sea-rose-bees", text: "I hid a Golden Honeybell seed beyond the sea lavender in the Coconut Grove. Find it, plant it beside the sea roses, and the bees will return when it blooms." },
