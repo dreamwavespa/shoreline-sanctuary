@@ -89,6 +89,14 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => { headingRef.current?.focus(); }, []);
+  useEffect(() => {
+    if (hourglassFlippedAt === null) return;
+    const timeout = window.setTimeout(() => {
+      setHourglassMessage("The last grains have fallen. Your hourglass is ready to flip again.");
+      play("sparkle");
+    }, 60000);
+    return () => window.clearTimeout(timeout);
+  }, [hourglassFlippedAt, play]);
 
   const selectedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
