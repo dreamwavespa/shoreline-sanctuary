@@ -57,6 +57,33 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
   const [deepFinds, setDeepFinds] = useState<string[]>([]);
   const [deepAnnouncement, setDeepAnnouncement] = useState("The deeper tide pool awaits.");
   const [lastDeepTreasure, setLastDeepTreasure] = useState<string | null>(null);
+  const teapotPieces = [
+    { id: "shipwreck-teapot-fragment-body-lower", name: "Lower body", image: "Teapot-Fragment-Body-Lower.png" },
+    { id: "shipwreck-teapot-fragment-body", name: "Upper body", image: "Teapot-Fragment-Body-Upper.png" },
+    { id: "shipwreck-teapot-fragment-spout", name: "Spout", image: "Teapot-Fragment-Spout.png" },
+    { id: "shipwreck-teapot-fragment-handle", name: "Handle", image: "Teapot-Fragment-Handle.png" },
+    { id: "shipwreck-teapot-fragment-lid", name: "Lid", image: "Teapot-Fragment-Lid.png" },
+  ];
+  const [teapotSteps, setTeapotSteps] = useState(0);
+  const [teapotMessage, setTeapotMessage] = useState("Collect all five pieces, then restore the teapot in order.");
+  const teapotRestored = (state.inventory["shipwreck-teapot-restored"] || 0) > 0;
+  const allTeapotPieces = teapotPieces.every(piece => (state.inventory[piece.id] || 0) > 0);
+  const placeTeapotPiece = (index: number) => {
+    if (index !== teapotSteps) {
+      setTeapotMessage("That piece does not fit yet. Try " + teapotPieces[teapotSteps].name + " next.");
+      return;
+    }
+    const next = teapotSteps + 1;
+    setTeapotSteps(next);
+    if (next === teapotPieces.length) {
+      if (!teapotRestored) collectItem("shipwreck-teapot-restored", { silent: true });
+      setTeapotMessage("The antique teapot is restored! Its golden trim and coral flowers shine again. The restored teapot is now in your inventory.");
+      play("craftSuccess");
+    } else {
+      setTeapotMessage(teapotPieces[index].name + " placed. " + next + " of 5 pieces assembled. Next: " + teapotPieces[next].name + ".");
+      play("shell");
+    }
+  };
   const [glassView, setGlassView] = useState<"Day" | "Night" | "Storm" | "Low-Tide" | "Sunset">("Day");
   const [glassDescription, setGlassDescription] = useState("");
   const glassViews = {
@@ -265,6 +292,25 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
                 <p role="status" aria-live="polite" aria-atomic="true" className="font-medium text-rose-950">{glassDescription}</p>
               </section>}
               {(state.inventory["whispering-seashell"] || 0) > 0 && <button type="button" onClick={() => { play("oceanWaterSplash"); setDeepAnnouncement("You hold the opalescent Whispering Seashell to your ear and hear the gentle rhythm of the ocean."); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-teal-800 px-4 py-3 font-bold text-teal-900">Listen to Whispering Seashell</button>}
+            </>}
+          </section>
+          <section aria-labelledby="teapot-restoration-title" className="mt-5 space-y-3 rounded-2xl bg-amber-50 p-4 text-amber-950">
+            <h3 id="teapot-restoration-title" className="text-xl font-bold">Shipwreck Teapot Restoration</h3>
+            <p>Recover the five porcelain pieces from the deeper tide pool, then put them together in the correct order. Your fragments remain in your collection.</p>
+            {teapotRestored ? <>
+              <Image src="/images/TidePool/Shipwreck-Teapot-Restored.png" alt="Restored white porcelain teapot decorated with pink flowers, blue waves, and gold trim" width={280} height={280} unoptimized className="mx-auto h-48 w-48 object-contain" />
+              <p className="font-bold">Restoration complete! Your antique teapot is in your inventory.</p>
+            </> : <>
+              <p>Pieces found: {teapotPieces.filter(piece => (state.inventory[piece.id] || 0) > 0).length} of 5.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {teapotPieces.map((piece, index) => <div key={piece.id} className="rounded-xl bg-white p-2">
+                  {(state.inventory[piece.id] || 0) > 0 ? <Image src={"/images/TidePool/" + piece.image} alt={piece.name + " porcelain fragment"} width={120} height={120} unoptimized className="mx-auto h-24 w-24 object-contain" /> : <p className="py-7 text-center">Not found yet</p>}
+                  <button type="button" disabled={!allTeapotPieces || index < teapotSteps} onClick={() => placeTeapotPiece(index)} className="mt-2 min-h-11 w-full rounded-lg bg-amber-800 p-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">{piece.name}{index < teapotSteps ? " — placed" : ""}</button>
+                </div>)}
+              </div>
+              {!allTeapotPieces && <p>Find all five fragments to begin the restoration.</p>}
+              <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold">{teapotMessage}</p>
+              {allTeapotPieces && <button type="button" onClick={() => { setTeapotSteps(0); setTeapotMessage("Puzzle reset. Begin with the lower body."); }} className="min-h-11 w-full rounded-xl border-2 border-amber-800 p-2 font-semibold">Reset Puzzle</button>}
             </>}
           </section>
           <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
