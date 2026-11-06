@@ -155,6 +155,7 @@ function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate:
     { color: "Pink", size: 1, className: "bg-pink-400" },
   ];
   const [stack, setStack] = useState<number[]>([]);
+  const [lastPlaced, setLastPlaced] = useState<number | null>(null);
   const [feedback, setFeedback] = useState("Choose the largest ring first, then work toward the smallest.");
   const finished = stack.length === rings.length;
   const addRing = (size: number) => {
@@ -166,6 +167,7 @@ function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate:
     }
     const next = [...stack, size];
     setStack(next);
+    setLastPlaced(size);
     const ring = rings.find(r => r.size === size)!;
     if (next.length === rings.length) {
       setFeedback("You stacked all five rings from largest to smallest! Cadence laughs and claps.");
@@ -178,17 +180,25 @@ function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate:
     <h2 id="cadence-buoy-rings" className="font-serif text-lg font-bold text-rose-900">Buoy Stacking Rings</h2>
     <p className="text-sm text-slate-700">Build a colorful buoy tower with Cadence, starting with the largest ring.</p>
     {!owned ? <p>Craft Buoy Stacking Rings in the Workshop to unlock this activity.</p> : <>
-      <Image src="/images/Buoy_Stacking_Rings.png" alt="Colorful buoy stacking rings toy" width={220} height={220} unoptimized className="mx-auto h-40 w-40 object-contain" />
-      <div aria-hidden="true" className="flex flex-col-reverse items-center gap-1 rounded-xl bg-sky-50 p-3 min-h-36">
-        {stack.map(size => { const ring = rings.find(r => r.size === size)!; return <div key={size} className={`h-5 rounded-full border-2 border-white shadow-sm ${ring.className}`} style={{ width: `${45 + size * 22}px` }} />; })}
+      <div className="relative mx-auto h-64 w-64 max-w-full overflow-hidden rounded-2xl bg-sky-50" aria-hidden="true">
+        <div className="absolute bottom-5 left-1/2 h-5 w-44 -translate-x-1/2 rounded-full bg-amber-700 shadow-md" />
+        <div className="absolute bottom-9 left-1/2 h-44 w-4 -translate-x-1/2 rounded-t-full bg-amber-500 shadow-sm" />
+        {stack.map((size, index) => {
+          const ring = rings.find(r => r.size === size)!;
+          return <div key={size} className={`absolute left-1/2 h-7 -translate-x-1/2 rounded-[50%] border-4 border-white/60 shadow-md ${ring.className} ${lastPlaced === size ? "animate-buoy-drop" : ""}`} style={{ width: `${52 + size * 24}px`, bottom: `${36 + index * 23}px` }}>
+            <div className="absolute left-1/2 top-1/2 h-2 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-700/70" />
+          </div>;
+        })}
+        {finished && <div className="absolute right-3 top-3 text-3xl animate-bounce">✨</div>}
       </div>
+      <style jsx>{`@keyframes buoy-drop { from { opacity: .55; transform: translate(-50%, -125px) scale(1.08); } 75% { transform: translate(-50%, 6px) scale(.98); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } } .animate-buoy-drop { animation: buoy-drop 650ms ease-out both; } @media (prefers-reduced-motion: reduce) { .animate-buoy-drop { animation: none; } }`}</style>
       <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-rose-900">{feedback}</p>
       <div className="grid grid-cols-2 gap-2">
         {rings.map(ring => <button key={ring.size} type="button" disabled={stack.includes(ring.size) || finished} onClick={() => addRing(ring.size)} className="min-h-11 rounded-xl bg-teal-800 px-3 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">
           {ring.color} ring, size {ring.size} of 5{stack.includes(ring.size) ? ", placed" : ""}
         </button>)}
       </div>
-      <button type="button" onClick={() => { setStack([]); setFeedback("Tower reset. Choose the largest ring first."); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-2 font-semibold text-teal-900">Start Over</button>
+      <button type="button" onClick={() => { setStack([]); setLastPlaced(null); setFeedback("Tower reset. Choose the largest ring first."); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-2 font-semibold text-teal-900">Start Over</button>
     </>}
   </section>;
 }
