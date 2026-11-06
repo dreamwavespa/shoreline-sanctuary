@@ -56,6 +56,21 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
   const hasBoots = (state.inventory["tide-pool-wading-boots"] || 0) > 0 || state.crafted.includes("tide-pool-wading-boots");
   const [deepFinds, setDeepFinds] = useState<string[]>([]);
   const [deepAnnouncement, setDeepAnnouncement] = useState("The deeper tide pool awaits.");
+  const [lastDeepTreasure, setLastDeepTreasure] = useState<string | null>(null);
+  const [glassView, setGlassView] = useState<"Day" | "Night" | "Storm" | "Low-Tide" | "Sunset">("Day");
+  const [glassDescription, setGlassDescription] = useState("");
+  const glassViews = {
+    Day: "Sunlight sparkles on turquoise waves beside the lighthouse.",
+    Night: "Moonlight silvers the shoreline while glowing jellyfish drift beneath the stars.",
+    Storm: "Storm clouds gather above the waves, and the lighthouse shines through rain.",
+    "Low-Tide": "The retreating sea reveals sandbars, tide pools and scattered shells.",
+    Sunset: "Golden sunset light warms the beach, lighthouse and cottage.",
+  };
+  const gazeIntoCrystal = (view: keyof typeof glassViews) => {
+    setGlassView(view);
+    setGlassDescription(glassViews[view]);
+    play("sparkle");
+  };
   const barnabyHelped = !!state.questProgress.shellseeker;
   const searchedCount = Object.keys(areaFinds).length;
 
@@ -76,14 +91,16 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
     { id: "shipwreck-teapot-fragment-handle", weight: 10, description: "A curved handle from an old shipwreck teapot." },
     { id: "shipwreck-teapot-fragment-lid", weight: 10, description: "A porcelain teapot lid with a gold seashell finial." },
     { id: "shipwreck-teapot-fragment-body", weight: 10, description: "A piece of the shipwreck teapot's painted body." },
+    { id: "shipwreck-teapot-fragment-body-lower", weight: 10, description: "The lower section of a shipwreck teapot." },
     { id: "ancient-tide-crystal", weight: 7, description: "An ancient blue-banded crystal rests beneath a rock." },
     { id: "tidepool-ammonite-fossil", weight: 7, description: "A spiral ammonite fossil is embedded in a smooth pebble." },
     { id: "rainbow-clear-pearl", weight: 4, description: "A nearly invisible pearl reveals a suspended rainbow when it catches the light." },
     { id: "whispering-seashell", weight: 4, description: "An opalescent spiral shell seems to carry the sound of distant waves." },
+    { id: "shoreline-looking-glass", weight: 1, description: "A rose quartz crystal reveals a tiny shoreline through its window." },
   ];
   const exploreDeep = (hidden: boolean) => {
     if (!hasBoots || (hidden && !lowTide)) return;
-    const pool = deepTreasures.map(item => ({ ...item, weight: item.weight * (hidden && item.id !== "recycled-rubber" ? 2 : 1) }));
+    const pool = deepTreasures.filter(item => item.id !== "shoreline-looking-glass" || ((state.inventory["shoreline-looking-glass"] || 0) === 0 && !deepFinds.includes("shoreline-looking-glass"))).map(item => ({ ...item, weight: item.weight * (hidden && item.id !== "recycled-rubber" ? 2 : 1) }));
     const total = pool.reduce((sum, item) => sum + item.weight, 0);
     let pick = Math.random() * total;
     const found = pool.find(item => (pick -= item.weight) < 0) || pool[0];
@@ -91,6 +108,7 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
     const label = found.id === "recycled-rubber" ? "Recycled Rubber Strip" : found.id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
     const result = `${hidden ? "Hidden tide pool" : "Deeper tide pool"}: ${found.description} ${label} added to your inventory.`;
     setDeepFinds(previous => [...previous, found.id]);
+    setLastDeepTreasure(found.id);
     setDeepAnnouncement(result);
     play("shell");
   };
@@ -234,8 +252,18 @@ export default function TidePoolSearch({ onClose }: { onClose: () => void }) {
               <p className="mt-2 text-teal-900">Your reusable wading boots let you explore the deeper rocks safely.</p>
               <button type="button" onClick={() => exploreDeep(false)} className="mt-3 min-h-11 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">Search Deeper Tide Pool</button>
               {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="mt-3 min-h-11 w-full rounded-xl bg-indigo-800 px-4 py-3 font-bold text-white">Explore Hidden Pool — Unusually Low Tide</button>}
+              {lastDeepTreasure && <Image src={({"recycled-rubber":"/images/TidePool/Recycled-Rubber-Strips.png","shipwreck-teapot-fragment-spout":"/images/TidePool/Teapot-Fragment-Spout.png","shipwreck-teapot-fragment-handle":"/images/TidePool/Teapot-Fragment-Handle.png","shipwreck-teapot-fragment-lid":"/images/TidePool/Teapot-Fragment-Lid.png","shipwreck-teapot-fragment-body":"/images/TidePool/Teapot-Fragment-Body-Upper.png","shipwreck-teapot-fragment-body-lower":"/images/TidePool/Teapot-Fragment-Body-Lower.png","ancient-tide-crystal":"/images/TidePool/Ancient-Tide-Crystal.png","tidepool-ammonite-fossil":"/images/TidePool/Ammonite-Fossil.png","rainbow-clear-pearl":"/images/TidePool/Rainbow-Clear-Pearl.png","whispering-seashell":"/images/TidePool/Whispering-Seashell.png","shoreline-looking-glass":"/images/Looking glass/Shoreline-Looking-Glass-Day.png"})[lastDeepTreasure]} alt={lastDeepTreasure.replace(/-/g, " ")} width={180} height={180} unoptimized className="mx-auto mt-3 h-36 w-36 object-contain" />}
               <p className="mt-2 text-sm text-teal-800">Deeper finds this visit: {deepFinds.length}. Searches are repeatable; rare treasures are less common.</p>
               <p className="mt-2 font-semibold text-teal-950" role="status" aria-live="polite" aria-atomic="true">{deepAnnouncement}</p>
+              {((state.inventory["shoreline-looking-glass"] || 0) > 0 || deepFinds.includes("shoreline-looking-glass")) && <section className="mt-4 space-y-3 rounded-xl bg-rose-50 p-3" aria-labelledby="looking-glass-title">
+                <h4 id="looking-glass-title" className="font-bold text-rose-950">Shoreline Looking Glass</h4>
+                <Image src={"/images/Looking glass/Shoreline-Looking-Glass-" + glassView + ".png"} alt={"Rose quartz crystal showing the " + glassView.replace("-", " ") + " shoreline"} width={280} height={280} unoptimized className="mx-auto h-48 w-48 object-contain" />
+                <p>Gaze through the crystal's polished window to discover a miniature Shoreline Sanctuary.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["Day", "Night", "Storm", "Low-Tide", "Sunset"] as const).map(view => <button key={view} type="button" onClick={() => gazeIntoCrystal(view)} aria-pressed={glassView === view} className="min-h-11 rounded-lg bg-rose-800 px-3 py-2 font-semibold text-white">{view.replace("-", " ")} View</button>)}
+                </div>
+                <p role="status" aria-live="polite" aria-atomic="true" className="font-medium text-rose-950">{glassDescription}</p>
+              </section>}
               {(state.inventory["whispering-seashell"] || 0) > 0 && <button type="button" onClick={() => { play("oceanWaterSplash"); setDeepAnnouncement("You hold the opalescent Whispering Seashell to your ear and hear the gentle rhythm of the ocean."); }} className="mt-3 min-h-11 w-full rounded-xl border-2 border-teal-800 px-4 py-3 font-bold text-teal-900">Listen to Whispering Seashell</button>}
             </>}
           </section>
