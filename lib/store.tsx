@@ -2334,8 +2334,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       (message) => !stateRef.current.foundBottleMessages.includes(message.id)
     );
     const messagePool = unreadMessages.length ? unreadMessages : FOUND_BOTTLE_MESSAGES;
-    const message = messagePool[Math.floor(Math.random() * messagePool.length)];
-    const bonusItemId = Math.random() < 0.35
+    const message = unreadMessages.find((entry) => entry.id === "sands-of-time") || messagePool[Math.floor(Math.random() * messagePool.length)];
+    const bonusItemId = message.id === "sands-of-time" ? "hourglass-cap" : Math.random() < 0.35
       ? FOUND_BOTTLE_BONUSES[Math.floor(Math.random() * FOUND_BOTTLE_BONUSES.length)]
       : null;
 
