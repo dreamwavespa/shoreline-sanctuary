@@ -1307,7 +1307,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
             <section aria-labelledby="seashell-baking-heading" className="mb-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
               <h2 id="seashell-baking-heading" className="font-serif text-lg font-bold text-amber-950">Seashell Baking Challenge</h2>
               <p className="mt-1 text-sm text-amber-800">Choose ingredients, mix batter, fill seashell molds, bake, and decorate treats.</p>
-              <button ref={seashellBakingButtonRef} type="button" onClick={() => setSeashellBakingOpen(true)} className="mt-3 min-h-12 rounded-xl bg-amber-800 px-6 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">Start Seashell Baking Challenge</button>
+              <button ref={seashellBakingButtonRef} type="button" onClick={() => setSeashellBakingOpen(true)} aria-label="Start Seashell Baking Challenge" className="mt-3 inline-flex min-h-12 max-w-full items-center justify-center rounded-xl bg-transparent p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><Image src="/images/Baking/Seashell-Baking-Challenge-button.png" alt="" width={480} height={170} unoptimized className="h-auto max-h-48 w-full max-w-md object-contain" /></button>
             </section>
           </>
         ) : tab === "jewelry" ? (
