@@ -44,7 +44,7 @@ function shuffled<T>(items: readonly T[]) {
 }
 
 export default function TidePoolSearch({ onClose, nighttime = false }: { onClose: () => void; nighttime?: boolean }) {
-  const { state, play, collectItem, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
+  const { state, play, collectItem, craft, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
   const [scenePanel, setScenePanel] = useState<"shallow" | "deep" | "treasures" | null>(null);
   const panelHeadingRef = useRef<HTMLHeadingElement>(null);
   const lastSceneTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -72,7 +72,8 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
   ];
   const [teapotSteps, setTeapotSteps] = useState(0);
   const [teapotMessage, setTeapotMessage] = useState("Collect all five pieces, then restore the teapot in order.");
-  const teapotRestored = (state.inventory["shipwreck-teapot-restored"] || 0) > 0;
+  const teapotCount = state.inventory["shipwreck-teapot-restored"] || 0;
+  const [showRestoredTeapot, setShowRestoredTeapot] = useState(false);
   const allTeapotPieces = teapotPieces.every(piece => (state.inventory[piece.id] || 0) > 0);
   const placeTeapotPiece = (index: number) => {
     if (index !== teapotSteps) {
@@ -82,9 +83,11 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
     const next = teapotSteps + 1;
     setTeapotSteps(next);
     if (next === teapotPieces.length) {
-      if (!teapotRestored) collectItem("shipwreck-teapot-restored", { silent: true });
-      setTeapotMessage("The antique teapot is restored! Its golden trim and coral flowers shine again. The restored teapot is now in your inventory.");
-      play("craftSuccess");
+      const succeeded = craft("shipwreck-teapot-restored", teapotPieces.map(piece => ({ itemId: piece.id, count: 1 })));
+      if (!succeeded) { setTeapotSteps(0); setTeapotMessage("Some fragments are missing. Collect all five pieces before restoring another teapot."); return; }
+      setShowRestoredTeapot(true);
+      setTeapotSteps(0);
+      setTeapotMessage("Restoration complete! Five fragments were used to create one antique teapot. Collect another complete set to restore another.");
     } else {
       setTeapotMessage(teapotPieces[index].name + " placed. " + next + " of 5 pieces assembled. Next: " + teapotPieces[next].name + ".");
       play("shell");
@@ -314,11 +317,13 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           {scenePanel === "treasures" && <>
           <section aria-labelledby="teapot-restoration-title" className="mt-5 space-y-3 rounded-2xl bg-amber-50 p-4 text-amber-950">
             <h3 id="teapot-restoration-title" className="text-xl font-bold">Shipwreck Teapot Restoration</h3>
-            <p>Recover the five porcelain pieces from the deeper tide pool, then put them together in the correct order. Your fragments remain in your collection.</p>
-            {teapotRestored ? <>
+            <p>Recover one of each of the five porcelain pieces, then assemble them in order. Each restoration uses one complete set of fragments.</p>
+            {showRestoredTeapot ? <>
               <Image src="/images/TidePool/Shipwreck-Teapot-Restored.png" alt="Restored white porcelain teapot decorated with pink flowers, blue waves, and gold trim" width={280} height={280} unoptimized className="mx-auto h-48 w-48 object-contain" />
               <p className="font-bold">Restoration complete! Your antique teapot is in your inventory.</p>
+              <button type="button" onClick={() => { setShowRestoredTeapot(false); setTeapotMessage("Collect all five pieces to restore another teapot."); }} className="min-h-11 w-full rounded-xl bg-amber-800 p-3 font-bold text-white">Restore Another Teapot</button>
             </> : <>
+              <p>Restored teapots in inventory: {teapotCount}.</p>
               <p>Pieces found: {teapotPieces.filter(piece => (state.inventory[piece.id] || 0) > 0).length} of 5.</p>
               <div className="grid grid-cols-2 gap-3">
                 {teapotPieces.map((piece, index) => <div key={piece.id} className="rounded-xl bg-white p-2">
