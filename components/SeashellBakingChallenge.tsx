@@ -4,7 +4,24 @@ import { useGame } from "@/lib/store";
 import Image from "next/image";
 
 const ART = "/images/Baking/";
-const ingredientImages: Record<string, string> = { Flour: "Flour-jar.png", Eggs: "Eggs.png", Vanilla: "Vanilla.png", "Cocoa powder": "Cocoa-powder.png", "Coconut cream": "Coconut.png", Strawberries: "Berries.png" };
+const ingredientImages: Record<string, string> = {
+  Flour: "Flour.png", Eggs: "Eggs.png", Vanilla: "Vanilla.png",
+  "Cocoa powder": "Cocoa-powder.png", "Coconut cream": "Coconut.png",
+  Strawberries: "Strawberries.png", Butter: "Butter.png", Sugar: "Sugar.png",
+  "Cream cheese": "Cream-cheese.png", Biscuits: "Seashell-biscuits.png",
+  Blueberries: "Blueberries.png",
+};
+const decorationImages: Record<string, string> = {
+  "Pearl sprinkles": "Pearl-sprinkles.png",
+  "Chocolate curls": "Chocolate-curls.png",
+  "Coconut flakes": "Coconut-flakes.png",
+  "Berry glaze": "Strawberries.png",
+  "Pastel icing": "Pink-frosting.png",
+  "Vanilla cream": "Vanilla-frosting.png",
+  "Blueberry topping": "Blueberries.png",
+  "Chocolate drizzle": "Chocolate-frosting.png",
+  "Whipped cream": "Whipped-cream.png",
+};
 
 function OrderArt({ src, alt }: { src: string; alt: string }) {
   const [failed, setFailed] = useState(false);
@@ -132,10 +149,10 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
           <p className="mt-2">Finish with {order.decoration}.</p>
           <OrderArt src={order.image} alt={order.name + " illustration"} />
           <div className="mt-3 grid grid-cols-2 gap-2">{decorations.map(item =>
-            <button key={item} type="button" onClick={() => finish(item)} className="min-h-12 rounded-lg bg-rose-100 p-3">{item}</button>
+            <button key={item} type="button" onClick={() => finish(item)} aria-label={"Decorate with " + item} className="min-h-12 rounded-lg bg-rose-100 p-3 font-semibold focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">{decorationImages[item] && <BakingArt file={decorationImages[item]} name="" size={120} />}{item}</button>
           )}</div>
         </>}
-        {stage === "complete" && <div className="mt-3 text-center"><BakingArt file="Cake-display-stand.png" name="Glass cake display stand" size={180} /><OrderArt src={order.image} alt={order.name} /><p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p></div>}
+        {stage === "complete" && <div className="mt-3 text-center"><BakingArt file="Cake-display-stand.png" name="Glass cake display stand" size={180} /><OrderArt src={order.image} alt={order.name} />{decorationImages[order.decoration] && <div className="mt-2"><BakingArt file={decorationImages[order.decoration]} name={order.decoration + " topping"} size={120} /></div>}<p className="mt-3 font-bold text-emerald-800">Order completed! {reward}</p></div>}
       </section>}
       <button type="button" onClick={start} className="mt-5 min-h-12 rounded-xl bg-rose-700 px-5 py-3 font-bold text-white">{order ? "Start another order" : "Start baking challenge"}</button>
       <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">{announcement}</p>
