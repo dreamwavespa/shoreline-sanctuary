@@ -193,10 +193,10 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                       </linearGradient>
                     </defs>
                     <g clipPath="url(#hourglass-small-upper)">
-                      <rect x="65" y={103 + 68 * hourglassProgress} width="94" height={68 * (1 - hourglassProgress)} fill="url(#hourglass-sand-soft)" opacity=".9" />
+                      <path d={`M65 ${103 + 68 * hourglassProgress} Q112 ${100 + 68 * hourglassProgress} 159 ${103 + 68 * hourglassProgress} L159 171 L65 171 Z`} fill="url(#hourglass-sand-soft)" opacity=".9" />
                     </g>
                     <g clipPath="url(#hourglass-small-lower)">
-                      <rect x="65" y={277 - 88 * hourglassProgress} width="94" height={88 * hourglassProgress} fill="url(#hourglass-sand-soft)" opacity=".9" />
+                      {hourglassProgress > 0 && <path d={`M65 ${277 - 88 * hourglassProgress} Q112 ${277 - 88 * hourglassProgress - 6 * hourglassProgress} 159 ${277 - 88 * hourglassProgress} L159 280 L65 280 Z`} fill="url(#hourglass-sand-soft)" opacity=".9" />}
                     </g>
                     {hourglassFlippedAt && <g className="sand-stream-fade">
                       <path d="M112 171 L112 185" stroke="#edc474" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
