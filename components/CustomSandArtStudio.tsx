@@ -80,6 +80,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
   const hourglassMade = state.crafted.includes("hourglass-restored");
   const canRestoreHourglass = hourglassIds.every(id => (state.inventory[id] || 0) > 0) && !hourglassMade;
   const [hourglassFlippedAt, setHourglassFlippedAt] = useState<number | null>(null);
+  const [hourglassProgress, setHourglassProgress] = useState(0);
   const [hourglassMessage, setHourglassMessage] = useState("Find all five pieces to restore the hourglass.");
   const [layers, setLayers] = useState<string[]>([]);
   const [shape, setShape] = useState<"classic" | "leaf" | "moon">("classic");
@@ -98,6 +99,16 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
     }, 60000);
     return () => window.clearTimeout(timeout);
   }, [hourglassFlippedAt, play]);
+
+  // React drives the SVG levels directly; Safari does not reliably run SVG <animate> elements.
+  // Only the visual state changes here: no per-second VoiceOver announcements.
+  useEffect(() => {
+    if (hourglassFlippedAt === null) return;
+    const update = () => setHourglassProgress(Math.min(1, Math.max(0, (Date.now() - hourglassFlippedAt - 1200) / 60000)));
+    update();
+    const interval = window.setInterval(update, 250);
+    return () => window.clearInterval(interval);
+  }, [hourglassFlippedAt]);
 
   const selectedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -182,20 +193,10 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                       </linearGradient>
                     </defs>
                     <g clipPath="url(#hourglass-small-upper)">
-                      <rect x="65" y="76" width="94" height="64" fill="url(#hourglass-sand-soft)" opacity=".88">
-                        {hourglassFlippedAt && <>
-                          <animate attributeName="y" from="76" to="140" dur="60s" begin="1.2s" fill="freeze" />
-                          <animate attributeName="height" from="64" to="0" dur="60s" begin="1.2s" fill="freeze" />
-                        </>}
-                      </rect>
+                      <rect x="65" y={76 + 64 * hourglassProgress} width="94" height={64 * (1 - hourglassProgress)} fill="url(#hourglass-sand-soft)" opacity=".9" />
                     </g>
                     <g clipPath="url(#hourglass-small-lower)">
-                      <rect x="65" y={hourglassFlippedAt ? "225" : "218"} width="94" height={hourglassFlippedAt ? "0" : "7"} fill="url(#hourglass-sand-soft)" opacity=".88">
-                        {hourglassFlippedAt && <>
-                          <animate attributeName="y" from="225" to="160" dur="60s" begin="1.2s" fill="freeze" />
-                          <animate attributeName="height" from="0" to="65" dur="60s" begin="1.2s" fill="freeze" />
-                        </>}
-                      </rect>
+                      <rect x="65" y={225 - 65 * hourglassProgress} width="94" height={65 * hourglassProgress} fill="url(#hourglass-sand-soft)" opacity=".9" />
                     </g>
                     {hourglassFlippedAt && <g className="sand-stream-fade">
                       <path d="M112 139 L112 157" stroke="#edc474" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
@@ -206,7 +207,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                 </div>
               </div>
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
-              <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
+              <button type="button" onClick={() => { setHourglassProgress(0); setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
               {hourglassFlippedAt && <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-teal-200"><div key={hourglassFlippedAt} className="h-full w-full origin-left bg-amber-500" style={{ animation: "hourglass-flow 60s linear forwards" }} /></div>}
               <style>{`
                 @keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }
