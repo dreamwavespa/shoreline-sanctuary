@@ -495,6 +495,7 @@ interface Ctx {
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   giveCadenceBlocks: (itemId: string) => boolean;
   feedCadenceFood: (itemId: string) => boolean;
+  useCadenceBubbleBath: () => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand", spice?: "pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves") => boolean;
   jelloAction: (action: "start" | "collect") => boolean;
   iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
@@ -1209,6 +1210,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
   const feedCadenceFood = (itemId: string): boolean => {
     if (!["food-cadence-warm-rose-milk", "food-cadence-sea-pea-puree", "food-cadence-sun-berry-mash", "food-cadence-teething-kelp-cookie"].includes(itemId)) return false;
+    if ((stateRef.current.inventory[itemId] || 0) < 1) return false;
+    setState(prev => ({ ...prev, inventory: { ...prev.inventory, [itemId]: Math.max(0, (prev.inventory[itemId] || 0) - 1) } }));
+    return true;
+  };
+
+  const useCadenceBubbleBath = (): boolean => {
+    const itemId = "cadence-rose-milk-bubble-bath";
     if ((stateRef.current.inventory[itemId] || 0) < 1) return false;
     setState(prev => ({ ...prev, inventory: { ...prev.inventory, [itemId]: Math.max(0, (prev.inventory[itemId] || 0) - 1) } }));
     return true;
@@ -3004,6 +3012,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       cook,
       feedCadenceFood,
+      useCadenceBubbleBath,
       giveCadenceBlocks,
       claimKitchenReward,
       jelloAction,
