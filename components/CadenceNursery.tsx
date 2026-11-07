@@ -237,7 +237,7 @@ function CadenceBubbleBath({ owned, onSound }: { owned: boolean; onSound: (sound
 }
 
 export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
-  const { state, craft, cook, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
+  const { state, craft, feedCadenceFood, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
   const [discovered, setDiscovered] = useState<string[]>([]);
   const [expandedRecipes, setExpandedRecipes] = useState<string[]>([]);
@@ -318,7 +318,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
   const feed = (food: typeof BABY_FOODS[number]) => {
     const count = state.inventory[food.id] ?? 0;
     if (count < 1) { announce(`There is no ${food.name} ready. Prepare it in the Kitchen first, then bring it back to Cadence.`); return; }
-    if (!cook([{ itemId: food.id, count: 1 }], food.id, 0)) { announce(`Cadence's ${food.name} could not be served right now.`); return; }
+    if (!feedCadenceFood(food.id)) { announce(`Cadence's ${food.name} could not be served right now.`); return; }
     play(food.sound, .58);
     if (food.id !== "food-cadence-teething-kelp-cookie") play("babyBabble", .18); else play("babyLaugh", .2);
     announce(`${food.reaction} One serving of ${food.name} was used.`);
@@ -329,7 +329,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
     {!activeActivity && <div className="mx-auto max-w-xl px-3 pb-8">
       <div className="relative mx-auto w-full overflow-hidden rounded-2xl shadow-xl" style={{aspectRatio:"3 / 4"}}>
         <Image src={night ? "/images/Nursery/Nursery-night.PNG" : "/images/Nursery/Nursery-day.PNG"} alt={night ? "Cadence's moonlit seaside nursery. Cadence smiles in her scallop cradle." : "Cadence's sunlit seaside nursery. Cadence smiles in her scallop cradle."} fill unoptimized className="object-fill" priority />
-        {hotspots.map(h => <button key={h.id} type="button" aria-label={h.label} onClick={() => openActivity(h.id)} style={{left:`${h.x}%`,top:`${h.y}%`}} className="absolute z-10 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25 bg-white/5 text-transparent hover:border-white hover:bg-white/20 focus-visible:bg-rose-900/90 focus-visible:text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300" ><span className="sr-only">{h.label}</span></button>)}
+        {hotspots.map(h => <button key={h.id} type="button" aria-label={h.label} onClick={() => openActivity(h.id)} style={{left:`${h.x}%`,top:`${h.y}%`}} className="absolute z-10 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-transparent text-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500" ><span className="sr-only">{h.label}</span></button>)}
       </div>
       <p className="mt-3 rounded-xl bg-white/95 p-3 text-sm text-rose-900" role="status" aria-live="polite">{message}</p>
       <p className="mt-2 text-sm text-white">Choose an object in the room to interact with Cadence. All activities are accessible by keyboard or screen reader.</p>
@@ -351,7 +351,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
             {id:"ball",label:"Play with beach ball",x:82,y:34},
             {id:"rattle",label:"Shake the seashell rattle",x:76,y:62},
             {id:"discoveries",label:"Explore plushies and discovered toys",x:34,y:63}
-          ]).map(t => <button key={t.id} type="button" aria-label={t.label} onClick={()=>setActiveActivity(t.id)} style={{left:`${t.x}%`,top:`${t.y}%`}} className="absolute h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25 bg-white/5 hover:border-white hover:bg-white/20 focus-visible:bg-rose-900/90 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">{t.label}</span></button>)}
+          ]).map(t => <button key={t.id} type="button" aria-label={t.label} onClick={()=>setActiveActivity(t.id)} style={{left:`${t.x}%`,top:`${t.y}%`}} className="absolute h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full border-0 bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"><span className="sr-only">{t.label}</span></button>)}
         </div>
         <p className="bg-white/95 p-3 text-sm text-rose-900">Select a toy in the picture to play. Each toy is also a labeled button for VoiceOver.</p>
       </div>}
