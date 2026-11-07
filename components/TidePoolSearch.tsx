@@ -44,7 +44,11 @@ function shuffled<T>(items: readonly T[]) {
 }
 
 export default function TidePoolSearch({ onClose, nighttime = false }: { onClose: () => void; nighttime?: boolean }) {
-  const { state, play, collectItem, craft, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow } = useGame();
+  const { state, play, collectItem, craft, addTidePoolDiscovery, completeTidePoolSearch, collectTidePoolShellHollow, setMusicOverride } = useGame();
+  useEffect(() => {
+    setMusicOverride("tidePool");
+    return () => setMusicOverride(null);
+  }, [setMusicOverride]);
   const [scenePanel, setScenePanel] = useState<"shallow" | "deep" | "treasures" | null>(null);
   const panelHeadingRef = useRef<HTMLHeadingElement>(null);
   const lastSceneTriggerRef = useRef<HTMLButtonElement | null>(null);
