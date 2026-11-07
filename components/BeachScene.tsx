@@ -408,13 +408,13 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
   const ballOwned = nighttime ? (inventory["firefly-bouncy-ball"] || 0) > 0 || crafted.includes("firefly-bouncy-ball") : (inventory["sea-glass-bouncy-ball"] || 0) > 0 || crafted.includes("sea-glass-bouncy-ball");
   const playBubble = () => playBeachGameSound(beachPopSounds, 0.4);
   const bounceBubble = (height: number) => {
-    playBeachGameSound(beachBounceSounds, 0.4);
+    playBeachGameSound(beachBounceSounds, 0.52);
     if (height === bubbleHeight) { setBubbleCount(n => n + 1); setMessage("Pop! You reached the floating bubble."); playBubble(); }
     else setMessage("The ball bounced past the bubble. Try another height.");
     setBubbleHeight(Math.floor(Math.random() * 3) + 1);
   };
   const bounceBucket = (distance: number) => {
-    playBeachGameSound(beachBounceSounds, 0.4);
+    playBeachGameSound(beachBounceSounds, 0.52);
     if (distance === bucketDistance) { setBucketScore(n => n + 1); setMessage("Splash! The ball landed in the beach bucket."); window.setTimeout(() => playBeachGameSound(beachBucketSounds, 0.55), 180); }
     else setMessage("The ball missed the bucket. Try a different bounce.");
     setBucketDistance(Math.floor(Math.random() * 3) + 1);
@@ -433,7 +433,7 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
       </div>
       <p className="p-4 text-sm text-teal-950">Select the volleyball net, floating bubbles, or beach bucket. All areas are accessible with VoiceOver.</p>
     </div>
-    {activity && <div role="dialog" aria-modal="true" aria-labelledby="beach-play-activity" className="fixed inset-0 z-[70] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
+    {activity && <div data-beach-ball-game="active" role="dialog" aria-modal="true" aria-labelledby="beach-play-activity" className="fixed inset-0 z-[70] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
       <div className="mx-auto max-w-xl space-y-4 rounded-2xl bg-cyan-50 p-4 shadow-xl">
         <div className="flex items-center justify-between gap-3">
           <h3 id="beach-play-activity" ref={headingRef} tabIndex={-1} className="text-xl font-bold outline-none">{activity === "volleyball" ? "Beach Volleyball" : activity === "bubbles" ? "Bubble Pop Bounce" : "Beach Bucket Bounce"}</h3>
@@ -531,7 +531,7 @@ function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean
   const [message, setMessage] = useState("Bounce the ball and see how high it goes!");
   const [animating, setAnimating] = useState(false);
   const bounce = () => {
-    playBeachGameSound(beachBounceSounds, 0.4);
+    playBeachGameSound(beachBounceSounds, 0.52);
     const next = bounces + 1;
     setBounces(next);
     setAnimating(false);
