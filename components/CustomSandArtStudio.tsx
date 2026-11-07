@@ -1,4 +1,5 @@
 "use client";
+import { playSandSound } from "@/lib/sandSounds";
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -116,7 +117,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
     if (layers.length >= 5 || available(itemId) < 1) return;
     const next = [...layers, itemId];
     setLayers(next);
-    play(ITEMS[itemId].sfx, 0.55);
+    playSandSound("pour");
     setAnnouncement(`${ITEMS[itemId].name} added as layer ${next.length}. ${next.length === 5 ? "The bottle is full. Choose an optional accent or finish it." : `Choose layer ${next.length + 1}.`}`);
   };
 
@@ -171,7 +172,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
             {hourglassMade ? <>
               <Image src="/images/Hourglass/hourglass-restored.png" alt="Restored coastal hourglass with shells, driftwood and colorful sand" width={240} height={280} unoptimized className="mx-auto h-56 w-48 object-contain" />
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
-              <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
+              <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
               {hourglassFlippedAt && <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-teal-200"><div key={hourglassFlippedAt} className="h-full w-full origin-left bg-amber-500" style={{ animation: "hourglass-flow 60s linear forwards" }} /></div>}
               <style>{`@keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }`}</style>
             </> : <>
