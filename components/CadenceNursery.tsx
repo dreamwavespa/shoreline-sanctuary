@@ -213,8 +213,8 @@ function CadenceBubbleBath({ owned, roseMilkCount, onUseRoseMilk, onSound }: { o
   const filled = bubbles > 0;
   const bathtimeDone = duckFloating && bubbles >= 6;
   const start = () => { setRoseMilkAdded(false); setBubbles(1); setDuckFloating(false); setMessage("The tub fills with warm water and soft bubbles. Float the duck next."); onSound("splash"); };
-  const floatDuck = () => { setDuckFloating(true); setMessage("The seashell rubber duck bobs on the water. Squeak! Now pop five bubbles."); onSound("squeak"); };
-  const squeakDuck = () => { setMessage("Squeak, squeak! Cadence giggles as the seashell duck bobs in the bath."); onSound("squeak"); };
+  const floatDuck = () => { setDuckFloating(true); setMessage("The yellow rubber duck in the bathtub begins to bob. Squeak! Now pop five bubbles."); onSound("squeak"); };
+  const squeakDuck = () => { setMessage("Squeak, squeak! Cadence giggles as the duck bobs in the bath."); onSound("squeak"); };
   const pop = () => { const next = bubbles + 1; setBubbles(next); if (next >= 6) { setMessage("Pop! Five bubbles popped. Cadence giggles and splashes happily at bath time!"); onSound("laugh"); } else { setMessage(`Pop! ${next - 1} of 5 bubbles popped. Cadence watches the duck bob.`); onSound("splash"); } };
   return <section className="rounded-2xl bg-white/95 p-4 shadow space-y-3" aria-labelledby="cadence-bubble-bath">
     <h2 id="cadence-bubble-bath" className="font-serif text-lg font-bold text-rose-900">Seashell Duck Bubble Bath</h2>
@@ -224,7 +224,7 @@ function CadenceBubbleBath({ owned, roseMilkCount, onUseRoseMilk, onSound }: { o
         <Image src="/images/Nursery/Cadence-bathtub.PNG" alt="" width={1024} height={1024} unoptimized className="h-auto w-full" />
         {filled && <div className="absolute bottom-[19%] left-[20%] right-[18%] h-[20%] rounded-[50%] bg-sky-100/35" />}
         {filled && Array.from({ length: Math.min(bubbles + (roseMilkAdded ? 9 : 3), 18) }, (_, i) => <div key={i} className={`absolute rounded-full border-2 border-white/90 shadow-sm motion-safe:animate-pulse ${roseMilkAdded ? "h-6 w-6 bg-pink-50/80" : "h-4 w-4 bg-white/40"}`} style={{ left: `${19 + (i * 17) % 64}%`, top: `${49 + (i * 11) % 27}%` }} />)}
-        {duckFloating && <Image src="/images/Seashell_Rubber_Duck.png" alt="" width={120} height={120} unoptimized className="absolute bottom-[23%] left-1/2 h-20 w-20 -translate-x-1/2 object-contain motion-safe:animate-bounce" />}
+        {/* The bathtub artwork already includes the yellow duck; do not overlay a second duck. */}
       </div>
       <p className="text-sm text-slate-700">Cadence's illustrated bathtub is ready for bath time. {roseMilkAdded ? "Soft rosy bubbles fill the water." : "Add rose milk bubble bath for extra rosy bubbles if you have crafted some."}</p>
       {filled && !roseMilkAdded && <button type="button" disabled={roseMilkCount < 1} onClick={() => { if (onUseRoseMilk()) { setRoseMilkAdded(true); setMessage("You pour one serving of Rose Milk Bubble Bath into the tub. Soft rosy bubbles rise around Cadence!"); onSound("splash"); } }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-semibold text-rose-950 disabled:opacity-60">Add Rose Milk Bubble Bath ({roseMilkCount} available)</button>}
