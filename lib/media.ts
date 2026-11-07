@@ -39,6 +39,7 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  beachGames: "/audio/Shoreline%20Volley.mp3",
   tidePool: "/audio/Tide%20Pool%20Wonders.mp3",
   marineLab: "/audio/Marine%20Lab%20-%20Coral%20%26%20Currents.mp3",
   specimenCabinet: "/audio/Marine%20Lab%20-%20Deep%20Discovery.mp3",
