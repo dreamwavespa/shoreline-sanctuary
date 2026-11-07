@@ -269,7 +269,24 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
   const owned = useMemo(() => new Set(state.crafted), [state.crafted]);
   const keepsakeUnlocked = !!state.questProgress["cadence-ducky"];
 
-  useEffect(() => { setMusicOverride(lullaby); return () => setMusicOverride(null); }, [lullaby, setMusicOverride]);
+  const isPlaytime = ["toys", "blocks", "rings", "ball", "rattle", "discoveries"].includes(activeActivity ?? "");
+  const playtimeAudioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    setMusicOverride(isPlaytime ? null : lullaby);
+    return () => setMusicOverride(null);
+  }, [lullaby, isPlaytime, setMusicOverride]);
+  useEffect(() => {
+    if (!isPlaytime) {
+      playtimeAudioRef.current?.pause();
+      return;
+    }
+    const audio = new Audio("/audio/Little%20Toy%20Sailboats.mp3");
+    audio.loop = true;
+    audio.volume = 0.16;
+    playtimeAudioRef.current = audio;
+    void audio.play().catch(() => {});
+    return () => { audio.pause(); audio.currentTime = 0; if (playtimeAudioRef.current === audio) playtimeAudioRef.current = null; };
+  }, [isPlaytime]);
   useEffect(()=>{blockUnlocks(state.inventory,state.crafted);if(discoverNightBlocks())setMessage("Cadence sees the stars! The Night Sky block recipe is permanently unlocked in Decorative Crafts.");},[]);
 
   const announce = (text: string) => setMessage(text);
