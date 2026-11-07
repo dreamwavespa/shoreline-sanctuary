@@ -205,13 +205,14 @@ function CadenceBuoyRings({ owned, onCelebrate }: { owned: boolean; onCelebrate:
   </section>;
 }
 
-function CadenceBubbleBath({ owned, onSound }: { owned: boolean; onSound: (sound: "splash" | "laugh" | "squeak") => void }) {
+function CadenceBubbleBath({ owned, roseMilkCount, onUseRoseMilk, onSound }: { owned: boolean; roseMilkCount: number; onUseRoseMilk: () => boolean; onSound: (sound: "splash" | "laugh" | "squeak") => void }) {
   const [bubbles, setBubbles] = useState(0);
   const [duckFloating, setDuckFloating] = useState(false);
+  const [roseMilkAdded, setRoseMilkAdded] = useState(false);
   const [message, setMessage] = useState("Fill the little tub, then float the seashell duck and pop bubbles.");
   const filled = bubbles > 0;
   const bathtimeDone = duckFloating && bubbles >= 6;
-  const start = () => { setBubbles(1); setDuckFloating(false); setMessage("The tub fills with warm water and soft bubbles. Float the duck next."); onSound("splash"); };
+  const start = () => { setRoseMilkAdded(false); setBubbles(1); setDuckFloating(false); setMessage("The tub fills with warm water and soft bubbles. Float the duck next."); onSound("splash"); };
   const floatDuck = () => { setDuckFloating(true); setMessage("The seashell rubber duck bobs on the water. Squeak! Now pop five bubbles."); onSound("squeak"); };
   const squeakDuck = () => { setMessage("Squeak, squeak! Cadence giggles as the seashell duck bobs in the bath."); onSound("squeak"); };
   const pop = () => { const next = bubbles + 1; setBubbles(next); if (next >= 6) { setMessage("Pop! Five bubbles popped. Cadence giggles and splashes happily at bath time!"); onSound("laugh"); } else { setMessage(`Pop! ${next - 1} of 5 bubbles popped. Cadence watches the duck bob.`); onSound("splash"); } };
@@ -219,25 +220,26 @@ function CadenceBubbleBath({ owned, onSound }: { owned: boolean; onSound: (sound
     <h2 id="cadence-bubble-bath" className="font-serif text-lg font-bold text-rose-900">Seashell Duck Bubble Bath</h2>
     <p className="text-sm text-slate-700">Play with Cadence's new rubber duck in a bubbly little tub.</p>
     {!owned ? <p>Craft the Seashell Rubber Duck in the Workshop to unlock bath playtime.</p> : <>
-      <div aria-hidden="true" className="relative mx-auto h-48 w-full max-w-xs overflow-hidden rounded-3xl bg-sky-50">
-        <div className="absolute bottom-2 left-5 right-5 h-28 rounded-[45%] border-[10px] border-pink-200 bg-sky-300 shadow-inner">
-          {filled && <div className="absolute inset-2 rounded-[45%] bg-sky-200/80" />}
-        </div>
-        {filled && Array.from({ length: Math.min(bubbles + 3, 10) }, (_, i) => <div key={i} className="absolute h-5 w-5 rounded-full border-2 border-white/90 bg-white/40 shadow-sm motion-safe:animate-pulse" style={{ left: `${14 + (i * 19) % 74}%`, top: `${38 + (i * 13) % 38}%` }} />)}
-        {duckFloating && <Image src="/images/Seashell_Rubber_Duck.png" alt="" width={120} height={120} unoptimized className="absolute bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 object-contain motion-safe:animate-bounce" />}
+      <div aria-hidden="true" className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-sky-50">
+        <Image src="/images/Nursery/Cadence-bathtub.PNG" alt="" width={1024} height={1024} unoptimized className="h-auto w-full" />
+        {filled && <div className="absolute bottom-[19%] left-[20%] right-[18%] h-[20%] rounded-[50%] bg-sky-100/35" />}
+        {filled && Array.from({ length: Math.min(bubbles + (roseMilkAdded ? 9 : 3), 18) }, (_, i) => <div key={i} className={`absolute rounded-full border-2 border-white/90 shadow-sm motion-safe:animate-pulse ${roseMilkAdded ? "h-6 w-6 bg-pink-50/80" : "h-4 w-4 bg-white/40"}`} style={{ left: `${19 + (i * 17) % 64}%`, top: `${49 + (i * 11) % 27}%` }} />)}
+        {duckFloating && <Image src="/images/Seashell_Rubber_Duck.png" alt="" width={120} height={120} unoptimized className="absolute bottom-[23%] left-1/2 h-20 w-20 -translate-x-1/2 object-contain motion-safe:animate-bounce" />}
       </div>
+      <p className="text-sm text-slate-700">Cadence's illustrated bathtub is ready for bath time. {roseMilkAdded ? "Soft rosy bubbles fill the water." : "Add rose milk bubble bath for extra rosy bubbles if you have crafted some."}</p>
+      {filled && !roseMilkAdded && <button type="button" disabled={roseMilkCount < 1} onClick={() => { if (onUseRoseMilk()) { setRoseMilkAdded(true); setMessage("You pour one serving of Rose Milk Bubble Bath into the tub. Soft rosy bubbles rise around Cadence!"); onSound("splash"); } }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-semibold text-rose-950 disabled:opacity-60">Add Rose Milk Bubble Bath ({roseMilkCount} available)</button>}
       <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-rose-900">{message}</p>
       {!filled ? <button type="button" onClick={start} className="min-h-11 w-full rounded-xl bg-teal-800 p-3 font-semibold text-white">Fill the Bubble Bath</button> :
         !duckFloating ? <button type="button" onClick={floatDuck} className="min-h-11 w-full rounded-xl bg-teal-800 p-3 font-semibold text-white">Float the Seashell Duck</button> :
         !bathtimeDone ? <button type="button" onClick={pop} className="min-h-11 w-full rounded-xl bg-teal-800 p-3 font-semibold text-white">Pop Bubble, ${Math.min(bubbles - 1, 5)} of 5 popped</button> : <p className="font-semibold text-teal-900">Bath playtime complete!</p>}
       {duckFloating && <button type="button" onClick={squeakDuck} className="min-h-11 w-full rounded-xl bg-amber-200 p-3 font-semibold text-amber-950">Squeak the Duck</button>}
-      {filled && <button type="button" onClick={() => { setBubbles(0); setDuckFloating(false); setMessage("Bath reset. Fill the little tub to play again."); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-2 font-semibold text-teal-900">Start Bath Time Over</button>}
+      {filled && <button type="button" onClick={() => { setBubbles(0); setDuckFloating(false); setRoseMilkAdded(false); setMessage("Bath reset. Fill the little tub to play again."); }} className="min-h-11 w-full rounded-xl border-2 border-teal-800 p-2 font-semibold text-teal-900">Start Bath Time Over</button>}
     </>}
   </section>;
 }
 
 export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
-  const { state, craft, cook, feedCadenceFood, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
+  const { state, craft, cook, feedCadenceFood, giveCadenceBlocks, useCadenceBubbleBath, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
   const [discovered, setDiscovered] = useState<string[]>([]);
   const [expandedRecipes, setExpandedRecipes] = useState<string[]>([]);
@@ -411,7 +413,7 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
         <button type="button" onClick={() => announce("Cadence rests peacefully in her scallop cradle.")} className="mt-2 min-h-12 w-full rounded-xl bg-sky-100 p-3 font-semibold">Let Her Rest</button>
         <style jsx>{`@keyframes cadence-cradle-sway { 0%,100% { transform: rotate(0deg); } 15% { transform: rotate(-4deg); } 40% { transform: rotate(4deg); } 65% { transform: rotate(-3.5deg); } 85% { transform: rotate(2deg); } } .cadence-cradle-rock { transform-origin: 34% 82%; animation: cadence-cradle-sway 4.5s ease-in-out; will-change: transform; } @media (prefers-reduced-motion: reduce) { .cadence-cradle-rock { animation: none; } }`}</style>
       </section>
-      <div style={{display:activeActivity === "bath" ? undefined : "none"}}><CadenceBubbleBath owned={(state.inventory["seashell-rubber-duck"] || 0) > 0 || state.crafted.includes("seashell-rubber-duck")} onSound={(sound) => { if (sound === "squeak") { const audio = new Audio("/audio/Rubber-ducky-squeak.mp3"); audio.volume = Math.max(0, Math.min(1, state.audio.master * 0.75)); void audio.play().catch(() => undefined); play("babyLaugh", .18); } else if (sound === "laugh") play("babyLaugh", .4); else play("oceanWaterSplash", .18); }} />
+      <div style={{display:activeActivity === "bath" ? undefined : "none"}}><CadenceBubbleBath owned={(state.inventory["seashell-rubber-duck"] || 0) > 0 || state.crafted.includes("seashell-rubber-duck")} roseMilkCount={state.inventory["cadence-rose-milk-bubble-bath"] || 0} onUseRoseMilk={useCadenceBubbleBath} onSound={(sound) => { if (sound === "squeak") { const audio = new Audio("/audio/Rubber-ducky-squeak.mp3"); audio.volume = Math.max(0, Math.min(1, state.audio.master * 0.75)); void audio.play().catch(() => undefined); play("babyLaugh", .18); } else if (sound === "laugh") play("babyLaugh", .4); else play("oceanWaterSplash", .18); }} />
       </div><div style={{display:activeActivity === "rings" ? undefined : "none"}}><CadenceBuoyRings owned={(state.inventory["buoy-stacking-rings"] || 0) > 0 || state.crafted.includes("buoy-stacking-rings")} onCelebrate={() => { play("babyLaugh", .4); }} />
       </div><div style={{display:activeActivity === "blocks" ? undefined : "none"}}><CadenceBlocks inventory={state.inventory} master={state.audio.master} onDailyReward={() => collectItem("shell-sanddollar", { silent: true })} onGift={(itemId) => { if (!giveCadenceBlocks(itemId)) return; play("babyLaugh", .3); announce("Cadence receives her seaside blocks and invites you to play."); }} />
       </div><section style={{display: activeActivity === "craft" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-craft"><h2 id="cadence-craft" className="font-serif text-lg font-bold text-rose-900">Nursery Crafting</h2><p className="mt-1 text-sm text-slate-700">Craft nursery decorations once. Rose Milk Bubble Bath is repeatable and stays available whenever you have its ingredients.</p><div className="mt-3 space-y-3">{RECIPES.map(r => { const repeatable = "repeatable" in r && r.repeatable; const isOwned = !repeatable && owned.has(r.id); const expanded = repeatable || !isOwned || expandedRecipes.includes(r.id); const detailsId = `${r.id}-recipe`; return <article key={r.id} className="rounded-xl border border-rose-200 p-3">{isOwned ? <button type="button" aria-expanded={expanded} aria-controls={detailsId} aria-label={`${r.name}, crafted and displayed. ${expanded ? "Hide recipe" : "Show recipe"}.`} onClick={() => toggleRecipe(r.id)} className="flex w-full items-center gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-rose-600"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><span><strong className="block">{r.name}</strong><span className="text-xs font-semibold text-emerald-800">Crafted & Displayed · {expanded ? "Hide recipe" : "Show recipe"}</span></span></button> : <div className="flex gap-3"><Image src={r.image} alt="" width={72} height={72} unoptimized className="h-[72px] w-[72px] rounded-lg object-cover" /><div><h3 className="font-bold">{r.name}</h3><p className="text-xs text-slate-600">{r.description}</p>{repeatable && <p className="mt-1 text-xs font-semibold text-rose-800">Repeatable craft · In inventory: {state.inventory[r.id] ?? 0}</p>}</div></div>}{expanded && <div id={detailsId}>{isOwned && <p className="mt-2 text-xs text-slate-600">{r.description}</p>}<p className="mt-2 text-xs">Requires: {r.cost.map(c => `${c.count} ${c.itemId.replaceAll("-", " ")}`).join(", ")}</p>{isOwned ? <p className="mt-2 text-sm font-bold text-emerald-800">Crafted & Displayed</p> : <button type="button" onClick={() => make(r)} className="mt-2 w-full rounded-lg bg-rose-700 py-2 font-bold text-white">Craft {r.name}</button>}</div>}</article>; })}</div></section>
