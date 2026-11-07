@@ -175,19 +175,23 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                   <Image src="/images/Hourglass/Hourglass-empty.PNG" alt="" fill unoptimized sizes="224px" className="object-contain" />
                   <svg aria-hidden="true" viewBox="0 0 224 288" className="pointer-events-none absolute inset-0 h-full w-full">
                     <defs>
-                      <clipPath id="sand-upper-chamber"><path d="M52 73 Q52 60 112 60 Q172 60 172 73 Q170 102 119 137 Q112 142 105 137 Q54 102 52 73 Z" /></clipPath>
-                      <clipPath id="sand-lower-chamber"><path d="M105 157 Q112 150 119 157 Q170 193 172 217 Q172 231 112 231 Q52 231 52 217 Q54 193 105 157 Z" /></clipPath>
-                      <linearGradient id="sand-hourglass-gradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0" stopColor="#e981b5"/><stop offset=".45" stopColor="#f4c36a"/><stop offset="1" stopColor="#42c4bb"/>
+                      <clipPath id="hourglass-small-upper"><path d="M82 86 Q112 81 142 86 L116 135 Q112 139 108 135 Z" /></clipPath>
+                      <clipPath id="hourglass-small-lower"><path d="M108 158 Q112 153 116 158 L142 212 Q112 224 82 212 Z" /></clipPath>
+                      <linearGradient id="hourglass-sand-soft" x1="0" x2="1">
+                        <stop offset="0" stopColor="#e982b7"/><stop offset=".5" stopColor="#eac069"/><stop offset="1" stopColor="#49c1b8"/>
                       </linearGradient>
                     </defs>
-                    <g clipPath="url(#sand-upper-chamber)">
-                      <path className={hourglassFlippedAt ? "sand-upper-drain" : ""} d="M49 84 Q82 79 112 85 Q142 79 175 84 L175 145 L49 145 Z" fill="url(#sand-hourglass-gradient)" opacity=".82"/>
+                    <g clipPath="url(#hourglass-small-upper)">
+                      <path className={hourglassFlippedAt ? "sand-upper-shrink" : ""} d="M78 113 Q112 108 146 113 L146 141 L78 141 Z" fill="url(#hourglass-sand-soft)" opacity=".52" />
                     </g>
-                    <g clipPath="url(#sand-lower-chamber)">
-                      <path className={hourglassFlippedAt ? "sand-lower-grow" : ""} d="M49 235 L175 235 L175 216 Q140 212 112 204 Q84 212 49 216 Z" fill="url(#sand-hourglass-gradient)" opacity=".82"/>
+                    <g clipPath="url(#hourglass-small-lower)">
+                      <path className={hourglassFlippedAt ? "sand-lower-rise" : ""} d="M78 224 L146 224 L146 216 Q126 214 112 208 Q98 214 78 216 Z" fill="url(#hourglass-sand-soft)" opacity=".62" />
                     </g>
-                    {hourglassFlippedAt && <path d="M112 139 L112 158" className="sand-hourglass-stream" stroke="#f2c469" strokeWidth="2" strokeDasharray="3 2" strokeLinecap="round"/>}
+                    {hourglassFlippedAt && <g className="sand-stream-fade">
+                      <path d="M112 139 L112 157" stroke="#edc474" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
+                      <circle cx="111" cy="146" r="1.2" fill="#eac069" />
+                      <circle cx="113" cy="153" r=".9" fill="#e982b7" />
+                    </g>}
                   </svg>
                 </div>
               </div>
@@ -197,13 +201,13 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
               <style>{`
                 @keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }
                 @keyframes hourglass-turn { 0% { transform: rotate(0deg); } 48% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
-                @keyframes sand-upper-drain { from { transform: translateY(0); } to { transform: translateY(78px); } }
-                @keyframes sand-lower-grow { from { transform: translateY(28px) scaleY(.1); } to { transform: translateY(-31px) scaleY(1.8); } }
+                @keyframes sand-upper-shrink { from { transform: translateY(0); opacity: .52; } to { transform: translateY(30px); opacity: 0; } }
+                @keyframes sand-lower-rise { from { transform: translateY(12px) scaleY(.4); opacity: .2; } to { transform: translateY(-8px) scaleY(1.5); opacity: .62; } }
                 @keyframes sand-stream-fade { 0%, 98% { opacity: 1; } 100% { opacity: 0; } }
                 .hourglass-turn { animation: hourglass-turn 1.2s ease-in-out both; }
-                .sand-upper-drain { animation: sand-upper-drain 60s 1.2s linear forwards; }
-                .sand-lower-grow { transform-origin: 112px 231px; animation: sand-lower-grow 60s 1.2s linear forwards; }
-                .sand-hourglass-stream { animation: sand-stream-fade 60s 1.2s linear forwards; }
+                .sand-upper-shrink { animation: sand-upper-shrink 60s 1.2s linear forwards; }
+                .sand-lower-rise { transform-origin: 112px 224px; animation: sand-lower-rise 60s 1.2s linear forwards; }
+                .sand-stream-fade { animation: sand-stream-fade 60s 1.2s linear forwards; }
                 @media (prefers-reduced-motion: reduce) { .hourglass-turn { animation: none; } }
               `}</style>
             </> : <>
