@@ -1,4 +1,5 @@
 "use client";
+import { playSandSound } from "@/lib/sandSounds";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
@@ -24,7 +25,7 @@ export default function MiniHourglass({ readyAt, label }: { readyAt: number; lab
       <Image src="/images/Hourglass/hourglass-restored.png" alt="" width={70} height={90} unoptimized className={flipped && remaining > 0 ? "h-20 w-14 rotate-180 object-contain transition-transform" : "h-20 w-14 object-contain"} />
       <div><p className="font-bold">Sands of Time — miniature hourglass</p><p aria-live="off">{label}: {timeText}.</p></div>
     </div>
-    <button type="button" onClick={() => setFlipped(value => !value)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 font-semibold text-white">Flip miniature hourglass</button>
+    <button type="button" onClick={() => { setFlipped(value => !value); playSandSound("hourglass"); }} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 font-semibold text-white">Flip miniature hourglass</button>
     <p role="status" aria-live="polite" className="mt-2 text-sm">{flipped ? `Hourglass flipped. ${label}: ${timeText}.` : "The miniature hourglass follows the existing timer."}</p>
   </div>;
 }
