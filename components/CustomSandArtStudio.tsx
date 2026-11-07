@@ -184,24 +184,24 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
               <div className="relative mx-auto h-72 w-56" role="img" aria-label="Restored coastal hourglass with pink, gold and turquoise sand. When flipped, sand drains from the upper glass chamber into the lower chamber over one minute.">
                 <div key={hourglassFlippedAt ?? "resting"} className={hourglassFlippedAt ? "hourglass-turn relative h-full w-full" : "relative h-full w-full"}>
                   <Image src="/images/Hourglass/Hourglass-empty.PNG" alt="" fill unoptimized sizes="224px" className="object-contain" />
-                  <svg aria-hidden="true" viewBox="0 0 224 288" className="pointer-events-none absolute inset-0 h-full w-full">
+                  <svg aria-hidden="true" viewBox="0 0 224 336" className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet">
                     <defs>
-                      <clipPath id="hourglass-small-upper"><path d="M69 83 Q112 70 155 83 C149 104 126 124 117 136 Q112 141 107 136 C98 124 75 104 69 83 Z" /></clipPath>
-                      <clipPath id="hourglass-small-lower"><path d="M107 157 Q112 151 117 157 C129 174 155 197 155 216 Q112 230 69 216 C69 197 95 174 107 157 Z" /></clipPath>
+                      <clipPath id="hourglass-small-upper"><path d="M68 108 Q112 99 156 108 C154 133 128 155 117 166 Q112 171 107 166 C96 155 70 133 68 108 Z" /></clipPath>
+                      <clipPath id="hourglass-small-lower"><path d="M107 186 Q112 180 117 186 C132 203 158 236 158 265 Q112 283 66 265 C66 236 92 203 107 186 Z" /></clipPath>
                       <linearGradient id="hourglass-sand-soft" x1="0" x2="1">
                         <stop offset="0" stopColor="#e982b7"/><stop offset=".5" stopColor="#eac069"/><stop offset="1" stopColor="#49c1b8"/>
                       </linearGradient>
                     </defs>
                     <g clipPath="url(#hourglass-small-upper)">
-                      <rect x="65" y={76 + 64 * hourglassProgress} width="94" height={64 * (1 - hourglassProgress)} fill="url(#hourglass-sand-soft)" opacity=".9" />
+                      <rect x="65" y={103 + 68 * hourglassProgress} width="94" height={68 * (1 - hourglassProgress)} fill="url(#hourglass-sand-soft)" opacity=".9" />
                     </g>
                     <g clipPath="url(#hourglass-small-lower)">
-                      <rect x="65" y={225 - 65 * hourglassProgress} width="94" height={65 * hourglassProgress} fill="url(#hourglass-sand-soft)" opacity=".9" />
+                      <rect x="65" y={277 - 88 * hourglassProgress} width="94" height={88 * hourglassProgress} fill="url(#hourglass-sand-soft)" opacity=".9" />
                     </g>
                     {hourglassFlippedAt && <g className="sand-stream-fade">
-                      <path d="M112 139 L112 157" stroke="#edc474" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
-                      <circle cx="111" cy="146" r="1.2" fill="#eac069" />
-                      <circle cx="113" cy="153" r=".9" fill="#e982b7" />
+                      <path d="M112 171 L112 185" stroke="#edc474" strokeWidth="1.5" strokeDasharray="2 2" strokeLinecap="round" />
+                      <circle cx="111" cy="175" r="1.2" fill="#eac069" />
+                      <circle cx="113" cy="182" r=".9" fill="#e982b7" />
                     </g>}
                   </svg>
                 </div>
