@@ -345,6 +345,62 @@ function BeachBagCard() {
   );
 }
 
+function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[]; onClose: () => void }) {
+  const { setMusicOverride } = useGame();
+  const [activity, setActivity] = useState<"volleyball" | "bubbles" | "bucket" | null>(null);
+  const [bubbleCount, setBubbleCount] = useState(0);
+  const [bucketScore, setBucketScore] = useState(0);
+  const [bubbleHeight, setBubbleHeight] = useState(1);
+  const [bucketDistance, setBucketDistance] = useState(1);
+  const [message, setMessage] = useState("");
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { setMusicOverride("beachGames"); return () => setMusicOverride(null); }, [setMusicOverride]);
+  useEffect(() => { if (activity) headingRef.current?.focus(); }, [activity]);
+  const ballOwned = nighttime ? (inventory["firefly-bouncy-ball"] || 0) > 0 || crafted.includes("firefly-bouncy-ball") : (inventory["sea-glass-bouncy-ball"] || 0) > 0 || crafted.includes("sea-glass-bouncy-ball");
+  const playBubble = () => { const a = new Audio("/audio/freesound_community-victoria-boche-mus152-foley-spices-38546.mp3"); a.volume = 0.25; void a.play().catch(() => {}); };
+  const bounceBubble = (height: number) => {
+    if (height === bubbleHeight) { setBubbleCount(n => n + 1); setMessage("Pop! You reached the floating bubble."); playBubble(); }
+    else setMessage("The ball bounced past the bubble. Try another height.");
+    setBubbleHeight(Math.floor(Math.random() * 3) + 1);
+  };
+  const bounceBucket = (distance: number) => {
+    if (distance === bucketDistance) { setBucketScore(n => n + 1); setMessage("Splash! The ball landed in the beach bucket."); }
+    else setMessage("The ball missed the bucket. Try a different bounce.");
+    setBucketDistance(Math.floor(Math.random() * 3) + 1);
+  };
+  return <div role="dialog" aria-modal="true" aria-label="Beach Play Area" className="fixed inset-0 z-[60] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
+    <div className="mx-auto max-w-2xl overflow-hidden rounded-2xl bg-cyan-50 shadow-xl">
+      <div className="flex items-center justify-between gap-3 bg-teal-950 p-4 text-white">
+        <h2 className="font-serif text-xl font-bold">Beach Play Area</h2>
+        <button type="button" onClick={onClose} className="min-h-11 rounded-lg bg-white px-3 py-2 font-bold text-teal-950">Return to Beach</button>
+      </div>
+      <div className="relative">
+        <Image src={versionedImage(nighttime ? "/images/Beach-games-background-night.PNG" : "/images/Beach-games-background-day.PNG")} alt={nighttime ? "Moonlit beach with a volleyball net, glowing bubbles, and a shell-decorated bucket" : "Sunny beach with a volleyball net, iridescent bubbles, and a shell-decorated bucket"} width={1024} height={1536} unoptimized priority className="h-auto w-full" />
+        <button type="button" onClick={() => setActivity("volleyball")} aria-label="Play volleyball with Snappy at the net" className="absolute left-[16%] top-[12%] h-[25%] w-[68%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Volleyball court</span></button>
+        <button type="button" onClick={() => setActivity("bubbles")} aria-label="Play bubble pop bounce in the floating bubbles" className="absolute left-[25%] top-[39%] h-[25%] w-[64%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Bubble pop bounce</span></button>
+        <button type="button" onClick={() => setActivity("bucket")} aria-label="Play beach bucket bounce with the shell bucket" className="absolute left-[48%] top-[69%] h-[22%] w-[46%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Beach bucket bounce</span></button>
+      </div>
+      <p className="p-4 text-sm text-teal-950">Select the volleyball net, floating bubbles, or beach bucket. All areas are accessible with VoiceOver.</p>
+    </div>
+    {activity && <div role="dialog" aria-modal="true" aria-labelledby="beach-play-activity" className="fixed inset-0 z-[70] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
+      <div className="mx-auto max-w-xl space-y-4 rounded-2xl bg-cyan-50 p-4 shadow-xl">
+        <div className="flex items-center justify-between gap-3">
+          <h3 id="beach-play-activity" ref={headingRef} tabIndex={-1} className="text-xl font-bold outline-none">{activity === "volleyball" ? "Beach Volleyball" : activity === "bubbles" ? "Bubble Pop Bounce" : "Beach Bucket Bounce"}</h3>
+          <button type="button" onClick={() => { setActivity(null); setMessage(""); }} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-bold text-white">Back to Play Area</button>
+        </div>
+        {activity === "volleyball" ? <SnappyBeachVolleyball inventory={inventory} crafted={crafted} /> : !ballOwned ? <p>Craft the {nighttime ? "Firefly Bouncy Ball" : "Sea Glass Bouncy Ball"} in the Workshop to unlock this game.</p> : <>
+          <BeachBouncyBall nighttime={nighttime} inventory={inventory} crafted={crafted} />
+          <p>{activity === "bubbles" ? `Bubbles popped: ${bubbleCount}. A bubble is floating ${["low", "medium", "high"][bubbleHeight - 1]}.` : `Buckets scored: ${bucketScore}. The bucket is at ${["near", "middle", "far"][bucketDistance - 1]} distance.`}</p>
+          <div className="grid grid-cols-3 gap-2">
+            {["Low", "Medium", "High"].map((label, i) => <button key={label} type="button" onClick={() => activity === "bubbles" ? bounceBubble(i + 1) : bounceBucket(i + 1)} className="min-h-11 rounded-lg bg-teal-800 p-2 font-bold text-white">{activity === "bubbles" ? label + " Bounce" : ["Gentle", "Medium", "Big"][i] + " Bounce"}</button>)}
+          </div>
+          <p role="status" aria-live="polite">{message}</p>
+        </>}
+      </div>
+    </div>}
+  </div>;
+}
+
 function SnappyBeachVolleyball({ inventory, crafted }: { inventory: Record<string, number>; crafted: string[] }) {
   const owned = (inventory["seashell-beach-ball"] || 0) > 0 || crafted.includes("seashell-beach-ball");
   const [mode, setMode] = useState<"relaxed" | "challenge">("relaxed");
@@ -485,6 +541,7 @@ export default function BeachScene() {
   const [currentRideOpen, setCurrentRideOpen] = useState(false);
   const currentRideButtonRef = useRef<HTMLButtonElement>(null);
   const [tidePoolOpen, setTidePoolOpen] = useState(false);
+  const [beachGamesOpen, setBeachGamesOpen] = useState(false);
   const tidePoolButtonRef = useRef<HTMLButtonElement>(null);
   const [isCollectingWater, setIsCollectingWater] = useState(false);
   const waterAnimationTimerRef = useRef<number | null>(null);
@@ -725,8 +782,8 @@ export default function BeachScene() {
           </section>
         </div>
       )}
-      <SnappyBeachVolleyball inventory={state.inventory} crafted={state.crafted} />
-      <BeachBouncyBall nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} />
+      <button type="button" onClick={() => setBeachGamesOpen(true)} className="mx-auto my-4 flex min-h-11 items-center gap-3 rounded-xl bg-teal-900 px-5 py-3 font-bold text-white"><Image src="/images/Seashell_Beach_Ball.png" alt="" width={48} height={48} unoptimized />Visit Beach Play Area</button>
+      {beachGamesOpen && <BeachPlayArea nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} onClose={() => setBeachGamesOpen(false)} />}
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} nighttime={nighttime} />}
     </div>
