@@ -476,12 +476,16 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
               <div key={"bubble-" + bounceAttempt} className={`absolute h-16 w-16 rounded-full border-4 border-cyan-200/80 bg-gradient-to-br from-pink-200/60 via-blue-200/30 to-purple-300/70 shadow-lg ${nighttime ? "shadow-yellow-200/60" : ""}`} style={{left: `${shotAnimating ? shotTarget.x : bubbleX}%`, top: `${[66,42,16][(shotAnimating ? shotTarget.height : bubbleHeight) - 1]}%`, transform:"translateX(-50%)", animation:"shoreBubbleFloat 2.8s ease-in-out infinite"}} />
               {bounceAttempt > 0 && lastSuccess && <span key={"pop-" + bounceAttempt} className="absolute text-3xl" style={{left: `${shotTarget.x}%`, top: `${[66,42,16][shotTarget.height - 1]}%`, animation:"shorePop 0.7s ease-out 0.55s both"}}>✨</span>}
             </> : <Image src="/images/Beach-bucket.PNG" alt="" width={110} height={110} unoptimized className="absolute bottom-4 h-28 w-28 object-contain" style={{left: `${[22,52,78][bucketDistance - 1]}%`, transform:"translateX(-50%)"}} />}
-            <Image key={"play-ball-" + bounceAttempt} src={nighttime ? "/images/Firefly_Bouncy_Ball.png" : "/images/Sea_Glass_Bouncy_Ball.png"} alt="" width={100} height={100} unoptimized className="absolute h-20 w-20 object-contain" style={shotAnimating ? {
-              ["--target-x" as string]: `${shotTarget.x}%`,
-              ["--target-bottom" as string]: activity === "bucket" ? "46px" : `${Math.round((1 - [66,42,16][shotTarget.height - 1] / 100) * 256 - 12)}px`,
-              ["--end-opacity" as string]: shotTarget.success ? "0" : "1",
-              animation:"shoreShot 0.8s ease-in-out both"
-            } : {left:"22%",bottom:"28px",transform:"translateX(-50%)"}} />
+            {shotAnimating ? (
+              <Image key={"shot-" + bounceAttempt} src={nighttime ? "/images/Firefly_Bouncy_Ball.png" : "/images/Sea_Glass_Bouncy_Ball.png"} alt="" width={100} height={100} unoptimized className="absolute h-20 w-20 object-contain" style={{
+                ["--target-x" as string]: `${shotTarget.x}%`,
+                ["--target-bottom" as string]: activity === "bucket" ? "46px" : `${Math.round((1 - [66,42,16][shotTarget.height - 1] / 100) * 256 - 12)}px`,
+                ["--end-opacity" as string]: shotTarget.success ? "0" : "1",
+                animation: "shoreShot 0.8s ease-in-out both"
+              }} />
+            ) : (
+              <Image key="ready-ball" src={nighttime ? "/images/Firefly_Bouncy_Ball.png" : "/images/Sea_Glass_Bouncy_Ball.png"} alt="" width={100} height={100} unoptimized className="absolute h-20 w-20 object-contain" style={{left:"22%",bottom:"28px",transform:"translateX(-50%)",opacity:1,animation:"none"}} />
+            )}
             {activity === "bucket" && bounceAttempt > 0 && lastSuccess && <span className="absolute text-2xl" style={{left: `${shotTarget.x}%`,bottom:"75px",animation:"shorePop 0.7s ease-out 0.6s both"}}>✨</span>}
           </div>
           <p>{activity === "bubbles" ? `Bubbles popped: ${bubbleCount}. A bubble is floating ${["low", "medium", "high"][bubbleHeight - 1]}.` : `Buckets scored: ${bucketScore}. The bucket is at ${["near", "middle", "far"][bucketDistance - 1]} distance.`}</p>
