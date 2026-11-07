@@ -349,11 +349,49 @@ const BEACH_GAME_AUDIO = "/audio/Beach%20games/";
 const beachBounceSounds = ["ball-bounce-1.mp3", "ball-bounce-2.mp3", "ball-bounce-3.mp3", "ball-bounce-soft.mp3"];
 const beachPopSounds = ["Bubble-pop1.mp3", "Bubble-pop2.mp3", "Bubble-pop3.mp3"];
 const beachBucketSounds = ["bucket-success-1.mp3", "bucket-success-2.mp3"];
-function playBeachGameSound(files: string[], volume = 0.45) {
+// Use Web Audio for short game effects: iOS Safari can silence or ignore
+// volume on standalone HTMLAudioElements while the game's music still plays.
+let beachSfxContext: AudioContext | null = null;
+const beachSfxBuffers = new Map<string, AudioBuffer>();
+const beachSfxLoading = new Map<string, Promise<AudioBuffer | null>>();
+function loadBeachSfx(path: string): Promise<AudioBuffer | null> {
+  const cached = beachSfxBuffers.get(path);
+  if (cached) return Promise.resolve(cached);
+  const pending = beachSfxLoading.get(path);
+  if (pending) return pending;
+  const task = (async () => {
+    try {
+      const ctx = beachSfxContext;
+      if (!ctx) return null;
+      const response = await fetch(path);
+      if (!response.ok) throw new Error("Sound not found");
+      const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+      beachSfxBuffers.set(path, buffer);
+      return buffer;
+    } catch { return null; }
+  })();
+  beachSfxLoading.set(path, task);
+  return task;
+}
+function playBeachGameSound(files: string[], volume = 0.65) {
   if (typeof window === "undefined" || files.length === 0) return;
-  const audio = new Audio(BEACH_GAME_AUDIO + files[Math.floor(Math.random() * files.length)]);
-  audio.volume = volume;
-  void audio.play().catch(() => {});
+  try {
+    const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!beachSfxContext) beachSfxContext = new Ctx();
+    const ctx = beachSfxContext!;
+    void ctx.resume().then(async () => {
+      const file = files[Math.floor(Math.random() * files.length)];
+      const buffer = await loadBeachSfx(BEACH_GAME_AUDIO + file);
+      if (!buffer) return;
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      source.buffer = buffer;
+      source.connect(gain).connect(ctx.destination);
+      source.start();
+      source.onended = () => { source.disconnect(); gain.disconnect(); };
+    }).catch(() => {});
+  } catch { /* Audio unavailable; gameplay remains usable. */ }
 }
 
 function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[]; onClose: () => void }) {
