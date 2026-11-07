@@ -345,6 +345,17 @@ function BeachBagCard() {
   );
 }
 
+const BEACH_GAME_AUDIO = "/audio/Beach%20games/";
+const beachBounceSounds = ["ball-bounce-1.mp3", "ball-bounce-2.mp3", "ball-bounce-3.mp3", "ball-bounce-soft.mp3"];
+const beachPopSounds = ["Bubble-pop1.mp3", "Bubble-pop2.mp3", "Bubble-pop3.mp3"];
+const beachBucketSounds = ["bucket-success-1.mp3", "bucket-success-2.mp3"];
+function playBeachGameSound(files: string[], volume = 0.45) {
+  if (typeof window === "undefined" || files.length === 0) return;
+  const audio = new Audio(BEACH_GAME_AUDIO + files[Math.floor(Math.random() * files.length)]);
+  audio.volume = volume;
+  void audio.play().catch(() => {});
+}
+
 function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[]; onClose: () => void }) {
   const { setMusicOverride } = useGame();
   const [activity, setActivity] = useState<"volleyball" | "bubbles" | "bucket" | null>(null);
@@ -357,14 +368,16 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
   useEffect(() => { setMusicOverride("beachGames"); return () => setMusicOverride(null); }, [setMusicOverride]);
   useEffect(() => { if (activity) headingRef.current?.focus(); }, [activity]);
   const ballOwned = nighttime ? (inventory["firefly-bouncy-ball"] || 0) > 0 || crafted.includes("firefly-bouncy-ball") : (inventory["sea-glass-bouncy-ball"] || 0) > 0 || crafted.includes("sea-glass-bouncy-ball");
-  const playBubble = () => { /* A dedicated bubble-pop sound can be connected when uploaded. */ };
+  const playBubble = () => playBeachGameSound(beachPopSounds, 0.4);
   const bounceBubble = (height: number) => {
+    playBeachGameSound(beachBounceSounds, 0.4);
     if (height === bubbleHeight) { setBubbleCount(n => n + 1); setMessage("Pop! You reached the floating bubble."); playBubble(); }
     else setMessage("The ball bounced past the bubble. Try another height.");
     setBubbleHeight(Math.floor(Math.random() * 3) + 1);
   };
   const bounceBucket = (distance: number) => {
-    if (distance === bucketDistance) { setBucketScore(n => n + 1); setMessage("Splash! The ball landed in the beach bucket."); }
+    playBeachGameSound(beachBounceSounds, 0.4);
+    if (distance === bucketDistance) { setBucketScore(n => n + 1); setMessage("Splash! The ball landed in the beach bucket."); window.setTimeout(() => playBeachGameSound(beachBucketSounds, 0.55), 180); }
     else setMessage("The ball missed the bucket. Try a different bounce.");
     setBucketDistance(Math.floor(Math.random() * 3) + 1);
   };
@@ -480,6 +493,7 @@ function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean
   const [message, setMessage] = useState("Bounce the ball and see how high it goes!");
   const [animating, setAnimating] = useState(false);
   const bounce = () => {
+    playBeachGameSound(beachBounceSounds, 0.4);
     const next = bounces + 1;
     setBounces(next);
     setAnimating(false);
