@@ -1,5 +1,5 @@
-import MiniHourglass from "./MiniHourglass";
 "use client";
+import MiniHourglass from "./MiniHourglass";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
