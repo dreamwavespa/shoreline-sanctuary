@@ -357,7 +357,7 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
   useEffect(() => { setMusicOverride("beachGames"); return () => setMusicOverride(null); }, [setMusicOverride]);
   useEffect(() => { if (activity) headingRef.current?.focus(); }, [activity]);
   const ballOwned = nighttime ? (inventory["firefly-bouncy-ball"] || 0) > 0 || crafted.includes("firefly-bouncy-ball") : (inventory["sea-glass-bouncy-ball"] || 0) > 0 || crafted.includes("sea-glass-bouncy-ball");
-  const playBubble = () => { const a = new Audio("/audio/freesound_community-victoria-boche-mus152-foley-spices-38546.mp3"); a.volume = 0.25; void a.play().catch(() => {}); };
+  const playBubble = () => { /* A dedicated bubble-pop sound can be connected when uploaded. */ };
   const bounceBubble = (height: number) => {
     if (height === bubbleHeight) { setBubbleCount(n => n + 1); setMessage("Pop! You reached the floating bubble."); playBubble(); }
     else setMessage("The ball bounced past the bubble. Try another height.");
