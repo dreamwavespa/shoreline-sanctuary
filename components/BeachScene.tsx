@@ -396,12 +396,15 @@ function playBeachGameSound(files: string[], volume = 0.65) {
 
 function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: boolean; inventory: Record<string, number>; crafted: string[]; onClose: () => void }) {
   const { setMusicOverride } = useGame();
-  const [activity, setActivity] = useState<"volleyball" | "bubbles" | "bucket" | null>(null);
+  const [activity, setActivity] = useState<"volleyball" | "bubbles" | "bucket" | "free" | null>(null);
   const [bubbleCount, setBubbleCount] = useState(0);
   const [bucketScore, setBucketScore] = useState(0);
   const [bubbleHeight, setBubbleHeight] = useState(1);
   const [bucketDistance, setBucketDistance] = useState(1);
   const [message, setMessage] = useState("");
+  const [bounceAttempt, setBounceAttempt] = useState(0);
+  const [lastSuccess, setLastSuccess] = useState(false);
+  const [bubbleX, setBubbleX] = useState(48);
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => { setMusicOverride("beachGames"); return () => setMusicOverride(null); }, [setMusicOverride]);
   useEffect(() => { if (activity) headingRef.current?.focus(); }, [activity]);
@@ -409,12 +412,17 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
   const playBubble = () => playBeachGameSound(beachPopSounds, 0.4);
   const bounceBubble = (height: number) => {
     playBeachGameSound(beachBounceSounds, 0.52);
+    setBounceAttempt(n => n + 1);
+    setLastSuccess(height === bubbleHeight);
     if (height === bubbleHeight) { setBubbleCount(n => n + 1); setMessage("Pop! You reached the floating bubble."); playBubble(); }
     else setMessage("The ball bounced past the bubble. Try another height.");
     setBubbleHeight(Math.floor(Math.random() * 3) + 1);
+    setBubbleX(20 + Math.floor(Math.random() * 61));
   };
   const bounceBucket = (distance: number) => {
     playBeachGameSound(beachBounceSounds, 0.52);
+    setBounceAttempt(n => n + 1);
+    setLastSuccess(distance === bucketDistance);
     if (distance === bucketDistance) { setBucketScore(n => n + 1); setMessage("Splash! The ball landed in the beach bucket."); window.setTimeout(() => playBeachGameSound(beachBucketSounds, 0.55), 180); }
     else setMessage("The ball missed the bucket. Try a different bounce.");
     setBucketDistance(Math.floor(Math.random() * 3) + 1);
@@ -429,18 +437,27 @@ function BeachPlayArea({ nighttime, inventory, crafted, onClose }: { nighttime: 
         <Image src={versionedImage(nighttime ? "/images/Beach-games-background-night.PNG" : "/images/Beach-games-background-day.PNG")} alt={nighttime ? "Moonlit beach with a volleyball net, glowing bubbles, and a shell-decorated bucket" : "Sunny beach with a volleyball net, iridescent bubbles, and a shell-decorated bucket"} width={1024} height={1536} unoptimized priority className="h-auto w-full" />
         <button type="button" onClick={() => setActivity("volleyball")} aria-label="Play volleyball with Snappy at the net" className="absolute left-[16%] top-[12%] h-[25%] w-[68%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Volleyball court</span></button>
         <button type="button" onClick={() => setActivity("bubbles")} aria-label="Play bubble pop bounce in the floating bubbles" className="absolute left-[25%] top-[39%] h-[25%] w-[64%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Bubble pop bounce</span></button>
+        <button type="button" onClick={() => setActivity("free")} aria-label="Free bounce with the beach ball" className="absolute left-[16%] top-[64%] h-[14%] w-[30%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Free bounce</span></button>
         <button type="button" onClick={() => setActivity("bucket")} aria-label="Play beach bucket bounce with the shell bucket" className="absolute left-[48%] top-[69%] h-[22%] w-[46%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Beach bucket bounce</span></button>
       </div>
-      <p className="p-4 text-sm text-teal-950">Select the volleyball net, floating bubbles, or beach bucket. All areas are accessible with VoiceOver.</p>
+      <p className="p-4 text-sm text-teal-950">Select the volleyball net, floating bubbles, bouncing ball, or beach bucket. All areas are accessible with VoiceOver.</p>
     </div>
     {activity && <div data-beach-ball-game="active" role="dialog" aria-modal="true" aria-labelledby="beach-play-activity" className="fixed inset-0 z-[70] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
       <div className="mx-auto max-w-xl space-y-4 rounded-2xl bg-cyan-50 p-4 shadow-xl">
         <div className="flex items-center justify-between gap-3">
-          <h3 id="beach-play-activity" ref={headingRef} tabIndex={-1} className="text-xl font-bold outline-none">{activity === "volleyball" ? "Beach Volleyball" : activity === "bubbles" ? "Bubble Pop Bounce" : "Beach Bucket Bounce"}</h3>
-          <button type="button" onClick={() => { setActivity(null); setMessage(""); }} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-bold text-white">Back to Play Area</button>
+          <h3 id="beach-play-activity" ref={headingRef} tabIndex={-1} className="text-xl font-bold outline-none">{activity === "volleyball" ? "Beach Volleyball" : activity === "bubbles" ? "Bubble Pop Bounce" : activity === "free" ? "Free Bounce" : "Beach Bucket Bounce"}</h3>
+          <button type="button" onClick={() => { setActivity(null); setMessage(""); setBounceAttempt(0); }} className="min-h-11 rounded-lg bg-teal-900 px-3 py-2 font-bold text-white">Back to Play Area</button>
         </div>
-        {activity === "volleyball" ? <SnappyBeachVolleyball inventory={inventory} crafted={crafted} /> : !ballOwned ? <p>Craft the {nighttime ? "Firefly Bouncy Ball" : "Sea Glass Bouncy Ball"} in the Workshop to unlock this game.</p> : <>
-          <BeachBouncyBall nighttime={nighttime} inventory={inventory} crafted={crafted} />
+        {activity === "volleyball" ? <SnappyBeachVolleyball inventory={inventory} crafted={crafted} /> : !ballOwned ? <p>Craft the {nighttime ? "Firefly Bouncy Ball" : "Sea Glass Bouncy Ball"} in the Workshop to unlock this game.</p> : activity === "free" ? <BeachBouncyBall nighttime={nighttime} inventory={inventory} crafted={crafted} /> : <>
+          <div className={`relative mx-auto h-64 w-full max-w-md overflow-hidden rounded-2xl ${nighttime ? "bg-indigo-950" : "bg-sky-100"}`} aria-hidden="true">
+            <style>{`@keyframes shoreBubbleFloat { 0%,100% {transform:translate(-50%,5px)} 50% {transform:translate(-50%,-15px)} } @keyframes shoreBallJump { 0%,100% {transform:translate(-50%,0)} 50% {transform:translate(-50%,-105px)} } @keyframes shoreBucketJump { 0% {transform:translate(-50%,0)} 55% {transform:translate(30%,-115px)} 100% {transform:translate(135%,12px)} } @keyframes shorePop { 0% {opacity:1;transform:translate(-50%,-50%) scale(1)} 100% {opacity:0;transform:translate(-50%,-50%) scale(1.7)} }`}</style>
+            <div className="absolute inset-x-0 bottom-0 h-9 bg-amber-200/80" />
+            {activity === "bubbles" ? <>
+              <div key={"bubble-" + bounceAttempt} className={`absolute h-16 w-16 rounded-full border-4 border-cyan-200/80 bg-gradient-to-br from-pink-200/60 via-blue-200/30 to-purple-300/70 shadow-lg ${nighttime ? "shadow-yellow-200/60" : ""}`} style={{left: `${bubbleX}%`, top: `${[66,42,16][bubbleHeight - 1]}%`, animation:"shoreBubbleFloat 2.8s ease-in-out infinite"}} />
+              {bounceAttempt > 0 && lastSuccess && <span key={"pop-" + bounceAttempt} className="absolute left-1/2 top-1/3 text-3xl" style={{animation:"shorePop 0.5s ease-out both"}}>✨</span>}
+            </> : <div className="absolute bottom-5 rounded-t-2xl border-4 border-amber-500 bg-cyan-600 p-3 text-center text-4xl shadow-lg" style={{left: `${[12,43,70][bucketDistance - 1]}%`}}>🪣</div>}
+            <Image key={"play-ball-" + bounceAttempt} src={nighttime ? "/images/Firefly_Bouncy_Ball.png" : "/images/Sea_Glass_Bouncy_Ball.png"} alt="" width={100} height={100} unoptimized className="absolute bottom-7 left-[22%] h-20 w-20 object-contain" style={{animation: bounceAttempt ? (activity === "bucket" && lastSuccess ? "shoreBucketJump 0.65s ease-in-out" : "shoreBallJump 0.65s ease-in-out") : undefined, animationFillMode:"both", transform:"translateX(-50%)"}} />
+          </div>
           <p>{activity === "bubbles" ? `Bubbles popped: ${bubbleCount}. A bubble is floating ${["low", "medium", "high"][bubbleHeight - 1]}.` : `Buckets scored: ${bucketScore}. The bucket is at ${["near", "middle", "far"][bucketDistance - 1]} distance.`}</p>
           <div className="grid grid-cols-3 gap-2">
             {["Low", "Medium", "High"].map((label, i) => <button key={label} type="button" onClick={() => activity === "bubbles" ? bounceBubble(i + 1) : bounceBucket(i + 1)} className="min-h-11 rounded-lg bg-teal-800 p-2 font-bold text-white">{activity === "bubbles" ? label + " Bounce" : ["Gentle", "Medium", "Big"][i] + " Bounce"}</button>)}
