@@ -191,7 +191,8 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                     </g>
                     <path className="hourglass-stream" d="M112 137 L112 159" stroke="#e7b456" strokeWidth="2.3" strokeLinecap="round" strokeDasharray="3 2" />
                     <path d="M79 77 Q82 99 108 134 M145 77 Q142 99 116 134 M108 155 Q82 191 79 213 M116 155 Q142 191 145 213" fill="none" stroke="#8bd4df" strokeWidth="1.3" opacity=".65" />
-                  </svg>                </div>
+                  </svg>}
+                </div>
               </div>
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
               <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
