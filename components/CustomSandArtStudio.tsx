@@ -175,20 +175,23 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                   <Image src="/images/Hourglass/hourglass-restored.png" alt="" fill unoptimized sizes="224px" className="object-contain" />
                   {hourglassFlippedAt && <svg aria-hidden="true" viewBox="0 0 224 288" className="pointer-events-none absolute inset-0 h-full w-full">
                     <defs>
-                      <clipPath id="hourglass-upper-clip"><path d="M79 62 Q112 54 145 62 L121 131 Q112 145 103 131 Z" /></clipPath>
-                      <clipPath id="hourglass-lower-clip"><path d="M103 155 Q112 141 121 155 L145 222 Q112 231 79 222 Z" /></clipPath>
+                      <clipPath id="hourglass-upper-sand-mask">
+                        <path d="M77 76 C76 66 89 59 112 59 C135 59 148 66 147 76 C145 94 126 119 117 134 Q112 140 107 134 C98 119 79 94 77 76 Z" />
+                      </clipPath>
+                      <clipPath id="hourglass-lower-sand-mask">
+                        <path d="M107 153 Q112 147 117 153 C126 169 145 193 147 214 C148 228 76 228 77 214 C79 193 98 169 107 153 Z" />
+                      </clipPath>
                     </defs>
                     <g className="hourglass-sand-flow">
-                      <g clipPath="url(#hourglass-upper-clip)">
-                        <rect x="75" y="57" width="74" height="85" fill="#e9b95b" opacity=".72" className="hourglass-upper-sand" />
+                      <g clipPath="url(#hourglass-upper-sand-mask)">
+                        <path d="M72 82 Q112 75 152 82 L152 144 L72 144 Z" fill="#f7d889" opacity=".26" className="hourglass-upper-mound" />
                       </g>
-                      <path d="M112 137 L112 159" stroke="#f7d57e" strokeWidth="2.5" strokeLinecap="round" className="hourglass-sand-stream" />
-                      <g clipPath="url(#hourglass-lower-clip)">
-                        <rect x="75" y="230" width="74" height="0" fill="#e9b95b" opacity=".78" className="hourglass-lower-sand" />
+                      <path d="M112 139 Q111 148 112 156" stroke="#f8dc96" strokeWidth="1.3" strokeLinecap="round" strokeDasharray="2 1.5" className="hourglass-sand-stream" />
+                      <g clipPath="url(#hourglass-lower-sand-mask)">
+                        <path d="M77 227 L147 227 L147 215 Q129 213 112 203 Q95 213 77 215 Z" fill="#f4c96b" opacity=".36" className="hourglass-lower-mound" />
                       </g>
                     </g>
-                  </svg>}
-                </div>
+                  </svg>}                </div>
               </div>
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
               <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
@@ -196,14 +199,14 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
               <style>{`
                 @keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }
                 @keyframes hourglass-turn { 0% { transform: rotate(0deg); } 48% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
-                @keyframes hourglass-upper-empty { from { transform: translateY(0); } to { transform: translateY(85px); } }
-                @keyframes hourglass-lower-fill { from { height: 0; y: 230px; } to { height: 85px; y: 145px; } }
+                @keyframes hourglass-upper-empty { from { transform: translateY(0); opacity: .26; } to { transform: translateY(55px); opacity: 0; } }
+                @keyframes hourglass-lower-fill { from { transform: translateY(26px) scaleY(.25); opacity: 0; } to { transform: translateY(0) scaleY(1); opacity: .36; } }
                 @keyframes hourglass-stream { 0%, 99% { opacity: 1; } 100% { opacity: 0; } }
                 .hourglass-turn { animation: hourglass-turn 1.2s ease-in-out both; }
                 .hourglass-sand-flow { opacity: 0; animation: hourglass-appear 0s 1.2s forwards; }
                 @keyframes hourglass-appear { to { opacity: 1; } }
-                .hourglass-upper-sand { animation: hourglass-upper-empty 60s 1.2s linear forwards; }
-                .hourglass-lower-sand { animation: hourglass-lower-fill 60s 1.2s linear forwards; }
+                .hourglass-upper-mound { animation: hourglass-upper-empty 60s 1.2s linear forwards; }
+                .hourglass-lower-mound { transform-origin: 112px 227px; animation: hourglass-lower-fill 60s 1.2s linear forwards; }
                 .hourglass-sand-stream { animation: hourglass-stream 60s 1.2s linear forwards; }
                 @media (prefers-reduced-motion: reduce) { .hourglass-turn { animation: none; } }
               `}</style>
