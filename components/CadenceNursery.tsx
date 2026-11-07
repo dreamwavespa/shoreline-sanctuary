@@ -244,6 +244,8 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
   const [lullaby, setLullaby] = useState<(typeof LULLABIES)[number]>("cadence1");
   const [activeActivity, setActiveActivity] = useState<string | null>(null);
   const [night, setNight] = useState(false);
+  const [rockCount, setRockCount] = useState(0);
+  const [pianoNote, setPianoNote] = useState<string | null>(null);
   const sceneButtonRef = useRef<HTMLButtonElement | null>(null);
   const activityHeadingRef = useRef<HTMLHeadingElement | null>(null);
   useEffect(() => {
@@ -291,6 +293,23 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
 
   const announce = (text: string) => setMessage(text);
   const playLocal = (src: string, level = .7) => { const audio = new Audio(src); audio.volume = Math.max(0, Math.min(1, state.audio.master * level)); void audio.play().catch(() => undefined); };
+  const playShellNote = (frequency: number, name: string) => {
+    try {
+      const AudioContextClass = window.AudioContext;
+      const context = new AudioContextClass();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, Math.min(0.18, state.audio.master * 0.15)), context.currentTime + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.8);
+      oscillator.connect(gain); gain.connect(context.destination);
+      oscillator.start(); oscillator.stop(context.currentTime + 0.82);
+      oscillator.onended = () => { void context.close(); };
+    } catch { /* Audio may be unavailable until the browser permits playback. */ }
+    setPianoNote(name);
+  };
   const playPiano = () => { playLocal(PIANO[Math.floor(Math.random() * PIANO.length)], .72); play("babyLaugh", .28); announce("You play sparkling notes on the shell piano. Cadence giggles and joins the duet while the nursery lullaby continues underneath."); };
   const discover = (item: typeof DISCOVERIES[number]) => { if (discovered.includes(item.id) || (state.inventory[item.id] ?? 0) > 0) { announce(`${item.name} is already tucked safely into Cadence's driftwood toy chest.`); return; } collectItem(item.id, { silent: true }); setDiscovered(old => [...old, item.id]); play(item.sound, .58); play("toyBoxClose", .25); announce(`Discovered ${item.name}. It has been placed in Cadence's driftwood toy chest.`); };
   const make = (recipe: typeof RECIPES[number]) => {
@@ -338,7 +357,15 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
       <button type="button" onClick={closeActivity} className="mb-3 rounded-xl bg-white px-4 py-3 font-bold text-rose-900">Back to Nursery</button>
       <h2 tabIndex={-1} ref={activityHeadingRef} className="mb-3 text-xl font-bold text-white">{activityNames[activeActivity] || "Nursery Activity"}</h2>
       {activeActivity !== "toys" && ["blocks","rings","ball","rattle","discoveries"].includes(activeActivity) && <button type="button" onClick={()=>setActiveActivity("toys")} className="mb-3 rounded-lg bg-white px-4 py-2 font-bold text-rose-900">Back to Toy Chest</button>}
-      {activeActivity === "piano" && <button type="button" onClick={playPiano} className="w-full rounded-xl bg-white p-5 font-bold text-rose-900">Play Shell Piano Duet</button>}
+      {activeActivity === "piano" && <section className="rounded-2xl bg-white/95 p-3 shadow" aria-label="Miniature shell piano">
+        <Image src="/images/Nursery/Nursery-piano.PNG" alt="Pastel seashell piano with pearl-trimmed stool and colorful keys in Cadence's nursery." width={1024} height={1024} unoptimized className="h-auto w-full rounded-xl" />
+        <p className="mt-3 text-sm text-rose-900">Play individual notes on the shell piano, or enjoy a duet with Cadence. All keys are accessible buttons.</p>
+        <div className="mt-3 grid grid-cols-4 gap-2" role="group" aria-label="Shell piano notes">
+          {([{name:"C",frequency:261.63},{name:"D",frequency:293.66},{name:"E",frequency:329.63},{name:"F",frequency:349.23},{name:"G",frequency:392},{name:"A",frequency:440},{name:"B",frequency:493.88},{name:"High C",frequency:523.25}]).map((note,i) => <button key={note.name} type="button" onClick={() => playShellNote(note.frequency,note.name)} aria-label={`Play ${note.name} note`} className={`min-h-14 rounded-xl border-2 border-rose-200 p-3 font-bold text-rose-950 active:scale-95 ${["bg-pink-100","bg-orange-100","bg-yellow-100","bg-teal-100","bg-sky-100","bg-purple-100","bg-pink-100","bg-cyan-100"][i]}`}>{note.name}</button>)}
+        </div>
+        <p className="mt-2 text-sm text-rose-900" role="status" aria-live="off">{pianoNote ? `Last note: ${pianoNote}` : "Choose a note to begin."}</p>
+        <button type="button" onClick={playPiano} className="mt-3 w-full min-h-12 rounded-xl bg-violet-100 p-4 font-bold text-rose-900">Play Shell Piano Duet</button>
+      </section>}
       {activeActivity === "ball" && <button type="button" onClick={() => {play("beachBall", .6);play("babyLaugh", .3);announce("You roll the beach ball across the rug. Cadence splashes her tail and rolls it back.");}} className="w-full rounded-xl bg-white p-5 font-bold text-rose-900">Roll Beach Ball to Cadence</button>}
       {activeActivity === "rattle" && <button type="button" onClick={() => {play("babyRattle", .55);play("babyLaugh", .22);announce("The shimmering seashell rattle jingles. Cadence reaches for it and laughs.");}} className="w-full rounded-xl bg-white p-5 font-bold text-rose-900">Shake Seashell Rattle</button>}
       {["ball","rattle","piano"].includes(activeActivity) && <p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white p-3 text-rose-900">{message}</p>}
@@ -359,14 +386,31 @@ export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: ()
     {activeActivity && <main className="mx-auto max-w-2xl space-y-4 p-4 pb-24">
       <div aria-live="polite" role="status" className="rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-900">{message}</div>
       {keepsakeUnlocked ? <section style={{display: activeActivity === "keepsakes" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-keepsakes"><p className="text-[11px] font-bold uppercase tracking-wide text-amber-800">Quest Reward Unlocked</p><h2 id="cadence-keepsakes" className="font-serif text-lg font-bold text-rose-900">🧰 Cadence's Keepsake Chest</h2><p className="mt-1 text-sm text-slate-700">Ducky is safely home for bedtime. Cadence's special heirlooms are now on display.</p><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={() => { play("babySpoon", .5); announce("You lift Cadence's engraved silver baby spoon. Its handle is decorated with a delicate wave motif."); }} className="rounded-xl bg-white p-3 text-left ring-1 ring-amber-200"><span className="block text-2xl" aria-hidden="true">🥄</span><strong className="block">Engraved Silver Baby Spoon</strong><span className="text-xs text-slate-600">An antique ship relic polished by Kaiana.</span></button><button type="button" onClick={() => { play("babyRattle", .6); play("babyLaugh", .2); announce("The Golden Pearl Rattle gives a delicate crystalline chime. Cadence beams at the sound."); }} className="rounded-xl bg-white p-3 text-left ring-1 ring-amber-200"><span className="block text-2xl" aria-hidden="true">✨</span><strong className="block">Golden Pearl Rattle</strong><span className="text-xs text-slate-600">A golden keepsake inlaid with tiny pink pearls.</span></button></div></section> : <section style={{display: activeActivity === "keepsakes" ? undefined : "none"}} className="rounded-2xl bg-white/90 p-4 shadow ring-1 ring-slate-300"><h2 className="font-serif text-lg font-bold text-slate-800">🔒 Keepsake Chest</h2><p className="mt-1 text-sm text-slate-600">Cadence's keepsake chest will open after her lost yellow Ducky is rescued through The Great Rubber Ducky Voyage.</p></section>}
-      <section style={{display: activeActivity === "music" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-music"><h2 id="cadence-music" className="font-serif text-lg font-bold text-rose-900">Nursery Lullabies</h2><p className="mt-1 text-sm">Choose one of Cadence's three background lullabies.</p><div className="mt-3 grid grid-cols-3 gap-2">{LULLABIES.map((key, i) => <button key={key} type="button" aria-pressed={lullaby === key} onClick={() => { setLullaby(key); announce(`Lullaby ${i + 1} is now playing.`); }} className="rounded-xl bg-violet-100 p-3 font-semibold">Lullaby {i + 1}{lullaby === key ? " • Playing" : ""}</button>)}</div></section>
+      <section style={{display: activeActivity === "music" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-music">
+        <h2 id="cadence-music" className="font-serif text-lg font-bold text-rose-900">Nursery Lullabies</h2>
+        <Image src="/images/Nursery/Nursery-lullaby-corner.PNG" alt="Cozy nursery lullaby corner with a glowing seashell music box, gently hanging shell mobile, and rocking chair." width={1024} height={1024} unoptimized className="mt-3 h-auto w-full rounded-xl" />
+        <p className="mt-3 text-sm">Choose one of Cadence's three background lullabies. The seashell music box plays your selection while you spend time in the nursery.</p>
+        <div className="mt-3 grid grid-cols-3 gap-2">{LULLABIES.map((key, i) => <button key={key} type="button" aria-pressed={lullaby === key} onClick={() => { setLullaby(key); announce(`Lullaby ${i + 1} is now playing.`); }} className="min-h-12 rounded-xl bg-violet-100 p-3 font-semibold">Lullaby {i + 1}{lullaby === key ? " • Playing" : ""}</button>)}</div>
+      </section>
       <section style={{display: activeActivity === "feeding" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-feeding"><h2 id="cadence-feeding" className="font-serif text-lg font-bold text-rose-900">Cadence's Snack Time</h2><p className="mt-1 text-sm text-slate-700">Prepare baby foods in the Kitchen, then bring them here for Cadence. Each feeding uses one serving.</p>{state.notebookDiscovered["kitchen-reward:baby"] && <div className="mt-3 rounded-xl bg-rose-50 p-3 ring-1 ring-rose-200">
         <h3 className="font-semibold text-rose-900">Seashell Baby Bottle</h3>
         {onGoToKitchen && <button type="button" onClick={onGoToKitchen} className="mt-2 min-h-11 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white">Go to Kitchen to Fill Bottle</button>}
         <p className="mt-1 text-sm">{state.notebookDiscovered["kitchen-bottle:rose"] ? "Filled with Warm Rose Milk" : state.notebookDiscovered["kitchen-bottle:berry"] ? "Filled with Berry Juice" : state.notebookDiscovered["kitchen-bottle:orange"] ? "Filled with Fresh Orange Juice" : state.notebookDiscovered["kitchen-bottle:water"] ? "Filled with Fresh Water" : "Empty — fill the bottle in the kitchen"}</p>
         <button type="button" disabled={!state.notebookDiscovered["kitchen-bottle:rose"] && !state.notebookDiscovered["kitchen-bottle:berry"] && !state.notebookDiscovered["kitchen-bottle:water"] && !state.notebookDiscovered["kitchen-bottle:orange"]} onClick={feedBottle} className="mt-2 min-h-11 rounded-lg bg-rose-800 px-4 py-2 font-bold text-white disabled:opacity-50">Offer Filled Bottle to Cadence</button>
       </div>}<div className="mt-3 grid gap-2 sm:grid-cols-2">{BABY_FOODS.map(food => { const count = state.inventory[food.id] ?? 0; return <button key={food.id} type="button" onClick={() => feed(food)} aria-label={`${food.name}. ${count} servings ready.`} className="rounded-xl border border-pink-200 bg-pink-50 p-3 text-left"><span className="text-2xl" aria-hidden="true">{food.icon}</span><strong className="ml-2">{food.name}</strong><span className="mt-1 block text-xs text-slate-700">Servings ready: {count}</span><span className="mt-2 block text-sm font-semibold text-rose-800">{count > 0 ? "Feed Cadence" : "Cook in Kitchen first"}</span></button>; })}</div></section>
-      <section style={{display: activeActivity === "cradle" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-play"><h2 id="cadence-play" className="font-serif text-lg font-bold text-rose-900">Cadence's Cradle</h2><p className="mt-2 text-sm text-slate-700">Gently rock Cadence in her scallop cradle to help her relax.</p><button type="button" onClick={() => { play("rockingCradle", .55); announce("You gently rock Cadence's scallop cradle. She cuddles her toys and grows sleepy."); }} className="mt-3 w-full rounded-xl bg-violet-100 p-4 font-semibold">Rock the Cradle</button></section>
+      <section style={{display: activeActivity === "cradle" ? undefined : "none"}} className="rounded-2xl bg-white/95 p-4 shadow" aria-labelledby="cadence-play">
+        <h2 id="cadence-play" className="font-serif text-lg font-bold text-rose-900">Cadence's Cradle</h2>
+        <p className="mt-2 text-sm text-slate-700">Gently rock Cadence in her scallop cradle to help her relax.</p>
+        <div className="mt-3 overflow-hidden rounded-xl">
+          <div key={rockCount} className={rockCount ? "cadence-cradle-rock" : ""}>
+            <Image src="/images/Nursery/Nursery-cradle.PNG" alt="Cadence rests in a pink scallop-shell rocking cradle with her plush bunny and soft blankets." width={1536} height={1024} unoptimized className="h-auto w-full" />
+          </div>
+        </div>
+        <button type="button" onClick={() => { setRockCount(count => count + 1); play("rockingCradle", .55); announce("You gently rock Cadence's scallop cradle. She cuddles her toys and grows sleepy."); }} className="mt-3 min-h-12 w-full rounded-xl bg-violet-100 p-4 font-semibold">Rock the Cradle</button>
+        <button type="button" onClick={() => openActivity("music")} className="mt-2 min-h-12 w-full rounded-xl bg-rose-100 p-3 font-semibold">Sing a Lullaby</button>
+        <button type="button" onClick={() => announce("Cadence rests peacefully in her scallop cradle.")} className="mt-2 min-h-12 w-full rounded-xl bg-sky-100 p-3 font-semibold">Let Her Rest</button>
+        <style jsx>{`@keyframes cadence-cradle-sway { 0%,100% { transform: rotate(0deg); } 20% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } 75% { transform: rotate(-1.5deg); } } .cadence-cradle-rock { transform-origin: center 85%; animation: cadence-cradle-sway 2.8s ease-in-out; } @media (prefers-reduced-motion: reduce) { .cadence-cradle-rock { animation: none; } }`}</style>
+      </section>
       <div style={{display:activeActivity === "bath" ? undefined : "none"}}><CadenceBubbleBath owned={(state.inventory["seashell-rubber-duck"] || 0) > 0 || state.crafted.includes("seashell-rubber-duck")} onSound={(sound) => { if (sound === "squeak") { const audio = new Audio("/audio/Rubber-ducky-squeak.mp3"); audio.volume = Math.max(0, Math.min(1, state.audio.master * 0.75)); void audio.play().catch(() => undefined); play("babyLaugh", .18); } else if (sound === "laugh") play("babyLaugh", .4); else play("oceanWaterSplash", .18); }} />
       </div><div style={{display:activeActivity === "rings" ? undefined : "none"}}><CadenceBuoyRings owned={(state.inventory["buoy-stacking-rings"] || 0) > 0 || state.crafted.includes("buoy-stacking-rings")} onCelebrate={() => { play("babyLaugh", .4); }} />
       </div><div style={{display:activeActivity === "blocks" ? undefined : "none"}}><CadenceBlocks inventory={state.inventory} master={state.audio.master} onDailyReward={() => collectItem("shell-sanddollar", { silent: true })} onGift={(itemId) => { if (!giveCadenceBlocks(itemId)) return; play("babyLaugh", .3); announce("Cadence receives her seaside blocks and invites you to play."); }} />
