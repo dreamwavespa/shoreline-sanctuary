@@ -170,11 +170,43 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
           {hourglassUnlocked && <section className="rounded-2xl bg-cyan-50 p-4 ring-1 ring-teal-300" aria-labelledby="hourglass-studio-heading">
             <h3 id="hourglass-studio-heading" className="font-serif text-xl font-bold text-teal-950">Sands of Time Hourglass</h3>
             {hourglassMade ? <>
-              <Image src="/images/Hourglass/hourglass-restored.png" alt="Restored coastal hourglass with shells, driftwood and colorful sand" width={240} height={280} unoptimized className="mx-auto h-56 w-48 object-contain" />
+              <div className="relative mx-auto h-72 w-56" role="img" aria-label="Restored coastal hourglass. When flipped, golden sand falls from the upper chamber into the lower chamber over one minute.">
+                <div key={hourglassFlippedAt ?? "resting"} className={hourglassFlippedAt ? "hourglass-turn relative h-full w-full" : "relative h-full w-full"}>
+                  <Image src="/images/Hourglass/hourglass-restored.png" alt="" fill unoptimized sizes="224px" className="object-contain" />
+                  {hourglassFlippedAt && <svg aria-hidden="true" viewBox="0 0 224 288" className="pointer-events-none absolute inset-0 h-full w-full">
+                    <defs>
+                      <clipPath id="hourglass-upper-clip"><path d="M79 62 Q112 54 145 62 L121 131 Q112 145 103 131 Z" /></clipPath>
+                      <clipPath id="hourglass-lower-clip"><path d="M103 155 Q112 141 121 155 L145 222 Q112 231 79 222 Z" /></clipPath>
+                    </defs>
+                    <g className="hourglass-sand-flow">
+                      <g clipPath="url(#hourglass-upper-clip)">
+                        <rect x="75" y="57" width="74" height="85" fill="#e9b95b" opacity=".72" className="hourglass-upper-sand" />
+                      </g>
+                      <path d="M112 137 L112 159" stroke="#f7d57e" strokeWidth="2.5" strokeLinecap="round" className="hourglass-sand-stream" />
+                      <g clipPath="url(#hourglass-lower-clip)">
+                        <rect x="75" y="230" width="74" height="0" fill="#e9b95b" opacity=".78" className="hourglass-lower-sand" />
+                      </g>
+                    </g>
+                  </svg>}
+                </div>
+              </div>
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
               <button type="button" onClick={() => { setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
               {hourglassFlippedAt && <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-teal-200"><div key={hourglassFlippedAt} className="h-full w-full origin-left bg-amber-500" style={{ animation: "hourglass-flow 60s linear forwards" }} /></div>}
-              <style>{`@keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }`}</style>
+              <style>{`
+                @keyframes hourglass-flow { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+                @keyframes hourglass-turn { 0% { transform: rotate(0deg); } 48% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+                @keyframes hourglass-upper-empty { from { transform: translateY(0); } to { transform: translateY(85px); } }
+                @keyframes hourglass-lower-fill { from { height: 0; y: 230px; } to { height: 85px; y: 145px; } }
+                @keyframes hourglass-stream { 0%, 99% { opacity: 1; } 100% { opacity: 0; } }
+                .hourglass-turn { animation: hourglass-turn 1.2s ease-in-out both; }
+                .hourglass-sand-flow { opacity: 0; animation: hourglass-appear 0s 1.2s forwards; }
+                @keyframes hourglass-appear { to { opacity: 1; } }
+                .hourglass-upper-sand { animation: hourglass-upper-empty 60s 1.2s linear forwards; }
+                .hourglass-lower-sand { animation: hourglass-lower-fill 60s 1.2s linear forwards; }
+                .hourglass-sand-stream { animation: hourglass-stream 60s 1.2s linear forwards; }
+                @media (prefers-reduced-motion: reduce) { .hourglass-turn { animation: none; } }
+              `}</style>
             </> : <>
               <p className="text-teal-900">{hourglassIds.filter(id => (state.inventory[id] || 0) > 0).length} of 5 pieces collected. Find missing pieces in the Tide Pool.</p>
               <button type="button" disabled={!canRestoreHourglass} onClick={() => { if (craft("hourglass-restored", hourglassIds.map(itemId => ({ itemId, count: 1 })))) { setHourglassMessage("Hourglass restored! You can now flip it."); play("sparkle"); } }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white disabled:bg-slate-400">Restore Hourglass</button>
