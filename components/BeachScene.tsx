@@ -354,12 +354,24 @@ function SnappyBeachVolleyball({ inventory, crafted }: { inventory: Record<strin
   const [message, setMessage] = useState("Choose a game mode, then start a friendly rally with Snappy.");
   const [ballSide, setBallSide] = useState<"player" | "snappy">("player");
   const [completed, setCompleted] = useState(false);
+  const lastHitSound = useRef(0);
+  const playVolleyballSound = (kind: "serve" | "hit") => {
+    const files = kind === "serve"
+      ? ["/audio/clean-volleyball-serve-01.mp3", "/audio/clean-volleyball-serve-03.mp3"]
+      : ["/audio/clean-volleyball-hit-02.mp3", "/audio/clean-volleyball-hit-03.mp3"];
+    const index = kind === "hit" ? lastHitSound.current++ % files.length : Math.floor(Math.random() * files.length);
+    const sound = new Audio(files[index]);
+    sound.volume = 0.65;
+    void sound.play().catch(() => {});
+  };
   const start = (nextMode: "relaxed" | "challenge") => {
+    playVolleyballSound("serve");
     setMode(nextMode); setRally(0); setCompleted(false); setTarget("high"); setBallSide("player");
     setMessage(nextMode === "relaxed" ? "Relaxed play! Hit the ball to volley with Snappy. Every hit succeeds." : "Challenge play! Snappy sends a high return. Choose High Hit to send it back. Reach 10 successful volleys!");
   };
   const hit = (choice: "high" | "low") => {
     if (completed) return;
+    playVolleyballSound("hit");
     if (mode === "challenge" && choice !== target) {
       setBest(Math.max(best, rally));
       setRally(0); setBallSide("player"); setTarget("high");
