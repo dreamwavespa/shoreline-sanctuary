@@ -1,3 +1,4 @@
+import MiniHourglass from "./MiniHourglass";
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
@@ -696,7 +697,8 @@ function CookCard({ recipe }: { recipe: (typeof KITCHEN_RECIPES)[number] }) {
       </ul>
       {usesWater && <p className="mt-2 text-sm text-teal-900">{useFreshWater ? "Using renewable Fresh Water Serving; your Pure Water Vials are saved." : state.notebookDiscovered["kitchen-reward:water-bottle"] ? "No Fresh Water Servings available. This recipe can still use a Pure Water Vial, or collect fresh water from the kitchen bottle." : "Before unlocking the Fresh Water Bottle, this recipe uses a Pure Water Vial."}</p>}
 
-      {recipe.id === "luminous-orange-jello" && <p role="status" className="mt-3 font-semibold text-teal-950">{jelloPending ? jelloRemaining > 0 ? `Jello chilling in refrigerator: ${Math.floor(jelloRemaining / 60)} minutes ${jelloRemaining % 60} seconds remaining.` : "Jello has set! Collect it from the refrigerator." : "Prepare the jello, then chill it in the refrigerator for 15 minutes. The timer continues when you leave the kitchen."}</p>}
+      {recipe.id === "luminous-orange-jello" && jelloPending && jelloRemaining > 0 && <MiniHourglass readyAt={state.jelloReadyAt} label="Jello chilling" />}
+       {recipe.id === "luminous-orange-jello" && <p role="status" className="mt-3 font-semibold text-teal-950">{jelloPending ? jelloRemaining > 0 ? `Jello chilling in refrigerator: ${Math.floor(jelloRemaining / 60)} minutes ${jelloRemaining % 60} seconds remaining.` : "Jello has set! Collect it from the refrigerator." : "Prepare the jello, then chill it in the refrigerator for 15 minutes. The timer continues when you leave the kitchen."}</p>}
       {recipe.id === "breakfast-bowl" && <label className="mt-3 flex items-center gap-2 text-sm text-teal-950"><input type="checkbox" checked={addParsley} onChange={e => setAddParsley(e.target.checked)} disabled={(state.inventory["sea-parsley"] || 0) < 1} /> Add optional Sea Parsley garnish ({state.inventory["sea-parsley"] || 0} available)</label>}
       <button
         type="button"
