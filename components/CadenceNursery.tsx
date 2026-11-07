@@ -237,7 +237,7 @@ function CadenceBubbleBath({ owned, onSound }: { owned: boolean; onSound: (sound
 }
 
 export default function CadenceNursery({ onClose, onGoToKitchen }: { onClose: () => void; onGoToKitchen?: () => void }) {
-  const { state, craft, feedCadenceFood, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
+  const { state, craft, cook, feedCadenceFood, giveCadenceBlocks, play, collectItem, setMusicOverride, useBabyBottle } = useGame();
   const [message, setMessage] = useState("Cadence splashes her tiny tail and smiles when you enter.");
   const [discovered, setDiscovered] = useState<string[]>([]);
   const [expandedRecipes, setExpandedRecipes] = useState<string[]>([]);
