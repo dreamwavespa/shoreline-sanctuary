@@ -1,3 +1,4 @@
+import MiniHourglass from "./MiniHourglass";
 "use client";
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
@@ -316,6 +317,7 @@ export default function PotteryStudio() {
         <h4 className="font-bold">{piece?.name || job.piece}</h4>
         {job.glaze && <p className="text-sm">Applied glaze: {glazeName(job.glaze)}</p>}
         <p aria-live="off">{readyCollect ? "Ready to collect" : readyGlaze ? "Dry and ready for glazing" : job.stage === "drying" ? "Drying: " + duration(job.readyAt - now) : "Kiln firing: " + duration(job.readyAt - now)}</p>
+         {(job.stage === "drying" || job.stage === "firing") && now < job.readyAt && <MiniHourglass readyAt={job.readyAt} label={job.stage === "drying" ? "Pottery drying" : "Kiln firing"} />}
         {readyGlaze && <div className="mt-2 space-y-2"><label className="block text-sm font-semibold" htmlFor={"glaze-"+job.id}>Choose glaze</label>
           <select id={"glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={glazeChoice[job.id] || GLAZES[0].id} onChange={e => setGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select>
           {coastalDone && porcelainDone && <><label className="block text-sm font-semibold" htmlFor={"second-glaze-"+job.id}>Second glaze (optional — Artisan's Palette)</label><select id={"second-glaze-"+job.id} className="min-h-11 rounded-lg border p-2" value={secondGlazeChoice[job.id] || ""} onChange={e => setSecondGlazeChoice(prev => ({...prev, [job.id]: e.target.value}))}><option value="">No second glaze</option>{GLAZES.map(g => <option key={g.id} value={g.id}>{g.name} ({state.inventory[g.id] || 0} available)</option>)}</select><p className="text-xs">Mixing uses one portion of each glaze. Known specialty combinations are named when collected. Other mixes retain both color names. Mixed pieces currently use their base artwork and inventory item.</p></>}
