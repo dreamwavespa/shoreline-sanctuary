@@ -35,7 +35,25 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "sofa-pillow-left", name: "Sofa, left pillow", x: 68, y: 58 },
     { id: "sofa-pillow-right", name: "Sofa, right pillow", x: 84, y: 59 },
     { id: "shell-chair", name: "Seashell chair corner", x: 43, y: 79 },
+    { id: "patio-fountain", name: "Patio fountain space", x: 48, y: 73 },
+    { id: "patio-chair-left", name: "Patio beach chair, left", x: 26, y: 79 },
+    { id: "patio-chair-right", name: "Patio beach chair, right", x: 73, y: 79 },
+    { id: "patio-table", name: "Patio table", x: 83, y: 66 },
+    { id: "patio-planter", name: "Patio flower display", x: 57, y: 57 },
+    { id: "patio-lantern", name: "Patio lantern", x: 91, y: 47 },
+    { id: "patio-chime", name: "Patio wind chime", x: 78, y: 20 },
   ];
+  const isPatioSlot = (id: string) => id.startsWith("patio-");
+  const activeSlots = slots.filter(slot => area === "patio" ? isPatioSlot(slot.id) : !isPatioSlot(slot.id));
+  const patioMatches = (slot: string, id: string) => {
+    const name = id + " " + (ITEMS[id]?.name || "");
+    if (slot === "patio-fountain") return /fountain/i.test(name);
+    if (slot.startsWith("patio-chair")) return /beach.chair/i.test(name);
+    if (slot === "patio-chime") return /wind.chime/i.test(name);
+    if (slot === "patio-lantern") return /lantern/i.test(name);
+    if (slot === "patio-planter") return /flower|bouquet|plant|vase/i.test(name);
+    return true;
+  };
   const isWallSlot = (id: string) => id.startsWith("wall");
   const isPillowSlot = (id: string) => id.startsWith("sofa-pillow");
   const isChairSlot = (id: string) => id === "shell-chair";
@@ -52,6 +70,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
   const place = (id: string) => {
     if (!selectedSlot) return;
+    if (isPatioSlot(selectedSlot) && !patioMatches(selectedSlot, id)) { setAnnouncement("Choose a suitable patio decoration for this position."); return; }
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or cushion for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
@@ -70,7 +89,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!selectedSlot || !placements[selectedSlot]) return;
     const index = slots.findIndex(s => s.id === selectedSlot);
     const nextSlot = slots[index + direction];
-    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id)) return;
+    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id) || (isPatioSlot(selectedSlot) && !patioMatches(nextSlot.id, placements[selectedSlot]))) ) return;
     const next = { ...placements };
     const current = next[selectedSlot], other = next[nextSlot.id];
     next[nextSlot.id] = current;
@@ -110,10 +129,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
         <div className="relative mx-auto w-full max-w-[430px] overflow-hidden rounded-xl" style={{ aspectRatio: "3 / 4" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 430px" className="object-contain" />
-          {area === "inside" && slots.map(slot => {
+          {activeSlots.map(slot => {
             const id = placements[slot.id];
             const item = id && ITEMS[id];
-            return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - (isWallSlot(slot.id) ? 7 : 5)}%`, top: `${slot.y - (isWallSlot(slot.id) ? 6 : 5)}%`, width: isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : isTableSlot(slot.id) ? "11%" : "10%", height: isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
+            return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - (isWallSlot(slot.id) ? 7 : 5)}%`, top: `${slot.y - (isWallSlot(slot.id) ? 6 : 5)}%`, width: slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : isTableSlot(slot.id) ? "11%" : "10%", height: slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
               {item && <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}
               <span className="sr-only">{slot.name}</span>
             </button>;
@@ -132,8 +151,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" && <button type="button" onClick={() => setFireOn(v => !v)} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-4 py-2 font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
         {area === "inside" && <p role="status" className="mt-2 text-sm text-teal-950">Fireplace {fireOn ? "on" : "off"} (visual fire remains part of the background).</p>}
-        {area === "inside" && <button type="button" onClick={() => openDecoration("shelf1-left")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">Decorate Your Hut</button>}
-        {selectedSlot && area === "inside" && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
+        <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
+        {selectedSlot && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
           <p className="text-sm">Current: {placements[selectedSlot] && ITEMS[placements[selectedSlot]] ? ITEMS[placements[selectedSlot]].name : "Empty"}</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -143,10 +162,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             <button type="button" onClick={() => setSelectedSlot(null)} className="min-h-11 rounded-lg bg-teal-900 px-3 text-white">Done</button>
           </div>
           <label htmlFor="hut-slot" className="mt-3 block font-semibold">Display position</label>
-          <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{slots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
+          <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{activeSlots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
-            {ownedDecor.length === 0 ? <p>No decorations in inventory yet.</p> : ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : true).map(([id, count]) => <button key={id} type="button" onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">{ITEMS[id].name} (owned: {count})</button>)}
+            {ownedDecor.length === 0 ? <p>No decorations in inventory yet.</p> : ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : isPatioSlot(selectedSlot) ? patioMatches(selectedSlot, id) : true).map(([id, count]) => <button key={id} type="button" onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">{ITEMS[id].name} (owned: {count})</button>)}
           </div>
           <p role="status" aria-live="polite" className="mt-2 text-sm">{announcement}</p>
         </section>}
