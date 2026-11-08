@@ -22,7 +22,7 @@ function EntranceIcon({ name }: { name: EntranceIconName }) { const frame = ENTR
 const entranceButton = 'flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-amber-200 bg-slate-900 p-3 text-center text-base font-semibold text-amber-50 shadow hover:bg-slate-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-teal-500';
 export function OffshoreEntry({ kind, onMusicChange, sceneOpen, onSceneClose }: { kind: 'lab' | 'dock'; onMusicChange?: (track: string | null) => void; sceneOpen?: boolean; onSceneClose?: () => void }) {
   const { play } = useGame(); const [open, setOpen] = useState(false); const trigger = useRef<HTMLButtonElement>(null);
-  if (sceneOpen !== undefined) return sceneOpen ? <section className="mx-auto max-w-[780px] px-4 py-4" aria-label={kind === "lab" ? "Waverly Marine Lab" : "Cove Dock activities"}><OffshorePanel kind={kind} onMusicChange={onMusicChange} onClose={() => onSceneClose?.()} /></section> : null;
+  if (sceneOpen !== undefined) return sceneOpen ? <section className={kind === "lab" ? "w-full min-w-0 max-w-full overflow-x-hidden p-0" : "mx-auto max-w-[780px] px-4 py-4"} aria-label={kind === "lab" ? "Waverly Marine Lab" : "Cove Dock activities"}><OffshorePanel kind={kind} onMusicChange={onMusicChange} onClose={() => onSceneClose?.()} /></section> : null;
   return <section className={`${card} m-4`}><h2 className="text-xl font-bold">{kind === 'lab' ? 'Waverly’s Marine Research Ship' : 'Cove Dock'}</h2><p>{kind === 'lab' ? 'Visit Waverly, Walter, and the crystal caves beneath the reef.' : 'Seaweed’s pier counter offers wildlife photography and inshore salvage voyages.'}</p><button ref={trigger} type="button" className={`${entranceButton} w-full sm:w-auto sm:min-w-48`} aria-expanded={open} onClick={() => { if (!open && kind === 'dock') play('dockFootsteps'); setOpen(!open); }}><EntranceIcon name={kind} /><span>{open ? (kind === 'lab' ? 'Close the Marine Lab' : 'Return to Cove') : kind === 'lab' ? 'Visit the Marine Lab' : 'Walk to the Dock'}</span></button>{open && <OffshorePanel kind={kind} onMusicChange={onMusicChange} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}</section>;
 }
 function AquariumAmbience() {
@@ -69,8 +69,8 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
     } else setArea('lab');
     setLabSpot(spot);
   };
-  return <div className="space-y-4 border-t border-teal-200 pt-4">
-    {kind === 'lab' && <div className="relative mx-auto max-w-[680px]" aria-label="Waverly's illustrated marine laboratory">
+  return <div className={kind === "lab" ? "w-full min-w-0 max-w-full overflow-x-hidden space-y-2" : "space-y-4 border-t border-teal-200 pt-4"}>
+    {kind === 'lab' && <div className="relative mx-auto w-full min-w-0 max-w-[680px] overflow-hidden" aria-label="Waverly's illustrated marine laboratory">
       <Image src="/images/Reef/Research-lab-background..PNG" alt="Cozy underwater marine lab with research desk, central nursery aquarium, field guide, rare shell shelves, specimen cabinet and crystal cave entrance." width={1024} height={1536} unoptimized className="block h-auto w-full" />
       <div aria-hidden="true" className="pointer-events-none absolute" style={{left:"43%",top:"18%",width:"24%",height:"21%"}}><Image src="/images/Reef/Waverly-portrait.PNG" alt="" width={600} height={850} unoptimized className="h-full w-full object-contain object-bottom drop-shadow-lg" /></div>
       {([
