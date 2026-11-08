@@ -225,6 +225,16 @@ export default function ReefScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
+  const activitiesRef = useRef<HTMLDivElement>(null);
+  const labRef = useRef<HTMLDivElement>(null);
+  const openReefArea = (area: "dive" | "restore" | "libby" | "lab") => {
+    if (area === "lab") {
+      labRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setTab(area);
+    activitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const [offshoreTrack, setOffshoreTrack] = useState<string | null>(null);
   const [artifactGameOpen, setArtifactGameOpen] = useState(false);
   const artifactButtonRef = useRef<HTMLButtonElement>(null);
@@ -322,35 +332,53 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
-      <OffshoreEntry kind="lab" onMusicChange={setOffshoreTrack} />
-      <div className="relative w-full h-[48%] min-h-[240px] overflow-hidden select-none">
-        <Image src={SCENES.shipwreck} alt="Deep Reef shipwreck" fill unoptimized className="object-cover" />
-        <div className="absolute inset-0 bg-blue-900/25" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#07262b]" />
+      <div ref={labRef}><OffshoreEntry kind="lab" onMusicChange={setOffshoreTrack} /></div>
+      <div className="relative mx-auto w-full max-w-[680px] select-none" aria-label="Deep Reef illustrated scene">
+        <Image
+          src="/images/Reef/Reef-background.PNG"
+          alt="Portrait underwater reef with a large shipwreck on the left, Libby's lobster trap, colorful coral, a rescue area, and Waverly's Marine Lab entrance at the bottom."
+          width={1024}
+          height={1536}
+          unoptimized
+          priority
+          className="block h-auto w-full"
+        />
+        {([
+          { label: "Enter the shipwreck: restoration, salvage and artifacts", area: "restore", x: 25, y: 28, w: 40, h: 26 },
+          { label: "Libby's lobster trap: rescue or trade with Libby", area: "libby", x: 23, y: 51, w: 36, h: 15 },
+          { label: "Reef Rescue: remove debris with Libby", area: "libby", x: 80, y: 40, w: 28, h: 15 },
+          { label: "Search the reef for Waverly's fish", area: "dive", x: 76, y: 24, w: 35, h: 14 },
+          { label: "Waverly's Marine Lab entrance", area: "lab", x: 74, y: 68, w: 42, h: 25 },
+        ] as const).map(({ label, area, x, y, w, h }) => (
+          <button
+            key={label}
+            type="button"
+            aria-label={label}
+            title={label}
+            onClick={() => openReefArea(area)}
+            className="absolute rounded-xl border-2 border-transparent bg-transparent focus-visible:border-white focus-visible:bg-cyan-900/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+            style={{ left: `${x}%`, top: `${y}%`, width: `${w}%`, height: `${h}%`, transform: "translate(-50%, -50%)" }}
+          />
+        ))}
         {spots.map((spot) => {
           const def = ITEMS[spot.itemId];
           const popping = poppingKeys[spot.key];
           return (
             <button
               key={spot.key}
+              type="button"
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm shadow-lg ring-1 ring-white/60 transition-all duration-200 active:scale-90 ${
-                popping ? "opacity-0 scale-150" : "opacity-100 scale-100 animate-bob"
-              }`}
-              style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 50, height: 50 }}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/75 shadow-lg ring-1 ring-white/70 transition-all duration-200 active:scale-90 ${popping ? "opacity-0 scale-150" : "opacity-100 animate-bob"}`}
+              style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 42, height: 42 }}
             >
-              {def.isEmoji ? (
-                <span aria-hidden="true" className="text-3xl drop-shadow">{def.icon}</span>
-              ) : (
-                <Image src={def.icon} alt="" width={34} height={34} unoptimized className="object-contain drop-shadow" />
-              )}
+              {def.isEmoji ? <span aria-hidden="true" className="text-2xl">{def.icon}</span> : <Image src={def.icon} alt="" width={30} height={30} unoptimized className="object-contain" />}
             </button>
           );
         })}
       </div>
 
-      <div className="px-4 pt-4">
+      <div ref={activitiesRef} className="px-4 pt-4">
         <div className="flex gap-2 mb-4">
           <button
             type="button"
