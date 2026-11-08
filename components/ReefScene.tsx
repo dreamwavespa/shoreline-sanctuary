@@ -226,6 +226,11 @@ export default function ReefScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
   const activitiesRef = useRef<HTMLDivElement>(null);
+  const [reefActivityOpen, setReefActivityOpen] = useState(false);
+  const reefActivityTrigger = useRef<HTMLButtonElement | null>(null);
+  const reefActivityDialog = useRef<HTMLDivElement>(null);
+  const closeReefActivity = () => { setReefActivityOpen(false); window.setTimeout(() => reefActivityTrigger.current?.focus(), 0); };
+  useEffect(() => { if (reefActivityOpen) reefActivityDialog.current?.focus(); }, [reefActivityOpen]);
   const [labOpen, setLabOpen] = useState(false);
   const labEntranceRef = useRef<HTMLButtonElement>(null);
   const openReefArea = (area: "dive" | "restore" | "libby" | "lab") => {
@@ -234,7 +239,7 @@ export default function ReefScene() {
       return;
     }
     setTab(area);
-    activitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setReefActivityOpen(true);
   };
   const [offshoreTrack, setOffshoreTrack] = useState<string | null>(null);
   const [artifactGameOpen, setArtifactGameOpen] = useState(false);
@@ -357,7 +362,7 @@ export default function ReefScene() {
             type="button"
             aria-label={label}
             title={label}
-            onClick={() => openReefArea(area)}
+            onClick={(event) => { reefActivityTrigger.current = event.currentTarget; openReefArea(area); }}
             className="absolute rounded-xl border-2 border-transparent bg-transparent focus-visible:border-white focus-visible:bg-cyan-900/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
             style={{ left: `${x}%`, top: `${y}%`, width: `${w}%`, height: `${h}%`, transform: "translate(-50%, -50%)" }}
           />
@@ -380,7 +385,7 @@ export default function ReefScene() {
         })}
       </div>
 
-      <div ref={activitiesRef} className="px-4 pt-4">
+      {reefActivityOpen && <div ref={reefActivityDialog} role="dialog" aria-modal="true" aria-label={tab === "dive" ? "Reef Exploration and Fish Search" : tab === "restore" ? "Shipwreck Activities" : "Libby and Reef Rescue"} tabIndex={-1} onKeyDown={(event) => { if (event.key === "Escape") closeReefActivity(); }} className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/85 p-3 sm:p-8"><div className="mx-auto max-w-[780px] rounded-2xl bg-[#07262b] p-3 shadow-2xl"><button type="button" onClick={closeReefActivity} className="mb-3 rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">Close activity and return to Reef</button><div ref={activitiesRef} className="px-1 pt-2">
         <h2 className="text-lg font-semibold text-white mb-3" tabIndex={-1}>{tab === "dive" ? "Reef Exploration" : tab === "restore" ? "Shipwreck Activities" : "Libby and Reef Rescue"}</h2>
         {tab === "dive" ? <div className="space-y-4"><GhostNetCard />{state.ghostNetCut && <section aria-labelledby="reef-search-heading" className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-100 p-4 shadow-md ring-1 ring-teal-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Restored Reef Activity</p><h2 id="reef-search-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🐠 Search the Reef</h2><p className="mt-1 text-sm text-teal-800">Explore the coral, seagrass, rock shelters, and open water. Baby fish suitable for Waverly’s aquarium will be discovered here as the nursery system grows.</p><div className="mt-3 grid grid-cols-2 gap-2" aria-label="Choose a reef habitat to search">
   <button type="button" onClick={() => searchRestoredReef("coral")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Coral &amp; Anemones</button>
@@ -439,6 +444,8 @@ export default function ReefScene() {
         )}
         <p className="text-xs text-teal-200/70 text-center mt-4">Collect the labeled reef finds above. Coral Bulbs grow beside the living coral, Kelp sways in the current, and Sea Fertilizer gathers in the nutrient-rich sand.</p>
       </div>
+
+      </div></div>}
 
       {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}
       {reefRescueOpen && <LibbyReefRescue onClose={closeReefRescue} />}
