@@ -45,6 +45,7 @@ export const MUSIC = {
   specimenCabinet: "/audio/Marine%20Lab%20-%20Deep%20Discovery.mp3",
   crystalCavern: "/audio/Crystal%20Cavern.mp3",
   deepSeaEchoes: "/audio/Deep%20Sea%20Echoes.mp3",
+  cadencePlayroom: "/audio/Little%20Toy%20Sailboats.mp3",
   cadence1: "/audio/Shoreline-lullaby1.mp3",
   cadence2: "/audio/Shoreline-lullaby2.mp3",
   cadence3: "/audio/Shoreline-lullaby3.mp3",
