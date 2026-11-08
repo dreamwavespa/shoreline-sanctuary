@@ -89,7 +89,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!selectedSlot || !placements[selectedSlot]) return;
     const index = slots.findIndex(s => s.id === selectedSlot);
     const nextSlot = slots[index + direction];
-    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id) || (isPatioSlot(selectedSlot) && !patioMatches(nextSlot.id, placements[selectedSlot]))) ) return;
+    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id) || (isPatioSlot(selectedSlot) && !patioMatches(nextSlot.id, placements[selectedSlot]))) return;
     const next = { ...placements };
     const current = next[selectedSlot], other = next[nextSlot.id];
     next[nextSlot.id] = current;
