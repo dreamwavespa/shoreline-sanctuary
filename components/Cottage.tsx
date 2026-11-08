@@ -51,10 +51,13 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
   const bondedSisterCount = COTTAGE_ROOMS.filter((r) => (state.villagerGiftCounts[r.ownerId] || 0) > 0).length;
 
   useEffect(() => {
+    // Nested activities can clear their own music override on close.
+    // Restore the cottage harmony track whenever a popup closes.
+    if (sortingOpen || mosaicOpen || gardenOpen || cadenceOpen) return;
     if (bondedSisterCount >= 1) setMusicOverride(`cottage${Math.min(4, bondedSisterCount)}`);
     else setMusicOverride(null);
     return () => setMusicOverride(null);
-  }, [bondedSisterCount, setMusicOverride]);
+  }, [bondedSisterCount, sortingOpen, mosaicOpen, gardenOpen, cadenceOpen, setMusicOverride]);
 
   const currentLayer = [...COTTAGE_HARMONY_LAYERS].reverse().find((l) => l.sisterCount <= bondedSisterCount) || null;
   const room = COTTAGE_ROOMS.find((r) => r.id === roomId) || COTTAGE_ROOMS[0];
