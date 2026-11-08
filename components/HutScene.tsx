@@ -34,7 +34,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "side-table", name: "Side table", x: 94, y: 67 },
     { id: "sofa-pillow-left", name: "Sofa, left pillow", x: 68, y: 58 },
     { id: "sofa-pillow-right", name: "Sofa, right pillow", x: 84, y: 59 },
-    { id: "shell-chair", name: "Seashell chair corner", x: 30, y: 72 },
+    { id: "shell-chair", name: "Seashell chair corner", x: 43, y: 79 },
   ];
   const isWallSlot = (id: string) => id.startsWith("wall");
   const isPillowSlot = (id: string) => id.startsWith("sofa-pillow");
