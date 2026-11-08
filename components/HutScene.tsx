@@ -81,7 +81,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
-    setMusicOverride(area === "inside" ? "hut" : null);
+    setMusicOverride(area === "inside" ? "hut" : "hutPatio");
     return () => setMusicOverride(null);
   }, [area, setMusicOverride]);
   const changeArea = (next: Area) => {
