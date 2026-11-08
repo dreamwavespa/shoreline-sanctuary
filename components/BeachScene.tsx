@@ -16,6 +16,7 @@ import { PenelopeCleanupHeart, SandyStormHunt } from "./ShorelineResidentActivit
 import KaiBuriedTreasure from "./KaiBuriedTreasure";
 import { localDateKey } from "@/lib/customSandArt";
 import MistyMoonlitExchange from "./MistyMoonlitExchange";
+import HutScene from "./HutScene";
 
 interface Spot {
   key: string;
@@ -606,6 +607,8 @@ function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean
 export default function BeachScene() {
   const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [hutOpen, setHutOpen] = useState(false);
+  const hutEntranceRef = useRef<HTMLButtonElement>(null);
   const [windTreasureAnnouncement, setWindTreasureAnnouncement] = useState("");
   const [selectedResident, setSelectedResident] = useState<"sandy" | "kai" | "sunny" | "penelope" | "olli" | "elly" | "snappy" | "shelldon" | "shelby" | "misty" | "angel" | "celeste" | "orion" | null>(null);
   useEffect(() => {
@@ -712,6 +715,7 @@ export default function BeachScene() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
         <p className="sr-only" role="status">{nighttime ? "Night has fallen over Shoreline. Rare nighttime discoveries may wash ashore." : "It is daytime at Shoreline beach."}</p>
+        <button ref={hutEntranceRef} type="button" onClick={() => setHutOpen(true)} aria-label="Enter your seaside hut" className="absolute left-[13%] top-[11%] z-20 h-[9%] w-[21%] rounded-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Enter Seaside Hut</span></button>
         {/* Illustrated, keyboard-accessible destination signs. */}
         <button type="button" onClick={() => setScreen("grove")} aria-label="Follow the wooden path to Coconut Grove"
           className="absolute left-[10%] top-[19%] z-20 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus-visible:rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
@@ -882,6 +886,7 @@ export default function BeachScene() {
           </section>
         </div>
       )}
+      {hutOpen && <HutScene onClose={() => { setHutOpen(false); window.setTimeout(() => hutEntranceRef.current?.focus(), 0); }} />}
       <button type="button" onClick={() => setBeachGamesOpen(true)} className="mx-auto my-4 flex min-h-11 items-center gap-3 rounded-xl bg-teal-900 px-5 py-3 font-bold text-white"><Image src="/images/Seashell_Beach_Ball.png" alt="" width={48} height={48} unoptimized />Visit Beach Play Area</button>
       {beachGamesOpen && <BeachPlayArea nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} onClose={() => setBeachGamesOpen(false)} />}
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
