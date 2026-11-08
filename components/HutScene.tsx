@@ -14,7 +14,7 @@ const imagePath = (area: Area, night: boolean) =>
   `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG`;
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
-  const { state } = useGame();
+  const { state, setMusicOverride } = useGame();
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -80,6 +80,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     closeRef.current?.focus();
     return () => window.clearInterval(timer);
   }, []);
+  useEffect(() => {
+    setMusicOverride(area === "inside" ? "hut" : null);
+    return () => setMusicOverride(null);
+  }, [area, setMusicOverride]);
   const changeArea = (next: Area) => {
     setArea(next);
     window.setTimeout(() => destinationRef.current?.focus(), 0);
