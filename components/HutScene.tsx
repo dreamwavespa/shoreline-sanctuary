@@ -5,6 +5,11 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 
 type Area = "inside" | "patio";
+function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmoji?: boolean }) {
+  const [failed, setFailed] = useState(false);
+  if (isEmoji || !icon || failed) return <span aria-hidden="true" className="text-xl">{isEmoji ? icon : "🏺"}</span>;
+  return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
+}
 const imagePath = (area: Area, night: boolean) =>
   `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG`;
 
@@ -15,13 +20,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const slots = [
-    { id: "shelf1-left", name: "Top shelf, left", x: 19, y: 31 },
-    { id: "shelf1-right", name: "Top shelf, right", x: 32, y: 31 },
-    { id: "shelf2-left", name: "Middle shelf, left", x: 19, y: 39 },
-    { id: "shelf2-right", name: "Middle shelf, right", x: 32, y: 39 },
-    { id: "shelf3-left", name: "Bottom shelf, left", x: 19, y: 47 },
-    { id: "shelf3-right", name: "Bottom shelf, right", x: 32, y: 47 },
-    { id: "wall", name: "Painting wall", x: 57, y: 43 },
+    { id: "shelf1-left", name: "Top shelf, left", x: 21, y: 20.5 },
+    { id: "shelf1-right", name: "Top shelf, right", x: 33, y: 21 },
+    { id: "shelf2-left", name: "Middle shelf, left", x: 21, y: 28.5 },
+    { id: "shelf2-right", name: "Middle shelf, right", x: 33, y: 29 },
+    { id: "shelf3-left", name: "Bottom shelf, left", x: 21, y: 36.5 },
+    { id: "shelf3-right", name: "Bottom shelf, right", x: 33, y: 37 },
+    { id: "wall", name: "Painting wall", x: 57, y: 41 },
   ];
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
     count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || (id.includes("painting") || id.includes("artwork")))
@@ -84,8 +89,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" && slots.map(slot => {
             const id = placements[slot.id];
             const item = id && ITEMS[id];
-            return <button key={slot.id} type="button" onClick={() => setSelectedSlot(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - 6}%`, top: `${slot.y - 5}%`, width: "12%", height: "10%" }}>
-              {item && <Image src={item.icon} alt="" width={48} height={48} unoptimized className="h-full w-full object-contain drop-shadow-md" />}
+            return <button key={slot.id} type="button" onClick={() => setSelectedSlot(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - (slot.id === "wall" ? 7 : 5)}%`, top: `${slot.y - (slot.id === "wall" ? 6 : 5)}%`, width: slot.id === "wall" ? "14%" : "10%", height: slot.id === "wall" ? "12%" : "7%" }}>
+              {item && <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
