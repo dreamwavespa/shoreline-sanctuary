@@ -27,6 +27,20 @@ const BEACH_PLAYLIST = [
   "/audio/Luminous%20Tides.mp3",
 ];
 
+// Shuffle each set of three songs, so every track plays before one repeats.
+function shuffleBeachTracks(excludeFirst?: number): number[] {
+  const order = BEACH_PLAYLIST.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  if (order.length > 1 && order[0] === excludeFirst) {
+    const swap = 1 + Math.floor(Math.random() * (order.length - 1));
+    [order[0], order[swap]] = [order[swap], order[0]];
+  }
+  return order;
+}
+
 const TRACKS: Record<Zone, string> = {
   beach: MUSIC.beach,
   lighthouse: MUSIC.lighthouse,
@@ -51,7 +65,10 @@ export default function AudioEngine() {
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
   const currentTrackKeyRef = useRef<string>(musicOverride || zone);
-  const beachTrackIndexRef = useRef(0);
+  const beachOrderRef = useRef<number[]>([]);
+  const beachPositionRef = useRef(0);
+  const lastBeachTrackRef = useRef<number | undefined>(undefined);
+  if (beachOrderRef.current.length === 0) beachOrderRef.current = shuffleBeachTracks();
   const currentVol = useRef({ music: 0, ambience: 0 });
   const settingsRef = useRef(state.audio);
   const zoneRef = useRef(zone);
@@ -64,13 +81,18 @@ export default function AudioEngine() {
   zoneRef.current = zone;
   settingsRef.current = state.audio;
 
-  const trackSrcFor = (key: string) => key === "beach" ? BEACH_PLAYLIST[beachTrackIndexRef.current] : (MUSIC as Record<string, string>)[key] || TRACKS[key as Zone];
+  const trackSrcFor = (key: string) => key === "beach" ? BEACH_PLAYLIST[beachOrderRef.current[beachPositionRef.current]] : (MUSIC as Record<string, string>)[key] || TRACKS[key as Zone];
 
   const onMusicEnded = () => {
     const el = musicRef.current;
     if (!el || currentTrackKeyRef.current !== "beach") return;
-    beachTrackIndexRef.current = (beachTrackIndexRef.current + 1) % BEACH_PLAYLIST.length;
-    el.src = BEACH_PLAYLIST[beachTrackIndexRef.current];
+    lastBeachTrackRef.current = beachOrderRef.current[beachPositionRef.current];
+    beachPositionRef.current++;
+    if (beachPositionRef.current >= beachOrderRef.current.length) {
+      beachOrderRef.current = shuffleBeachTracks(lastBeachTrackRef.current);
+      beachPositionRef.current = 0;
+    }
+    el.src = trackSrcFor("beach");
     void el.play().catch(() => {});
   };
 
@@ -198,7 +220,12 @@ export default function AudioEngine() {
   useEffect(() => {
     const nextKey = musicOverride || zone;
     if (currentTrackKeyRef.current === nextKey) return;
+    const previousKey = currentTrackKeyRef.current;
     currentTrackKeyRef.current = nextKey;
+    if (nextKey === "beach" && previousKey !== "beach") {
+      beachOrderRef.current = shuffleBeachTracks(lastBeachTrackRef.current);
+      beachPositionRef.current = 0;
+    }
     const el = musicRef.current;
     if (!el) return;
     const wasPlaying = !el.paused;
