@@ -40,6 +40,7 @@ export const SCENES = {
 
 export const MUSIC = {
   hut: "/audio/Cozy%20Beach%20Haven.mp3",
+  hutPatio: "/audio/Patio%20Wind%20%26%20Waves.mp3",
   beachGames: "/audio/Shoreline%20Volley.mp3",
   tidePool: "/audio/Tide%20Pool%20Wonders.mp3",
   marineLab: "/audio/Marine%20Lab%20-%20Coral%20%26%20Currents.mp3",
