@@ -19,6 +19,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const openDecoration = (id: string) => { setAnnouncement(""); setSelectedSlot(id); };
   const slots = [
     { id: "shelf1-left", name: "Top shelf, left", x: 21, y: 20.5 },
     { id: "shelf1-right", name: "Top shelf, right", x: 33, y: 21 },
@@ -31,8 +32,15 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "wall-right", name: "Wall display, right", x: 65, y: 32 },
     { id: "coffee-table", name: "Coffee table", x: 47, y: 65 },
     { id: "side-table", name: "Side table", x: 94, y: 67 },
+    { id: "sofa-pillow-left", name: "Sofa, left pillow", x: 68, y: 58 },
+    { id: "sofa-pillow-right", name: "Sofa, right pillow", x: 84, y: 59 },
+    { id: "shell-chair", name: "Seashell chair corner", x: 30, y: 72 },
   ];
   const isWallSlot = (id: string) => id.startsWith("wall");
+  const isPillowSlot = (id: string) => id.startsWith("sofa-pillow");
+  const isChairSlot = (id: string) => id === "shell-chair";
+  const isPillowDecor = (id: string) => /pillow|cushion/i.test(id + " " + (ITEMS[id]?.name || ""));
+  const isChairDecor = (id: string) => /shell.chair|seashell.chair|pearl.shell.chair/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isTableSlot = (id: string) => id.includes("table");
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
@@ -44,6 +52,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
   const place = (id: string) => {
     if (!selectedSlot) return;
+    if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or cushion for the sofa."); return; }
+    if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
     const count = state.inventory[id] || 0;
     const usedElsewhere = Object.entries(placements).filter(([slot, item]) => slot !== selectedSlot && item === id).length;
@@ -60,7 +70,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!selectedSlot || !placements[selectedSlot]) return;
     const index = slots.findIndex(s => s.id === selectedSlot);
     const nextSlot = slots[index + direction];
-    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id)) return;
+    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id)) return;
     const next = { ...placements };
     const current = next[selectedSlot], other = next[nextSlot.id];
     next[nextSlot.id] = current;
@@ -77,6 +87,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     update();
     try { const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}"); if (stored && typeof stored === "object" && !Array.isArray(stored)) setPlacements(stored); } catch {}
     const timer = window.setInterval(update, 60000);
+    setSelectedSlot(null);
     closeRef.current?.focus();
     return () => window.clearInterval(timer);
   }, []);
@@ -85,6 +96,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     return () => setMusicOverride(null);
   }, [area, setMusicOverride]);
   const changeArea = (next: Area) => {
+    setSelectedSlot(null);
     setArea(next);
     window.setTimeout(() => destinationRef.current?.focus(), 0);
   };
@@ -101,7 +113,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" && slots.map(slot => {
             const id = placements[slot.id];
             const item = id && ITEMS[id];
-            return <button key={slot.id} type="button" onClick={() => setSelectedSlot(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - (isWallSlot(slot.id) ? 7 : 5)}%`, top: `${slot.y - (isWallSlot(slot.id) ? 6 : 5)}%`, width: isWallSlot(slot.id) ? "14%" : isTableSlot(slot.id) ? "11%" : "10%", height: isWallSlot(slot.id) ? "12%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
+            return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slot.x - (isWallSlot(slot.id) ? 7 : 5)}%`, top: `${slot.y - (isWallSlot(slot.id) ? 6 : 5)}%`, width: isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : isTableSlot(slot.id) ? "11%" : "10%", height: isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
               {item && <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}
               <span className="sr-only">{slot.name}</span>
             </button>;
@@ -120,7 +132,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" && <button type="button" onClick={() => setFireOn(v => !v)} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-4 py-2 font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
         {area === "inside" && <p role="status" className="mt-2 text-sm text-teal-950">Fireplace {fireOn ? "on" : "off"} (visual fire remains part of the background).</p>}
-        {area === "inside" && <button type="button" onClick={() => setSelectedSlot("shelf1-left")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">Decorate Shelves, Walls and Tables</button>}
+        {area === "inside" && <button type="button" onClick={() => openDecoration("shelf1-left")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">Decorate Your Hut</button>}
         {selectedSlot && area === "inside" && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
           <p className="text-sm">Current: {placements[selectedSlot] && ITEMS[placements[selectedSlot]] ? ITEMS[placements[selectedSlot]].name : "Empty"}</p>
@@ -134,7 +146,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{slots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
-            {ownedDecor.length === 0 ? <p>No decorations in inventory yet.</p> : ownedDecor.filter(([id]) => !isWallSlot(selectedSlot) || isWallDecor(id)).map(([id, count]) => <button key={id} type="button" onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">{ITEMS[id].name} (owned: {count})</button>)}
+            {ownedDecor.length === 0 ? <p>No decorations in inventory yet.</p> : ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : true).map(([id, count]) => <button key={id} type="button" onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">{ITEMS[id].name} (owned: {count})</button>)}
           </div>
           <p role="status" aria-live="polite" className="mt-2 text-sm">{announcement}</p>
         </section>}
