@@ -72,6 +72,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
   return <div className="space-y-4 border-t border-teal-200 pt-4">
     {kind === 'lab' && <div className="relative mx-auto max-w-[680px]" aria-label="Waverly's illustrated marine laboratory">
       <Image src="/images/Reef/Research-lab-background..PNG" alt="Cozy underwater marine lab with research desk, central nursery aquarium, field guide, rare shell shelves, specimen cabinet and crystal cave entrance." width={1024} height={1536} unoptimized className="block h-auto w-full" />
+      <div aria-hidden="true" className="pointer-events-none absolute" style={{left:"43%",top:"21%",width:"24%",height:"24%"}}><Image src="/images/Reef/Waverly-portrait.PNG" alt="" width={600} height={850} unoptimized className="h-full w-full object-contain object-bottom drop-shadow-lg" /></div>
       {([
         {label:"Visit Waverly at her research desk and give gifts",spot:"waverly",x:55,y:27,w:49,h:20},
         {label:"Waverly's nursery aquarium",spot:"aquarium",x:52,y:49,w:65,h:20},
