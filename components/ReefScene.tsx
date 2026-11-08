@@ -379,29 +379,7 @@ export default function ReefScene() {
       </div>
 
       <div ref={activitiesRef} className="px-4 pt-4">
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => setTab("dive")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "dive" ? "bg-teal-600 text-white" : "bg-white/80 text-teal-800"}`}
-          >
-            🕸️ Ghost Net
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("restore")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "restore" ? "bg-amber-700 text-white" : "bg-white/80 text-amber-800"}`}
-          >
-            ⚓ Shipwreck
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("libby")}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold ${tab === "libby" ? "bg-cyan-600 text-white" : "bg-white/80 text-cyan-800"}`}
-          >
-            🦞 Libby
-          </button>
-        </div>
+        <h2 className="text-lg font-semibold text-white mb-3" tabIndex={-1}>{tab === "dive" ? "Reef Exploration" : tab === "restore" ? "Shipwreck Activities" : "Libby and Reef Rescue"}</h2>
         {tab === "dive" ? <div className="space-y-4"><GhostNetCard />{state.ghostNetCut && <section aria-labelledby="reef-search-heading" className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-100 p-4 shadow-md ring-1 ring-teal-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-teal-800">Restored Reef Activity</p><h2 id="reef-search-heading" className="mt-1 font-serif text-lg font-bold text-teal-950">🐠 Search the Reef</h2><p className="mt-1 text-sm text-teal-800">Explore the coral, seagrass, rock shelters, and open water. Baby fish suitable for Waverly’s aquarium will be discovered here as the nursery system grows.</p><div className="mt-3 grid grid-cols-2 gap-2" aria-label="Choose a reef habitat to search">
   <button type="button" onClick={() => searchRestoredReef("coral")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Coral &amp; Anemones</button>
   <button type="button" onClick={() => searchRestoredReef("seagrass")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Seagrass</button>
