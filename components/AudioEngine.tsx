@@ -225,7 +225,8 @@ export default function AudioEngine() {
         const blockDucking = document.querySelector('[data-cadence-block-play="active"]') ? 0.35 : 1;
         const instrumentDucking = document.querySelector('[data-ship-music-activity="active"]') ? 0.15 : 1;
         const beachBallDucking = document.querySelector('[data-beach-ball-game="active"]') ? 0.7 : 1;
-        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * blockDucking * instrumentDucking * beachBallDucking);
+        const trackVolumeBoost = currentTrackKeyRef.current === "cadencePlayroom" ? 1.6 : 1;
+        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * trackVolumeBoost * blockDucking * instrumentDucking * beachBallDucking);
         const ambienceTarget = ambience * master;
 
         const speed = 0.8; // volume units per second (~1.2s fade)
