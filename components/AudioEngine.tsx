@@ -21,6 +21,12 @@ import { MUSIC, AMBIENCE_LOOP } from "@/lib/media";
 // useGame(), and clears it back to null on cleanup/tab-away. AudioEngine
 // picks up that override here and swaps its single music element to it.
 
+const BEACH_PLAYLIST = [
+  MUSIC.beach,
+  "/audio/Glow%20on%20the%20Tide.mp3",
+  "/audio/Luminous%20Tides.mp3",
+];
+
 const TRACKS: Record<Zone, string> = {
   beach: MUSIC.beach,
   lighthouse: MUSIC.lighthouse,
@@ -45,6 +51,7 @@ export default function AudioEngine() {
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
   const currentTrackKeyRef = useRef<string>(musicOverride || zone);
+  const beachTrackIndexRef = useRef(0);
   const currentVol = useRef({ music: 0, ambience: 0 });
   const settingsRef = useRef(state.audio);
   const zoneRef = useRef(zone);
@@ -57,7 +64,15 @@ export default function AudioEngine() {
   zoneRef.current = zone;
   settingsRef.current = state.audio;
 
-  const trackSrcFor = (key: string) => (MUSIC as Record<string, string>)[key] || TRACKS[key as Zone];
+  const trackSrcFor = (key: string) => key === "beach" ? BEACH_PLAYLIST[beachTrackIndexRef.current] : (MUSIC as Record<string, string>)[key] || TRACKS[key as Zone];
+
+  const onMusicEnded = () => {
+    const el = musicRef.current;
+    if (!el || currentTrackKeyRef.current !== "beach") return;
+    beachTrackIndexRef.current = (beachTrackIndexRef.current + 1) % BEACH_PLAYLIST.length;
+    el.src = BEACH_PLAYLIST[beachTrackIndexRef.current];
+    void el.play().catch(() => {});
+  };
 
   const ensureGraph = () => {
     if (graphBuilt.current) return;
@@ -188,7 +203,7 @@ export default function AudioEngine() {
     if (!el) return;
     const wasPlaying = !el.paused;
     el.src = trackSrcFor(nextKey);
-    el.loop = true;
+    el.loop = nextKey !== "beach";
     currentVol.current.music = 0;
     if (musicGainRef.current) {
       // When Web Audio is active, GainNode owns the fade. Keep the media
@@ -258,7 +273,7 @@ export default function AudioEngine() {
 
   return (
     <>
-      <audio ref={musicRef} src={trackSrcFor(currentTrackKeyRef.current)} loop preload="auto" crossOrigin="anonymous" />
+      <audio ref={musicRef} src={trackSrcFor(currentTrackKeyRef.current)} loop={currentTrackKeyRef.current !== "beach"} onEnded={onMusicEnded} preload="auto" crossOrigin="anonymous" />
       <audio ref={ambienceRef} src={AMBIENCE_LOOP} loop preload="auto" crossOrigin="anonymous" />
     </>
   );
