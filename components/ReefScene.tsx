@@ -226,10 +226,11 @@ export default function ReefScene() {
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
   const activitiesRef = useRef<HTMLDivElement>(null);
-  const labRef = useRef<HTMLDivElement>(null);
+  const [labOpen, setLabOpen] = useState(false);
+  const labEntranceRef = useRef<HTMLButtonElement>(null);
   const openReefArea = (area: "dive" | "restore" | "libby" | "lab") => {
     if (area === "lab") {
-      labRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setLabOpen(true);
       return;
     }
     setTab(area);
@@ -332,7 +333,7 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
-      <div ref={labRef}><OffshoreEntry kind="lab" onMusicChange={setOffshoreTrack} /></div>
+      {labOpen && <OffshoreEntry kind="lab" sceneOpen onSceneClose={() => { setLabOpen(false); window.setTimeout(() => labEntranceRef.current?.focus(), 0); }} onMusicChange={setOffshoreTrack} />}
       <div className="relative mx-auto w-full max-w-[680px] select-none" aria-label="Deep Reef illustrated scene">
         <Image
           src="/images/Reef/Reef-background.PNG"
@@ -352,6 +353,7 @@ export default function ReefScene() {
         ] as const).map(({ label, area, x, y, w, h }) => (
           <button
             key={label}
+            ref={area === "lab" ? labEntranceRef : undefined}
             type="button"
             aria-label={label}
             title={label}
