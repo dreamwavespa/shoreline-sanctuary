@@ -42,12 +42,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "patio-planter", name: "Patio flower display", x: 57, y: 57 },
     { id: "patio-lantern", name: "Patio lantern", x: 91, y: 47 },
     { id: "patio-chime", name: "Patio wind chime", x: 78, y: 20 },
+    { id: "patio-birdbath", name: "Patio bird bath", x: 17, y: 62 },
   ];
   const isPatioSlot = (id: string) => id.startsWith("patio-");
   const activeSlots = slots.filter(slot => area === "patio" ? isPatioSlot(slot.id) : !isPatioSlot(slot.id));
   const patioMatches = (slot: string, id: string) => {
     const name = id + " " + (ITEMS[id]?.name || "");
     if (slot === "patio-fountain") return /fountain/i.test(name);
+    if (slot === "patio-birdbath") return /bird.?bath/i.test(name);
     if (slot.startsWith("patio-chair")) return /beach.chair/i.test(name);
     if (slot === "patio-chime") return /wind.chime/i.test(name);
     if (slot === "patio-lantern") return /lantern/i.test(name);
