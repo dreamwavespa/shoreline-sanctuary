@@ -223,7 +223,7 @@ function CadenceBubbleBath({ owned, roseMilkCount, onUseRoseMilk, onSound }: { o
       <div aria-hidden="true" className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-sky-50">
         <Image src="/images/Nursery/Cadence-bathtub.PNG" alt="" width={1024} height={1024} unoptimized className="h-auto w-full" />
         {filled && <div className="absolute bottom-[19%] left-[20%] right-[18%] h-[20%] rounded-[50%] bg-sky-100/35" />}
-        {filled && Array.from({ length: Math.min(bubbles + (roseMilkAdded ? 13 : 3), 22) }, (_, i) => <div key={i} className={`absolute rounded-full border-2 border-white/90 shadow-sm motion-safe:animate-pulse ${roseMilkAdded ? "h-7 w-7 border-pink-200 bg-rose-200/75 shadow-md" : "h-4 w-4 bg-white/40"}`} style={{ left: `${19 + (i * 17) % 64}%`, top: `${49 + (i * 11) % 27}%` }} />)}
+        {filled && Array.from({ length: Math.min(bubbles + (roseMilkAdded ? 13 : 3), 22) }, (_, i) => <div key={i} className={`absolute rounded-full border-2 border-white/90 shadow-sm motion-safe:animate-pulse ${roseMilkAdded ? "h-7 w-7 border-pink-200 bg-rose-200/75 shadow-md" : "h-4 w-4 bg-white/40"}`} style={{ left: `${roseMilkAdded ? 25 + (i * 13) % 48 : 19 + (i * 17) % 64}%`, top: `${roseMilkAdded ? 49 + (i * 7) % 14 : 49 + (i * 11) % 27}%` }} />)}
         {duckFloating && <>
           {/* A soft patch of bath foam masks the duck printed on the background while the animated duck floats. */}
           <div className="absolute left-[55%] top-[35%] h-[18%] w-[21%] rounded-[48%] bg-gradient-to-br from-[#dbeefa]/95 via-[#e5dcf7]/95 to-[#f3d5e9]/95 blur-[3px]" aria-hidden="true" />
