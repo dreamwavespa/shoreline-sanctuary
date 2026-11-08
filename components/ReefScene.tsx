@@ -333,7 +333,7 @@ export default function ReefScene() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#07262b]">
-      {labOpen && <OffshoreEntry kind="lab" sceneOpen onSceneClose={() => { setLabOpen(false); window.setTimeout(() => labEntranceRef.current?.focus(), 0); }} onMusicChange={setOffshoreTrack} />}
+      {labOpen ? <OffshoreEntry kind="lab" sceneOpen onSceneClose={() => { setLabOpen(false); window.setTimeout(() => labEntranceRef.current?.focus(), 50); }} onMusicChange={setOffshoreTrack} /> : <>
       <div className="relative mx-auto w-full max-w-[680px] select-none" aria-label="Deep Reef illustrated scene">
         <Image
           src="/images/Reef/Reef-background.PNG"
@@ -443,6 +443,7 @@ export default function ReefScene() {
       {artifactGameOpen && <ArtifactRestoration onClose={closeArtifactGame} />}
       {reefRescueOpen && <LibbyReefRescue onClose={closeReefRescue} />}
       {salvageOpen && <ShipwreckSalvage onClose={closeSalvage} />}
+      </>}
     </div>
   );
 }
