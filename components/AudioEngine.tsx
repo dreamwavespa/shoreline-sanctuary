@@ -267,8 +267,11 @@ export default function AudioEngine() {
         const blockDucking = document.querySelector('[data-cadence-block-play="active"]') ? 0.35 : 1;
         const instrumentDucking = document.querySelector('[data-ship-music-activity="active"]') ? 0.15 : 1;
         const beachBallDucking = document.querySelector('[data-beach-ball-game="active"]') ? 0.7 : 1;
-        const trackVolumeBoost = currentTrackKeyRef.current === "cadencePlayroom" ? 1.6 : 1;
-        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * trackVolumeBoost * blockDucking * instrumentDucking * beachBallDucking);
+        const trackKey = currentTrackKeyRef.current;
+        const isNewBeachTrack = trackKey === "beach" && beachOrderRef.current[beachPositionRef.current] !== 0;
+        const trackVolumeBoost = trackKey === "cadencePlayroom" ? 1.6
+          : trackKey === "hut" || trackKey === "hutPatio" || isNewBeachTrack ? 1.22 : 1;
+        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * blockDucking * instrumentDucking * beachBallDucking);
         const ambienceTarget = ambience * master;
 
         const speed = 0.8; // volume units per second (~1.2s fade)
@@ -280,9 +283,9 @@ export default function AudioEngine() {
         const av = clamp01(cv.ambience);
 
         if (musicGainRef.current) {
-          musicGainRef.current.gain.value = mv;
+          musicGainRef.current.gain.value = mv * trackVolumeBoost;
         } else if (musicRef.current) {
-          musicRef.current.volume = mv;
+          musicRef.current.volume = clamp01(mv * trackVolumeBoost);
         }
         if (ambienceGainRef.current) {
           ambienceGainRef.current.gain.value = av;
