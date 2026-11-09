@@ -19,7 +19,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const openDecoration = (id: string) => { setAnnouncement(""); setSelectedSlot(id); };
+  const entranceReadyAt = useRef(0);
+  const openDecoration = (id: string) => { if (Date.now() < entranceReadyAt.current) return; setAnnouncement(""); setSelectedSlot(id); };
   const slots = [
     { id: "shelf1-left", name: "Top shelf, left", x: 21, y: 20.5 },
     { id: "shelf1-right", name: "Top shelf, right", x: 33, y: 21 },
@@ -174,6 +175,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     try { const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}"); if (stored && typeof stored === "object" && !Array.isArray(stored)) setPlacements(stored); } catch {}
     const timer = window.setInterval(update, 60000);
     setSelectedSlot(null);
+    entranceReadyAt.current = Date.now() + 450;
     closeRef.current?.focus();
     return () => window.clearInterval(timer);
   }, []);
@@ -201,7 +203,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const id = placements[slot.id];
             const nightInterior = night && area === "inside";
             const slotX = nightInterior ? ({ "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 53, "side-table": 92, "sofa-pillow-left": 43, "sofa-pillow-right": 88, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
-            const slotY = nightInterior ? ({ "shelf1-left": 22, "shelf1-right": 22, "shelf2-left": 33, "shelf2-right": 31, "shelf3-left": 39, "shelf3-right": 39, "wall": 34, "wall-left": 33, "wall-right": 45, "coffee-table": 61, "side-table": 67, "sofa-pillow-left": 56, "sofa-pillow-right": 56, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
+            const slotY = nightInterior ? ({ "shelf1-left": 26, "shelf1-right": 26, "shelf2-left": 33, "shelf2-right": 35, "shelf3-left": 39, "shelf3-right": 39, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 61, "side-table": 67, "sofa-pillow-left": 56, "sofa-pillow-right": 56, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const item = id && ITEMS[id];
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `${slotX - (isWallSlot(slot.id) ? 7 : 5)}%`, top: `${slotY - (isWallSlot(slot.id) ? 6 : 5)}%`, width: slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : isTableSlot(slot.id) ? "11%" : "10%", height: slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
               {item && <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}
