@@ -1,0 +1,45 @@
+name: Test Namecheap rsync connection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-rsync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Configure SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/shoreline_deploy_key
+          chmod 600 ~/.ssh/shoreline_deploy_key
+          if [ -n "$SSH_KEY_PASSPHRASE" ]; then
+            echo "SSH key has a passphrase; this test cannot use it unattended without an agent. No transfer attempted."
+            exit 1
+          fi
+
+      - name: Test SSH and rsync with a temporary file
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          port="${SSH_PORT:-22}"
+          ssh_cmd="ssh -i $HOME/.ssh/shoreline_deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p $port"
+          remote="${SSH_USERNAME}@${SSH_HOST}"
+          test_dir="/home/aflomfbj/shoreline.dreamwavespa.com/app/tmp/rsync-connection-test-${GITHUB_RUN_ID}"
+          printf 'Shoreline rsync connection test %s\n' "$GITHUB_RUN_ID" > rsync-test.txt
+          cleanup() { $ssh_cmd "$remote" "rm -rf '$test_dir'" || true; }
+          trap cleanup EXIT
+          $ssh_cmd "$remote" "command -v rsync && mkdir -p '$test_dir'"
+          rsync -av --timeout=30 -e "$ssh_cmd" rsync-test.txt "$remote:$test_dir/"
+          $ssh_cmd "$remote" "test -s '$test_dir/rsync-test.txt' && echo 'SUCCESS: rsync transfer verified'"
