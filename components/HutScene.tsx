@@ -99,6 +99,70 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     savePlacement(next); setSelectedSlot(nextSlot.id);
     setAnnouncement(`Moved to ${nextSlot.name}.`);
   };
+  const [automaticChimes, setAutomaticChimes] = useState(true);
+  const [chimeStyle, setChimeStyle] = useState<"mixed" | "small" | "bamboo">("mixed");
+  const [fountainOn, setFountainOn] = useState(true);
+  const [soundMessage, setSoundMessage] = useState("");
+  const effectAudioRef = useRef<HTMLAudioElement | null>(null);
+  const fountainAudioRef = useRef<HTMLAudioElement | null>(null);
+  const chimeFiles = {
+    small: ["chime-small-1.mp3", "chime-small-2.mp3", "chime-small-3.mp3", "chime-metal-soft.mp3", "chime-delicate.mp3"],
+    bamboo: ["chime-bamboo-1.mp3", "chime-bamboo-2.mp3", "chime-bamboo-3.mp3"],
+  };
+  const stopChime = () => {
+    effectAudioRef.current?.pause();
+    effectAudioRef.current = null;
+  };
+  const playChime = () => {
+    if (area !== "patio" || !placements["patio-chime"]) return;
+    stopChime();
+    const choices = chimeStyle === "mixed" ? [...chimeFiles.small, ...chimeFiles.bamboo] : chimeFiles[chimeStyle];
+    const filename = choices[Math.floor(Math.random() * choices.length)];
+    const audio = new Audio("/audio/Patio/" + filename);
+    audio.volume = 0.38;
+    effectAudioRef.current = audio;
+    void audio.play().catch(() => setSoundMessage("Audio could not play. Try tapping Play Wind Chimes again."));
+  };
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("shoreline-patio-sound-settings-v1") || "{}");
+      if (typeof saved.automaticChimes === "boolean") setAutomaticChimes(saved.automaticChimes);
+      if (["mixed", "small", "bamboo"].includes(saved.chimeStyle)) setChimeStyle(saved.chimeStyle);
+      if (typeof saved.fountainOn === "boolean") setFountainOn(saved.fountainOn);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { window.localStorage.setItem("shoreline-patio-sound-settings-v1", JSON.stringify({ automaticChimes, chimeStyle, fountainOn })); } catch {}
+  }, [automaticChimes, chimeStyle, fountainOn]);
+  useEffect(() => {
+    if (area !== "patio" || !placements["patio-chime"] || !automaticChimes) {
+      stopChime();
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      timer = setTimeout(() => {
+        if (!document.hidden) playChime();
+        schedule();
+      }, 25000 + Math.random() * 40000);
+    };
+    schedule();
+    return () => { clearTimeout(timer); stopChime(); };
+  }, [area, placements["patio-chime"], automaticChimes, chimeStyle]);
+  useEffect(() => {
+    if (area !== "patio" || !placements["patio-fountain"] || !fountainOn) {
+      fountainAudioRef.current?.pause();
+      fountainAudioRef.current = null;
+      return;
+    }
+    const audio = new Audio("/audio/Patio/fountain-loop.mp3");
+    audio.loop = true;
+    audio.volume = 0.22;
+    fountainAudioRef.current = audio;
+    void audio.play().catch(() => { /* Mobile autoplay may require a user gesture. */ });
+    return () => { audio.pause(); audio.src = ""; if (fountainAudioRef.current === audio) fountainAudioRef.current = null; };
+  }, [area, placements["patio-fountain"], fountainOn]);
+  useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
   const [fireOn, setFireOn] = useState(true);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -154,6 +218,28 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         </div>
         {area === "inside" && <p role="status" className="mt-2 text-sm text-teal-950">Fireplace {fireOn ? "on" : "off"} (visual fire remains part of the background).</p>}
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
+        {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
+          <h3 className="font-bold text-teal-950">Patio Sounds</h3>
+          {placements["patio-chime"] && <>
+            <button type="button" onClick={playChime} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 text-white">Play Wind Chimes</button>
+            <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={automaticChimes} onChange={e => setAutomaticChimes(e.target.checked)} /> Occasional breeze sounds</label>
+            <label htmlFor="chime-style" className="mt-2 block">Wind chime sound</label>
+            <select id="chime-style" value={chimeStyle} onChange={e => setChimeStyle(e.target.value as "mixed" | "small" | "bamboo")} className="min-h-11 w-full rounded-lg border p-2">
+              <option value="mixed">Mixed chimes</option><option value="small">Small metal chimes</option><option value="bamboo">Bamboo chimes</option>
+            </select>
+          </>}
+          {placements["patio-fountain"] && <button type="button" onClick={() => {
+            if (fountainOn) setFountainOn(false);
+            else {
+              setFountainOn(true);
+              const audio = new Audio("/audio/Patio/fountain-loop.mp3");
+              audio.loop = true; audio.volume = 0.22;
+              fountainAudioRef.current?.pause(); fountainAudioRef.current = audio;
+              void audio.play().catch(() => setSoundMessage("Fountain audio could not play."));
+            }
+          }} aria-pressed={fountainOn} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 text-teal-950">{fountainOn ? "Turn Fountain Sound Off" : "Turn Fountain Sound On"}</button>}
+          <p role="status" className="text-sm">{soundMessage}</p>
+        </section>}
         {selectedSlot && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
           <p className="text-sm">Current: {placements[selectedSlot] && ITEMS[placements[selectedSlot]] ? ITEMS[placements[selectedSlot]].name : "Empty"}</p>
