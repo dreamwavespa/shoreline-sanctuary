@@ -103,6 +103,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [chimeStyle, setChimeStyle] = useState<"mixed" | "small" | "bamboo">("mixed");
   const [fountainOn, setFountainOn] = useState(true);
   const [soundMessage, setSoundMessage] = useState("");
+  const [showPatioSounds, setShowPatioSounds] = useState(false);
   const effectAudioRef = useRef<HTMLAudioElement | null>(null);
   const fountainAudioRef = useRef<HTMLAudioElement | null>(null);
   const chimeFiles = {
@@ -182,19 +183,20 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, setMusicOverride]);
   const changeArea = (next: Area) => {
     setSelectedSlot(null);
+    setShowPatioSounds(false);
     setArea(next);
     window.setTimeout(() => destinationRef.current?.focus(), 0);
   };
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/80 p-2 sm:p-4" role="presentation">
-      <section role="dialog" aria-modal="true" aria-label={area === "inside" ? "Your seaside hut" : "Your seaside patio"} className="flex max-h-[96dvh] w-full max-w-lg flex-col overflow-y-auto rounded-2xl bg-[#fff7e9] p-3 shadow-2xl">
+      <section role="dialog" aria-modal="true" aria-label={area === "inside" ? "Your seaside hut" : "Your seaside patio"} className="flex max-h-[98dvh] w-full max-w-2xl flex-col overflow-y-auto rounded-2xl bg-[#fff7e9] p-2 sm:p-3 shadow-2xl">
         <div className="mb-2 flex items-center justify-between gap-2">
           <h2 className="text-lg font-bold text-teal-950">{area === "inside" ? "Your Seaside Hut" : "Oceanfront Patio"}</h2>
           <button ref={closeRef} type="button" onClick={onClose} className="min-h-11 rounded-xl bg-teal-900 px-4 py-2 font-bold text-white">Return to Beach</button>
         </div>
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
-        <div className="relative mx-auto w-full max-w-[430px] overflow-hidden rounded-xl" style={{ aspectRatio: "3 / 4" }}>
-          <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 430px" className="object-cover" />
+        <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: "2 / 3" }}>
+          <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = night && area === "inside";
@@ -215,13 +217,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             <button type="button" onClick={() => changeArea("inside")} aria-label="Open hut door and go inside" className="absolute left-[1%] top-[15%] h-[47%] w-[29%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Go Inside</span></button>
           )}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button ref={destinationRef} type="button" onClick={() => changeArea(area === "inside" ? "patio" : "inside")} className="min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Go to Patio" : "Go Inside"}</button>
-          {area === "inside" && <button type="button" onClick={() => setFireOn(v => !v)} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-4 py-2 font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button ref={destinationRef} type="button" onClick={() => changeArea(area === "inside" ? "patio" : "inside")} className="min-h-11 rounded-xl bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white">{area === "inside" ? "Go to Patio" : "Go Inside"}</button>
+          {area === "inside" && <button type="button" onClick={() => setFireOn(v => !v)} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
-        {area === "inside" && <p role="status" className="mt-2 text-sm text-teal-950">Fireplace {fireOn ? "on" : "off"} (visual fire remains part of the background).</p>}
+        <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. The flames are part of the background image.</span>
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
-        {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
+        {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <button type="button" aria-expanded={showPatioSounds} onClick={() => setShowPatioSounds(v => !v)} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{showPatioSounds ? "Close Patio Sounds" : "Patio Sounds"}</button>}
+        {area === "patio" && showPatioSounds && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
           <h3 className="font-bold text-teal-950">Patio Sounds</h3>
           {placements["patio-chime"] && <>
             <button type="button" onClick={playChime} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 text-white">Play Wind Chimes</button>
