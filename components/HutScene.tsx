@@ -11,7 +11,7 @@ function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmo
   return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
 }
 const imagePath = (area: Area, night: boolean) =>
-  `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG`;
+  `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
   const { state, setMusicOverride } = useGame();
