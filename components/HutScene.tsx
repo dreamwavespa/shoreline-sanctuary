@@ -201,7 +201,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {activeSlots.map(slot => {
             const id = placements[slot.id];
-            const nightInterior = night && area === "inside";
+            const nightInterior = area === "inside";
             const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
             const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const item = id && ITEMS[id];
