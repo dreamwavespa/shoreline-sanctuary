@@ -11,7 +11,7 @@ function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmo
   return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
 }
 const imagePath = (area: Area, night: boolean) =>
-  `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
+  area === "inside" && !night ? "/images/Hut/Hut-day-updated.PNG" : `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
   const { state, setMusicOverride } = useGame();
@@ -197,7 +197,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <button ref={closeRef} type="button" onClick={onClose} className="min-h-11 rounded-xl bg-teal-900 px-4 py-2 font-bold text-white">Return to Beach</button>
         </div>
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
-        <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" && night ? "3 / 4" : "2 / 3" }}>
+        <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {activeSlots.map(slot => {
             const id = placements[slot.id];
