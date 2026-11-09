@@ -33,6 +33,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "wall-right", name: "Wall display, right", x: 65, y: 32 },
     { id: "coffee-table", name: "Coffee table", x: 47, y: 65 },
     { id: "side-table", name: "Side table", x: 94, y: 67 },
+    { id: "fireplace-mantel", name: "Fireplace mantel, near shelves", x: 10, y: 38 },
     { id: "sofa-pillow-left", name: "Sofa, left pillow", x: 68, y: 58 },
     { id: "sofa-pillow-right", name: "Sofa, right pillow", x: 84, y: 59 },
     { id: "shell-chair", name: "Seashell chair corner", x: 43, y: 79 },
@@ -62,7 +63,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isChairSlot = (id: string) => id === "shell-chair";
   const isPillowDecor = (id: string) => /pillow|cushion/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isChairDecor = (id: string) => /shell.chair|seashell.chair|pearl.shell.chair/i.test(id + " " + (ITEMS[id]?.name || ""));
-  const isTableSlot = (id: string) => id.includes("table");
+  const isTableSlot = (id: string) => id.includes("table") || id === "fireplace-mantel";
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
     count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || (id.includes("painting") || id.includes("artwork")))
@@ -202,11 +203,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = area === "inside";
-            const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
-            const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
+            const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "fireplace-mantel": 10, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
+            const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "fireplace-mantel": 38, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
-              "shelf2-left": { x: 15 }, "shelf3-left": { x: 15 },
-              "sofa-pillow-left": { x: 35, y: 48 }, "sofa-pillow-right": { x: 50, y: 48 },
+              "shelf1-right": { x: 27, y: 27 }, "shelf2-left": { x: 15 }, "shelf3-left": { x: 19, y: 39 }, "shelf3-right": { x: 28, y: 39 }, "fireplace-mantel": { x: 9, y: 38 },
+              "sofa-pillow-left": { x: 31, y: 46 }, "sofa-pillow-right": { x: 45, y: 46 },
               "coffee-table": { x: 47, y: 56 }, "side-table": { x: 91, y: 70 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
