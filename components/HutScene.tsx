@@ -235,13 +235,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             </select>
           </>}
           {placements["patio-fountain"] && <button type="button" onClick={() => {
-            if (fountainOn) setFountainOn(false);
-            else {
+            if (fountainOn) {
+              fountainAudioRef.current?.pause();
+              if (fountainAudioRef.current) fountainAudioRef.current.currentTime = 0;
+              setFountainOn(false);
+              setSoundMessage("Fountain sound off.");
+            } else {
               setFountainOn(true);
-              const audio = new Audio("/audio/Patio/fountain-loop.mp3");
-              audio.loop = true; audio.volume = 0.22;
-              fountainAudioRef.current?.pause(); fountainAudioRef.current = audio;
-              void audio.play().catch(() => setSoundMessage("Fountain audio could not play."));
+              setSoundMessage("Fountain sound on.");
             }
           }} aria-pressed={fountainOn} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 text-teal-950">{fountainOn ? "Turn Fountain Sound Off" : "Turn Fountain Sound On"}</button>}
           <p role="status" className="text-sm">{soundMessage}</p>
