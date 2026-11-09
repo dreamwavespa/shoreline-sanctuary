@@ -25,7 +25,7 @@ jobs:
             eval "$(ssh-agent -s)"
             echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
             echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-            printf '#!/bin/sh\\nprintf "%%s\\\\n" "$SSH_KEY_PASSPHRASE"\\n' > "$RUNNER_TEMP/ssh-askpass.sh"
+            printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/ssh-askpass.sh"
             chmod 700 "$RUNNER_TEMP/ssh-askpass.sh"
             DISPLAY=:0 SSH_ASKPASS="$RUNNER_TEMP/ssh-askpass.sh" SSH_ASKPASS_REQUIRE=force setsid ssh-add "$HOME/.ssh/shoreline_deploy_key" </dev/null
             rm -f "$RUNNER_TEMP/ssh-askpass.sh"
