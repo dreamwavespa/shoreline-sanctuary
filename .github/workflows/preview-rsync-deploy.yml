@@ -1,0 +1,78 @@
+name: Preview incremental Shoreline deployment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shoreline-incremental-preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Shoreline
+        run: pnpm run build
+
+      - name: Configure SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/shoreline_deploy_key
+          chmod 600 ~/.ssh/shoreline_deploy_key
+          if [ -n "$SSH_KEY_PASSPHRASE" ]; then
+            eval "$(ssh-agent -s)"
+            echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+            echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+            printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/ssh-askpass.sh"
+            chmod 700 "$RUNNER_TEMP/ssh-askpass.sh"
+            DISPLAY=:0 SSH_ASKPASS="$RUNNER_TEMP/ssh-askpass.sh" SSH_ASKPASS_REQUIRE=force setsid ssh-add "$HOME/.ssh/shoreline_deploy_key" </dev/null
+            rm -f "$RUNNER_TEMP/ssh-askpass.sh"
+          fi
+
+      - name: Preview rsync changes without uploading
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          port="${SSH_PORT:-22}"
+          ssh_cmd="ssh -i $HOME/.ssh/shoreline_deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p $port"
+          remote="${SSH_USERNAME}@${SSH_HOST}"
+          dest="/home/aflomfbj/shoreline.dreamwavespa.com/app"
+          printf '%s\n' "$GITHUB_SHA" > deploy-commit.txt
+          echo "DRY RUN ONLY: no files will be changed on Namecheap."
+          for path in public app components lib .next; do
+            echo "Previewing $path"
+            rsync -a --dry-run --stats --timeout=120 -e "$ssh_cmd" "$path/" "$remote:$dest/$path/"
+          done
+          for file in package.json next.config.js server.js deploy-commit.txt; do
+            rsync -a --dry-run --stats --timeout=120 -e "$ssh_cmd" "$file" "$remote:$dest/$file"
+          done
+          echo "Incremental deployment preview completed. No restart performed."
