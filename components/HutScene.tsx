@@ -33,7 +33,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "wall-right", name: "Wall display, right", x: 65, y: 32 },
     { id: "coffee-table", name: "Coffee table", x: 47, y: 65 },
     { id: "side-table", name: "Side table", x: 94, y: 67 },
-    { id: "fireplace-mantel", name: "Fireplace mantel, near shelves", x: 10, y: 38 },
+    { id: "fireplace-mantel", name: "Fireplace hearth, beside sofa", x: 17, y: 59 },
     { id: "sofa-pillow-left", name: "Sofa, left pillow", x: 68, y: 58 },
     { id: "sofa-pillow-right", name: "Sofa, right pillow", x: 84, y: 59 },
     { id: "shell-chair", name: "Seashell chair corner", x: 43, y: 79 },
@@ -228,12 +228,12 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = area === "inside";
-            const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "fireplace-mantel": 10, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
-            const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "fireplace-mantel": 38, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
+            const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "fireplace-mantel": 17, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
+            const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "fireplace-mantel": 59, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
-              "shelf1-right": { x: 27, y: 27 }, "shelf2-left": { x: 15 }, "shelf3-left": { x: 19, y: 39 }, "shelf3-right": { x: 28, y: 39 }, "fireplace-mantel": { x: 9, y: 38 },
+              "shelf1-right": { x: 27, y: 28 }, "shelf2-left": { x: 16, y: 33 }, "shelf2-right": { x: 30, y: 33 }, "shelf3-left": { x: 20, y: 40 }, "shelf3-right": { x: 30, y: 40 }, "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 46 }, "sofa-pillow-right": { x: 45, y: 46 },
-              "coffee-table": { x: 47, y: 56 }, "side-table": { x: 91, y: 70 },
+              "coffee-table": { x: 47, y: 56 }, "side-table": { x: 96, y: 67 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
@@ -246,7 +246,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" ? (
             <>
               <button type="button" onClick={() => changeArea("patio")} aria-label="Open patio door and go outside" className="absolute left-[71%] top-[20%] h-[36%] w-[27%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Go to Patio</span></button>
-              <button type="button" onClick={toggleFireplace} aria-label={fireOn ? "Fireplace, turn fire off" : "Fireplace, turn fire on"} aria-pressed={fireOn} className="absolute left-[1%] top-[37%] h-[24%] w-[21%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Toggle Fireplace</span></button>
+              <button type="button" onClick={toggleFireplace} aria-label={fireOn ? "Fireplace, turn fire off" : "Fireplace, turn fire on"} aria-pressed={fireOn} className="absolute left-[1%] top-[43%] h-[13%] w-[13%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Toggle Fireplace</span></button>
             </>
           ) : (
             <button type="button" onClick={() => changeArea("inside")} aria-label="Open hut door and go inside" className="absolute left-[1%] top-[15%] h-[47%] w-[29%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Go Inside</span></button>
