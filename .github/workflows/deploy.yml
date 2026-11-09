@@ -37,6 +37,7 @@ jobs:
 
       - name: Create deployment archive
         run: |
+          printf "%s\n" "${{ github.sha }}" > deploy-commit.txt
           tar -czf deploy.tar.gz \
             .next \
             app \
@@ -45,7 +46,8 @@ jobs:
             public \
             package.json \
             next.config.js \
-            server.js
+            server.js \
+            deploy-commit.txt
 
       - name: Upload deployment archive
         id: upload
@@ -72,7 +74,22 @@ jobs:
           script: |
             set -e
             cd /home/aflomfbj/shoreline.dreamwavespa.com/app
-            tar -xzf deploy.tar.gz
+            # Stage the new Next.js build separately so old build artifacts cannot linger.
+            mkdir -p tmp
+            stage_dir=$(mktemp -d ./tmp/shoreline-build.XXXXXX)
+            tar -xzf deploy.tar.gz -C "$stage_dir" .next
+            test -f "$stage_dir/.next/BUILD_ID"
+            # Extract application files without merging the .next directories.
+            tar -xzf deploy.tar.gz --exclude='./.next' --exclude='.next'
+            # Swap builds with a rollback path if the move fails.
+            if [ -d .next ]; then mv .next "$stage_dir/previous-next"; fi
+            if ! mv "$stage_dir/.next" .next; then
+              if [ -d "$stage_dir/previous-next" ]; then mv "$stage_dir/previous-next" .next; fi
+              exit 1
+            fi
+            printf 'Deployed commit: '; cat deploy-commit.txt
+            printf 'Next build ID: '; cat .next/BUILD_ID
+            rm -rf "$stage_dir"
             mkdir -p tmp
             touch tmp/restart.txt
 
