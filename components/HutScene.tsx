@@ -231,7 +231,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const slotX = nightInterior ? ({ "shelf1-left": 13, "shelf1-right": 28, "shelf2-left": 13, "shelf2-right": 25, "shelf3-left": 13, "shelf3-right": 25, "fireplace-mantel": 17, "wall": 81, "wall-left": 77, "wall-right": 90, "coffee-table": 60, "side-table": 97, "sofa-pillow-left": 33, "sofa-pillow-right": 48, "shell-chair": 49 } as Record<string, number>)[slot.id] ?? slot.x : slot.x;
             const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "fireplace-mantel": 59, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
-              "shelf1-left": { x: 20, y: 27 }, "shelf1-right": { x: 27, y: 28 }, "shelf2-left": { x: 17, y: 32 }, "shelf2-right": { x: 30, y: 33 }, "shelf3-left": { x: 21, y: 38 }, "shelf3-right": { x: 30, y: 38 }, "fireplace-mantel": { x: 17, y: 59 },
+              "shelf1-left": { x: 20, y: 27 }, "shelf1-right": { x: 28, y: 26 }, "shelf2-left": { x: 17, y: 32 }, "shelf2-right": { x: 30, y: 33 }, "shelf3-left": { x: 21, y: 38 }, "shelf3-right": { x: 30, y: 38 }, "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 46 }, "sofa-pillow-right": { x: 45, y: 46 },
               "coffee-table": { x: 56, y: 56 }, "side-table": { x: 96, y: 67 },
             };
