@@ -206,8 +206,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const slotY = nightInterior ? ({ "shelf1-left": 25, "shelf1-right": 25, "shelf2-left": 32, "shelf2-right": 32, "shelf3-left": 38, "shelf3-right": 38, "wall": 34, "wall-left": 33, "wall-right": 39, "coffee-table": 57, "side-table": 70, "sofa-pillow-left": 53, "sofa-pillow-right": 53, "shell-chair": 81 } as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
               "shelf2-left": { x: 15 }, "shelf3-left": { x: 15 },
-              "sofa-pillow-left": { x: 35, y: 51 }, "sofa-pillow-right": { x: 50, y: 51 },
-              "coffee-table": { x: 54, y: 57 }, "side-table": { x: 95, y: 69 },
+              "sofa-pillow-left": { x: 35, y: 48 }, "sofa-pillow-right": { x: 50, y: 48 },
+              "coffee-table": { x: 47, y: 56 }, "side-table": { x: 91, y: 70 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
