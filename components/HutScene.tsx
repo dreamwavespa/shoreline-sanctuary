@@ -168,6 +168,31 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
   const [fireOn, setFireOn] = useState(true);
+  const fireplaceAudioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    const audio = new Audio("/audio/Hut-Fireplace-Crackling-Loop.mp3");
+    audio.loop = true;
+    audio.volume = 0.2;
+    fireplaceAudioRef.current = audio;
+    return () => { audio.pause(); audio.removeAttribute("src"); audio.load(); fireplaceAudioRef.current = null; };
+  }, []);
+  useEffect(() => {
+    const audio = fireplaceAudioRef.current;
+    if (!audio) return;
+    if (area !== "inside" || !fireOn) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }, [area, fireOn]);
+  const toggleFireplace = () => {
+    const next = !fireOn;
+    setFireOn(next);
+    const audio = fireplaceAudioRef.current;
+    if (!audio) return;
+    if (next && area === "inside") void audio.play().catch(() => {});
+    else { audio.pause(); audio.currentTime = 0; }
+  };
+
   const closeRef = useRef<HTMLButtonElement>(null);
   const destinationRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -221,7 +246,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "inside" ? (
             <>
               <button type="button" onClick={() => changeArea("patio")} aria-label="Open patio door and go outside" className="absolute left-[71%] top-[20%] h-[36%] w-[27%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Go to Patio</span></button>
-              <button type="button" onClick={() => setFireOn(v => !v)} aria-label={fireOn ? "Fireplace, turn fire off" : "Fireplace, turn fire on"} aria-pressed={fireOn} className="absolute left-[1%] top-[37%] h-[24%] w-[21%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Toggle Fireplace</span></button>
+              <button type="button" onClick={toggleFireplace} aria-label={fireOn ? "Fireplace, turn fire off" : "Fireplace, turn fire on"} aria-pressed={fireOn} className="absolute left-[1%] top-[37%] h-[24%] w-[21%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Toggle Fireplace</span></button>
             </>
           ) : (
             <button type="button" onClick={() => changeArea("inside")} aria-label="Open hut door and go inside" className="absolute left-[1%] top-[15%] h-[47%] w-[29%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><span className="sr-only">Go Inside</span></button>
@@ -229,7 +254,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <button ref={destinationRef} type="button" onClick={() => changeArea(area === "inside" ? "patio" : "inside")} className="min-h-11 rounded-xl bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white">{area === "inside" ? "Go to Patio" : "Go Inside"}</button>
-          {area === "inside" && <button type="button" onClick={() => setFireOn(v => !v)} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
+          {area === "inside" && <button type="button" onClick={toggleFireplace} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
         <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. The flames are part of the background image.</span>
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
