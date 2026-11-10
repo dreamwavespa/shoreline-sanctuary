@@ -260,13 +260,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const slotX = nightInterior ? ({"shelf1-left":22,"shelf1-right":34,"shelf2-left":22,"shelf2-right":34,"shelf3-left":22,"shelf3-right":34,"fireplace-mantel":17,"wall":86,"wall-left":86,"wall-right":90,"coffee-table":59,"side-table":98,"sofa-pillow-left":34,"sofa-pillow-right":49,"shell-chair":61} as Record<string, number>)[slot.id] ?? slot.x : slot.x;
             const slotY = nightInterior ? ({"shelf1-left":23,"shelf1-right":24.5,"shelf2-left":30,"shelf2-right":30,"shelf3-left":36.5,"shelf3-right":36.5,"fireplace-mantel":59,"wall":38,"wall-left":29,"wall-right":46,"coffee-table":53,"side-table":62,"sofa-pillow-left":49,"sofa-pillow-right":49,"shell-chair":73} as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
-              "shelf1-left": { x: 21.5, y: 20.8 }, "shelf1-right": { x: 32, y: 21.8 },
-              "shelf2-left": { x: 21.5, y: 27.2 }, "shelf2-right": { x: 32, y: 27.7 },
-              "shelf3-left": { x: 21.5, y: 33.8 }, "shelf3-right": { x: 32, y: 34.1 },
+              "shelf1-left": { x: 21.5, y: 18.4 }, "shelf1-right": { x: 32, y: 19.3 },
+              "shelf2-left": { x: 21.5, y: 24.8 }, "shelf2-right": { x: 32, y: 25.2 },
+              "shelf3-left": { x: 21.5, y: 31.3 }, "shelf3-right": { x: 32, y: 31.6 },
               "wall": { x: 87, y: 38 }, "wall-left": { x: 86, y: 29 }, "wall-right": { x: 90, y: 46 },
               "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 49 }, "sofa-pillow-right": { x: 45, y: 49 },
-              "coffee-table": { x: 59, y: 53.8 }, "side-table": { x: 96, y: 64 },
+              "coffee-table": { x: 56.5, y: 53.8 }, "side-table": { x: 96, y: 64 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
