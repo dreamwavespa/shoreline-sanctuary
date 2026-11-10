@@ -226,7 +226,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: night ? "4.2%" : "3.3%", top: night ? "49%" : "47.8%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: night ? "4.2%" : "2.8%", top: night ? "49%" : "46.5%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
               <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-70" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,193,112,.75), rgba(81,216,230,.28) 55%, transparent 78%)" }} />
               {[
                 { left: "6%", width: "43%", height: "69%", delay: "0s", color: "#4fe5e1" },
