@@ -228,8 +228,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = area === "inside" && night;
-            const slotX = nightInterior ? ({"shelf1-left":22,"shelf1-right":34,"shelf2-left":22,"shelf2-right":34,"shelf3-left":22,"shelf3-right":34,"fireplace-mantel":17,"wall":86,"wall-left":83,"wall-right":90,"coffee-table":59,"side-table":98,"sofa-pillow-left":34,"sofa-pillow-right":49,"shell-chair":49} as Record<string, number>)[slot.id] ?? slot.x : slot.x;
-            const slotY = nightInterior ? ({"shelf1-left":23,"shelf1-right":24.5,"shelf2-left":30,"shelf2-right":30,"shelf3-left":36.5,"shelf3-right":36.5,"fireplace-mantel":59,"wall":38,"wall-left":29,"wall-right":46,"coffee-table":53,"side-table":69,"sofa-pillow-left":49,"sofa-pillow-right":49,"shell-chair":78} as Record<string, number>)[slot.id] ?? slot.y : slot.y;
+            const slotX = nightInterior ? ({"shelf1-left":22,"shelf1-right":34,"shelf2-left":22,"shelf2-right":34,"shelf3-left":22,"shelf3-right":34,"fireplace-mantel":17,"wall":86,"wall-left":86,"wall-right":90,"coffee-table":59,"side-table":95,"sofa-pillow-left":34,"sofa-pillow-right":49,"shell-chair":49} as Record<string, number>)[slot.id] ?? slot.x : slot.x;
+            const slotY = nightInterior ? ({"shelf1-left":23,"shelf1-right":24.5,"shelf2-left":30,"shelf2-right":30,"shelf3-left":36.5,"shelf3-right":36.5,"fireplace-mantel":59,"wall":38,"wall-left":29,"wall-right":46,"coffee-table":53,"side-table":65,"sofa-pillow-left":49,"sofa-pillow-right":49,"shell-chair":78} as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
               "shelf1-left": { x: 21.5, y: 22.5 }, "shelf1-right": { x: 31.5, y: 22.5 }, "shelf2-left": { x: 18.5, y: 27.5 }, "shelf2-right": { x: 31, y: 29 }, "shelf3-left": { x: 22, y: 35 }, "shelf3-right": { x: 31, y: 36 }, "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 49 }, "sofa-pillow-right": { x: 45, y: 49 },
