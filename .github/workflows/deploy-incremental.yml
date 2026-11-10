@@ -106,7 +106,7 @@ jobs:
             touch tmp/restart.txt"
 
       - name: Clean up this run's staging directory
-        if: ${{ always() }}
+        if: ${{ success() }}
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
