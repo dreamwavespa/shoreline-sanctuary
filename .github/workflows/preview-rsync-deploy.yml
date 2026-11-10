@@ -70,7 +70,11 @@ jobs:
           echo "DRY RUN ONLY: no files will be changed on Namecheap."
           for path in public app components lib .next; do
             echo "Previewing $path"
-            rsync -a --dry-run --stats --timeout=120 -e "$ssh_cmd" "$path/" "$remote:$dest/$path/"
+            if [ "$path" = "public" ]; then
+              rsync -a --checksum --dry-run --stats --timeout=120 -e "$ssh_cmd" "$path/" "$remote:$dest/$path/"
+            else
+              rsync -a --dry-run --stats --timeout=120 -e "$ssh_cmd" "$path/" "$remote:$dest/$path/"
+            fi
           done
           for file in package.json next.config.js server.js deploy-commit.txt; do
             rsync -a --dry-run --stats --timeout=120 -e "$ssh_cmd" "$file" "$remote:$dest/$file"
