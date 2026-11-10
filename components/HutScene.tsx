@@ -226,19 +226,19 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "4.8%", top: "46.5%", width: "10.5%", height: "10.5%", borderRadius: "30% 30% 10% 10%" }}>
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "5.2%", top: "49%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
               <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-70" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,193,112,.75), rgba(81,216,230,.28) 55%, transparent 78%)" }} />
               {[
-                { left: "5%", width: "45%", height: "70%", delay: "0s", color: "#4fe5e1" },
-                { left: "27%", width: "43%", height: "92%", delay: "-.7s", color: "#bd9aff" },
-                { left: "54%", width: "38%", height: "76%", delay: "-1.3s", color: "#79b9ff" },
+                { left: "6%", width: "43%", height: "69%", delay: "0s", color: "#4fe5e1" },
+                { left: "28%", width: "40%", height: "83%", delay: "-.7s", color: "#bd9aff" },
+                { left: "56%", width: "35%", height: "67%", delay: "-1.3s", color: "#79b9ff" },
                 { left: "37%", width: "25%", height: "53%", delay: "-.3s", color: "#ffe1a0" },
               ].map((flame, index) => (
                 <div key={index} className="hut-magic-flame absolute bottom-[7%] origin-bottom" style={{
                   left: flame.left, width: flame.width, height: flame.height,
                   background: `linear-gradient(to top, #ffd49b 0%, ${flame.color} 55%, ${flame.color} 85%, transparent 100%)`,
-                  clipPath: "polygon(48% 0%, 65% 20%, 78% 38%, 95% 62%, 100% 82%, 83% 100%, 15% 100%, 0% 80%, 13% 57%, 33% 35%)",
-                  filter: "drop-shadow(0 0 2px rgba(124,230,255,.5))",
+                  borderRadius: "65% 35% 45% 45% / 90% 80% 25% 25%",
+                  filter: "drop-shadow(0 0 2px rgba(124,230,255,.35))",
                   animationDelay: flame.delay,
                 }} />
               ))}
