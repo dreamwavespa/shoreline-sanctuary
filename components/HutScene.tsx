@@ -226,30 +226,33 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: night ? "4.2%" : "3.8%", top: night ? "49%" : "46.5%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
-              <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-70" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,193,112,.75), rgba(81,216,230,.28) 55%, transparent 78%)" }} />
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{
+              left: night ? "4%" : "3.2%", top: night ? "49.5%" : "49.2%",
+              width: night ? "7%" : "7.2%", height: night ? "6.5%" : "6.7%",
+              borderRadius: "28% 28% 8% 8%"
+            }}>
+              <div className="absolute bottom-[4%] left-[6%] h-[35%] w-[88%] rounded-full" style={{
+                background: "radial-gradient(ellipse at bottom, rgba(255,184,95,.8), rgba(66,205,221,.35) 50%, transparent 80%)"
+              }} />
               {[
-                { left: "6%", width: "43%", height: "69%", delay: "0s", color: "#4fe5e1" },
-                { left: "28%", width: "40%", height: "83%", delay: "-.7s", color: "#bd9aff" },
-                { left: "56%", width: "35%", height: "67%", delay: "-1.3s", color: "#79b9ff" },
-                { left: "37%", width: "25%", height: "53%", delay: "-.3s", color: "#ffe1a0" },
+                { left: "10%", width: "35%", height: "60%", color: "#51dcd9", delay: "-.2s" },
+                { left: "33%", width: "35%", height: "78%", color: "#b5a0f5", delay: "-.9s" },
+                { left: "57%", width: "30%", height: "56%", color: "#83c6f5", delay: "-1.4s" },
               ].map((flame, index) => (
-                <div key={index} className="hut-magic-flame absolute bottom-[7%] origin-bottom" style={{
+                <div key={index} className="hut-magic-flame absolute bottom-[12%] origin-bottom" style={{
                   left: flame.left, width: flame.width, height: flame.height,
-                  background: `linear-gradient(to top, #ffd49b 0%, ${flame.color} 55%, ${flame.color} 85%, transparent 100%)`,
-                  borderRadius: "65% 35% 45% 45% / 90% 80% 25% 25%",
-                  filter: "drop-shadow(0 0 2px rgba(124,230,255,.35))",
-                  animationDelay: flame.delay,
+                  background: `linear-gradient(to top, #ffd59a, ${flame.color} 55%, transparent)`,
+                  borderRadius: "65% 35% 50% 50% / 90% 85% 20% 20%",
+                  animationDelay: flame.delay
                 }} />
               ))}
-              <div className="absolute bottom-[2%] left-[9%] h-[9%] w-[82%] rounded-full bg-amber-200/80 blur-[2px]" />
+              <div className="absolute bottom-[6%] left-[12%] h-[9%] w-[76%] rounded-full bg-amber-200/80 blur-[2px]" />
             </div>
           )}
           <style jsx>{`
             @keyframes hut-magic-flicker {
-              0%, 100% { transform: scaleX(.9) scaleY(.86) rotate(-4deg); opacity: .85; }
-              45% { transform: scaleX(1.08) scaleY(1.04) rotate(3deg); opacity: 1; }
-              75% { transform: scaleX(.96) scaleY(.93) rotate(-2deg); opacity: .9; }
+              0%, 100% { transform: scaleX(.9) scaleY(.86) rotate(-3deg); opacity: .8; }
+              50% { transform: scaleX(1.08) scaleY(1.05) rotate(3deg); opacity: 1; }
             }
             .hut-magic-flame { animation: hut-magic-flicker 2.4s ease-in-out infinite alternate; }
             @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
@@ -275,7 +278,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const decorWidth = isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
-              {item && <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}
+              {item && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}><DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /></div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
