@@ -1,0 +1,118 @@
+name: Deploy Shoreline incrementally (manual candidate)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shoreline-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build Shoreline
+        run: pnpm run build
+      - name: Configure SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/shoreline_deploy_key
+          chmod 600 ~/.ssh/shoreline_deploy_key
+          if [ -n "$SSH_KEY_PASSPHRASE" ]; then
+            eval "$(ssh-agent -s)"
+            echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+            echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+            printf '%s\n' '#!/bin/sh' 'printf "%s\\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/ssh-askpass.sh"
+            chmod 700 "$RUNNER_TEMP/ssh-askpass.sh"
+            DISPLAY=:0 SSH_ASKPASS="$RUNNER_TEMP/ssh-askpass.sh" SSH_ASKPASS_REQUIRE=force setsid ssh-add "$HOME/.ssh/shoreline_deploy_key" </dev/null
+            rm -f "$RUNNER_TEMP/ssh-askpass.sh"
+          fi
+
+      - name: Transfer incremental assets and staged build
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          port="${SSH_PORT:-22}"
+          ssh_cmd="ssh -i $HOME/.ssh/shoreline_deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p $port"
+          remote="${SSH_USERNAME}@${SSH_HOST}"
+          dest="/home/aflomfbj/shoreline.dreamwavespa.com/app"
+          stage="$dest/tmp/rsync-build-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          printf '%s\n' "$GITHUB_SHA" > deploy-commit.txt
+          echo "STAGE_DIR=$stage" >> "$GITHUB_ENV"
+          $ssh_cmd "$remote" "mkdir -p '$stage/.next' '$dest/public' '$dest/app' '$dest/components' '$dest/lib'"
+          # Content comparison skips unchanged artwork/audio.
+          rsync -a --checksum --stats --timeout=180 -e "$ssh_cmd" public/ "$remote:$dest/public/"
+          # Isolated staging build: safe to delete stale files inside this unique directory only.
+          rsync -a --stats --timeout=180 -e "$ssh_cmd" .next/ "$remote:$stage/.next/"
+          # Source and config files are small; transfer after staging the build.
+          for path in app components lib; do
+            rsync -a --stats --timeout=180 -e "$ssh_cmd" "$path/" "$remote:$dest/$path/"
+          done
+          for file in package.json next.config.js server.js; do
+            rsync -a --timeout=180 -e "$ssh_cmd" "$file" "$remote:$dest/$file"
+          done
+          rsync -a --timeout=180 -e "$ssh_cmd" deploy-commit.txt "$remote:$stage/deploy-commit.txt"
+          $ssh_cmd "$remote" "test -s '$stage/.next/BUILD_ID' && test -s '$stage/deploy-commit.txt'"
+
+      - name: Activate staged build and request restart
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          port="${SSH_PORT:-22}"
+          ssh_cmd="ssh -i $HOME/.ssh/shoreline_deploy_key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p $port"
+          remote="${SSH_USERNAME}@${SSH_HOST}"
+          dest="/home/aflomfbj/shoreline.dreamwavespa.com/app"
+          stage="$STAGE_DIR"
+          $ssh_cmd "$remote" "set -e
+            cd '$dest'
+            test -s '$stage/.next/BUILD_ID'
+            if [ -d .next ]; then mv .next '$stage/previous-next'; fi
+            if ! mv '$stage/.next' .next; then
+              if [ -d '$stage/previous-next' ]; then mv '$stage/previous-next' .next; fi
+              exit 1
+            fi
+            cp '$stage/deploy-commit.txt' deploy-commit.txt
+            printf 'Deployed commit: '; cat deploy-commit.txt
+            printf 'Next build ID: '; cat .next/BUILD_ID
+            mkdir -p tmp
+            touch tmp/restart.txt"
+
+      - name: Clean up this run's staging directory
+        if: ${{ success() }}
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${STAGE_DIR:-}" ]; then exit 0; fi
+          port="${SSH_PORT:-22}"
+          ssh -i "$HOME/.ssh/shoreline_deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p "$port" "${SSH_USERNAME}@${SSH_HOST}" "rm -rf '$STAGE_DIR'"
