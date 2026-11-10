@@ -226,24 +226,30 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "5%", top: "46.5%", width: "9.5%", height: "10%", borderRadius: "40% 40% 12% 12%" }}>
-              <div className="absolute inset-x-0 bottom-0 h-[75%] rounded-full opacity-60" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,189,102,.85) 0%, rgba(76,219,231,.35) 45%, transparent 75%)" }} />
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "4.8%", top: "46.5%", width: "10.5%", height: "10.5%", borderRadius: "30% 30% 10% 10%" }}>
+              <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-70" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,193,112,.75), rgba(81,216,230,.28) 55%, transparent 78%)" }} />
               {[
-                { left: "8%", width: "42%", height: "76%", delay: "0s", color: "#53e2e5" },
-                { left: "29%", width: "45%", height: "94%", delay: "-.7s", color: "#b69bff" },
-                { left: "53%", width: "37%", height: "70%", delay: "-1.3s", color: "#72a9ff" },
-                { left: "35%", width: "26%", height: "55%", delay: "-.3s", color: "#ffd18c" },
+                { left: "5%", width: "45%", height: "70%", delay: "0s", color: "#4fe5e1" },
+                { left: "27%", width: "43%", height: "92%", delay: "-.7s", color: "#bd9aff" },
+                { left: "54%", width: "38%", height: "76%", delay: "-1.3s", color: "#79b9ff" },
+                { left: "37%", width: "25%", height: "53%", delay: "-.3s", color: "#ffe1a0" },
               ].map((flame, index) => (
-                <div key={index} className="hut-magic-flame absolute bottom-[5%] origin-bottom rounded-[55%_55%_48%_48%]" style={{ left: flame.left, width: flame.width, height: flame.height, background: `linear-gradient(to top, #ffdb9b 0%, ${flame.color} 48%, transparent 100%)`, filter: "blur(1.5px)", animationDelay: flame.delay }} />
+                <div key={index} className="hut-magic-flame absolute bottom-[7%] origin-bottom" style={{
+                  left: flame.left, width: flame.width, height: flame.height,
+                  background: `linear-gradient(to top, #ffd49b 0%, ${flame.color} 55%, ${flame.color} 85%, transparent 100%)`,
+                  clipPath: "polygon(48% 0%, 65% 20%, 78% 38%, 95% 62%, 100% 82%, 83% 100%, 15% 100%, 0% 80%, 13% 57%, 33% 35%)",
+                  filter: "drop-shadow(0 0 2px rgba(124,230,255,.5))",
+                  animationDelay: flame.delay,
+                }} />
               ))}
-              <div className="absolute bottom-0 left-[8%] h-[12%] w-[84%] rounded-full bg-amber-200/70 blur-[3px]" />
+              <div className="absolute bottom-[2%] left-[9%] h-[9%] w-[82%] rounded-full bg-amber-200/80 blur-[2px]" />
             </div>
           )}
           <style jsx>{`
             @keyframes hut-magic-flicker {
-              0%, 100% { transform: scaleX(.88) scaleY(.82) rotate(-5deg); opacity: .72; }
-              45% { transform: scaleX(1.12) scaleY(1.04) rotate(4deg); opacity: .96; }
-              75% { transform: scaleX(.94) scaleY(.92) rotate(-2deg); opacity: .82; }
+              0%, 100% { transform: scaleX(.9) scaleY(.86) rotate(-4deg); opacity: .85; }
+              45% { transform: scaleX(1.08) scaleY(1.04) rotate(3deg); opacity: 1; }
+              75% { transform: scaleX(.96) scaleY(.93) rotate(-2deg); opacity: .9; }
             }
             .hut-magic-flame { animation: hut-magic-flicker 2.4s ease-in-out infinite alternate; }
             @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
