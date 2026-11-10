@@ -225,6 +225,29 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+          {area === "inside" && fireOn && (
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "5%", top: "46.5%", width: "9.5%", height: "10%", borderRadius: "40% 40% 12% 12%" }}>
+              <div className="absolute inset-x-0 bottom-0 h-[75%] rounded-full opacity-60" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,189,102,.85) 0%, rgba(76,219,231,.35) 45%, transparent 75%)" }} />
+              {[
+                { left: "8%", width: "42%", height: "76%", delay: "0s", color: "#53e2e5" },
+                { left: "29%", width: "45%", height: "94%", delay: "-.7s", color: "#b69bff" },
+                { left: "53%", width: "37%", height: "70%", delay: "-1.3s", color: "#72a9ff" },
+                { left: "35%", width: "26%", height: "55%", delay: "-.3s", color: "#ffd18c" },
+              ].map((flame, index) => (
+                <div key={index} className="hut-magic-flame absolute bottom-[5%] origin-bottom rounded-[55%_55%_48%_48%]" style={{ left: flame.left, width: flame.width, height: flame.height, background: `linear-gradient(to top, #ffdb9b 0%, ${flame.color} 48%, transparent 100%)`, filter: "blur(1.5px)", animationDelay: flame.delay }} />
+              ))}
+              <div className="absolute bottom-0 left-[8%] h-[12%] w-[84%] rounded-full bg-amber-200/70 blur-[3px]" />
+            </div>
+          )}
+          <style jsx>{`
+            @keyframes hut-magic-flicker {
+              0%, 100% { transform: scaleX(.88) scaleY(.82) rotate(-5deg); opacity: .72; }
+              45% { transform: scaleX(1.12) scaleY(1.04) rotate(4deg); opacity: .96; }
+              75% { transform: scaleX(.94) scaleY(.92) rotate(-2deg); opacity: .82; }
+            }
+            .hut-magic-flame { animation: hut-magic-flicker 2.4s ease-in-out infinite alternate; }
+            @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
+          `}</style>
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = area === "inside" && night;
@@ -259,7 +282,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <button ref={destinationRef} type="button" onClick={() => changeArea(area === "inside" ? "patio" : "inside")} className="min-h-11 rounded-xl bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white">{area === "inside" ? "Go to Patio" : "Go Inside"}</button>
           {area === "inside" && <button type="button" onClick={toggleFireplace} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
-        <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. The flames are part of the background image.</span>
+        <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
         {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <button type="button" aria-expanded={showPatioSounds} onClick={() => setShowPatioSounds(v => !v)} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{showPatioSounds ? "Close Patio Sounds" : "Patio Sounds"}</button>}
         {area === "patio" && showPatioSounds && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
