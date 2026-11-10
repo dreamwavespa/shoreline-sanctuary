@@ -226,7 +226,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: "4.2%", top: "49%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
+            <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{ left: night ? "4.2%" : "3.3%", top: "49%", width: "8.3%", height: "7.3%", borderRadius: "18% 18% 10% 10%" }}>
               <div className="absolute inset-x-0 bottom-0 h-[45%] opacity-70" style={{ background: "radial-gradient(ellipse at bottom, rgba(255,193,112,.75), rgba(81,216,230,.28) 55%, transparent 78%)" }} />
               {[
                 { left: "6%", width: "43%", height: "69%", delay: "0s", color: "#4fe5e1" },
@@ -260,9 +260,12 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const slotX = nightInterior ? ({"shelf1-left":22,"shelf1-right":34,"shelf2-left":22,"shelf2-right":34,"shelf3-left":22,"shelf3-right":34,"fireplace-mantel":17,"wall":86,"wall-left":86,"wall-right":90,"coffee-table":59,"side-table":98,"sofa-pillow-left":34,"sofa-pillow-right":49,"shell-chair":61} as Record<string, number>)[slot.id] ?? slot.x : slot.x;
             const slotY = nightInterior ? ({"shelf1-left":23,"shelf1-right":24.5,"shelf2-left":30,"shelf2-right":30,"shelf3-left":36.5,"shelf3-right":36.5,"fireplace-mantel":59,"wall":38,"wall-left":29,"wall-right":46,"coffee-table":53,"side-table":62,"sofa-pillow-left":49,"sofa-pillow-right":49,"shell-chair":73} as Record<string, number>)[slot.id] ?? slot.y : slot.y;
             const daytimeAdjustments: Record<string, { x?: number; y?: number }> = {
-              "shelf1-left": { x: 21.5, y: 22.5 }, "shelf1-right": { x: 31.5, y: 22.5 }, "shelf2-left": { x: 18.5, y: 27.5 }, "shelf2-right": { x: 31, y: 29 }, "shelf3-left": { x: 22, y: 35 }, "shelf3-right": { x: 31, y: 36 }, "fireplace-mantel": { x: 17, y: 59 },
+              "shelf1-left": { x: 21.5, y: 23.2 }, "shelf1-right": { x: 32, y: 24 },
+              "shelf2-left": { x: 21.5, y: 29.7 }, "shelf2-right": { x: 32, y: 30.2 },
+              "shelf3-left": { x: 21.5, y: 36.2 }, "shelf3-right": { x: 32, y: 36.5 },
+              "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 49 }, "sofa-pillow-right": { x: 45, y: 49 },
-              "coffee-table": { x: 56, y: 56 }, "side-table": { x: 96, y: 67 },
+              "coffee-table": { x: 57.5, y: 55.5 }, "side-table": { x: 96, y: 64 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
