@@ -167,6 +167,54 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, placements["patio-fountain"], fountainOn]);
   useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
+  const patioBirds = [
+    { name: "Blue jay", calls: ["bird-bluejay-1.mp3", "bird-bluejay-2.mp3", "bird-bluejay-3.mp3"], symbol: "🐦" },
+    { name: "Chickadee", calls: ["bird-chickadee-1.mp3"], symbol: "🐦" },
+    { name: "Goldfinch", calls: ["bird-goldfinch-1.mp3", "bird-goldfinch-2.mp3", "bird-goldfinch-3.mp3"], symbol: "🐤" },
+    { name: "Hummingbird", calls: ["bird-hummingbird-1.mp3"], symbol: "🐦" },
+    { name: "Wren", calls: ["bird-wren-1.mp3", "bird-wren-2.mp3", "bird-wren-3.mp3"], symbol: "🐦" },
+  ];
+  const [visitingBird, setVisitingBird] = useState<number | null>(null);
+  const [birdMessage, setBirdMessage] = useState("");
+  const birdAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playBirdCall = (index: number) => {
+    const bird = patioBirds[index];
+    if (!bird) return;
+    birdAudioRef.current?.pause();
+    const file = bird.calls[Math.floor(Math.random() * bird.calls.length)];
+    const audio = new Audio("/audio/Birds/" + file);
+    audio.volume = 0.28;
+    birdAudioRef.current = audio;
+    void audio.play().catch(() => setBirdMessage("Bird sound could not play. Try the Listen button again."));
+  };
+  useEffect(() => {
+    if (area !== "patio" || night) {
+      setVisitingBird(null);
+      birdAudioRef.current?.pause();
+      return;
+    }
+    let arrivalTimer: ReturnType<typeof setTimeout>;
+    let departureTimer: ReturnType<typeof setTimeout>;
+    let active = true;
+    const schedule = () => {
+      arrivalTimer = setTimeout(() => {
+        if (!active) return;
+        if (!document.hidden) {
+          const index = Math.floor(Math.random() * patioBirds.length);
+          setVisitingBird(index);
+          setBirdMessage(patioBirds[index].name + " is visiting the patio.");
+          departureTimer = setTimeout(() => {
+            if (active) { setVisitingBird(null); setBirdMessage("The bird has flown away."); }
+          }, 45000);
+        }
+        schedule();
+      }, 30000 + Math.random() * 60000);
+    };
+    schedule();
+    return () => { active = false; clearTimeout(arrivalTimer); clearTimeout(departureTimer); birdAudioRef.current?.pause(); };
+  }, [area, night]);
+  useEffect(() => () => { birdAudioRef.current?.pause(); }, []);
+
   const [fireOn, setFireOn] = useState(true);
   const fireplaceAudioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
@@ -257,6 +305,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             .hut-magic-flame { animation: hut-magic-flicker 2.4s ease-in-out infinite alternate; }
             @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
           `}</style>
+          {area === "patio" && visitingBird !== null && !night && (
+            <button type="button" onClick={() => { setBirdMessage(patioBirds[visitingBird].name + " sings near the patio birdbath."); playBirdCall(visitingBird); }}
+              aria-label={patioBirds[visitingBird].name + " visiting the patio. Listen to bird call"}
+              className="absolute left-[12%] top-[48%] z-20 flex h-[10%] w-[12%] items-center justify-center rounded-full text-3xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+              <span aria-hidden="true">{patioBirds[visitingBird].symbol}</span>
+            </button>
+          )}
           {activeSlots.map(slot => {
             const id = placements[slot.id];
             const nightInterior = area === "inside" && night;
@@ -295,6 +350,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <button ref={destinationRef} type="button" onClick={() => changeArea(area === "inside" ? "patio" : "inside")} className="min-h-11 rounded-xl bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white">{area === "inside" ? "Go to Patio" : "Go Inside"}</button>
           {area === "inside" && <button type="button" onClick={toggleFireplace} aria-pressed={fireOn} className="min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{fireOn ? "Turn Fireplace Off" : "Turn Fireplace On"}</button>}
         </div>
+        {area === "patio" && <section aria-label="Patio bird visitors" className="mt-2 rounded-xl border border-teal-800/40 p-3 text-sm text-teal-950">
+          <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
+          {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
+        </section>}
         <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
         {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <button type="button" aria-expanded={showPatioSounds} onClick={() => setShowPatioSounds(v => !v)} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{showPatioSounds ? "Close Patio Sounds" : "Patio Sounds"}</button>}
