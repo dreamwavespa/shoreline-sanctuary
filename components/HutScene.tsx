@@ -168,6 +168,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
   const patioBirds = [
+    { name: "Robin", calls: ["Robin-greeting.mp3"], symbol: "🐦" },
     { name: "Blue jay", calls: ["bird-bluejay-1.mp3", "bird-bluejay-2.mp3", "bird-bluejay-3.mp3"], symbol: "🐦" },
     { name: "Chickadee", calls: ["bird-chickadee-1.mp3"], symbol: "🐦" },
     { name: "Goldfinch", calls: ["bird-goldfinch-1.mp3", "bird-goldfinch-2.mp3", "bird-goldfinch-3.mp3"], symbol: "🐤" },
@@ -182,7 +183,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!bird) return;
     birdAudioRef.current?.pause();
     const file = bird.calls[Math.floor(Math.random() * bird.calls.length)];
-    const audio = new Audio("/audio/Birds/" + file);
+    const audio = new Audio(file === "Robin-greeting.mp3" ? "/audio/" + file : "/audio/Birds/" + file);
     audio.volume = 0.28;
     birdAudioRef.current = audio;
     void audio.play().catch(() => setBirdMessage("Bird sound could not play. Try the Listen button again."));
