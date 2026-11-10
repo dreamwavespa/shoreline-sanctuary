@@ -263,6 +263,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
               "shelf1-left": { x: 21.5, y: 23.2 }, "shelf1-right": { x: 32, y: 24 },
               "shelf2-left": { x: 21.5, y: 29.7 }, "shelf2-right": { x: 32, y: 30.2 },
               "shelf3-left": { x: 21.5, y: 36.2 }, "shelf3-right": { x: 32, y: 36.5 },
+              "wall": { x: 87, y: 38 }, "wall-left": { x: 86, y: 29 }, "wall-right": { x: 90, y: 46 },
               "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 49 }, "sofa-pillow-right": { x: 45, y: 49 },
               "coffee-table": { x: 57.5, y: 55.5 }, "side-table": { x: 96, y: 64 },
