@@ -227,7 +227,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
             <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{
-              left: night ? "4%" : "2.7%", top: night ? "49.5%" : "49.2%",
+              left: night ? "4%" : "1.9%", top: night ? "49.5%" : "47.8%",
               width: night ? "7%" : "8.2%", height: night ? "6.5%" : "6.7%",
               borderRadius: "28% 28% 8% 8%"
             }}>
