@@ -444,9 +444,9 @@ export default function CoveScene() {
             <span className="sr-only">Exposed Cove rocks</span>
           </button>
         )}
-        <button ref={trapButtonRef} type="button" onClick={() => { setShowTrap(true); setShowChest(false); setDockOpen(false); setShowCollection(false); setShowLowTide(false); }} aria-label={trapPlaced ? "Inspect placed lobster trap" : "Place a crafted lobster trap"} aria-expanded={showTrap}
+        <button ref={trapButtonRef} type="button" onClick={() => { setShowTrap(true); setShowChest(false); setDockOpen(false); setShowCollection(false); setShowLowTide(false); }} aria-label={trapPlaced ? "Lobster trap in Cove shallows. Open daily wildlife check" : (state.inventory["lobster-trap"] || 0) > 0 ? "Cove shallows. Place your crafted lobster trap" : "Cove shallows. Craft a lobster trap in the Workshop to place it here"} aria-expanded={showTrap}
           className="absolute right-[7%] top-[78%] z-10 h-[11%] w-[25%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
-          {trapPlaced ? <Image src="/images/Lobster_Trap.png" alt="" fill unoptimized className="object-contain" /> : <span aria-hidden="true" className="rounded-lg bg-teal-900/90 px-3 py-2 text-white">🦞</span>}
+          {trapPlaced ? <Image src="/images/Lobster_Trap.png" alt="" fill unoptimized className="object-contain drop-shadow-lg" /> : <span aria-hidden="true" className="rounded-full bg-teal-900/85 px-3 py-2 text-xl text-white">🦞</span>}
         </button>
         {spots.map(spot => {
           const def = ITEMS[spot.itemId];
