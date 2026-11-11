@@ -217,6 +217,69 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, night]);
   useEffect(() => () => { birdAudioRef.current?.pause(); }, []);
 
+  type ArchieGift = { id: string; name: string; night: string; hidingPlace: number };
+  const archiePlaces = ["behind the flower planter", "beside the patio birdbath", "under the patio chair"];
+  const archieGifts = [
+    { id: "shoreline-page", name: "Forgotten Shoreline Book Page" },
+    { id: "salt-grass-bookmark", name: "Pressed Salt-Grass Bookmark" },
+    { id: "midnight-candle", name: "Midnight Reading Candle" },
+    { id: "old-map-fragment", name: "Old Shoreline Map Fragment" },
+  ];
+  const [archiePending, setArchiePending] = useState<ArchieGift[]>([]);
+  const [archieFound, setArchieFound] = useState<ArchieGift[]>([]);
+  const [archieMessage, setArchieMessage] = useState("");
+  const [archieSeen, setArchieSeen] = useState(false);
+  const [archieReady, setArchieReady] = useState(false);
+  const archieAudioRef = useRef<HTMLAudioElement | null>(null);
+  const archieKey = "shoreline-archie-visits-v1";
+  const saveArchie = (pending: ArchieGift[], found: ArchieGift[], lastNight: string) => {
+    try { window.localStorage.setItem(archieKey, JSON.stringify({ pending, found, lastNight })); } catch {}
+    setArchiePending(pending);
+    setArchieFound(found);
+  };
+  useEffect(() => {
+    const today = new Date();
+    const dayKey = (date: Date) => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), String(date.getDate()).padStart(2, "0")].join("-");
+    const previous = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    const eligibleNight = night ? today : previous;
+    const nightKey = dayKey(eligibleNight);
+    let saved: { pending?: ArchieGift[]; found?: ArchieGift[]; lastNight?: string } = {};
+    try { saved = JSON.parse(window.localStorage.getItem(archieKey) || "{}"); } catch {}
+    const pending = Array.isArray(saved.pending) ? saved.pending : [];
+    const found = Array.isArray(saved.found) ? saved.found : [];
+    // Archie visits roughly three nights a week. Unfound gifts stay until collected.
+    const dayNumber = Math.floor(new Date(eligibleNight.getFullYear(), eligibleNight.getMonth(), eligibleNight.getDate()).getTime() / 86400000);
+    if (saved.lastNight !== nightKey && dayNumber % 7 < 3) {
+      const count = pending.length + found.length;
+      const gift = archieGifts[count % archieGifts.length];
+      pending.push({ ...gift, night: nightKey, hidingPlace: (dayNumber + 700000) % archiePlaces.length });
+    }
+    const lastNight = saved.lastNight === nightKey || dayNumber % 7 < 3 ? nightKey : (saved.lastNight || nightKey);
+    saveArchie(pending, found, lastNight);
+    setArchieReady(true);
+  }, [night]);
+  useEffect(() => {
+    if (area !== "patio" || !night) { setArchieSeen(false); return; }
+    // Archie is elusive: only occasional sightings, never guaranteed.
+    const seen = Math.random() < 0.16;
+    setArchieSeen(seen);
+    return () => setArchieSeen(false);
+  }, [area, night]);
+  useEffect(() => () => { archieAudioRef.current?.pause(); }, []);
+  const listenForArchie = () => {
+    // An owl call file can be added later; do not substitute another bird's call.
+    setArchieMessage(archieSeen ? "A pale owl with luminous amber eyes watches quietly from the patio railing." : "The night is quiet. Archie may have visited unseen.");
+  };
+  const searchArchie = (place: number) => {
+    if (night) { setArchieMessage("Archie prefers privacy at night. Search for his gifts after sunrise."); return; }
+    const index = archiePending.findIndex(gift => gift.hidingPlace === place);
+    if (index < 0) { setArchieMessage("You searched " + archiePlaces[place] + ", but found no gift this time."); return; }
+    const gift = archiePending[index];
+    const nextPending = archiePending.filter((_, i) => i !== index);
+    const saved = (() => { try { return JSON.parse(window.localStorage.getItem(archieKey) || "{}"); } catch { return {}; } })();
+    saveArchie(nextPending, [...archieFound, gift], saved.lastNight || "");
+    setArchieMessage("You found Archie's " + gift.name + "! It has been added to Archie's keepsake collection.");
+  };
   const [fireOn, setFireOn] = useState(true);
   const fireplaceAudioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
@@ -307,6 +370,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             .hut-magic-flame { animation: hut-magic-flicker 2.4s ease-in-out infinite alternate; }
             @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
           `}</style>
+          {area === "patio" && night && archieSeen && (
+            <button type="button" onClick={listenForArchie} aria-label="Rare sighting: Archie the night owl on the patio railing" className="absolute right-[9%] top-[25%] z-30 flex h-[17%] w-[18%] items-center justify-center rounded-xl text-5xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+              <span aria-hidden="true">🦉</span>
+            </button>
+          )}
           {area === "patio" && visitingBird !== null && !night && (
             <button type="button" onClick={() => { setBirdMessage(patioBirds[visitingBird].name + " sings near the patio birdbath."); playBirdCall(visitingBird); }}
               aria-label={patioBirds[visitingBird].name + " visiting the patio. Listen to bird call"}
@@ -356,6 +424,20 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
           {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
         </section>}
+        {area === "patio" && archieReady && (
+          <section aria-labelledby="archie-title" className="mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 text-sm text-indigo-950">
+            <h3 id="archie-title" className="text-base font-bold">Archie the Night Owl</h3>
+            <p className="mt-1">{night ? "Archie sometimes visits after sunset, but rarely allows himself to be seen. Any gifts he leaves can be searched for in daylight." : "Search the patio for anything Archie may have left overnight. His gifts remain until discovered."}</p>
+            {night ? <button type="button" onClick={listenForArchie} className="mt-2 min-h-11 rounded-lg border border-indigo-700 px-3 py-2 font-semibold">Look for Archie</button> : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {archiePlaces.map((place, index) => <button key={place} type="button" onClick={() => searchArchie(index)} className="min-h-11 rounded-lg border border-indigo-700 px-3 py-2 font-semibold">Search {place}</button>)}
+              </div>
+            )}
+            {archieMessage && <p className="mt-2" role="status" aria-live="polite">{archieMessage}</p>}
+            <p className="mt-2">Archie's keepsakes discovered: {archieFound.length}. Book pages: {archieFound.filter(g => g.id === "shoreline-page").length}. Map fragments: {archieFound.filter(g => g.id === "old-map-fragment").length}.</p>
+            {archieFound.length > 0 && <details className="mt-2"><summary className="cursor-pointer font-semibold">View discovered keepsakes</summary><ul className="mt-1 list-inside list-disc">{archieFound.map((gift, index) => <li key={gift.night + index}>{gift.name}</li>)}</ul></details>}
+          </section>
+        )}
         {area === "inside" && <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>}
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
         {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <button type="button" aria-expanded={showPatioSounds} onClick={() => setShowPatioSounds(v => !v)} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{showPatioSounds ? "Close Patio Sounds" : "Patio Sounds"}</button>}
