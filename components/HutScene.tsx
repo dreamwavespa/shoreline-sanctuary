@@ -17,6 +17,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const { state, setMusicOverride, collectItem } = useGame();
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
+  const [vaseFlowers, setVaseFlowers] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [curtainStyle, setCurtainStyle] = useState("");
@@ -78,7 +79,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (slot.startsWith("patio-chair")) return /beach.chair/i.test(name);
     if (slot === "patio-chime") return /wind.chime|winter.chime/i.test(name);
     if (slot === "patio-lantern") return /lantern/i.test(name);
-    if (slot === "patio-planter") return /flower|bouquet|plant|vase/i.test(name);
+    if (slot === "patio-planter") return id.startsWith("arrangement:") || /flower|bouquet|plant|vase/i.test(name);
     return true;
   };
   const isWallSlot = (id: string) => id.startsWith("wall");
@@ -88,24 +89,37 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isChairDecor = (id: string) => /shell.chair|seashell.chair|pearl.shell.chair/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isTableSlot = (id: string) => id.includes("table") || id === "fireplace-mantel";
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
+  const isArrangement = (id: string) => id.startsWith("arrangement:");
+  const arrangementFor = (id: string) => state.flowerArrangements.find(a => "arrangement:" + a.id === id);
+  const decorName = (id: string) => isArrangement(id) ? (arrangementFor(id)?.name || "Flower arrangement") : (ITEMS[id]?.name || id);
+  const decorIcon = (id: string) => isArrangement(id) ? (ITEMS[arrangementFor(id)?.vaseId || ""]?.icon || "") : (ITEMS[id]?.icon || "");
+  const usedCount = (id: string, excluding?: string) => Object.entries(placements).filter(([slot, item]) => slot !== excluding && item === id).length;
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
-    count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || (id.includes("painting") || id.includes("artwork")))
+    count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || id === "tidekeeper-vase" || id.startsWith("flower-") || id.includes("painting") || id.includes("artwork"))
   ).sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name));
+  const availableArrangements = state.flowerArrangements.filter(a => !usedCount("arrangement:" + a.id));
+  const isFlowerSlot = (slot: string) => slot === "patio-planter" || slot === "coffee-table" || slot === "side-table" || slot.startsWith("shelf");
+  const flowerOptions = Object.entries(state.inventory).filter(([id, count]) => count > 0 && id.startsWith("flower-") && ITEMS[id] && !id.includes("vase") && !id.includes("curtain"));
+  const saveVaseFlowers = (next: string[]) => {
+    setVaseFlowers(next);
+    try { window.localStorage.setItem("shoreline-tidekeeper-flowers-v1", JSON.stringify(next)); } catch {}
+  };
   const savePlacement = (next: Record<string, string>) => {
     setPlacements(next);
     try { window.localStorage.setItem("shoreline-hut-displays-v1", JSON.stringify(next)); } catch {}
   };
   const place = (id: string) => {
     if (!selectedSlot) return;
+    if (isArrangement(id) && !isFlowerSlot(selectedSlot)) { setAnnouncement("Choose a table, shelf, or flower display for this arrangement."); return; }
     if (isPatioSlot(selectedSlot) && !patioMatches(selectedSlot, id)) { setAnnouncement("Choose a suitable patio decoration for this position."); return; }
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or cushion for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
-    const count = state.inventory[id] || 0;
+    const count = isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
     const usedElsewhere = Object.entries(placements).filter(([slot, item]) => slot !== selectedSlot && item === id).length;
     if (usedElsewhere >= count) { setAnnouncement("All owned copies of that decoration are already displayed."); return; }
     savePlacement({ ...placements, [selectedSlot]: id });
-    setAnnouncement(`${ITEMS[id].name} placed on ${slots.find(s => s.id === selectedSlot)?.name}.`);
+    setAnnouncement(`${decorName(id)} placed on ${slots.find(s => s.id === selectedSlot)?.name}.`);
   };
   const clearSlot = () => {
     if (!selectedSlot) return;
@@ -377,6 +391,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const update = () => { const hour = new Date().getHours(); setNight(hour >= 19 || hour < 6); };
     update();
+    try { const flowers = JSON.parse(window.localStorage.getItem("shoreline-tidekeeper-flowers-v1") || "[]"); if (Array.isArray(flowers)) setVaseFlowers(flowers.filter(x => typeof x === "string")); } catch {}
     try { const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}"); if (stored && typeof stored === "object" && !Array.isArray(stored)) setPlacements(stored); } catch {}
     const timer = window.setInterval(update, 60000);
     setSelectedSlot(null);
@@ -469,7 +484,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
-            const item = id && ITEMS[id];
+            const item = id && (isArrangement(id) ? { id, name: decorName(id), icon: decorIcon(id), isEmoji: false } : ITEMS[id]);
             const smallTableDecor = isTableSlot(slot.id) && /cup|mug|candle|teacup/i.test(item ? item.name : "");
             const decorWidth = isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
@@ -550,7 +565,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         </section>}
         {selectedSlot && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
-          <p className="text-sm">Current: {placements[selectedSlot] && ITEMS[placements[selectedSlot]] ? ITEMS[placements[selectedSlot]].name : "Empty"}</p>
+          <p className="text-sm">Current: {placements[selectedSlot] ? decorName(placements[selectedSlot]) : "Empty"}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <button type="button" onClick={() => moveSlot(-1)} className="min-h-11 rounded-lg border px-3">Move Left</button>
             <button type="button" onClick={() => moveSlot(1)} className="min-h-11 rounded-lg border px-3">Move Right</button>
@@ -561,7 +576,16 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{activeSlots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
-            {ownedDecor.length === 0 ? <p>No decorations in inventory yet.</p> : ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : isPatioSlot(selectedSlot) ? patioMatches(selectedSlot, id) : true).map(([id, count]) => <button key={id} type="button" onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">{ITEMS[id].name} (owned: {count})</button>)}
+            {ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : isPatioSlot(selectedSlot) ? patioMatches(selectedSlot, id) : true).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
+            {isFlowerSlot(selectedSlot) && availableArrangements.map(a => <button key={a.id} type="button" onClick={() => place("arrangement:" + a.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">Flower arrangement: {a.name}</button>)}
+            {isFlowerSlot(selectedSlot) && state.flowerArrangements.filter(a => usedCount("arrangement:" + a.id) > 0).map(a => <p key={a.id} className="text-sm">{a.name}: displayed at {slots.find(s => placements[s.id] === "arrangement:" + a.id)?.name || "another spot"}</p>)}
+            {ownedDecor.length === 0 && availableArrangements.length === 0 && <p>No available decorations in inventory yet.</p>}
+            {placements[selectedSlot] === "tidekeeper-vase" && <div className="mt-3 rounded-lg border p-2">
+              <h4 className="font-semibold">Flowers in Tidekeeper's Vase</h4>
+              <p>{vaseFlowers.length ? vaseFlowers.map(id => ITEMS[id]?.name || id).join(", ") : "Vase is empty."}</p>
+              {flowerOptions.map(([id, count]) => <button key={id} type="button" disabled={vaseFlowers.filter(x => x === id).length >= count} onClick={() => { saveVaseFlowers([...vaseFlowers, id]); setAnnouncement(ITEMS[id].name + " added to Tidekeeper's Vase."); }} className="mb-1 block min-h-11 w-full rounded-lg border p-2 text-left disabled:opacity-50">Add {ITEMS[id].name}</button>)}
+              <button type="button" onClick={() => { saveVaseFlowers([]); setAnnouncement("Flowers removed from Tidekeeper's Vase."); }} className="min-h-11 rounded-lg border p-2">Remove Flowers</button>
+            </div>}
           </div>
           <p role="status" aria-live="polite" className="mt-2 text-sm">{announcement}</p>
         </section>}
