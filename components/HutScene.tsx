@@ -107,6 +107,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isTableSlot = (id: string) => id.includes("table") || id === "fireplace-mantel";
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isArrangement = (id: string) => id.startsWith("arrangement:");
+  const isDisplayFlower = (id: string) => id.startsWith("plant-") && /flower|rose/i.test(ITEMS[id]?.name || "") || id.startsWith("flower-") && /flower|rose|bouquet/i.test(ITEMS[id]?.name || "");
   // Only finished display objects belong on furniture; supplies and wearable crafts do not.
   const isSurfaceDecor = (id: string) => {
     if (isArrangement(id)) return true;
@@ -118,7 +119,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (isWallSlot(slot)) return !isArrangement(id) && isWallDecor(id);
     if (isPillowSlot(slot)) return !isArrangement(id) && isPillowDecor(id);
     if (isChairSlot(slot)) return !isArrangement(id) && isChairDecor(id);
-    if (isPatioSlot(slot)) return patioMatches(slot, id) && (slot !== "patio-planter" || isArrangement(id) || /flower|bouquet|plant|vase/i.test(id + " " + (ITEMS[id]?.name || "")));
+    if (isPatioSlot(slot)) return patioMatches(slot, id) && (slot !== "patio-planter" || isArrangement(id) || isDisplayFlower(id) || /bouquet|vase/i.test(id + " " + (ITEMS[id]?.name || "")));
     return isSurfaceDecor(id);
   };
   const arrangementFor = (id: string) => state.flowerArrangements.find(a => "arrangement:" + a.id === id);
@@ -126,11 +127,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const decorIcon = (id: string) => isArrangement(id) ? (ITEMS[arrangementFor(id)?.vaseId || ""]?.icon || "") : (ITEMS[id]?.icon || "");
   const usedCount = (id: string, excluding?: string) => Object.entries(placements).filter(([slot, item]) => slot !== excluding && item === id).length;
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
-    count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || id === "tidekeeper-vase" || id.startsWith("flower-") || id.includes("painting") || id.includes("artwork"))
+    count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || id === "tidekeeper-vase" || isDisplayFlower(id) || id.startsWith("flower-") || id.includes("painting") || id.includes("artwork"))
   ).sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name));
   const availableArrangements = state.flowerArrangements.filter(a => !usedCount("arrangement:" + a.id));
   const isFlowerSlot = (slot: string) => slot === "patio-planter" || slot === "coffee-table" || slot === "side-table" || slot.startsWith("shelf");
-  const flowerOptions = Object.entries(state.inventory).filter(([id, count]) => count > 0 && id.startsWith("flower-") && ITEMS[id] && !id.includes("vase") && !id.includes("curtain"));
+  const flowerOptions = Object.entries(state.inventory).filter(([id, count]) => count > 0 && isDisplayFlower(id) && ITEMS[id] && !id.includes("vase") && !id.includes("curtain"));
   const saveVaseFlowers = (next: string[]) => {
     setVaseFlowers(next);
     try { window.localStorage.setItem("shoreline-tidekeeper-flowers-v1", JSON.stringify(next)); } catch {}
