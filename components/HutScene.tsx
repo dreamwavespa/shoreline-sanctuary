@@ -36,6 +36,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const saveCurtains = (style: string, closed: boolean) => {
     setCurtainStyle(style);
     setCurtainsClosed(closed);
+    if (style && style === curtainStyle && closed !== curtainsClosed) { const audio = new Audio("/audio/Shoreline_Curtain_Swish_Louder.mp3"); audio.volume = 0.8; void audio.play().catch(() => {}); }
     try { window.localStorage.setItem("shoreline-hut-curtains-v1", JSON.stringify({ style, closed })); } catch {}
     setAnnouncement(style ? `${ITEMS[style]?.name || "Curtains"} ${closed ? "closed" : "open"}.` : "Curtains removed and returned to available inventory.");
   };
