@@ -365,7 +365,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <div className="relative mx-auto w-full shrink-0 overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && activeCurtains && (
-            <div aria-hidden="true" className="pointer-events-none absolute z-[2]" style={{ left: "68%", top: "19%", width: "33%", height: "38%" }}>
+            <div aria-hidden="true" className="pointer-events-none absolute z-[2]" style={{ left: "45%", top: "24%", width: "29%", height: "35%" }}>
               <Image src={`/images/Hut/${activeCurtains.file}${curtainsClosed ? "_Closed" : ""}.png`} alt="" fill unoptimized sizes="220px" className="object-contain" />
             </div>
           )}
