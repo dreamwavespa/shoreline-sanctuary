@@ -129,7 +129,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           </div>
         )}
         {state.hummingbirdFeederPlaced && (
-          <button type="button" onClick={() => { setAnnouncement(hummingbirdFull ? "The sea-glass balloon feeder has fresh nectar. Hummingbirds may visit." : "The sea-glass balloon feeder is empty. Fill it with Sweet Nectar below."); document.getElementById("hummingbird-feeder-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} aria-label={`Check sea-glass hummingbird feeder. ${hummingbirdFull ? "Full" : "Empty"}.`} className="absolute left-[47%] top-[21%] z-20 h-[23%] w-[18%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <button type="button" onClick={() => { if (hummingbirdFull) { playHummingbird(); } else { setAnnouncement("The sea-glass balloon feeder is empty. Fill it with Sweet Nectar below."); document.getElementById("hummingbird-feeder-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); } }} aria-label={`Sea-glass hummingbird feeder. ${hummingbirdFull ? "Listen to hummingbird and see it visit" : "Empty. Go to refill controls"}.`} className="absolute left-[47%] top-[21%] z-20 h-[23%] w-[18%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
             <Image src="/images/Robin/Hummingbird-feeder-sea glass-balloon.PNG" alt="" fill unoptimized sizes="20vw" className="object-contain drop-shadow-lg" />
           </button>
         )}
@@ -265,7 +265,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
               <p className="mt-2">Feeder status: {hummingbirdFull ? "Full of Sweet Nectar" : "Empty"}. Fill with one Sweet Nectar from the Nature & Wildlife recipes. Each filling lasts two days.</p>
               <p className="mt-2">Sweet Nectar available: {state.inventory["food-sweet-nectar"] || 0}.</p>
               <button type="button" disabled={hummingbirdFull || (state.inventory["food-sweet-nectar"] || 0) < 1} onClick={() => { if (fillHummingbirdFeeder()) { setNow(Date.now()); setAnnouncement("You filled the sea-glass feeder with Sweet Nectar. Hummingbirds may now visit for two days."); } }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Fill feeder with Sweet Nectar</button>
-              {hummingbirdFull && <button type="button" onClick={playHummingbird} className="mt-3 ml-2 min-h-11 rounded-xl border-2 border-emerald-800 px-4 py-2 font-semibold text-emerald-950">Listen for hummingbirds</button>}
+              {hummingbirdFull && <button type="button" onClick={() => { playHummingbird(); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="mt-3 ml-2 min-h-11 rounded-xl border-2 border-emerald-800 px-4 py-2 font-semibold text-emerald-950">Listen for hummingbirds</button>}
             </>
           )}
         </section>
