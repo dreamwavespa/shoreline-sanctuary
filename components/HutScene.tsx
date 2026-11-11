@@ -10,21 +10,38 @@ function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmo
   if (isEmoji || !icon || failed) return <span aria-hidden="true" className="text-xl">{isEmoji ? icon : "🏺"}</span>;
   return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
 }
+const FLOWER_SHOP_ROOT = "/images/Flower shop/";
+const FLOWER_SHOP_ART: Record<string, string> = {
+  "flower-beach-rose":"beach-rose.png", "flower-sea-holly":"sea-holly.png",
+  "flower-seaside-daisy":"seaside-daisy.png", "flower-coastal-sunflower":"coastal-sunflower.png",
+  "flower-dune-evening-primrose":"dune-evening-primrose.png", "flower-saltmarsh-mallow":"saltmarsh-mallow.png",
+  "flower-sea-morning-glory":"sea-morning-glory.png", "shelldon-moon-tide-blossom":"moon-tide-blossom.png",
+  "sea-lavender":"sea-lavender.png", "rain-lily-blossom":"rain-lily-blossom.png",
+  "plant-radiant-moonflower":"radiant-moonflower.png", "plant-twinkle-star-flower":"twinkle-star-flower.png",
+  "plant-glowing-roses":"glowing-roses.png", "island-vanilla-orchid":"island-vanilla-orchid.png",
+  "christmas-rose":"christmas-rose.png", "snowdrop-flowers":"snowdrop-flowers.png",
+  "tropical-hibiscus":"tropical-hibiscus.png", "summer-hibiscus":"summer-hibiscus.png",
+  "spring-edible-blossoms":"spring-edible-blossoms.png", "winterberry-holly":"winterberry-holly.png"
+};
+const FLOWER_POSITIONS = [
+  {x:31,y:25,angle:-26,scale:.86}, {x:50,y:18,angle:0,scale:.91},
+  {x:69,y:25,angle:26,scale:.86}, {x:35,y:37,angle:-18,scale:.94},
+  {x:65,y:37,angle:18,scale:.94}, {x:50,y:35,angle:0,scale:1},
+  {x:35,y:48,angle:-12,scale:.88}, {x:65,y:48,angle:12,scale:.88},
+  {x:22,y:39,angle:-38,scale:.85}, {x:78,y:39,angle:38,scale:.85}
+];
 function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { id: string; slot: number }[]; name: string }) {
-  // Keep the bouquet centered on the vase mouth rather than spreading across the table.
+  // Match the Flower Shop's bouquet positioning, stacking, and art assets exactly.
   return <div className="relative h-full w-full overflow-visible" role="img" aria-label={name + " with " + stems.map(stem => ITEMS[stem.id]?.name || stem.id).join(", ")}>
-    <div className="absolute left-[27%] top-[2%] z-0 h-[62%] w-[46%]">
-      {stems.map((stem, index) => {
-        const flower = ITEMS[stem.id];
-        const spread = stems.length <= 1 ? 0 : ((index / (stems.length - 1)) - 0.5) * 70;
-        return <div key={index} className="absolute bottom-0 h-[88%] w-[58%]" style={{ left: `calc(21% + ${spread}%)`, transform: `rotate(${spread * 0.16}deg)`, transformOrigin: "bottom center" }}>
-          <DisplayArt icon={flower?.icon || "🌸"} name={flower?.name || "Flower"} isEmoji={flower?.isEmoji || !flower?.icon} />
-        </div>;
-      })}
-    </div>
-    <div className="absolute bottom-0 left-[29%] z-10 h-[56%] w-[42%]">
-      <DisplayArt icon={vaseIcon || "/images/Pottery/coastal-vase.png"} name="Flower vase" />
-    </div>
+    {stems.map((stem, i) => {
+      const p = FLOWER_POSITIONS[stem.slot];
+      const art = FLOWER_SHOP_ART[stem.id];
+      if (!p || !art) return null;
+      const anchorX = 50 + (p.x - 50) * .36;
+      const anchorY = 54 + (p.y - 35) * .32;
+      return <Image key={i} src={FLOWER_SHOP_ROOT + art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{ left: anchorX + "%", top: anchorY + "%", transform: `translate(-50%, -72%) rotate(${p.angle * .65}deg) scale(${p.scale * .87})`, transformOrigin: "50% 85%", zIndex: p.y < 30 ? 2 : p.y < 45 ? 4 : 6 }} />;
+    })}
+    <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 10 }} />
   </div>;
 }
 function PatioFlowerBox({ flowers }: { flowers: string[] }) {
