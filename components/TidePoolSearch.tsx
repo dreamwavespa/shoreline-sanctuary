@@ -56,6 +56,10 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
   const openScenePanel = (panel: "shallow" | "deep" | "treasures", trigger: HTMLButtonElement | null) => { lastSceneTriggerRef.current = trigger; setScenePanel(panel); };
   const closeScenePanel = () => { setScenePanel(null); window.setTimeout(() => lastSceneTriggerRef.current?.focus(), 0); };
   useEffect(() => { if (scenePanel) panelHeadingRef.current?.focus(); }, [scenePanel]);
+  const [rescuedAnimals, setRescuedAnimals] = useState<string[]>([]);
+  useEffect(() => {
+    try { setRescuedAnimals(JSON.parse(localStorage.getItem("shoreline-rescued-trap-animals-v1") || "[]")); } catch {}
+  }, []);
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
   const [showFieldNotes, setShowFieldNotes] = useState(false);
@@ -234,6 +238,10 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           </div>
           <div className="relative mx-auto w-full max-w-2xl">
             <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pools among rocky ledges, sea creatures, and glowing shells" : "Sunlit turquoise tide pools, rocky ledges, starfish, anemones, and shells"} width={1024} height={1536} priority unoptimized className="h-auto w-full" />
+            {[
+              { name: "Sea snail", image: "/images/Cove/Sea_snail.PNG", left: "60%", top: "67%", description: "The rescued sea snail is gliding across a sheltered Tide Pool rock." },
+              { name: "Starfish", image: "/images/Cove/Starfish.png", left: "18%", top: "61%", description: "The rescued starfish rests safely in the shallow Tide Pool." },
+            ].filter(animal => rescuedAnimals.includes(animal.name)).map(animal => <button key={animal.name} type="button" onClick={() => setAnnouncement(animal.description)} aria-label={animal.description} className="absolute z-10 h-[10%] w-[17%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: animal.left, top: animal.top }}><Image src={animal.image} alt="" fill unoptimized sizes="120px" className="object-contain drop-shadow-md" /></button>)}
             {/* Discovered animals stay visible as small illustrations in the shallows. */}
             {[
               { id: "rainbow-starfish", image: "/images/Cove/Starfish.png", label: "Rainbow the starfish", left: "15%", top: "56%" },
