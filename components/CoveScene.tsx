@@ -272,8 +272,10 @@ export default function CoveScene() {
     "Starfish": "Shallow Tide Pool",
     "Lobster": "Libby's Reef",
   };
+  const playTrapSound = (file: string, volume = 0.7) => { const audio = new Audio(`/audio/${file}`); audio.volume = volume; void audio.play().catch(() => {}); };
   const checkTrap = () => {
     if (!trapPlaced || trapCreature || trapChecked === trapDay) return;
+    playTrapSound("shelby-claw-click.mp3", 0.6);
     const roll = Math.random();
     if (roll < 0.12) {
       const reward = Math.random() < 0.6 ? "sea-foam-sponges" : "deep-sea-seed";
@@ -283,6 +285,7 @@ export default function CoveScene() {
     } else {
       const creature = ["Hermit crab", "Sea snail", "Starfish", "Lobster"][Math.floor(Math.random() * 4)];
       persistTrap(true, trapDay, creature);
+      if (creature === "Lobster" || creature === "Hermit crab") playTrapSound("lobster-discovery-clicks.mp3", 0.75);
       setTrapMessage(`A ${creature.toLowerCase()} is waiting safely in the trap. Choose where to release it.`);
     }
   };
