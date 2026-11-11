@@ -285,6 +285,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                 <div className="h-full rounded-full bg-teal-600 transition-all" style={{ width: `${(searchedCount / AREAS.length) * 100}%` }} />
               </div>
 
+
               <div className="relative mt-4 overflow-hidden rounded-xl border-2 border-teal-300">
                 <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pool with seven searchable rocky pockets" : "Sunlit tide pool with seven searchable rocky pockets"} width={1024} height={1536} unoptimized className="h-auto w-full" />
                 {AREAS.map((area, index) => {
@@ -300,7 +301,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                     className="absolute z-10 flex h-[10%] w-[24%] items-center justify-center rounded-full border-2 border-amber-200/80 bg-teal-950/30 text-white shadow-sm focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300 disabled:border-emerald-200/50 disabled:bg-transparent"
                     style={positions[index]}>
                     <span className="sr-only">{area.name}</span>
-                    <span aria-hidden="true" className="text-xl drop-shadow-md">{found ? "✓" : area.icon}</span>
+                    {!found && <span aria-hidden="true" className="text-xl drop-shadow-md">{area.icon}</span>}
                   </button>;
                 })}
                 {Object.entries(areaFinds).map(([areaId, discovery]) => {
