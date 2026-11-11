@@ -11,19 +11,17 @@ function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmo
   return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
 }
 function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { id: string; slot: number }[]; name: string }) {
-  return <div className="relative h-full w-full" role="img" aria-label={name + " with " + stems.map(stem => ITEMS[stem.id]?.name || stem.id).join(", ")}>
-    <div className="absolute inset-x-[10%] top-0 h-[76%]">
+  return <div className="relative h-full w-full overflow-visible" role="img" aria-label={name + " with " + stems.map(stem => ITEMS[stem.id]?.name || stem.id).join(", ")}>
+    <div className="absolute inset-x-[4%] top-0 z-0 flex h-[60%] items-end justify-center">
       {stems.map((stem, index) => {
         const flower = ITEMS[stem.id];
-        const x = 12 + ((stem.slot * 37 + index * 11) % 70);
-        const y = 4 + ((stem.slot * 13 + index * 7) % 28);
-        return <div key={index} className="absolute h-[57%] w-[35%]" style={{ left: x + "%", top: y + "%" }}>
+        return <div key={index} className="h-[88%] min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? -12 : 0}%)` }}>
           <DisplayArt icon={flower?.icon || "🌸"} name={flower?.name || "Flower"} isEmoji={flower?.isEmoji || !flower?.icon} />
         </div>;
       })}
     </div>
-    <div className="absolute bottom-0 left-[22%] h-[55%] w-[56%]">
-      <DisplayArt icon={vaseIcon} name="Vase" />
+    <div className="absolute bottom-0 left-[24%] z-10 h-[62%] w-[52%]">
+      <DisplayArt icon={vaseIcon || "/images/Pottery/coastal-vase.png"} name="Flower vase" />
     </div>
   </div>;
 }
