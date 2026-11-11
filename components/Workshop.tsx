@@ -1338,7 +1338,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
-            {studioStation === "decor" && DECOR_RECIPES.filter(r => ["christmas-wreath","winter-chimes"].includes(r.id)).map(r => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.id === "christmas-wreath" ? "/images/Christmas_Wreath.png" : "/images/Winter_Chimes.png"} />)}
+            {studioStation === "decor" && DECOR_RECIPES.filter(r => ["christmas-wreath","winter-chimes"].includes(r.id)).map(r => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.id === "christmas-wreath" ? "/images/Christmas_Wreath.png" : "/images/Winter-chimes.PNG"} />)}
             {studioStation === "decor" && <RecipeCard
               title="Melodic Wind Chime"
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
