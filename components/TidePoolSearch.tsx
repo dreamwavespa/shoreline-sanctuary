@@ -58,6 +58,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
   useEffect(() => { if (scenePanel) panelHeadingRef.current?.focus(); }, [scenePanel]);
   const [playing, setPlaying] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [showFieldNotes, setShowFieldNotes] = useState(false);
   const [areaFinds, setAreaFinds] = useState<Record<string, Discovery>>({});
   const [deck, setDeck] = useState<Discovery[]>([]);
   const [lastResult, setLastResult] = useState<{ discovery: Discovery; message: string } | null>(null);
@@ -173,6 +174,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
     setAreaFinds({});
     setLastResult(null);
     setComplete(false);
+    setShowFieldNotes(false);
     setPlaying(true);
     setAnnouncement("Tide-pool search started. Seven areas are ready. Choose any area to search. There is no time limit.");
   };
@@ -301,7 +303,13 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                     <span aria-hidden="true" className="text-xl drop-shadow-md">{found ? "✓" : area.icon}</span>
                   </button>;
                 })}
-                {lastResult && <div className="pointer-events-none absolute inset-x-[15%] top-[35%] z-20 flex h-[30%] items-center justify-center" aria-hidden="true">
+                {Object.entries(areaFinds).map(([areaId, discovery]) => {
+                  const index = AREAS.findIndex(area => area.id === areaId);
+                  const positions = [{ left: "12%", top: "47%" }, { left: "64%", top: "36%" }, { left: "65%", top: "59%" }, { left: "15%", top: "65%" }, { left: "35%", top: "78%" }, { left: "67%", top: "79%" }, { left: "37%", top: "29%" }];
+                  if (index < 0) return null;
+                  return <div key={areaId} aria-hidden="true" className="pointer-events-none absolute z-[5] h-[11%] w-[20%]" style={positions[index]}>{discovery.image ? <Image src={discovery.image} alt="" fill unoptimized sizes="140px" className="object-contain drop-shadow-lg" /> : <span className="text-3xl">{discovery.icon}</span>}</div>;
+                })}
+                {lastResult && !complete && <div className="pointer-events-none absolute inset-x-[15%] top-[35%] z-20 flex h-[30%] items-center justify-center" aria-hidden="true">
                   {lastResult.discovery.image ? <Image src={lastResult.discovery.image} alt="" fill unoptimized sizes="(max-width: 640px) 70vw, 400px" className="object-contain drop-shadow-xl" /> : <span className="text-6xl">{lastResult.discovery.icon}</span>}
                 </div>}
               </div>
@@ -309,6 +317,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                 <p className="font-bold">You found {lastResult.discovery.name}</p>
                 <p className="mt-1 text-sm">{lastResult.message}</p>
               </div>}
+              {complete && <div className="mt-4 space-y-2"><p role="status" className="font-semibold text-teal-950">All seven discoveries are visible in the Tide Pool. Your field notes reward has been recorded.</p><button type="button" onClick={() => setShowFieldNotes(true)} className="min-h-11 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">Finish Search and View Field Notes</button></div>}
               <p className="mt-2 text-sm text-teal-900">Explore the marked spots directly on the Tide Pool scene. Each discovery appears over the water. VoiceOver can navigate all seven search buttons.</p>
             </div>
           ))}
