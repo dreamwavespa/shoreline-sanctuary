@@ -829,7 +829,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "coastal-salt-lamp": { id: "coastal-salt-lamp", name: "Coastal Salt Lamp", category: "decor", icon: "🔮", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "woven-sun-hat": { id: "woven-sun-hat", name: "Woven Sun Hat", category: "decor", icon: "👒", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "christmas-wreath": { id: "christmas-wreath", name: "Christmas Wreath", category: "decor", icon: "/images/Christmas_Wreath.png", rarity: "uncommon", sfx: "craftSuccess" },
-  "winter-chimes": { id: "winter-chimes", name: "Winter Chimes", category: "decor", icon: "/images/Winter_Chimes.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "winter-chimes": { id: "winter-chimes", name: "Winter Chimes", category: "decor", icon: "/images/Winter-chimes.PNG", rarity: "uncommon", sfx: "craftSuccess" },
   "lobster-trap": { id: "lobster-trap", name: "Lobster Trap", category: "decor", icon: "/images/Lobster_Trap.png", rarity: "uncommon", sfx: "craftSuccess" },
   "sky-blue-curtains": { id: "sky-blue-curtains", name: "Sky Blue Curtains", category: "decor", icon: "/images/Hut/Sky_Blue_Curtains.png", rarity: "uncommon", sfx: "craftSuccess" },
   "pink-flower-curtains": { id: "pink-flower-curtains", name: "Pink Flower Curtains", category: "decor", icon: "/images/Hut/Pink_Flower_Curtains.png", rarity: "uncommon", sfx: "craftSuccess" },
