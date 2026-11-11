@@ -143,7 +143,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           </button>
         )}
         {hummingbirdFull && hummingbirdVisiting && (
-          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[38%] top-[27%] z-30 h-[18%] w-[17%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[35%] top-[25%] z-30 h-[22%] w-[21%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
             <Image src="/images/Birds/bird-hummingbird.png" alt="" fill unoptimized sizes="15vw" className="object-contain woodland-hummingbird-hover" />
           </button>
         )}
