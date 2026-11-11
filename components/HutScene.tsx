@@ -90,6 +90,20 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isTableSlot = (id: string) => id.includes("table") || id === "fireplace-mantel";
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isArrangement = (id: string) => id.startsWith("arrangement:");
+  // Only finished display objects belong on furniture; supplies and wearable crafts do not.
+  const isSurfaceDecor = (id: string) => {
+    if (isArrangement(id)) return true;
+    const label = id + " " + (ITEMS[id]?.name || "");
+    if (/curtain|boot|wading|glitter|pigment|powder|ingredient|fabric|ribbon|seed|flower.petal|paint.brush|rubber.duck|beach.ball|raft|umbrella|bag|hat|mitten|sweater|necklace|bracelet|earring|ring|pillow|cushion|chair|fountain|bird.?bath|wind.chime|painting|artwork|mirror|wall|canvas|portrait/i.test(label)) return false;
+    return /vase|pottery|ceramic|plate|mug|cup|teapot|tea.set|snow.globe|snowglobe|sand.art|sand.bottle|bottle|candle|lamp|lantern|hourglass|crystal|sculpture|figurine|shell.chest|treasure.chest|decorative.bowl|flower.arrangement|flower.bouquet|salt.lamp/i.test(label);
+  };
+  const slotAccepts = (slot: string, id: string) => {
+    if (isWallSlot(slot)) return !isArrangement(id) && isWallDecor(id);
+    if (isPillowSlot(slot)) return !isArrangement(id) && isPillowDecor(id);
+    if (isChairSlot(slot)) return !isArrangement(id) && isChairDecor(id);
+    if (isPatioSlot(slot)) return patioMatches(slot, id) && (slot !== "patio-planter" || isArrangement(id) || /flower|bouquet|plant|vase/i.test(id + " " + (ITEMS[id]?.name || "")));
+    return isSurfaceDecor(id);
+  };
   const arrangementFor = (id: string) => state.flowerArrangements.find(a => "arrangement:" + a.id === id);
   const decorName = (id: string) => isArrangement(id) ? (arrangementFor(id)?.name || "Flower arrangement") : (ITEMS[id]?.name || id);
   const decorIcon = (id: string) => isArrangement(id) ? (ITEMS[arrangementFor(id)?.vaseId || ""]?.icon || "") : (ITEMS[id]?.icon || "");
@@ -110,7 +124,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
   const place = (id: string) => {
     if (!selectedSlot) return;
-    if (isArrangement(id) && !isFlowerSlot(selectedSlot)) { setAnnouncement("Choose a table, shelf, or flower display for this arrangement."); return; }
+    if (!slotAccepts(selectedSlot, id)) { setAnnouncement("This decoration is not suitable for that display position."); return; }
     if (isPatioSlot(selectedSlot) && !patioMatches(selectedSlot, id)) { setAnnouncement("Choose a suitable patio decoration for this position."); return; }
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or cushion for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
@@ -130,7 +144,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!selectedSlot || !placements[selectedSlot]) return;
     const index = slots.findIndex(s => s.id === selectedSlot);
     const nextSlot = slots[index + direction];
-    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id) || (isPatioSlot(selectedSlot) && !patioMatches(nextSlot.id, placements[selectedSlot]))) return;
+    if (!nextSlot || isWallSlot(selectedSlot) !== isWallSlot(nextSlot.id) || isTableSlot(selectedSlot) !== isTableSlot(nextSlot.id) || isPillowSlot(selectedSlot) !== isPillowSlot(nextSlot.id) || isChairSlot(selectedSlot) !== isChairSlot(nextSlot.id) || !slotAccepts(nextSlot.id, placements[selectedSlot]) || (other && !slotAccepts(selectedSlot, other))) return;
     const next = { ...placements };
     const current = next[selectedSlot], other = next[nextSlot.id];
     next[nextSlot.id] = current;
@@ -576,7 +590,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{activeSlots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
-            {ownedDecor.filter(([id]) => isWallSlot(selectedSlot) ? isWallDecor(id) : isPillowSlot(selectedSlot) ? isPillowDecor(id) : isChairSlot(selectedSlot) ? isChairDecor(id) : isPatioSlot(selectedSlot) ? patioMatches(selectedSlot, id) : true).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
+            {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id)).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
             {isFlowerSlot(selectedSlot) && availableArrangements.map(a => <button key={a.id} type="button" onClick={() => place("arrangement:" + a.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">Flower arrangement: {a.name}</button>)}
             {isFlowerSlot(selectedSlot) && state.flowerArrangements.filter(a => usedCount("arrangement:" + a.id) > 0).map(a => <p key={a.id} className="text-sm">{a.name}: displayed at {slots.find(s => placements[s.id] === "arrangement:" + a.id)?.name || "another spot"}</p>)}
             {ownedDecor.length === 0 && availableArrangements.length === 0 && <p>No available decorations in inventory yet.</p>}
