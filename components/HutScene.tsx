@@ -46,12 +46,12 @@ function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { 
 }
 function PatioFlowerBox({ flowers }: { flowers: string[] }) {
   return <div className="relative h-full w-full overflow-visible" role="img" aria-label={"Weathered driftwood railing flower box with " + (flowers.length ? flowers.map(id => ITEMS[id]?.name || id).join(", ") : "no flowers")}>
-    <div className="absolute inset-x-[5%] top-[3%] z-0 flex h-[75%] items-end justify-around gap-[1%]">
-      {flowers.map((id, index) => <div key={index} className="h-[88%] min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? 5 : -3}%)` }}>
+    <div className="absolute inset-x-[2%] top-[16%] z-0 flex h-[73%] items-end justify-around gap-[1%]">
+      {flowers.map((id, index) => <div key={index} className="h-[92%] min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? 12 : 7}%)` }}>
         <DisplayArt icon={ITEMS[id]?.icon || "🌸"} name={ITEMS[id]?.name || "Flower"} isEmoji={ITEMS[id]?.isEmoji || !ITEMS[id]?.icon} />
       </div>)}
     </div>
-    <div className="absolute bottom-[1%] left-[2%] z-10 h-[43%] w-[96%] rounded-sm border-2 border-amber-950 bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900 shadow-md">
+    <div className="absolute bottom-[1%] left-0 z-10 h-[29%] w-full rounded-sm border-2 border-amber-950 bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900 shadow-md">
       <div className="absolute inset-x-0 top-[22%] border-t-2 border-amber-200/60" />
       <div className="absolute inset-x-0 bottom-[18%] border-t border-amber-950/40" />
       <div className="absolute left-[25%] top-0 h-full border-l border-amber-950/50" />
@@ -59,8 +59,8 @@ function PatioFlowerBox({ flowers }: { flowers: string[] }) {
       <span aria-hidden="true" className="absolute bottom-[7%] left-[15%] text-[9px]">🐚</span>
       <span aria-hidden="true" className="absolute bottom-[7%] right-[15%] text-[9px]">🐚</span>
     </div>
-    <div aria-hidden="true" className="absolute bottom-[-7%] left-[13%] h-[13%] w-[8%] rounded-b-sm bg-amber-950/80" />
-    <div aria-hidden="true" className="absolute bottom-[-7%] right-[13%] h-[13%] w-[8%] rounded-b-sm bg-amber-950/80" />
+    <div aria-hidden="true" className="absolute bottom-[-4%] left-[13%] h-[7%] w-[8%] rounded-b-sm bg-amber-950/80" />
+    <div aria-hidden="true" className="absolute bottom-[-4%] right-[13%] h-[7%] w-[8%] rounded-b-sm bg-amber-950/80" />
   </div>;
 }
 const imagePath = (area: Area, night: boolean) =>
