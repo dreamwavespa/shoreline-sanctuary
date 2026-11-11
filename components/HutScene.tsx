@@ -10,6 +10,23 @@ function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmo
   if (isEmoji || !icon || failed) return <span aria-hidden="true" className="text-xl">{isEmoji ? icon : "🏺"}</span>;
   return <img src={icon} alt="" onError={() => setFailed(true)} className="h-full w-full object-contain drop-shadow-md" />;
 }
+function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { id: string; slot: number }[]; name: string }) {
+  return <div className="relative h-full w-full" role="img" aria-label={name + " with " + stems.map(stem => ITEMS[stem.id]?.name || stem.id).join(", ")}>
+    <div className="absolute inset-x-[10%] top-0 h-[76%]">
+      {stems.map((stem, index) => {
+        const flower = ITEMS[stem.id];
+        const x = 12 + ((stem.slot * 37 + index * 11) % 70);
+        const y = 4 + ((stem.slot * 13 + index * 7) % 28);
+        return <div key={index} className="absolute h-[57%] w-[35%]" style={{ left: x + "%", top: y + "%" }}>
+          <DisplayArt icon={flower?.icon || "🌸"} name={flower?.name || "Flower"} isEmoji={flower?.isEmoji || !flower?.icon} />
+        </div>;
+      })}
+    </div>
+    <div className="absolute bottom-0 left-[22%] h-[55%] w-[56%]">
+      <DisplayArt icon={vaseIcon} name="Vase" />
+    </div>
+  </div>;
+}
 const imagePath = (area: Area, night: boolean) =>
   area === "inside" && !night ? "/images/Hut/Hut-day-updated.PNG" : `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
@@ -504,7 +521,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const decorWidth = isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
-              {item && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}><DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /></div>}
+              {item && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}</div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
