@@ -265,6 +265,10 @@ export default function CoveScene() {
     setTrapPlaced(placed); setTrapChecked(checked); setTrapCreature(creature);
     try { localStorage.setItem("shoreline-cove-lobster-trap-v1", JSON.stringify({ placed, checked, creature })); } catch {}
   };
+  const [releasedAnimals, setReleasedAnimals] = useState<string[]>([]);
+  useEffect(() => {
+    try { setReleasedAnimals(JSON.parse(localStorage.getItem("shoreline-rescued-trap-animals-v1") || "[]")); } catch {}
+  }, []);
   const trapDay = getShopDateKey();
   const trapDestinations: Record<string, string> = {
     "Hermit crab": "Sheltered Cove rocks",
@@ -293,6 +297,9 @@ export default function CoveScene() {
     if (!trapCreature) return;
     const destination = trapDestinations[trapCreature];
     setTrapMessage(`You gently release the ${trapCreature.toLowerCase()} toward ${destination}. It swims or crawls away safely. Come back tomorrow to check the trap again.`);
+    const updated = Array.from(new Set([...releasedAnimals, trapCreature]));
+    setReleasedAnimals(updated);
+    try { localStorage.setItem("shoreline-rescued-trap-animals-v1", JSON.stringify(updated)); } catch {}
     persistTrap(true, trapChecked, "");
   };
 
@@ -419,6 +426,7 @@ export default function CoveScene() {
           alt={nighttime ? "Moonlit Hidden Cove with rocky pools and a sheltered sandy shore" : "Sunlit Hidden Cove with rocky pools and a sheltered sandy shore"}
           fill unoptimized priority className="object-fill"
         />
+        {releasedAnimals.includes("Hermit crab") && <button type="button" onClick={() => setAnnouncement("A hermit crab you rescued from the lobster trap is resting safely among the Cove rocks.")} aria-label="Visit rescued hermit crab among the Cove rocks" className="absolute left-[63%] top-[65%] z-10 h-[12%] w-[18%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><Image src="/images/Cove/Hermit_Crab.png" alt="" fill unoptimized className="object-contain" /></button>}
         <button type="button" ref={dockButtonRef} aria-label="Visit Cove Dock for wildlife photography and salvage voyages" aria-expanded={dockOpen} onClick={() => { setDockOpen(true); setShowChest(false); }}
           className="absolute left-[3%] top-[38%] w-[37%] h-[23%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Cove-dock-rowboat.PNG")} alt="" fill unoptimized className="object-contain" />
