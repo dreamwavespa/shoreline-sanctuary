@@ -216,7 +216,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
     if (isFinal) {
       setComplete(true);
       setPlaying(false);
-      window.setTimeout(completeTidePoolSearch, 650);
+      completeTidePoolSearch();
       setAnnouncement(`${discovery.name} discovered. ${discovery.description}${rewardMessage} All seven areas are complete. Tide-Pool Field Notes earned.`);
     } else {
       const remaining = AREAS.length - Object.keys(nextFinds).length;
@@ -264,7 +264,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
               <button type="button" onClick={startSearch} className="mt-5 w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow active:bg-teal-800">Begin Tide-Pool Search</button>
               <p className="mt-4 text-center text-sm font-semibold text-teal-800">Field guide: {permanentCount}/{DISCOVERIES.length} discoveries · Searches completed: {state.tidePoolSearchesCompleted}</p>
             </div>
-          ) : complete ? (
+          ) : complete && showFieldNotes ? (
             <div className="text-center">
               <div className="text-4xl" aria-hidden="true">🌈 🟣 🐟 🦀 🦪 🪸 🥬</div>
               <h3 className="mt-3 text-xl font-bold text-teal-950">Tide-Pool Field Notes Complete!</h3>
@@ -317,7 +317,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                 <p className="font-bold">You found {lastResult.discovery.name}</p>
                 <p className="mt-1 text-sm">{lastResult.message}</p>
               </div>}
-              {complete && <div className="mt-4 space-y-2"><p role="status" className="font-semibold text-teal-950">All seven discoveries are visible in the Tide Pool. Your field notes reward has been recorded.</p><button type="button" onClick={() => setShowFieldNotes(true)} className="min-h-11 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">Finish Search and View Field Notes</button></div>}
+              {complete && <div className="mt-4 space-y-2"><p role="status" className="font-semibold text-teal-950">All seven discoveries are visible in the Tide Pool. Your field notes reward has been recorded.</p><button type="button" onClick={() => setShowFieldNotes(true)} className="min-h-11 w-full rounded-xl bg-teal-700 px-4 py-3 font-bold text-white">Next: View Field Notes</button></div>}
               <p className="mt-2 text-sm text-teal-900">Explore the marked spots directly on the Tide Pool scene. Each discovery appears over the water. VoiceOver can navigate all seven search buttons.</p>
             </div>
           ))}
