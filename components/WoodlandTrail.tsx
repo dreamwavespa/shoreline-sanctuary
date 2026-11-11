@@ -62,9 +62,14 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
   const birdbathLevel = !state.robinBirdbathFilledAt || birdbathAge >= 48 * 60 * 60 * 1000 ? "Empty" : birdbathAge >= 24 * 60 * 60 * 1000 ? "Half full" : "Full";
   const hummingbirdFull = !!state.hummingbirdFeederFilledAt && now - state.hummingbirdFeederFilledAt < 48 * 60 * 60 * 1000;
   const [hummingbirdVisiting, setHummingbirdVisiting] = useState(false);
+  const hummingbirdHoldUntil = useRef(0);
+  const hummingbirdHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!hummingbirdFull) { setHummingbirdVisiting(false); return; }
-    const timer = window.setInterval(() => setHummingbirdVisiting(Math.random() < 0.45), 45_000);
+    const timer = window.setInterval(() => {
+      if (Date.now() < hummingbirdHoldUntil.current) return;
+      setHummingbirdVisiting(Math.random() < 0.45);
+    }, 45_000);
     return () => window.clearInterval(timer);
   }, [hummingbirdFull]);
   const playHummingbird = () => {
@@ -73,8 +78,12 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     audioRef.current = audio;
     void audio.play().catch(() => setAnnouncement("The hummingbird's call could not play."));
     setHummingbirdVisiting(true);
+    hummingbirdHoldUntil.current = Date.now() + 12000;
+    if (hummingbirdHideTimer.current) clearTimeout(hummingbirdHideTimer.current);
+    hummingbirdHideTimer.current = setTimeout(() => { setHummingbirdVisiting(false); hummingbirdHideTimer.current = null; }, 12000);
     setAnnouncement("A hummingbird flutters near the sea-glass feeder and chirps softly.");
   };
+  useEffect(() => () => { if (hummingbirdHideTimer.current) clearTimeout(hummingbirdHideTimer.current); }, []);
   const feederRefills = state.robinFeederRefills || 0;
   const feederReady = now - (state.robinFeederLastFilledAt || 0) >= 48 * 60 * 60 * 1000;
   const playSeedSound = () => {
@@ -134,8 +143,8 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           </button>
         )}
         {hummingbirdFull && hummingbirdVisiting && (
-          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[55%] top-[30%] z-30 h-[16%] w-[18%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
-            <Image src="/images/Birds/bird-hummingbird.png" alt="" fill unoptimized sizes="15vw" className="object-contain" />
+          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[38%] top-[27%] z-30 h-[18%] w-[17%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+            <Image src="/images/Birds/bird-hummingbird.png" alt="" fill unoptimized sizes="15vw" className="object-contain woodland-hummingbird-hover" />
           </button>
         )}
         {arrived && (
@@ -172,6 +181,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-emerald-950/85 px-2 py-1 text-xs font-semibold text-white">Catnip plants</span>
         </button>
       </section>
+      <style jsx global>{`@keyframes woodland-hummingbird-hover { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-9px) rotate(3deg); } } .woodland-hummingbird-hover { animation: woodland-hummingbird-hover 1.5s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .woodland-hummingbird-hover { animation: none; } }`}</style>
       <div className="mx-auto max-w-3xl space-y-5 px-4 py-5">
         <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-emerald-950">{announcement}</p>
         <section aria-labelledby="robin-nest-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
