@@ -14,7 +14,7 @@ const imagePath = (area: Area, night: boolean) =>
   area === "inside" && !night ? "/images/Hut/Hut-day-updated.PNG" : `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
-  const { state, setMusicOverride } = useGame();
+  const { state, setMusicOverride, collectItem } = useGame();
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -202,6 +202,43 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [visitingBird, setVisitingBird] = useState<number | null>(null);
   const [birdMessage, setBirdMessage] = useState("");
   const birdAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [birdGift, setBirdGift] = useState<{ day: string; item: string; bird: string } | null>(null);
+  const [birdGiftMessage, setBirdGiftMessage] = useState("");
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("shoreline-patio-bird-gifts-v1") || "{}");
+      if (saved.pending) setBirdGift(saved.pending);
+    } catch {}
+  }, []);
+  const leaveBirdGift = (index: number) => {
+    try {
+      const key = "shoreline-patio-bird-gifts-v1";
+      const saved = JSON.parse(localStorage.getItem(key) || "{}");
+      const today = new Date().toLocaleDateString("en-CA");
+      if (saved.lastVisit === today) return;
+      saved.lastVisit = today;
+      if (!saved.pending && Math.random() < 0.55) {
+        const item = Math.random() < 0.8 ? "bird-feather" : "pinecone";
+        saved.pending = { day: today, item, bird: patioBirds[index].name };
+        setBirdGift(saved.pending);
+        setBirdGiftMessage("A visiting bird has left something near the birdbath. Search the patio to collect it.");
+      }
+      localStorage.setItem(key, JSON.stringify(saved));
+    } catch {}
+  };
+  const collectBirdGift = () => {
+    if (!birdGift) return;
+    collectItem(birdGift.item, { silent: true });
+    setBirdGiftMessage(`You found ${ITEMS[birdGift.item]?.name || "a gift"} left by a ${birdGift.bird.toLowerCase()}! Added to inventory.`);
+    setBirdGift(null);
+    try {
+      const key = "shoreline-patio-bird-gifts-v1";
+      const saved = JSON.parse(localStorage.getItem(key) || "{}");
+      delete saved.pending;
+      localStorage.setItem(key, JSON.stringify(saved));
+    } catch {}
+  };
+
   const playBirdCall = (index: number) => {
     const bird = patioBirds[index];
     if (!bird) return;
@@ -227,6 +264,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         if (!document.hidden) {
           const index = Math.floor(Math.random() * patioBirds.length);
           setVisitingBird(index);
+          leaveBirdGift(index);
           setBirdMessage(patioBirds[index].name + " is visiting the patio.");
           clearTimeout(departureTimer);
           departureTimer = setTimeout(() => {
@@ -456,6 +494,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         {area === "patio" && <section aria-label="Patio bird visitors" className="mt-2 rounded-xl border border-teal-800/40 p-3 text-sm text-teal-950">
           <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
           {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
+          {!night && birdGift && <button type="button" onClick={collectBirdGift} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 py-2 font-semibold text-white">Search near the birdbath for a bird gift</button>}
+          {birdGiftMessage && <p role="status" className="mt-2">{birdGiftMessage}</p>
         </section>}
         {area === "patio" && archieReady && (
           <section aria-labelledby="archie-title" className="mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 text-sm text-indigo-950">
