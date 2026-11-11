@@ -283,37 +283,33 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                 <div className="h-full rounded-full bg-teal-600 transition-all" style={{ width: `${(searchedCount / AREAS.length) * 100}%` }} />
               </div>
 
-              {lastResult && (
-                <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-amber-950 shadow-sm ring-1 ring-amber-300">
-                  <div className="flex items-start gap-3">
-                    {lastResult.discovery.image ? <Image src={lastResult.discovery.image} alt="" width={100} height={100} unoptimized className="h-24 w-24 shrink-0 object-contain" /> : <span className="text-3xl" aria-hidden="true">{lastResult.discovery.icon}</span>}
-                    <div>
-                      <p className="font-bold">You found {lastResult.discovery.name}</p>
-                      <p className="mt-1 text-sm text-amber-800">{lastResult.message}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {AREAS.map((area) => {
+              <div className="relative mt-4 overflow-hidden rounded-xl border-2 border-teal-300">
+                <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pool with seven searchable rocky pockets" : "Sunlit tide pool with seven searchable rocky pockets"} width={1024} height={1536} unoptimized className="h-auto w-full" />
+                {AREAS.map((area, index) => {
                   const found = areaFinds[area.id];
-                  return (
-                    <button
-                      key={area.id}
-                      type="button"
-                      disabled={!!found}
-                      onClick={() => searchArea(area.id)}
-                      aria-label={found ? `${area.name}, searched. Found ${found.name}. ${found.description}` : `${area.name}, unsearched. ${area.clue}`}
-                      className={`min-h-32 rounded-2xl p-4 text-left ring-2 transition disabled:opacity-100 ${found ? "bg-white text-teal-950 ring-amber-300" : "bg-teal-700 text-white ring-teal-800 active:bg-teal-800"}`}
-                    >
-                      <span className="text-3xl" aria-hidden="true">{found ? found.icon : area.icon}</span>
-                      <span className="mt-2 block font-bold">{area.name}</span>
-                      <span className={`mt-1 block text-sm ${found ? "text-teal-700" : "text-cyan-50"}`}>{found ? `Found: ${found.name}` : area.clue}</span>
-                    </button>
-                  );
+                  const positions = [
+                    { left: "12%", top: "47%" }, { left: "64%", top: "36%" },
+                    { left: "65%", top: "59%" }, { left: "15%", top: "65%" },
+                    { left: "35%", top: "78%" }, { left: "67%", top: "79%" },
+                    { left: "37%", top: "29%" },
+                  ];
+                  return <button key={area.id} type="button" disabled={!!found} onClick={() => searchArea(area.id)}
+                    aria-label={found ? area.name + ", searched. Found " + found.name : "Search " + area.name + ". " + area.clue}
+                    className="absolute z-10 flex h-[10%] w-[24%] items-center justify-center rounded-full border-2 border-amber-200/80 bg-teal-950/30 text-white shadow-sm focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300 disabled:border-emerald-200/50 disabled:bg-transparent"
+                    style={positions[index]}>
+                    <span className="sr-only">{area.name}</span>
+                    <span aria-hidden="true" className="text-xl drop-shadow-md">{found ? "✓" : area.icon}</span>
+                  </button>;
                 })}
+                {lastResult && <div className="pointer-events-none absolute inset-x-[15%] top-[35%] z-20 flex h-[30%] items-center justify-center" aria-hidden="true">
+                  {lastResult.discovery.image ? <Image src={lastResult.discovery.image} alt="" fill unoptimized sizes="(max-width: 640px) 70vw, 400px" className="object-contain drop-shadow-xl" /> : <span className="text-6xl">{lastResult.discovery.icon}</span>}
+                </div>}
               </div>
+              {lastResult && <div className="mt-3 rounded-xl bg-amber-50 p-3 text-amber-950 ring-1 ring-amber-300" role="status" aria-live="polite">
+                <p className="font-bold">You found {lastResult.discovery.name}</p>
+                <p className="mt-1 text-sm">{lastResult.message}</p>
+              </div>}
+              <p className="mt-2 text-sm text-teal-900">Explore the marked spots directly on the Tide Pool scene. Each discovery appears over the water. VoiceOver can navigate all seven search buttons.</p>
             </div>
           ))}
 
