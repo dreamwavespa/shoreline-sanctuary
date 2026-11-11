@@ -38,10 +38,10 @@ function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { 
       const art = FLOWER_SHOP_ART[stem.id];
       if (!p || !art) return null;
       const anchorX = 50 + (p.x - 50) * .36;
-      const anchorY = 54 + (p.y - 35) * .32;
+      const anchorY = 40 + (p.y - 35) * .32;
       return <Image key={i} src={FLOWER_SHOP_ROOT + art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{ left: anchorX + "%", top: anchorY + "%", transform: `translate(-50%, -72%) rotate(${p.angle * .65}deg) scale(${p.scale * .87})`, transformOrigin: "50% 85%", zIndex: p.y < 30 ? 2 : p.y < 45 ? 4 : 6 }} />;
     })}
-    <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[1%] left-1/2 h-[42%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 10 }} />
+    <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[2%] left-1/2 h-[48%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 10 }} />
   </div>;
 }
 function PatioFlowerBox({ flowers }: { flowers: string[] }) {
@@ -118,7 +118,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "patio-fountain", name: "Patio fountain space", x: 48, y: 73 },
     { id: "patio-chair-left", name: "Patio beach chair, left", x: 26, y: 79 },
     { id: "patio-chair-right", name: "Patio beach chair, right", x: 73, y: 79 },
-    { id: "patio-table", name: "Patio table", x: 83, y: 66 },
+    { id: "patio-table", name: "Patio table", x: 86, y: 65 },
     { id: "patio-planter", name: "Patio flower box by the railing", x: 48, y: 46 },
     { id: "patio-lantern", name: "Patio lantern", x: 91, y: 47 },
     { id: "patio-chime", name: "Patio wind chime", x: 78, y: 20 },
@@ -578,14 +578,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
               "wall": { x: 87, y: 38 }, "wall-left": { x: 86, y: 29 }, "wall-right": { x: 90, y: 46 },
               "fireplace-mantel": { x: 17, y: 59 },
               "sofa-pillow-left": { x: 31, y: 49 }, "sofa-pillow-right": { x: 45, y: 49 },
-              "coffee-table": { x: 56.5, y: 53.8 }, "side-table": { x: 96, y: 64 },
+              "coffee-table": { x: 55.5, y: 51.2 }, "side-table": { x: 96, y: 64 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
             const item = id && (isArrangement(id) ? { id, name: decorName(id), icon: decorIcon(id), isEmoji: false } : ITEMS[id]);
             const smallTableDecor = isTableSlot(slot.id) && /cup|mug|candle|teacup/i.test(item ? item.name : "");
-            const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "15%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
-            const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "13%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
+            const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "13%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
+            const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "11%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : slot.id === "patio-planter" ? "23%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : slot.id === "patio-planter" ? "12%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
               {(item || slot.id === "patio-planter") && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
               <span className="sr-only">{slot.name}</span>
