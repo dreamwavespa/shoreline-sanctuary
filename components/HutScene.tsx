@@ -220,10 +220,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   type ArchieGift = { id: string; name: string; night: string; hidingPlace: number };
   const archiePlaces = ["behind the flower planter", "beside the patio birdbath", "under the patio chair"];
   const archieGifts = [
-    { id: "shoreline-page", name: "Forgotten Shoreline Book Page" },
-    { id: "salt-grass-bookmark", name: "Pressed Salt-Grass Bookmark" },
-    { id: "midnight-candle", name: "Midnight Reading Candle" },
-    { id: "old-map-fragment", name: "Old Shoreline Map Fragment" },
+    { id: "shoreline-page", name: "Forgotten Shoreline Book Page", image: "/images/Hut/Archie-book-pages.png" },
+    { id: "salt-grass-bookmark", name: "Pressed Salt-Grass Bookmark", image: "/images/Hut/Archie-bookmark.png" },
+    { id: "midnight-candle", name: "Midnight Reading Candle", image: "/images/Hut/Archie-midnight-candle.png" },
+    { id: "old-map-fragment", name: "Old Shoreline Map Fragment", image: "/images/Hut/Archie-map-fragment.png" },
   ];
   const [archiePending, setArchiePending] = useState<ArchieGift[]>([]);
   const [archieFound, setArchieFound] = useState<ArchieGift[]>([]);
@@ -340,7 +340,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <button ref={closeRef} type="button" onClick={onClose} className="min-h-11 rounded-xl bg-teal-900 px-4 py-2 font-bold text-white">Return to Beach</button>
         </div>
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
-        <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
+        <div className="relative mx-auto w-full shrink-0 overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && fireOn && (
             <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{
@@ -439,7 +439,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             )}
             {archieMessage && <p className="mt-2" role="status" aria-live="polite">{archieMessage}</p>}
             <p className="mt-2">Archie's keepsakes discovered: {archieFound.length}. Book pages: {archieFound.filter(g => g.id === "shoreline-page").length}. Map fragments: {archieFound.filter(g => g.id === "old-map-fragment").length}.</p>
-            {archieFound.length > 0 && <details className="mt-2"><summary className="cursor-pointer font-semibold">View discovered keepsakes</summary><ul className="mt-1 list-inside list-disc">{archieFound.map((gift, index) => <li key={gift.night + index}>{gift.name}</li>)}</ul></details>}
+            {archieFound.length > 0 && <details className="mt-2"><summary className="cursor-pointer font-semibold">View discovered keepsakes</summary><ul className="mt-1 list-inside list-disc">{archieFound.map((gift, index) => <li key={gift.night + index} className="flex items-center gap-2"><Image src={archieGifts.find(item => item.id === gift.id)?.image || "/images/Hut/Archie-book-pages.png"} alt="" width={56} height={56} unoptimized className="h-14 w-14 object-contain" /><span>{gift.name}</span></li>)}</ul></details>}
           </section>
         )}
         {area === "inside" && <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>}
