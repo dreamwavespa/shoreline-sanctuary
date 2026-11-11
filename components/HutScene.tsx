@@ -31,17 +31,20 @@ const FLOWER_POSITIONS = [
   {x:22,y:39,angle:-38,scale:.85}, {x:78,y:39,angle:38,scale:.85}
 ];
 function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { id: string; slot: number }[]; name: string }) {
-  // Match the Flower Shop's bouquet positioning, stacking, and art assets exactly.
+  // One shared, centered bouquet silhouette. Flowers and vase use the same coordinate space;
+  // the vase's front layer masks the stems where they enter its opening.
+  const occupied = stems.map(stem => ({ ...stem, p: FLOWER_POSITIONS[stem.slot], art: FLOWER_SHOP_ART[stem.id] })).filter(stem => stem.p && stem.art);
+  const center = occupied.length ? occupied.reduce((sum, stem) => sum + stem.p.x, 0) / occupied.length : 50;
   return <div className="relative h-full w-full overflow-visible" role="img" aria-label={name + " with " + stems.map(stem => ITEMS[stem.id]?.name || stem.id).join(", ")}>
-    {stems.map((stem, i) => {
-      const p = FLOWER_POSITIONS[stem.slot];
-      const art = FLOWER_SHOP_ART[stem.id];
-      if (!p || !art) return null;
-      const anchorX = 50 + (p.x - 50) * .52;
-      const anchorY = 49 + (p.y - 35) * .38;
-      return <Image key={i} src={FLOWER_SHOP_ROOT + art} alt="" width={160} height={230} unoptimized className="absolute h-[76%] w-[44%] object-contain" style={{ left: anchorX + "%", top: anchorY + "%", transform: `translate(-50%, -55%) rotate(${p.angle * .65}deg) scale(${p.scale * 1.04})`, transformOrigin: "50% 85%", zIndex: p.y < 30 ? 2 : p.y < 45 ? 4 : 6 }} />;
-    })}
-    <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[2%] left-1/2 h-[48%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 10 }} />
+    <div className="absolute inset-0" style={{ transform: `translateX(${(50 - center) * .22}%)` }}>
+      {occupied.map((stem, i) => {
+        const p = stem.p;
+        const x = 50 + (p.x - 50) * .55;
+        const y = 43 + (p.y - 35) * .32;
+        return <Image key={i} src={FLOWER_SHOP_ROOT + stem.art} alt="" width={160} height={230} unoptimized className="absolute h-[70%] w-[42%] object-contain" style={{ left: x + "%", top: y + "%", transform: `translate(-50%, -55%) rotate(${p.angle * .55}deg) scale(${p.scale * .96})`, transformOrigin: "50% 85%", zIndex: 2 + i }} />;
+      })}
+    </div>
+    <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[2%] left-1/2 h-[48%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 20 }} />
   </div>;
 }
 function PatioFlowerBox({ flowers }: { flowers: string[] }) {
