@@ -112,7 +112,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "patio-chair-left", name: "Patio beach chair, left", x: 26, y: 79 },
     { id: "patio-chair-right", name: "Patio beach chair, right", x: 73, y: 79 },
     { id: "patio-table", name: "Patio table", x: 83, y: 66 },
-    { id: "patio-planter", name: "Patio flower display", x: 57, y: 57 },
+    { id: "patio-planter", name: "Patio flower box by the railing", x: 48, y: 43 },
     { id: "patio-lantern", name: "Patio lantern", x: 91, y: 47 },
     { id: "patio-chime", name: "Patio wind chime", x: 78, y: 20 },
     { id: "patio-birdbath", name: "Patio bird bath", x: 17, y: 62 },
