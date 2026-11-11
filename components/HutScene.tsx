@@ -19,6 +19,28 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [curtainStyle, setCurtainStyle] = useState("");
+  const [curtainsClosed, setCurtainsClosed] = useState(false);
+  const curtainStyles = [
+    { id: "sky-blue-curtains", name: "Sky Blue Curtains", file: "Sky_Blue_Curtains" },
+    { id: "pink-flower-curtains", name: "Pink Flower Curtains", file: "Pink_Flower_Curtains" },
+    { id: "seafoam-flower-curtains", name: "Seafoam Flower Curtains", file: "Seafoam_Flower_Curtains" },
+  ];
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("shoreline-hut-curtains-v1") || "{}");
+      if (typeof saved.style === "string") setCurtainStyle(saved.style);
+      if (typeof saved.closed === "boolean") setCurtainsClosed(saved.closed);
+    } catch {}
+  }, []);
+  const saveCurtains = (style: string, closed: boolean) => {
+    setCurtainStyle(style);
+    setCurtainsClosed(closed);
+    try { window.localStorage.setItem("shoreline-hut-curtains-v1", JSON.stringify({ style, closed })); } catch {}
+    setAnnouncement(style ? `${ITEMS[style]?.name || "Curtains"} ${closed ? "closed" : "open"}.` : "Curtains removed and returned to available inventory.");
+  };
+  const activeCurtains = curtainStyles.find(c => c.id === curtainStyle && (state.inventory[c.id] || 0) > 0);
+
   const entranceReadyAt = useRef(0);
   const openDecoration = (id: string) => { if (Date.now() < entranceReadyAt.current) return; setAnnouncement(""); setSelectedSlot(id); };
   const slots = [
@@ -342,6 +364,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         <p className="sr-only" aria-live="polite">{area === "inside" ? "Inside your hut. Three display shelves, a fireplace, seating, and a door to the patio." : "On your patio overlooking the beach. A door leads back inside."} {night ? "It is nighttime." : "It is daytime."}</p>
         <div className="relative mx-auto w-full shrink-0 overflow-hidden rounded-xl" style={{ aspectRatio: area === "inside" ? "3 / 4" : "2 / 3" }}>
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+          {area === "inside" && activeCurtains && (
+            <div aria-hidden="true" className="pointer-events-none absolute z-[2]" style={{ left: "68%", top: "19%", width: "33%", height: "38%" }}>
+              <Image src={`/images/Hut/${activeCurtains.file}${curtainsClosed ? "_Closed" : ""}.png`} alt="" fill unoptimized sizes="220px" className="object-contain" />
+            </div>
+          )}
           {area === "inside" && fireOn && (
             <div aria-hidden="true" className="pointer-events-none absolute z-[1] overflow-hidden" style={{
               left: night ? "4%" : "1.9%", top: night ? "49.5%" : "47.1%",
@@ -467,6 +494,17 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             }
           }} aria-pressed={fountainOn} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 text-teal-950">{fountainOn ? "Turn Fountain Sound Off" : "Turn Fountain Sound On"}</button>}
           <p role="status" className="text-sm">{soundMessage}</p>
+        </section>}
+        {area === "inside" && <section aria-label="Hut window curtains" className="mt-3 rounded-xl border border-teal-200 bg-white p-3">
+          <h3 className="font-bold text-teal-950">Window Curtains</h3>
+          <p className="text-sm">Current: {activeCurtains ? `${activeCurtains.name}, ${curtainsClosed ? "closed" : "open"}` : "No curtains hung"}.</p>
+          <label htmlFor="hut-curtain-style" className="mt-2 block font-medium">Choose curtains from your inventory</label>
+          <select id="hut-curtain-style" className="min-h-11 w-full rounded-lg border p-2" value={activeCurtains?.id || ""} onChange={e => saveCurtains(e.target.value, false)}>
+            <option value="">No curtains</option>
+            {curtainStyles.filter(c => (state.inventory[c.id] || 0) > 0).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <button type="button" disabled={!activeCurtains} aria-pressed={curtainsClosed} onClick={() => saveCurtains(curtainStyle, !curtainsClosed)} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-4 py-2 font-semibold text-white disabled:opacity-50">{curtainsClosed ? "Open Curtains" : "Close Curtains"}</button>
+          <p role="status" aria-live="polite" className="mt-2 text-sm">{announcement}</p>
         </section>}
         {selectedSlot && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
