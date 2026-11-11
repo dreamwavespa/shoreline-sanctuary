@@ -115,6 +115,8 @@ interface GameState {
   robinFeederRefills: number;
   robinFeederLastFilledAt: number;
   robinFeederPlaced: boolean;
+  hummingbirdFeederPlaced: boolean;
+  hummingbirdFeederFilledAt: number;
   robinGiftDate: string;
   robinGiftCount: number;
   robinBirdbathFilledAt: number;
@@ -283,6 +285,8 @@ const DEFAULT_STATE: GameState = {
   robinFeederRefills: 0,
   robinFeederLastFilledAt: 0,
   robinFeederPlaced: false,
+  hummingbirdFeederPlaced: false,
+  hummingbirdFeederFilledAt: 0,
   robinGiftDate: "",
   robinGiftCount: 0,
   robinBirdbathFilledAt: 0,
@@ -482,6 +486,8 @@ interface Ctx {
   placeRobinNest: () => boolean;
   repairRobinNest: () => boolean;
   placeRobinFeeder: () => boolean;
+  placeHummingbirdFeeder: () => boolean;
+  fillHummingbirdFeeder: () => boolean;
   refillRobinFeeder: () => boolean;
   replaceRobinFeeder: () => boolean;
   giftRobin: (itemId: string) => boolean;
@@ -878,6 +884,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const placeHummingbirdFeeder = (): boolean => {
+    if (!stateRef.current.robinNestPlacedAt || stateRef.current.hummingbirdFeederPlaced) return false;
+    setState(prev => ({ ...prev, hummingbirdFeederPlaced: true }));
+    toast("The sea-glass hummingbird feeder is hanging in the Woodland Trail!");
+    return true;
+  };
+  const fillHummingbirdFeeder = (): boolean => {
+    const current = stateRef.current;
+    if (!current.hummingbirdFeederPlaced || (current.inventory["food-sweet-nectar"] || 0) < 1 || Date.now() - (current.hummingbirdFeederFilledAt || 0) < 48 * 60 * 60 * 1000) return false;
+    setState(prev => ({ ...prev, hummingbirdFeederFilledAt: Date.now(), inventory: { ...prev.inventory, "food-sweet-nectar": Math.max(0, (prev.inventory["food-sweet-nectar"] || 0) - 1) } }));
+    toast("The hummingbird feeder is filled with Sweet Nectar for two days!");
+    return true;
+  };
   const placeRobinFeeder = (): boolean => {
     const s = stateRef.current;
     if (!s.robinNestPlacedAt || s.robinFeederPlaced || (s.inventory["food-pinecone-bird-feeder"] || 0) < 1) return false;
@@ -2994,6 +3013,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       placeRobinNest,
       repairRobinNest,
       placeRobinFeeder,
+      placeHummingbirdFeeder,
+      fillHummingbirdFeeder,
       refillRobinFeeder,
       replaceRobinFeeder,
       giftRobin,
