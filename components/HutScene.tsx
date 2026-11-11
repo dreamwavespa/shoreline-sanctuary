@@ -85,7 +85,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isWallSlot = (id: string) => id.startsWith("wall");
   const isPillowSlot = (id: string) => id.startsWith("sofa-pillow");
   const isChairSlot = (id: string) => id === "shell-chair";
-  const isPillowDecor = (id: string) => /pillow|cushion/i.test(id + " " + (ITEMS[id]?.name || ""));
+  const isPillowDecor = (id: string) => { const name = id + " " + (ITEMS[id]?.name || ""); return !/cat.toy|catnip|crinkle|snowball.cat|toy.mouse/i.test(name) && /pillow|cushion|plushie|plush.toy|stuffed.animal/i.test(name); };
   const isChairDecor = (id: string) => /shell.chair|seashell.chair|pearl.shell.chair/i.test(id + " " + (ITEMS[id]?.name || ""));
   const isTableSlot = (id: string) => id.includes("table") || id === "fireplace-mantel";
   const isWallDecor = (id: string) => /paint|artwork|mirror|wall|canvas|portrait/i.test(id + " " + (ITEMS[id]?.name || ""));
@@ -126,7 +126,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (!selectedSlot) return;
     if (!slotAccepts(selectedSlot, id)) { setAnnouncement("This decoration is not suitable for that display position."); return; }
     if (isPatioSlot(selectedSlot) && !patioMatches(selectedSlot, id)) { setAnnouncement("Choose a suitable patio decoration for this position."); return; }
-    if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or cushion for the sofa."); return; }
+    if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or plushie for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
     const count = isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
