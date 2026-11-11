@@ -72,6 +72,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
     const audio = new Audio(`/audio/Birds/bird-hummingbird-1.mp3?v=${ASSET_VERSION}`);
     audioRef.current = audio;
     void audio.play().catch(() => setAnnouncement("The hummingbird's call could not play."));
+    setHummingbirdVisiting(true);
     setAnnouncement("A hummingbird flutters near the sea-glass feeder and chirps softly.");
   };
   const feederRefills = state.robinFeederRefills || 0;
@@ -133,7 +134,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           </button>
         )}
         {hummingbirdFull && hummingbirdVisiting && (
-          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[59%] top-[26%] z-30 h-[12%] w-[14%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[55%] top-[30%] z-30 h-[16%] w-[18%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
             <Image src="/images/Birds/bird-hummingbird.png" alt="" fill unoptimized sizes="15vw" className="object-contain" />
           </button>
         )}
