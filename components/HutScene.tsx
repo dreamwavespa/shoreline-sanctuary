@@ -356,7 +356,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
           {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
         </section>}
-        <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>
+        {area === "inside" && <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>}
         <button type="button" onClick={() => openDecoration(area === "inside" ? "shelf1-left" : "patio-fountain")} className="mt-2 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white">{area === "inside" ? "Decorate Your Hut" : "Decorate Your Patio"}</button>
         {area === "patio" && (placements["patio-chime"] || placements["patio-fountain"]) && <button type="button" aria-expanded={showPatioSounds} onClick={() => setShowPatioSounds(v => !v)} className="mt-2 min-h-11 rounded-xl border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-950">{showPatioSounds ? "Close Patio Sounds" : "Patio Sounds"}</button>}
         {area === "patio" && showPatioSounds && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
