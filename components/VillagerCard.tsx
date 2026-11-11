@@ -63,6 +63,7 @@ export default function VillagerCard({ villager, schedule }: { villager: Village
     .sort(([a], [b]) => ITEMS[a].name.localeCompare(ITEMS[b].name));
   const [selectedPottery, setSelectedPottery] = useState("");
   const handleGift = (itemId: string) => {
+    if (villager.id === "shelby" && itemId === "lobster-trap" && (state.inventory[itemId] || 0) > 0) { const audio = new Audio("/audio/shelby-claw-click.mp3"); audio.volume = 0.7; void audio.play().catch(() => {}); }
     giftVillager(villager.id, itemId);
   };
 
