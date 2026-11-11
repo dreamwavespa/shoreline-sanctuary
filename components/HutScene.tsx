@@ -168,12 +168,12 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
   const patioBirds = [
-    { name: "Robin", calls: ["Robin-greeting.mp3"], symbol: "🐦" },
-    { name: "Blue jay", calls: ["bird-bluejay-1.mp3", "bird-bluejay-2.mp3", "bird-bluejay-3.mp3"], symbol: "🐦" },
-    { name: "Chickadee", calls: ["bird-chickadee-1.mp3"], symbol: "🐦" },
-    { name: "Goldfinch", calls: ["bird-goldfinch-1.mp3", "bird-goldfinch-2.mp3", "bird-goldfinch-3.mp3"], symbol: "🐤" },
-    { name: "Hummingbird", calls: ["bird-hummingbird-1.mp3"], symbol: "🐦" },
-    { name: "Wren", calls: ["bird-wren-1.mp3", "bird-wren-2.mp3", "bird-wren-3.mp3"], symbol: "🐦" },
+    { name: "Robin", calls: ["Robin-greeting.mp3"], image: "/images/Birds/bird-robin.png" },
+    { name: "Blue jay", calls: ["bird-bluejay-1.mp3", "bird-bluejay-2.mp3", "bird-bluejay-3.mp3"], image: "/images/Birds/bird-bluejay.png" },
+    { name: "Chickadee", calls: ["bird-chickadee-1.mp3"], image: "/images/Birds/bird-chickadee.png" },
+    { name: "Goldfinch", calls: ["bird-goldfinch-1.mp3", "bird-goldfinch-2.mp3", "bird-goldfinch-3.mp3"], image: "/images/Birds/bird-goldfinch.png" },
+    { name: "Hummingbird", calls: ["bird-hummingbird-1.mp3"], image: "/images/Birds/bird-hummingbird.png" },
+    { name: "Wren", calls: ["bird-wren-1.mp3", "bird-wren-2.mp3", "bird-wren-3.mp3"], image: "/images/Birds/bird-wren.png" },
   ];
   const [visitingBird, setVisitingBird] = useState<number | null>(null);
   const [birdMessage, setBirdMessage] = useState("");
@@ -204,12 +204,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           const index = Math.floor(Math.random() * patioBirds.length);
           setVisitingBird(index);
           setBirdMessage(patioBirds[index].name + " is visiting the patio.");
+          clearTimeout(departureTimer);
           departureTimer = setTimeout(() => {
             if (active) { setVisitingBird(null); setBirdMessage("The bird has flown away."); }
           }, 45000);
         }
         schedule();
-      }, 30000 + Math.random() * 60000);
+      }, 60000 + Math.random() * 45000);
     };
     schedule();
     return () => { active = false; clearTimeout(arrivalTimer); clearTimeout(departureTimer); birdAudioRef.current?.pause(); };
@@ -309,8 +310,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           {area === "patio" && visitingBird !== null && !night && (
             <button type="button" onClick={() => { setBirdMessage(patioBirds[visitingBird].name + " sings near the patio birdbath."); playBirdCall(visitingBird); }}
               aria-label={patioBirds[visitingBird].name + " visiting the patio. Listen to bird call"}
-              className="absolute left-[12%] top-[48%] z-20 flex h-[10%] w-[12%] items-center justify-center rounded-full text-3xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-              <span aria-hidden="true">{patioBirds[visitingBird].symbol}</span>
+              className="absolute left-[12%] top-[48%] z-20 flex h-[12%] w-[16%] items-center justify-center rounded-full drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+              <Image src={patioBirds[visitingBird].image} alt="" fill unoptimized sizes="15vw" className="object-contain drop-shadow-lg" />
             </button>
           )}
           {activeSlots.map(slot => {
