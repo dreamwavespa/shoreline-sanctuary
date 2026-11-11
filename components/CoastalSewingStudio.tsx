@@ -83,7 +83,7 @@ export default function CoastalSewingStudio() {
   const sew = () => {
     if (!seasonAvailable) {setMessage(name+" is a "+season+" seasonal project. Please return during its season.");return;}
     if (!hasEnough(cost)) {setMessage("You need more materials to sew this project.");return;}
-    if (!craft("sewing-"+id,cost)) {setMessage("Unable to complete the sewing project.");return;}
+    if (!craft(id.endsWith("-curtains") ? id : "sewing-"+id,cost)) {setMessage("Unable to complete the sewing project.");return;}
     playFile("sewing-machine.mp3");
     setMessage(name+" completed and added to your inventory. Thread selected: "+thread+". The finished design matches the original artwork.");
   };
