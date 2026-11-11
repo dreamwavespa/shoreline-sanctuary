@@ -267,8 +267,12 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, night]);
   useEffect(() => () => { archieAudioRef.current?.pause(); }, []);
   const listenForArchie = () => {
-    // An owl call file can be added later; do not substitute another bird's call.
-    setArchieMessage(archieSeen ? "A pale owl with luminous amber eyes watches quietly from the patio railing." : "The night is quiet. Archie may have visited unseen.");
+    archieAudioRef.current?.pause();
+    const audio = new Audio("/audio/Birds/Archie_Owl_Call_Ready.mp3");
+    audio.volume = 0.32;
+    archieAudioRef.current = audio;
+    void audio.play().catch(() => setArchieMessage("Archie's call could not play. Try again."));
+    setArchieMessage(archieSeen ? "A soft owl call echoes across the patio. Archie watches quietly from the railing." : "A soft owl call echoes across the patio. Archie remains hidden in the night.");
   };
   const searchArchie = (place: number) => {
     if (night) { setArchieMessage("Archie prefers privacy at night. Search for his gifts after sunrise."); return; }
@@ -371,8 +375,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             @media (prefers-reduced-motion: reduce) { .hut-magic-flame { animation: none; } }
           `}</style>
           {area === "patio" && night && archieSeen && (
-            <button type="button" onClick={listenForArchie} aria-label="Rare sighting: Archie the night owl on the patio railing" className="absolute right-[9%] top-[25%] z-30 flex h-[17%] w-[18%] items-center justify-center rounded-xl text-5xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-              <span aria-hidden="true">🦉</span>
+            <button type="button" onClick={listenForArchie} aria-label="Rare sighting: Archie the night owl on the patio railing" className="absolute right-[9%] top-[25%] z-30 flex h-[22%] w-[22%] items-center justify-center rounded-xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
+              <Image src="/images/Birds/Archie-owl.PNG" alt="" fill unoptimized sizes="24vw" className="object-contain" />
             </button>
           )}
           {area === "patio" && visitingBird !== null && !night && (
@@ -428,7 +432,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <section aria-labelledby="archie-title" className="mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 text-sm text-indigo-950">
             <h3 id="archie-title" className="text-base font-bold">Archie the Night Owl</h3>
             <p className="mt-1">{night ? "Archie sometimes visits after sunset, but rarely allows himself to be seen. Any gifts he leaves can be searched for in daylight." : "Search the patio for anything Archie may have left overnight. His gifts remain until discovered."}</p>
-            {night ? <button type="button" onClick={listenForArchie} className="mt-2 min-h-11 rounded-lg border border-indigo-700 px-3 py-2 font-semibold">Look for Archie</button> : (
+            {night ? <button type="button" onClick={listenForArchie} className="mt-2 min-h-11 rounded-lg border border-indigo-700 px-3 py-2 font-semibold">Listen for Archie's call</button> : (
               <div className="mt-2 flex flex-wrap gap-2">
                 {archiePlaces.map((place, index) => <button key={place} type="button" onClick={() => searchArchie(index)} className="min-h-11 rounded-lg border border-indigo-700 px-3 py-2 font-semibold">Search {place}</button>)}
               </div>
