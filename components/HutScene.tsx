@@ -495,7 +495,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
           {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
           {!night && birdGift && <button type="button" onClick={collectBirdGift} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 py-2 font-semibold text-white">Search near the birdbath for a bird gift</button>}
-          {birdGiftMessage && <p role="status" className="mt-2">{birdGiftMessage}</p>
+          {birdGiftMessage && <p role="status" className="mt-2">{birdGiftMessage}</p>}
         </section>}
         {area === "patio" && archieReady && (
           <section aria-labelledby="archie-title" className="mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 text-sm text-indigo-950">
