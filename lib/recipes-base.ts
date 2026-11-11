@@ -211,6 +211,10 @@ export const JEWELRY_RECIPES: CraftRecipe[] = [
 ];
 
 export const DECOR_RECIPES: CraftRecipe[] = [
+  { id: "christmas-wreath", name: "Moonwashed Christmas Wreath", description: "A festive coastal wreath decorated with moonwashed shells and ceramic bells.", cost: [{itemId:"pinecone",count:3},{itemId:"seaweed-fronds",count:4},{itemId:"milky-moonstone-pebbles",count:3},{itemId:"moonwashed-shell",count:3},{itemId:"ceramic-bell",count:2}] },
+  { id: "winter-chimes", name: "Winter Chimes", description: "Gentle winter chimes made with ceramic bells, shells, pinecones and driftwood.", cost: [{itemId:"ceramic-bell",count:3},{itemId:"shell-scallop",count:2},{itemId:"shell-clam",count:2},{itemId:"pinecone",count:2},{itemId:"raw-driftwood-arch",count:1}] },
+  { id: "lobster-trap", name: "Handmade Lobster Trap", description: "A sturdy trap to sell, gift to Shelby, or save for a future cove activity.", cost: [{itemId:"raw-driftwood-planks",count:4},{itemId:"fishing-net",count:2}] },
+
   { id: "robins-birdhouse", name: "Robin's Birdhouse", description: "A shell-and-rose birdhouse for Robin in Coconut Grove; save for future garden placement.", cost: [{itemId:"raw-driftwood-planks",count:3},{itemId:"hemp-thread",count:2},{itemId:"shell-scallop",count:2},{itemId:"flower-beach-rose",count:2}] },
   { id: "seashell-treasure-chest", name: "Seashell Treasure Chest", description: "A decorative coastal treasure chest for future beach hut furnishings.", cost: [{itemId:"raw-driftwood-planks",count:4},{itemId:"shell-scallop",count:2},{itemId:"shell-clam",count:1},{itemId:"pearl-pink",count:1},{itemId:"pearl-white",count:1},{itemId:"glass-blue",count:2}] },
   { id: "sea-glass-mirror", name: "Sea Glass Mirror", description: "A luminous driftwood-framed mirror for the future beach hut, adorned with two glowing sand dollars.", cost: [{itemId:"raw-driftwood-arch",count:1},{itemId:"glass-white",count:2},{itemId:"glass-blue",count:2},{itemId:"glass-teal",count:2},{itemId:"glass-amber",count:2},{itemId:"moonlit-sea-glass",count:2},{itemId:"glowing-sand-dollar",count:2}] },
