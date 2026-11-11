@@ -27,6 +27,18 @@ function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { 
     </div>
   </div>;
 }
+function PatioFlowerBox({ flowers }: { flowers: string[] }) {
+  return <div className="relative h-full w-full" role="img" aria-label={"Driftwood flower box with " + (flowers.length ? flowers.map(id => ITEMS[id]?.name || id).join(", ") : "no flowers")}>
+    <div className="absolute inset-x-0 top-0 flex h-[72%] items-end justify-around">
+      {flowers.map((id, index) => <div key={index} className="h-full min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? 8 : 0}%)` }}><DisplayArt icon={ITEMS[id]?.icon || "🌸"} name={ITEMS[id]?.name || "Flower"} isEmoji={ITEMS[id]?.isEmoji || !ITEMS[id]?.icon} /></div>)}
+    </div>
+    <div className="absolute bottom-0 left-[5%] h-[40%] w-[90%] rounded-sm border-2 border-amber-950 bg-gradient-to-b from-amber-700 to-amber-900 shadow-md">
+      <div className="absolute inset-x-0 top-[38%] border-t border-amber-300/50" />
+      <div className="absolute left-[20%] top-0 h-full border-l border-amber-950/50" />
+      <div className="absolute right-[20%] top-0 h-full border-r border-amber-950/50" />
+    </div>
+  </div>;
+}
 const imagePath = (area: Area, night: boolean) =>
   area === "inside" && !night ? "/images/Hut/Hut-day-updated.PNG" : `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
@@ -35,6 +47,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [vaseFlowers, setVaseFlowers] = useState<string[]>([]);
+  const [patioBoxFlowers, setPatioBoxFlowers] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const [curtainStyle, setCurtainStyle] = useState("");
@@ -132,6 +145,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const availableArrangements = state.flowerArrangements.filter(a => !usedCount("arrangement:" + a.id));
   const isFlowerSlot = (slot: string) => slot === "patio-planter" || slot === "coffee-table" || slot === "side-table" || slot.startsWith("shelf");
   const flowerOptions = Object.entries(state.inventory).filter(([id, count]) => count > 0 && isDisplayFlower(id) && ITEMS[id] && !id.includes("vase") && !id.includes("curtain"));
+  const savePatioBoxFlowers = (next: string[]) => {
+    setPatioBoxFlowers(next);
+    try { window.localStorage.setItem("shoreline-patio-flower-box-v1", JSON.stringify(next)); } catch {}
+  };
   const saveVaseFlowers = (next: string[]) => {
     setVaseFlowers(next);
     try { window.localStorage.setItem("shoreline-tidekeeper-flowers-v1", JSON.stringify(next)); } catch {}
@@ -424,6 +441,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const update = () => { const hour = new Date().getHours(); setNight(hour >= 19 || hour < 6); };
     update();
+    try { const flowers = JSON.parse(window.localStorage.getItem("shoreline-patio-flower-box-v1") || "[]"); if (Array.isArray(flowers)) setPatioBoxFlowers(flowers.filter(x => typeof x === "string")); } catch {}
     try { const flowers = JSON.parse(window.localStorage.getItem("shoreline-tidekeeper-flowers-v1") || "[]"); if (Array.isArray(flowers)) setVaseFlowers(flowers.filter(x => typeof x === "string")); } catch {}
     try { const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}"); if (stored && typeof stored === "object" && !Array.isArray(stored)) setPlacements(stored); } catch {}
     const timer = window.setInterval(update, 60000);
@@ -522,7 +540,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const decorWidth = isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
-              {item && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} />}</div>}
+              {(item || (slot.id === "patio-planter" && patioBoxFlowers.length > 0)) && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
@@ -598,7 +616,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         </section>}
         {selectedSlot && <section role="dialog" aria-label="Choose a decoration" className="mt-3 rounded-xl border border-teal-800 bg-white p-3">
           <h3 className="font-bold text-teal-950">{slots.find(s => s.id === selectedSlot)?.name}</h3>
-          <p className="text-sm">Current: {placements[selectedSlot] ? decorName(placements[selectedSlot]) : "Empty"}</p>
+          <p className="text-sm">Current: {placements[selectedSlot] ? decorName(placements[selectedSlot]) : selectedSlot === "patio-planter" ? "Driftwood flower box" : "Empty"}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <button type="button" onClick={() => moveSlot(-1)} className="min-h-11 rounded-lg border px-3">Move Left</button>
             <button type="button" onClick={() => moveSlot(1)} className="min-h-11 rounded-lg border px-3">Move Right</button>
@@ -607,6 +625,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           </div>
           <label htmlFor="hut-slot" className="mt-3 block font-semibold">Display position</label>
           <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{activeSlots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
+          {selectedSlot === "patio-planter" && !placements["patio-planter"] && <div className="mt-3 rounded-lg border p-2">
+            <h4 className="font-semibold">Driftwood Flower Box</h4>
+            <p>Choose up to six flowers from your inventory. Flowers remain in your inventory.</p>
+            <p>Currently displayed: {patioBoxFlowers.length ? patioBoxFlowers.map(id => ITEMS[id]?.name || id).join(", ") : "No flowers yet"}</p>
+            {flowerOptions.map(([id, count]) => <button key={id} type="button" disabled={patioBoxFlowers.length >= 6 || patioBoxFlowers.filter(x => x === id).length >= count} onClick={() => { savePatioBoxFlowers([...patioBoxFlowers, id]); setAnnouncement(ITEMS[id].name + " added to the patio flower box."); }} className="mb-1 block min-h-11 w-full rounded-lg border p-2 text-left disabled:opacity-50">Add {ITEMS[id].name}</button>)}
+            <button type="button" onClick={() => { savePatioBoxFlowers([]); setAnnouncement("Patio flower box cleared."); }} className="min-h-11 rounded-lg border p-2">Remove All Flowers</button>
+          </div>}
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
             {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id)).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
