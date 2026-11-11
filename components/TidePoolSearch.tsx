@@ -6,6 +6,7 @@ import { SCENES } from "@/lib/media";
 import { useGame } from "@/lib/store";
 
 interface Discovery {
+  image?: string;
   id: string;
   name: string;
   icon: string;
@@ -15,10 +16,10 @@ interface Discovery {
 }
 
 const DISCOVERIES: Discovery[] = [
-  { id: "rainbow-starfish", name: "Rainbow the Starfish", icon: "🌈", description: "Rainbow rests beneath the clear water, each arm glowing a different color.", sound: "seaGlass" },
+  { id: "rainbow-starfish", name: "Rainbow the Starfish", icon: "🌈", image: "/images/Cove/Starfish.png", description: "Rainbow rests beneath the clear water, each arm glowing a different color.", sound: "seaGlass" },
   { id: "pip-urchin", name: "Pip the Sea Urchin", icon: "🟣", description: "Pip peeks from a narrow rock hollow, his purple-blue spines moving gently.", sound: "shell" },
   { id: "sparkle-fish", name: "Sparkle the Fish", icon: "🐟", description: "Sparkle swims into a sunbeam. Her silver scales flash with a tiny rainbow shimmer.", sound: "sparkle", reward: "glitter" },
-  { id: "barnaby-hermit-crab", name: "Barnaby the Hermit Crab", icon: "🦀", description: "Barnaby scuttles out from behind a stone, carefully carrying his spiral shell.", sound: "shell" },
+  { id: "barnaby-hermit-crab", name: "Barnaby the Hermit Crab", icon: "🦀", image: "/images/Cove/Hermit_Crab.png", description: "Barnaby scuttles out from behind a stone, carefully carrying his spiral shell.", sound: "shell" },
   { id: "pearl-clam", name: "A Clam with a Pearl", icon: "🦪", description: "A clam opens slowly and offers a loose silver pearl resting beside its shell.", sound: "pearl", reward: "pearl-silver" },
   { id: "sea-anemones", name: "Sea Anemone Garden", icon: "🪸", description: "A garden of pink and coral anemones waves softly with the tide.", sound: "shell" },
   { id: "sea-lettuce-patch", name: "Fresh Sea Lettuce", icon: "🥬", description: "Clean green sea lettuce grows along the rock. You gather only a few loose leaves for the kitchen.", sound: "seaweedCollect", reward: "sea-lettuce" },
@@ -231,6 +232,16 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           </div>
           <div className="relative mx-auto w-full max-w-2xl">
             <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pools among rocky ledges, sea creatures, and glowing shells" : "Sunlit turquoise tide pools, rocky ledges, starfish, anemones, and shells"} width={1024} height={1536} priority unoptimized className="h-auto w-full" />
+            {/* Discovered animals stay visible as small illustrations in the shallows. */}
+            {[
+              { id: "rainbow-starfish", image: "/images/Cove/Starfish.png", label: "Rainbow the starfish", left: "15%", top: "56%" },
+              { id: "barnaby-hermit-crab", image: "/images/Cove/Hermit_Crab.png", label: "Barnaby the hermit crab", left: "68%", top: "61%" },
+            ].filter(creature => state.tidePoolDiscoveries.includes(creature.id)).map(creature => (
+              <div key={creature.id} className="pointer-events-none absolute z-[1] h-[9%] w-[17%]" style={{ left: creature.left, top: creature.top }} aria-hidden="true">
+                <Image src={creature.image} alt="" fill unoptimized sizes="120px" className="object-contain drop-shadow-md" />
+              </div>
+            ))}
+            {lastResult && !lastResult.discovery.image && <div className="pointer-events-none absolute left-[45%] top-[55%] z-[1] rounded-full bg-cyan-50/75 px-2 py-1 text-2xl" aria-hidden="true">{lastResult.discovery.icon}</div>}
             <button type="button" onClick={(event) => openScenePanel("shallow", event.currentTarget)} aria-label="Explore shallow pool and sea creatures" className="absolute left-[27%] top-[48%] h-[22%] w-[45%] rounded-[45%] bg-transparent text-transparent outline-none focus-visible:ring-4 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-900"><span className="sr-only">Shallow Pool</span></button>
             <button type="button" onClick={(event) => openScenePanel("deep", event.currentTarget)} aria-label="Explore deeper tide pool and hidden crevice" className="absolute left-[33%] top-[24%] h-[20%] w-[49%] rounded-[40%] bg-transparent text-transparent outline-none focus-visible:ring-4 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-900"><span className="sr-only">Deeper Rocks</span></button>
             <button type="button" onClick={(event) => openScenePanel("treasures", event.currentTarget)} aria-label="Open treasure shelf, teapot restoration and magical collectibles" className="absolute left-[3%] top-[72%] h-[19%] w-[43%] rounded-[45%] bg-transparent text-transparent outline-none focus-visible:ring-4 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-900"><span className="sr-only">Treasure Shelf</span></button>
@@ -275,7 +286,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
               {lastResult && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-amber-950 shadow-sm ring-1 ring-amber-300">
                   <div className="flex items-start gap-3">
-                    <span className="text-3xl" aria-hidden="true">{lastResult.discovery.icon}</span>
+                    {lastResult.discovery.image ? <Image src={lastResult.discovery.image} alt="" width={100} height={100} unoptimized className="h-24 w-24 shrink-0 object-contain" /> : <span className="text-3xl" aria-hidden="true">{lastResult.discovery.icon}</span>}
                     <div>
                       <p className="font-bold">You found {lastResult.discovery.name}</p>
                       <p className="mt-1 text-sm text-amber-800">{lastResult.message}</p>
