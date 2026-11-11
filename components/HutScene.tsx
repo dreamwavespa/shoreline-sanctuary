@@ -76,7 +76,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (slot === "patio-fountain") return /fountain/i.test(name);
     if (slot === "patio-birdbath") return /bird.?bath/i.test(name);
     if (slot.startsWith("patio-chair")) return /beach.chair/i.test(name);
-    if (slot === "patio-chime") return /wind.chime/i.test(name);
+    if (slot === "patio-chime") return /wind.chime|winter.chime/i.test(name);
     if (slot === "patio-lantern") return /lantern/i.test(name);
     if (slot === "patio-planter") return /flower|bouquet|plant|vase/i.test(name);
     return true;
@@ -142,9 +142,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const playChime = () => {
     if (area !== "patio" || !placements["patio-chime"]) return;
     stopChime();
+    const isWinterChime = placements["patio-chime"] === "winter-chimes";
     const choices = chimeStyle === "mixed" ? [...chimeFiles.small, ...chimeFiles.bamboo] : chimeFiles[chimeStyle];
     const filename = choices[Math.floor(Math.random() * choices.length)];
-    const audio = new Audio("/audio/Patio/" + filename);
+    const audio = new Audio(isWinterChime ? "/audio/winter-chimes-short.mp3" : "/audio/Patio/" + filename);
     audio.volume = 0.38;
     effectAudioRef.current = audio;
     void audio.play().catch(() => setSoundMessage("Audio could not play. Try tapping Play Wind Chimes again."));
@@ -476,12 +477,12 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         {area === "patio" && showPatioSounds && (placements["patio-chime"] || placements["patio-fountain"]) && <section aria-label="Patio sounds" className="mt-3 rounded-xl border border-teal-800 p-3">
           <h3 className="font-bold text-teal-950">Patio Sounds</h3>
           {placements["patio-chime"] && <>
-            <button type="button" onClick={playChime} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 text-white">Play Wind Chimes</button>
+            <button type="button" onClick={playChime} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 text-white">{placements["patio-chime"] === "winter-chimes" ? "Play Winter Chimes" : "Play Wind Chimes"}</button>
             <label className="mt-2 flex items-center gap-2"><input type="checkbox" checked={automaticChimes} onChange={e => setAutomaticChimes(e.target.checked)} /> Occasional breeze sounds</label>
-            <label htmlFor="chime-style" className="mt-2 block">Wind chime sound</label>
+            {placements["patio-chime"] !== "winter-chimes" && <><label htmlFor="chime-style" className="mt-2 block">Wind chime sound</label>
             <select id="chime-style" value={chimeStyle} onChange={e => setChimeStyle(e.target.value as "mixed" | "small" | "bamboo")} className="min-h-11 w-full rounded-lg border p-2">
               <option value="mixed">Mixed chimes</option><option value="small">Small metal chimes</option><option value="bamboo">Bamboo chimes</option>
-            </select>
+            </select></>}
           </>}
           {placements["patio-fountain"] && <button type="button" onClick={() => {
             if (fountainOn) {
