@@ -247,6 +247,52 @@ export default function CoveScene() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
+  const [showTrap, setShowTrap] = useState(false);
+  const trapButtonRef = useRef<HTMLButtonElement>(null);
+  const [trapPlaced, setTrapPlaced] = useState(false);
+  const [trapChecked, setTrapChecked] = useState("");
+  const [trapCreature, setTrapCreature] = useState("");
+  const [trapMessage, setTrapMessage] = useState("");
+  useEffect(() => {
+    try {
+      const data = JSON.parse(localStorage.getItem("shoreline-cove-lobster-trap-v1") || "{}");
+      setTrapPlaced(!!data.placed);
+      setTrapChecked(typeof data.checked === "string" ? data.checked : "");
+      setTrapCreature(typeof data.creature === "string" ? data.creature : "");
+    } catch {}
+  }, []);
+  const persistTrap = (placed: boolean, checked: string, creature: string) => {
+    setTrapPlaced(placed); setTrapChecked(checked); setTrapCreature(creature);
+    try { localStorage.setItem("shoreline-cove-lobster-trap-v1", JSON.stringify({ placed, checked, creature })); } catch {}
+  };
+  const trapDay = getShopDateKey();
+  const trapDestinations: Record<string, string> = {
+    "Hermit crab": "Sheltered Cove rocks",
+    "Sea snail": "Shallow Tide Pool",
+    "Starfish": "Shallow Tide Pool",
+    "Lobster": "Libby's Reef",
+  };
+  const checkTrap = () => {
+    if (!trapPlaced || trapCreature || trapChecked === trapDay) return;
+    const roll = Math.random();
+    if (roll < 0.12) {
+      const reward = Math.random() < 0.6 ? "sea-foam-sponges" : "deep-sea-seed";
+      collectItem(reward, { silent: true });
+      persistTrap(true, trapDay, "");
+      setTrapMessage(`You found ${ITEMS[reward].name} caught in the netting. Added to inventory. No animal was trapped today.`);
+    } else {
+      const creature = ["Hermit crab", "Sea snail", "Starfish", "Lobster"][Math.floor(Math.random() * 4)];
+      persistTrap(true, trapDay, creature);
+      setTrapMessage(`A ${creature.toLowerCase()} is waiting safely in the trap. Choose where to release it.`);
+    }
+  };
+  const releaseTrapCreature = () => {
+    if (!trapCreature) return;
+    const destination = trapDestinations[trapCreature];
+    setTrapMessage(`You gently release the ${trapCreature.toLowerCase()} toward ${destination}. It swims or crawls away safely. Come back tomorrow to check the trap again.`);
+    persistTrap(true, trapChecked, "");
+  };
+
   const [showCollection, setShowCollection] = useState(false);
   const [showLowTide, setShowLowTide] = useState(false);
   const lowTideButtonRef = useRef<HTMLButtonElement>(null);
@@ -285,17 +331,19 @@ export default function CoveScene() {
   const shellMatchButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeActivity = () => {
+    const wasTrap = showTrap;
     const wasDock = dockOpen;
     const wasCollection = showCollection;
     const wasLowTide = showLowTide;
     setDockOpen(false);
+    setShowTrap(false);
     setShowChest(false);
     setShowCollection(false);
     setShowLowTide(false);
-    window.setTimeout(() => (wasLowTide ? lowTideButtonRef : wasCollection ? collectionButtonRef : wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
+    window.setTimeout(() => (wasTrap ? trapButtonRef : wasLowTide ? lowTideButtonRef : wasCollection ? collectionButtonRef : wasDock ? dockButtonRef : chestButtonRef).current?.focus(), 0);
   };
   useEffect(() => {
-    if (!dockOpen && !showChest && !showCollection && !showLowTide) return;
+    if (!dockOpen && !showChest && !showCollection && !showLowTide && !showTrap) return;
     const dialog = dialogRef.current;
     const first = dialog?.querySelector<HTMLElement>('button');
     first?.focus();
@@ -310,7 +358,7 @@ export default function CoveScene() {
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [dockOpen, showChest, showCollection, showLowTide]);
+  }, [dockOpen, showChest, showCollection, showLowTide, showTrap]);
   const closeShellMatch = () => {
     setShellMatchOpen(false);
     window.setTimeout(() => shellMatchButtonRef.current?.focus(), 0);
@@ -396,6 +444,10 @@ export default function CoveScene() {
             <span className="sr-only">Exposed Cove rocks</span>
           </button>
         )}
+        <button ref={trapButtonRef} type="button" onClick={() => { setShowTrap(true); setShowChest(false); setDockOpen(false); setShowCollection(false); setShowLowTide(false); }} aria-label={trapPlaced ? "Inspect placed lobster trap" : "Place a crafted lobster trap"} aria-expanded={showTrap}
+          className="absolute right-[7%] top-[78%] z-10 h-[11%] w-[25%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
+          {trapPlaced ? <Image src="/images/Lobster_Trap.png" alt="" fill unoptimized className="object-contain" /> : <span aria-hidden="true" className="rounded-lg bg-teal-900/90 px-3 py-2 text-white">🦞</span>}
+        </button>
         {spots.map(spot => {
           const def = ITEMS[spot.itemId];
           const art = coveFindArt(spot.itemId);
@@ -409,15 +461,24 @@ export default function CoveScene() {
         })}
       </div>
       <div className="mx-auto max-w-[780px] px-4 py-4"><button ref={collectionButtonRef} type="button" onClick={() => { setShowCollection(true); setShowChest(false); setDockOpen(false); }} className="min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Open Cove Treasures Collection</button></div>
-      {(showChest || dockOpen || showCollection || showLowTide) && (
+      {(showChest || dockOpen || showCollection || showLowTide || showTrap) && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showLowTide ? "Unusually low tide Cove discoveries" : showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showTrap ? "Cove lobster trap" : showLowTide ? "Unusually low tide Cove discoveries" : showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
             className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#fbf3e3] shadow-2xl">
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
-              <h2 className="text-lg font-bold text-amber-950">{showLowTide ? "Exposed Cove Rocks" : showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
+              <h2 className="text-lg font-bold text-amber-950">{showTrap ? "Lobster Trap" : showLowTide ? "Exposed Cove Rocks" : showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
               <button type="button" onClick={closeActivity} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Close and return to Cove</button>
             </div>
             <div className="min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5">
+              {showTrap && <section aria-label="Lobster trap care" className="space-y-3 rounded-xl bg-white p-4">
+                <h3 className="font-bold text-teal-950">Cove Lobster Trap</h3>
+                <p className="text-sm text-teal-900">{trapPlaced ? "Your reusable trap is set in the sheltered water. Check it once a day, and release any creatures gently." : "Place a lobster trap you have crafted to begin daily discoveries. It stays in your inventory."}</p>
+                {!trapPlaced && <button type="button" disabled={(state.inventory["lobster-trap"] || 0) < 1} onClick={() => { persistTrap(true, "", ""); setTrapMessage("Your lobster trap is ready in the sheltered Cove water."); }} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white disabled:opacity-50">Place Lobster Trap</button>}
+                {trapPlaced && !trapCreature && <button type="button" disabled={trapChecked === trapDay} onClick={checkTrap} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white disabled:opacity-50">{trapChecked === trapDay ? "Trap checked today" : "Check Lobster Trap"}</button>}
+                {trapCreature && <div className="space-y-2"><p>A {trapCreature.toLowerCase()} is waiting safely. Release destination: {trapDestinations[trapCreature]}.</p><button type="button" onClick={releaseTrapCreature} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white">Release {trapCreature} toward {trapDestinations[trapCreature]}</button></div>}
+                {trapPlaced && !trapCreature && <button type="button" onClick={() => { persistTrap(false, trapChecked, ""); setTrapMessage("Trap retrieved. Your crafted lobster trap remains in inventory."); }} className="min-h-12 rounded-lg border border-teal-700 px-4 py-2 font-semibold">Retrieve Trap</button>}
+                <p role="status" aria-live="polite" className="text-sm text-teal-950">{trapMessage}</p>
+              </section>}
               {showLowTide && <section aria-label="Low tide searches" className="rounded-xl bg-sky-50 p-4 space-y-3"><h2 className="text-lg font-bold text-teal-950">Unusually Low Tide — Exposed Cove Rocks</h2>
 <p className="mt-1 text-sm text-teal-900">The Lighthouse forecast reveals porcelain clay, sea glitter, rare pearls, pottery fragments and lost trinkets.</p>
 <p className="mt-2 font-semibold text-teal-950">{lowTideSearches} of 3 searches completed today.</p>
