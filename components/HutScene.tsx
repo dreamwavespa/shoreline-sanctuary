@@ -45,15 +45,22 @@ function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { 
   </div>;
 }
 function PatioFlowerBox({ flowers }: { flowers: string[] }) {
-  return <div className="relative h-full w-full" role="img" aria-label={"Driftwood flower box with " + (flowers.length ? flowers.map(id => ITEMS[id]?.name || id).join(", ") : "no flowers")}>
-    <div className="absolute inset-x-0 top-0 flex h-[72%] items-end justify-around">
-      {flowers.map((id, index) => <div key={index} className="h-full min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? 8 : 0}%)` }}><DisplayArt icon={ITEMS[id]?.icon || "🌸"} name={ITEMS[id]?.name || "Flower"} isEmoji={ITEMS[id]?.isEmoji || !ITEMS[id]?.icon} /></div>)}
+  return <div className="relative h-full w-full overflow-visible" role="img" aria-label={"Weathered driftwood railing flower box with " + (flowers.length ? flowers.map(id => ITEMS[id]?.name || id).join(", ") : "no flowers")}>
+    <div className="absolute inset-x-[5%] top-[3%] z-0 flex h-[75%] items-end justify-around gap-[1%]">
+      {flowers.map((id, index) => <div key={index} className="h-[88%] min-w-0 flex-1" style={{ transform: `translateY(${index % 2 ? 5 : -3}%)` }}>
+        <DisplayArt icon={ITEMS[id]?.icon || "🌸"} name={ITEMS[id]?.name || "Flower"} isEmoji={ITEMS[id]?.isEmoji || !ITEMS[id]?.icon} />
+      </div>)}
     </div>
-    <div className="absolute bottom-0 left-[5%] h-[40%] w-[90%] rounded-sm border-2 border-amber-950 bg-gradient-to-b from-amber-700 to-amber-900 shadow-md">
-      <div className="absolute inset-x-0 top-[38%] border-t border-amber-300/50" />
-      <div className="absolute left-[20%] top-0 h-full border-l border-amber-950/50" />
-      <div className="absolute right-[20%] top-0 h-full border-r border-amber-950/50" />
+    <div className="absolute bottom-[1%] left-[2%] z-10 h-[43%] w-[96%] rounded-sm border-2 border-amber-950 bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900 shadow-md">
+      <div className="absolute inset-x-0 top-[22%] border-t-2 border-amber-200/60" />
+      <div className="absolute inset-x-0 bottom-[18%] border-t border-amber-950/40" />
+      <div className="absolute left-[25%] top-0 h-full border-l border-amber-950/50" />
+      <div className="absolute right-[25%] top-0 h-full border-r border-amber-950/50" />
+      <span aria-hidden="true" className="absolute bottom-[7%] left-[15%] text-[9px]">🐚</span>
+      <span aria-hidden="true" className="absolute bottom-[7%] right-[15%] text-[9px]">🐚</span>
     </div>
+    <div aria-hidden="true" className="absolute bottom-[-7%] left-[13%] h-[13%] w-[8%] rounded-b-sm bg-amber-950/80" />
+    <div aria-hidden="true" className="absolute bottom-[-7%] right-[13%] h-[13%] w-[8%] rounded-b-sm bg-amber-950/80" />
   </div>;
 }
 const imagePath = (area: Area, night: boolean) =>
@@ -112,7 +119,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "patio-chair-left", name: "Patio beach chair, left", x: 26, y: 79 },
     { id: "patio-chair-right", name: "Patio beach chair, right", x: 73, y: 79 },
     { id: "patio-table", name: "Patio table", x: 83, y: 66 },
-    { id: "patio-planter", name: "Patio flower box by the railing", x: 48, y: 43 },
+    { id: "patio-planter", name: "Patio flower box by the railing", x: 48, y: 46 },
     { id: "patio-lantern", name: "Patio lantern", x: 91, y: 47 },
     { id: "patio-chime", name: "Patio wind chime", x: 78, y: 20 },
     { id: "patio-birdbath", name: "Patio bird bath", x: 17, y: 62 },
@@ -579,7 +586,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const smallTableDecor = isTableSlot(slot.id) && /cup|mug|candle|teacup/i.test(item ? item.name : "");
             const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "15%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "13%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
-            return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
+            return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : slot.id === "patio-planter" ? "23%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : slot.id === "patio-planter" ? "12%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
               {(item || slot.id === "patio-planter") && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
