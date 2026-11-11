@@ -221,6 +221,11 @@ function ShipwreckCard() {
 }
 
 export default function ReefScene() {
+  const [rescuedLobster, setRescuedLobster] = useState(false);
+  useEffect(() => {
+    try { setRescuedLobster(JSON.parse(localStorage.getItem("shoreline-rescued-trap-animals-v1") || "[]").includes("Lobster")); } catch {}
+  }, []);
+
   const { state, collectItem, setMusicOverride, discoverBabyFish } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
@@ -349,6 +354,7 @@ export default function ReefScene() {
           priority
           className="block h-auto w-full"
         />
+        {rescuedLobster && <button type="button" aria-label="Rescued lobster resting safely in Libby's Reef" className="absolute left-[59%] top-[54%] z-10 h-[10%] w-[17%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><Image src="/images/Cove/Lobster.png" alt="" fill unoptimized sizes="120px" className="object-contain drop-shadow-md" /></button>}
         {([
           { label: "Enter the shipwreck: restoration, salvage and artifacts", area: "restore", x: 25, y: 28, w: 40, h: 26 },
           { label: "Libby's lobster trap: rescue or trade with Libby", area: "libby", x: 23, y: 51, w: 36, h: 15 },
