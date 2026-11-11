@@ -1120,6 +1120,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
 
 
             {DECOR_RECIPES.filter((r) => ["beach-bag", "beach-umbrella", "picnic-basket", "woven-sun-hat"].includes(r.id)).map((r) => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={({ "beach-bag": "/images/Beach-bag-clean.png", "beach-umbrella": "/images/Beach-umbrella-clean.png", "picnic-basket": "/images/Picnic-basket-clean.png", "woven-sun-hat": "/images/Woven-sun-hat-clean.png" } as Record<string, string>)[r.id]} />)}
+            {studioStation === "general" && DECOR_RECIPES.filter(r => r.id === "lobster-trap").map(r => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc="/images/Lobster_Trap.png" />)}
             {studioStation === "general" && <RecipeCard
               title={RAFT_RECIPE.name}
               description={RAFT_RECIPE.description}
@@ -1337,6 +1338,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
+            {studioStation === "decor" && DECOR_RECIPES.filter(r => ["christmas-wreath","winter-chimes"].includes(r.id)).map(r => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.id === "christmas-wreath" ? "/images/Christmas_Wreath.png" : "/images/Winter_Chimes.png"} />)}
             {studioStation === "decor" && <RecipeCard
               title="Melodic Wind Chime"
               description="Sway gently in the wind and play soothing tones. Hang it near your camp to invite wildlife."
