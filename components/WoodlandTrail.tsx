@@ -11,7 +11,7 @@ const ARRIVAL_MS = 24 * 60 * 60 * 1000;
 const ASSET_VERSION = process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development";
 
 export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
-  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, giveRobinBirdhouse, placeRobinNestDecorations, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse } = useGame();
+  const { state, placeRobinNest, repairRobinNest, placeRobinFeeder, refillRobinFeeder, replaceRobinFeeder, giftRobin, giveRobinBirdhouse, placeRobinNestDecorations, fillRobinBirdbath, robinNestingAction, activateRobinGreenhouse, placeHummingbirdFeeder, fillHummingbirdFeeder } = useGame();
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
   const [selectedGift, setSelectedGift] = useState("dried-sugar-berries");
@@ -60,6 +60,20 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
   const nestingMessage = ["", "Robin is preparing a cozy nest.", "Three pale blue eggs have appeared!", "Robin is keeping her eggs warm.", "The eggs are almost ready to hatch.", "The chicks have hatched!", "The young robins are growing feathers."][nestingStage] || "Robin's nest is ready for another season.";
   const birdbathAge = now - (state.robinBirdbathFilledAt || 0);
   const birdbathLevel = !state.robinBirdbathFilledAt || birdbathAge >= 48 * 60 * 60 * 1000 ? "Empty" : birdbathAge >= 24 * 60 * 60 * 1000 ? "Half full" : "Full";
+  const hummingbirdFull = !!state.hummingbirdFeederFilledAt && now - state.hummingbirdFeederFilledAt < 48 * 60 * 60 * 1000;
+  const [hummingbirdVisiting, setHummingbirdVisiting] = useState(false);
+  useEffect(() => {
+    if (!hummingbirdFull) { setHummingbirdVisiting(false); return; }
+    const timer = window.setInterval(() => setHummingbirdVisiting(Math.random() < 0.45), 45_000);
+    return () => window.clearInterval(timer);
+  }, [hummingbirdFull]);
+  const playHummingbird = () => {
+    audioRef.current?.pause();
+    const audio = new Audio(`/audio/Birds/bird-hummingbird-1.mp3?v=${ASSET_VERSION}`);
+    audioRef.current = audio;
+    void audio.play().catch(() => setAnnouncement("The hummingbird's call could not play."));
+    setAnnouncement("A hummingbird flutters near the sea-glass feeder and chirps softly.");
+  };
   const feederRefills = state.robinFeederRefills || 0;
   const feederReady = now - (state.robinFeederLastFilledAt || 0) >= 48 * 60 * 60 * 1000;
   const playSeedSound = () => {
@@ -112,6 +126,16 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
           <div className="pointer-events-none absolute right-[4%] top-[28%] z-10 h-[17%] w-[20%]" aria-hidden="true">
             <Image src="/images/pinecone-feeder.png" alt="" fill unoptimized sizes="20vw" className="object-contain drop-shadow-lg" />
           </div>
+        )}
+        {state.hummingbirdFeederPlaced && (
+          <button type="button" onClick={() => { setAnnouncement(hummingbirdFull ? "The sea-glass balloon feeder has fresh nectar. Hummingbirds may visit." : "The sea-glass balloon feeder is empty. Fill it with Sweet Nectar below."); document.getElementById("hummingbird-feeder-title")?.scrollIntoView({ behavior: "smooth", block: "center" }); }} aria-label={`Check sea-glass hummingbird feeder. ${hummingbirdFull ? "Full" : "Empty"}.`} className="absolute left-[47%] top-[21%] z-20 h-[23%] w-[18%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+            <Image src="/images/Robin/Hummingbird-feeder-sea glass-balloon.PNG" alt="" fill unoptimized sizes="20vw" className="object-contain drop-shadow-lg" />
+          </button>
+        )}
+        {hummingbirdFull && hummingbirdVisiting && (
+          <button type="button" onClick={playHummingbird} aria-label="Hear visiting hummingbird" className="absolute left-[59%] top-[26%] z-30 h-[12%] w-[14%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
+            <Image src="/images/Birds/bird-hummingbird.png" alt="" fill unoptimized sizes="15vw" className="object-contain" />
+          </button>
         )}
         {arrived && (
           <button type="button" onClick={greetRobin} aria-label="Greet Robin and hear her birdsong" className="absolute right-[23%] top-[29%] z-20 h-[23%] w-[25%] rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">
@@ -225,6 +249,22 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
               ) : (
                 <button type="button" disabled={!feederReady || (state.inventory["coconut-cream"] || 0) < 1 || (state.inventory["birdseed"] || 0) < 1} onClick={() => { if (refillRobinFeeder()) { playSeedSound(); setAnnouncement("You added coconut cream and birdseed to Robin's feeder. Robin chirps happily."); } }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Refill with coconut cream and birdseed (1 each)</button>
               )}
+            </>
+          )}
+        </section>
+        <section aria-labelledby="hummingbird-feeder-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
+          <h2 id="hummingbird-feeder-title" className="text-xl font-bold text-emerald-950">Sea-Glass Balloon Hummingbird Feeder</h2>
+          {!state.hummingbirdFeederPlaced ? (
+            <>
+              <p className="mt-2">Hang the colorful sea-glass balloon feeder in Robin's Woodland Trail. This is a separate sanctuary activity and does not change Robin's friendship rewards.</p>
+              <button type="button" disabled={!state.robinNestPlacedAt} onClick={() => { if (placeHummingbirdFeeder()) setAnnouncement("The sea-glass balloon feeder is now hanging near Robin's tree."); }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Hang hummingbird feeder</button>
+            </>
+          ) : (
+            <>
+              <p className="mt-2">Feeder status: {hummingbirdFull ? "Full of Sweet Nectar" : "Empty"}. Fill with one Sweet Nectar from the Nature & Wildlife recipes. Each filling lasts two days.</p>
+              <p className="mt-2">Sweet Nectar available: {state.inventory["food-sweet-nectar"] || 0}.</p>
+              <button type="button" disabled={hummingbirdFull || (state.inventory["food-sweet-nectar"] || 0) < 1} onClick={() => { if (fillHummingbirdFeeder()) { setNow(Date.now()); setAnnouncement("You filled the sea-glass feeder with Sweet Nectar. Hummingbirds may now visit for two days."); } }} className="mt-3 min-h-11 rounded-xl bg-emerald-800 px-4 py-2 font-semibold text-white disabled:bg-slate-300 disabled:text-slate-700">Fill feeder with Sweet Nectar</button>
+              {hummingbirdFull && <button type="button" onClick={playHummingbird} className="mt-3 ml-2 min-h-11 rounded-xl border-2 border-emerald-800 px-4 py-2 font-semibold text-emerald-950">Listen for hummingbirds</button>}
             </>
           )}
         </section>
