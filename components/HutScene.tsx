@@ -159,6 +159,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
   const place = (id: string) => {
     if (!selectedSlot) return;
+    if (selectedSlot === "patio-planter" && isDisplayFlower(id)) {
+      const next = [...patioBoxFlowers, id];
+      if (next.length > 6 || next.filter(x => x === id).length > (state.inventory[id] || 0)) { setAnnouncement("Flower box is full or no additional copies are available."); return; }
+      savePatioBoxFlowers(next);
+      setAnnouncement(ITEMS[id].name + " added to the patio flower box.");
+      return;
+    }
     if (!slotAccepts(selectedSlot, id)) { setAnnouncement("This decoration is not suitable for that display position."); return; }
     if (isPatioSlot(selectedSlot) && !patioMatches(selectedSlot, id)) { setAnnouncement("Choose a suitable patio decoration for this position."); return; }
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or plushie for the sofa."); return; }
@@ -172,6 +179,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
   const clearSlot = () => {
     if (!selectedSlot) return;
+    if (selectedSlot === "patio-planter" && !placements[selectedSlot]) { savePatioBoxFlowers([]); setAnnouncement("Flower box cleared."); return; }
     const next = { ...placements }; delete next[selectedSlot];
     savePlacement(next); setAnnouncement("Decoration returned to available inventory.");
   };
@@ -443,7 +451,22 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     update();
     try { const flowers = JSON.parse(window.localStorage.getItem("shoreline-patio-flower-box-v1") || "[]"); if (Array.isArray(flowers)) setPatioBoxFlowers(flowers.filter(x => typeof x === "string")); } catch {}
     try { const flowers = JSON.parse(window.localStorage.getItem("shoreline-tidekeeper-flowers-v1") || "[]"); if (Array.isArray(flowers)) setVaseFlowers(flowers.filter(x => typeof x === "string")); } catch {}
-    try { const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}"); if (stored && typeof stored === "object" && !Array.isArray(stored)) setPlacements(stored); } catch {}
+    try {
+      const stored = JSON.parse(window.localStorage.getItem("shoreline-hut-displays-v1") || "{}");
+      if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+        const legacyFlower = stored["patio-planter"];
+        if (typeof legacyFlower === "string" && ((legacyFlower.startsWith("plant-") && /flower|rose/i.test(ITEMS[legacyFlower]?.name || "")) || (legacyFlower.startsWith("flower-") && /flower|rose|bouquet/i.test(ITEMS[legacyFlower]?.name || "")))) {
+          const existing = JSON.parse(window.localStorage.getItem("shoreline-patio-flower-box-v1") || "[]");
+          const nextFlowers = Array.isArray(existing) ? existing.filter(x => typeof x === "string") : [];
+          if (nextFlowers.length < 6 && nextFlowers.filter(x => x === legacyFlower).length < (state.inventory[legacyFlower] || 0)) nextFlowers.push(legacyFlower);
+          setPatioBoxFlowers(nextFlowers);
+          window.localStorage.setItem("shoreline-patio-flower-box-v1", JSON.stringify(nextFlowers));
+          delete stored["patio-planter"];
+          window.localStorage.setItem("shoreline-hut-displays-v1", JSON.stringify(stored));
+        }
+        setPlacements(stored);
+      }
+    } catch {}
     const timer = window.setInterval(update, 60000);
     setSelectedSlot(null);
     entranceReadyAt.current = Date.now() + 450;
@@ -540,7 +563,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const decorWidth = isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
-              {(item || (slot.id === "patio-planter" && patioBoxFlowers.length > 0)) && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
+              {(item || slot.id === "patio-planter") && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
@@ -634,7 +657,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           </div>}
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
-            {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id)).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
+            {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id) && !(selectedSlot === "patio-planter" && isDisplayFlower(id))).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
             {isFlowerSlot(selectedSlot) && availableArrangements.map(a => <button key={a.id} type="button" onClick={() => place("arrangement:" + a.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">Flower arrangement: {a.name}</button>)}
             {isFlowerSlot(selectedSlot) && state.flowerArrangements.filter(a => usedCount("arrangement:" + a.id) > 0).map(a => <p key={a.id} className="text-sm">{a.name}: displayed at {slots.find(s => placements[s.id] === "arrangement:" + a.id)?.name || "another spot"}</p>)}
             {ownedDecor.length === 0 && availableArrangements.length === 0 && <p>No available decorations in inventory yet.</p>}
