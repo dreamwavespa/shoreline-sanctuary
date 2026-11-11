@@ -37,9 +37,9 @@ function ArrangementArt({ vaseIcon, stems, name }: { vaseIcon: string; stems: { 
       const p = FLOWER_POSITIONS[stem.slot];
       const art = FLOWER_SHOP_ART[stem.id];
       if (!p || !art) return null;
-      const anchorX = 50 + (p.x - 50) * .36;
-      const anchorY = 35 + (p.y - 35) * .32;
-      return <Image key={i} src={FLOWER_SHOP_ROOT + art} alt="" width={160} height={230} unoptimized className="absolute h-[66%] w-[38%] object-contain" style={{ left: anchorX + "%", top: anchorY + "%", transform: `translate(-50%, -55%) rotate(${p.angle * .65}deg) scale(${p.scale * .87})`, transformOrigin: "50% 85%", zIndex: p.y < 30 ? 2 : p.y < 45 ? 4 : 6 }} />;
+      const anchorX = 50 + (p.x - 50) * .52;
+      const anchorY = 35 + (p.y - 35) * .38;
+      return <Image key={i} src={FLOWER_SHOP_ROOT + art} alt="" width={160} height={230} unoptimized className="absolute h-[76%] w-[44%] object-contain" style={{ left: anchorX + "%", top: anchorY + "%", transform: `translate(-50%, -55%) rotate(${p.angle * .65}deg) scale(${p.scale * 1.04})`, transformOrigin: "50% 85%", zIndex: p.y < 30 ? 2 : p.y < 45 ? 4 : 6 }} />;
     })}
     <Image src={vaseIcon || "/images/Pottery/coastal-vase.png"} alt="" width={180} height={160} unoptimized className="absolute bottom-[2%] left-1/2 h-[48%] w-[48%] -translate-x-1/2 object-contain" style={{ zIndex: 10 }} />
   </div>;
