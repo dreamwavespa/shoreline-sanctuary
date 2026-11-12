@@ -36,7 +36,7 @@ function todayKey() {
   return new Date().toLocaleDateString("en-CA");
 }
 
-export default function MarshmallowCarePanel() {
+export default function MarshmallowCarePanel({ embedded = false }: { embedded?: boolean }) {
   const { state, scratchMarshmallow } = useGame();
   const [open, setOpen] = useState(false);
   const [basketOpen, setBasketOpen] = useState(false);
@@ -159,16 +159,16 @@ export default function MarshmallowCarePanel() {
   };
 
   return (
-    <div className="absolute bottom-4 right-4 z-30 max-w-[calc(100%-2rem)]">
-      {!open ? (
+    <div className={embedded ? "w-full" : "absolute bottom-4 right-4 z-30 max-w-[calc(100%-2rem)]"}>
+      {!open && !embedded ? (
         <button type="button" onClick={() => setOpen(true)} className="rounded-full bg-rose-700 px-4 py-3 font-bold text-white shadow-lg ring-2 ring-white/80" aria-label="Open Marshmallow care and play">
           🐈 Care & Play
         </button>
       ) : (
-        <section aria-label="Marshmallow care and play" className="w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-2xl bg-rose-50 p-4 shadow-2xl ring-2 ring-rose-200">
+        <section aria-label="Marshmallow care and play" className={embedded ? "w-full rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-200" : "w-[min(24rem,calc(100vw-2rem))] max-h-[70vh] overflow-y-auto rounded-2xl bg-rose-50 p-4 shadow-2xl ring-2 ring-rose-200"}>
           <div className="flex items-center justify-between gap-3">
             <div><p className="text-xs font-bold uppercase tracking-wide text-rose-700">Lighthouse Cat</p><h2 className="font-serif text-xl font-bold text-rose-950">Marshmallow's Care & Play</h2></div>
-            <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-white px-3 py-2 font-bold text-rose-800 ring-1 ring-rose-200" aria-label="Close Marshmallow care and play">✕</button>
+            {!embedded && <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-white px-3 py-2 font-bold text-rose-800 ring-1 ring-rose-200" aria-label="Close Marshmallow care and play">✕</button>}
           </div>
 
           {message && <p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white p-3 text-sm text-rose-900 ring-1 ring-rose-200">{message}</p>}
