@@ -78,7 +78,7 @@ function AnimatedForecast({ weather, isNight }: { weather: WeatherForecast; isNi
   );
 }
 
-export default function WeatherStation() {
+export default function WeatherStation({ mode = "all" }: { mode?: "all" | "tea" | "weather" }) {
   const { state, checkWeather, collectRainBarrelWater, recordWeatherChartObservation, recordShelbyForecast, createWeatheredShipChart } = useGame();
   const [isNight, setIsNight] = useState(false);
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function WeatherStation() {
         </div>
 
         <div className="p-5">
-          {!keeperQuestDone ? (
+          {mode !== "weather" && !keeperQuestDone ? (
             <div>
               <p className="text-sm leading-relaxed text-slate-700">
                 Maeve studies an empty hook beside the stove. “A lighthouse without hot tea is no fit place for a woman or her cat.”
@@ -139,11 +139,11 @@ export default function WeatherStation() {
             </div>
           ) : (
             <>
-              <p className="text-sm leading-relaxed text-slate-700">
+              {mode !== "weather" && <p className="text-sm leading-relaxed text-slate-700">
                 “Marshmallow watches the wind, I watch the instruments, and between us we rarely get it wrong.”
-              </p>
+              </p>}
 
-              <div className="mt-4 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-300">
+              {mode !== "weather" && <div className="mt-4 overflow-hidden rounded-2xl bg-amber-50 shadow-inner ring-1 ring-amber-300">
                 <div className="relative h-44">
                   <Image src={SCENES.maeveTeaTable} alt="Maeve and Marshmallow waiting beside the lighthouse tea table at sunset" fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-amber-950/80 via-transparent to-transparent" />
@@ -156,9 +156,9 @@ export default function WeatherStation() {
                   </button>
                   <p className="mt-2 text-center text-xs font-semibold text-amber-800">Tea visits shared: {state.maeveTeaVisits}</p>
                 </div>
-              </div>
+              </div>}
 
-              <div className="mt-4 rounded-2xl bg-gradient-to-br from-sky-950 to-teal-800 p-4 text-white shadow-inner">
+              {mode !== "tea" && <div className="mt-4 rounded-2xl bg-gradient-to-br from-sky-950 to-teal-800 p-4 text-white shadow-inner">
                 <p className="text-xs font-bold uppercase tracking-wide text-sky-200">Maeve&apos;s Weather Station</p>
                 {state.currentForecast ? (
                   <div className="mt-2" role="status" aria-live="polite">
@@ -193,9 +193,9 @@ export default function WeatherStation() {
                 <button type="button" onClick={checkWeather} className="mt-4 w-full rounded-xl bg-amber-400 py-3 font-bold text-sky-950 shadow active:bg-amber-300">
                   Check the Weather
                 </button>
-              </div>
+              </div>}
 
-              {state.stormCleanupAvailable && (
+              {mode !== "tea" && state.stormCleanupAvailable && (
                 <div className="mt-4 rounded-xl bg-amber-50 p-4 ring-1 ring-amber-300">
                   <p className="font-bold text-amber-950">The strand needs attention</p>
                   <p className="mt-1 text-sm text-amber-800">A recent squall left debris near the lighthouse path. There is no timer and no penalty.</p>
@@ -210,7 +210,7 @@ export default function WeatherStation() {
                 </div>
               )}
 
-              <div className="mt-4 rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
+              {mode !== "tea" && <div className="mt-4 rounded-xl bg-sky-50 p-4 ring-1 ring-sky-200">
                 <p className="font-bold text-sky-950">🌧️ Maeve&apos;s Rain Barrel</p>
                 <p className="mt-1 text-sm text-sky-800">
                   The rain gauge measures each storm while the barrel stores the fresh water. Every completed Storm Cleanup adds one level.
@@ -249,7 +249,7 @@ export default function WeatherStation() {
                   Storm cleanups completed: {state.stormCleanupCompletions}
                 </p>
                 <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
-              </div>
+              </div>}
             </>
           )}
         </div>
