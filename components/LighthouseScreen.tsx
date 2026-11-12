@@ -275,14 +275,104 @@ export default function LighthouseScreen() {
     window.setTimeout(() => lookoutButtonRef.current?.focus(), 0);
   };
 
+  const [floor, setFloor] = useState<"downstairs" | "upstairs">("downstairs");
+  const [activity, setActivity] = useState<"maeve" | "marshmallow" | "weather" | "binoculars" | null>(null);
+  const [isNight, setIsNight] = useState(false);
+  const activityTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const activityHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const floorHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  useEffect(() => {
+    const update = () => {
+      const hour = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+      setIsNight(hour >= 19 || hour < 6);
+    };
+    update();
+    const timer = window.setInterval(update, 60000);
+    return () => window.clearInterval(timer);
+  }, []);
+  useEffect(() => { floorHeadingRef.current?.focus(); }, [floor]);
+  useEffect(() => { if (activity) activityHeadingRef.current?.focus(); }, [activity]);
+  const openActivity = (name: "maeve" | "marshmallow" | "weather" | "binoculars", trigger: HTMLButtonElement) => {
+    activityTriggerRef.current = trigger;
+    setActivity(name);
+  };
+  const closeActivity = () => {
+    setActivity(null);
+    window.setTimeout(() => activityTriggerRef.current?.focus(), 0);
+  };
+  useEffect(() => {
+    if (!activity && !lookoutOpen) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape" && activity) closeActivity(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activity, lookoutOpen]);
+  const hotspot = (label: string, left: string, top: string, width: string, height: string, onClick: (button: HTMLButtonElement) => void) => (
+    <button type="button" aria-label={label} title={label}
+      className="absolute rounded-xl border-2 border-transparent focus-visible:border-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      style={{ left, top, width, height }} onClick={(event) => onClick(event.currentTarget)}>
+      <span className="sr-only">{label}</span>
+    </button>
+  );
+  const goFloor = (next: "downstairs" | "upstairs") => { setFloor(next); setActivity(null); };
+  const image = floor === "downstairs"
+    ? (isNight ? "/images/Lighthouse/Lighthouse-downstairs-night.PNG" : "/images/Lighthouse/Lighthouse-downstairs-day.PNG")
+    : (isNight ? "/images/Lighthouse/Lighthouse-upstairs-night.PNG" : "/images/Lighthouse/Lighthouse-upstairs-day.PNG");
+  const activityTitle = activity === "maeve" ? "Visit Maeve and Have Tea" : activity === "marshmallow" ? "Visit Marshmallow" : activity === "weather" ? "Weather Station" : "Star-Gazing Binoculars";
+
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
-      <div className="relative w-full h-56">
-        <Image src={SCENES.telescopeStars} alt="Lighthouse lookout" fill unoptimized className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#fbf3e3] via-transparent to-black/10" />
+      <h1 ref={floorHeadingRef} tabIndex={-1} className="px-4 pt-4 text-xl font-bold text-amber-950">
+        Lighthouse — {floor === "downstairs" ? "Keeper's Living Room" : "Upper Observatory"}
+      </h1>
+      <p className="px-4 text-sm text-amber-900">{isNight ? "Nighttime" : "Daytime"} at the lighthouse. Choose an object in the scene or use the accessible activity buttons below.</p>
+      <div className="relative mx-auto mt-3 w-full max-w-xl">
+        <Image src={image} alt={floor === "downstairs" ? "Cozy lighthouse room with Maeve's tea table, Marshmallow sleeping in his bed, bookshelves and spiral staircase" : "Circular observatory with telescope, weather instruments, binoculars, observation journal and staircase"} width={1024} height={1536} unoptimized priority className="block h-auto w-full" />
+        {floor === "downstairs" ? (
+          <>
+            {hotspot("Tea with Maeve", "26%", "39%", "49%", "24%", (button) => openActivity("maeve", button))}
+            {hotspot("Pet Marshmallow", "66%", "63%", "33%", "24%", (button) => openActivity("marshmallow", button))}
+            {hotspot("Go upstairs to observatory", "73%", "2%", "27%", "57%", () => goFloor("upstairs"))}
+          </>
+        ) : (
+          <>
+            {hotspot("Open Lighthouse Lookout telescope", "41%", "25%", "37%", "37%", () => setLookoutOpen(true))}
+            {hotspot("Open Weather Station", "2%", "21%", "36%", "29%", (button) => openActivity("weather", button))}
+            {hotspot("Star-Gazing Binoculars", "68%", "34%", "21%", "18%", (button) => openActivity("binoculars", button))}
+            {hotspot("Go downstairs to living room", "0%", "47%", "34%", "48%", () => goFloor("downstairs"))}
+          </>
+        )}
       </div>
-      <div className="px-4 -mt-6 relative space-y-4">
-        <WeatherStation />
+      <nav aria-label="Lighthouse activities" className="mx-auto max-w-xl px-4 py-4">
+        <div className="grid grid-cols-2 gap-2">
+          {floor === "downstairs" ? (
+            <>
+              <button type="button" onClick={(e) => openActivity("maeve", e.currentTarget)} className="rounded-xl bg-amber-700 p-3 font-semibold text-white">Tea with Maeve</button>
+              <button type="button" onClick={(e) => openActivity("marshmallow", e.currentTarget)} className="rounded-xl bg-rose-700 p-3 font-semibold text-white">Visit Marshmallow</button>
+              <button type="button" onClick={() => goFloor("upstairs")} className="col-span-2 rounded-xl bg-sky-800 p-3 font-semibold text-white">Go Upstairs to Observatory</button>
+              <p className="col-span-2 text-center text-sm text-amber-800">The bookshelves will lead to the future lighthouse library.</p>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={() => setLookoutOpen(true)} className="rounded-xl bg-indigo-800 p-3 font-semibold text-white">Lighthouse Lookout</button>
+              <button type="button" onClick={(e) => openActivity("binoculars", e.currentTarget)} className="rounded-xl bg-indigo-800 p-3 font-semibold text-white">Star-Gazing Binoculars</button>
+              <button type="button" onClick={(e) => openActivity("weather", e.currentTarget)} className="rounded-xl bg-sky-800 p-3 font-semibold text-white">Weather Station</button>
+              <button type="button" onClick={() => goFloor("downstairs")} className="rounded-xl bg-amber-700 p-3 font-semibold text-white">Go Downstairs</button>
+            </>
+          )}
+        </div>
+      </nav>
+      {activity && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="lighthouse-activity-title">
+          <div className="mx-auto max-w-xl rounded-2xl bg-[#fbf3e3] p-3 shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-xl bg-[#fbf3e3] p-2">
+              <h2 id="lighthouse-activity-title" ref={activityHeadingRef} tabIndex={-1} className="text-lg font-bold text-amber-950">{activityTitle}</h2>
+              <button type="button" onClick={closeActivity} className="rounded-lg bg-amber-800 px-4 py-2 font-semibold text-white">Close</button>
+            </div>
+            {activity === "maeve" && <WeatherStation />}
+            {activity === "weather" && <WeatherStation />}
+            {activity === "marshmallow" && <MarshmallowCard />}
+            {activity === "binoculars" && (
+              <div className="space-y-3">
         <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200">
           <h2 className="text-lg font-bold text-amber-900 mb-1">Star-Gazing Binoculars</h2>
           <p className="text-sm text-amber-700 mb-1">Pan across the horizon and scan for four ocean-themed constellations — headphones recommended.</p>
@@ -296,16 +386,12 @@ export default function LighthouseScreen() {
           {foundThisScan && <div className="mt-4 p-3 rounded-xl bg-teal-50 ring-1 ring-teal-300 text-center"><p className="text-2xl mb-1">{foundThisScan.emoji}</p><p className="font-semibold text-teal-900 text-sm">{foundThisScan.name}</p><p className="text-xs text-teal-700">{foundThisScan.description}</p></div>}
           {!foundThisScan && sighting && <div className="mt-4 p-3 rounded-xl bg-amber-50 ring-1 ring-amber-200 text-center"><p className="text-2xl mb-1">{sighting.emoji}</p><p className="text-sm text-amber-800">{sighting.text}</p></div>}
         </div>
-        <section aria-labelledby="lighthouse-lookout-heading" className="rounded-2xl bg-gradient-to-br from-indigo-950 to-sky-800 p-5 text-white shadow-md ring-1 ring-sky-300">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-200">Lighthouse Mini-Game</p>
-          <h2 id="lighthouse-lookout-heading" className="mt-1 font-serif text-lg font-bold">🔭 Lighthouse Lookout</h2>
-          <p className="mt-1 text-sm text-sky-100">Scan four directions during daylight or under the stars to find whales, dolphins, boats, unusual birds, distant islands, and shooting stars.</p>
-          <p className="mt-2 text-sm font-semibold text-amber-200">Lookout journal: {state.lookoutSightings.length}/8</p>
-          <button ref={lookoutButtonRef} type="button" onClick={() => setLookoutOpen(true)} className="mt-3 w-full rounded-xl bg-amber-500 py-3 font-bold text-indigo-950 shadow active:bg-amber-400">Open Lighthouse Lookout</button>
-        </section>
-        <MarshmallowCard />
-        {state.hasDivingGear && <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200 text-center"><p className="text-3xl mb-1">🤿</p><p className="font-semibold text-amber-900 mb-1">Diving Gear Equipped</p><p className="text-sm text-amber-700">The Deep Reef and the sunken shipwreck await below the waves — head to the Reef tab.</p></div>}
-      </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {lookoutOpen && <LighthouseLookout onClose={closeLookout} />}
     </div>
   );
