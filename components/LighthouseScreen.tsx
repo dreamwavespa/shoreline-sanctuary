@@ -324,13 +324,13 @@ export default function LighthouseScreen() {
       <h1 ref={floorHeadingRef} tabIndex={-1} className="px-4 pt-4 text-xl font-bold text-amber-950">
         Lighthouse — {floor === "downstairs" ? "Keeper's Living Room" : "Upper Observatory"}
       </h1>
-      <p className="px-4 text-sm text-amber-900">{isNight ? "Nighttime" : "Daytime"} at the lighthouse. Choose an object in the scene or use the accessible activity buttons below.</p>
+      <p className="px-4 text-sm text-amber-900">{isNight ? "Nighttime" : "Daytime"} at the lighthouse. Select an object in the scene to explore.</p>
       <div className="relative mx-auto mt-3 w-full max-w-xl">
         <Image src={image} alt={floor === "downstairs" ? "Cozy lighthouse room with Maeve's tea table, Marshmallow sleeping in his bed, bookshelves and spiral staircase" : "Circular observatory with telescope, weather instruments, binoculars, observation journal and staircase"} width={1024} height={1536} unoptimized priority className="block h-auto w-full" />
         {floor === "downstairs" ? (
           <>
             {hotspot("Tea with Maeve", "26%", "39%", "49%", "24%", (button) => openActivity("maeve", button))}
-            {hotspot("Pet Marshmallow", "66%", "63%", "33%", "24%", (button) => openActivity("marshmallow", button))}
+            {hotspot("Care and play with Marshmallow at his cat bed", "66%", "63%", "33%", "24%", (button) => openActivity("marshmallow", button))}
             {hotspot("Go upstairs to observatory", "73%", "2%", "27%", "57%", () => goFloor("upstairs"))}
           </>
         ) : (
@@ -342,25 +342,6 @@ export default function LighthouseScreen() {
           </>
         )}
       </div>
-      <nav aria-label="Lighthouse activities" className="mx-auto max-w-xl px-4 py-4">
-        <div className="grid grid-cols-2 gap-2">
-          {floor === "downstairs" ? (
-            <>
-              <button type="button" onClick={(e) => openActivity("maeve", e.currentTarget)} className="rounded-xl bg-amber-700 p-3 font-semibold text-white">Tea with Maeve</button>
-              <button type="button" onClick={(e) => openActivity("marshmallow", e.currentTarget)} className="rounded-xl bg-rose-700 p-3 font-semibold text-white">Visit Marshmallow</button>
-              <button type="button" onClick={() => goFloor("upstairs")} className="col-span-2 rounded-xl bg-sky-800 p-3 font-semibold text-white">Go Upstairs to Observatory</button>
-              <p className="col-span-2 text-center text-sm text-amber-800">The bookshelves will lead to the future lighthouse library.</p>
-            </>
-          ) : (
-            <>
-              <button type="button" onClick={() => setLookoutOpen(true)} className="rounded-xl bg-indigo-800 p-3 font-semibold text-white">Lighthouse Lookout</button>
-              <button type="button" onClick={(e) => openActivity("binoculars", e.currentTarget)} className="rounded-xl bg-indigo-800 p-3 font-semibold text-white">Star-Gazing Binoculars</button>
-              <button type="button" onClick={(e) => openActivity("weather", e.currentTarget)} className="rounded-xl bg-sky-800 p-3 font-semibold text-white">Weather Station</button>
-              <button type="button" onClick={() => goFloor("downstairs")} className="rounded-xl bg-amber-700 p-3 font-semibold text-white">Go Downstairs</button>
-            </>
-          )}
-        </div>
-      </nav>
       {activity && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="lighthouse-activity-title">
           <div className="mx-auto max-w-xl rounded-2xl bg-[#fbf3e3] p-3 shadow-2xl">
@@ -368,9 +349,9 @@ export default function LighthouseScreen() {
               <h2 id="lighthouse-activity-title" ref={activityHeadingRef} tabIndex={-1} className="text-lg font-bold text-amber-950">{activityTitle}</h2>
               <button type="button" onClick={closeActivity} className="rounded-lg bg-amber-800 px-4 py-2 font-semibold text-white">Close</button>
             </div>
-            {activity === "maeve" && <WeatherStation />}
-            {activity === "weather" && <WeatherStation />}
-            {activity === "marshmallow" && <MarshmallowCard />}
+            {activity === "maeve" && <WeatherStation mode="tea" />}
+            {activity === "weather" && <WeatherStation mode="weather" />}
+            {activity === "marshmallow" && <><h3 className="px-2 py-2 font-semibold text-rose-900">Care and Play with Marshmallow</h3><MarshmallowCard /></>}
             {activity === "binoculars" && (
               <div className="space-y-3">
         <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200">
