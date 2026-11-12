@@ -183,6 +183,10 @@ interface GameState {
   stormCleanupCompletions: number;
   rainBarrelLevel: number;
   maeveTeaVisits: number;
+  maeveFriendship: number;
+  maeveLastConversationDate: string;
+  maeveLastGiftDate: string;
+  maeveRewardsClaimed: number[];
   groveNurseryAvailable: boolean;
   groveNurseryCompletions: number;
   groveNurserySeedMisses: number;
@@ -353,6 +357,10 @@ const DEFAULT_STATE: GameState = {
   stormCleanupCompletions: 0,
   rainBarrelLevel: 0,
   maeveTeaVisits: 0,
+  maeveFriendship: 0,
+  maeveLastConversationDate: "",
+  maeveLastGiftDate: "",
+  maeveRewardsClaimed: [],
   groveNurseryAvailable: false,
   groveNurseryCompletions: 0,
   groveNurserySeedMisses: 0,
@@ -482,6 +490,9 @@ interface Ctx {
   zone: Zone;
   setScreen: (s: Screen) => void;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
+  talkToMaeve: () => boolean;
+  giftMaeve: (itemId: string) => boolean;
+  claimMaeveReward: (milestone: number) => boolean;
   collectWindTreasure: (slot: number) => string | null;
   placeRobinNest: () => boolean;
   repairRobinNest: () => boolean;
@@ -2132,6 +2143,39 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+
+  const talkToMaeve = () => {
+    const today = localDateKey();
+    if (stateRef.current.maeveLastConversationDate === today) return false;
+    setState(s => ({ ...s, maeveFriendship: (s.maeveFriendship || 0) + 1, maeveLastConversationDate: today }));
+    return true;
+  };
+
+  const giftMaeve = (itemId: string) => {
+    const likes = ["shell-scallop", "glass-teal", "ribbon", "pearl-cream"];
+    const today = localDateKey();
+    if (!likes.includes(itemId) || stateRef.current.maeveLastGiftDate === today || (stateRef.current.inventory[itemId] || 0) < 1) return false;
+    setState(s => ({
+      ...s,
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) - 1 },
+      maeveFriendship: (s.maeveFriendship || 0) + (itemId === "pearl-cream" ? 3 : 2),
+      maeveLastGiftDate: today,
+    }));
+    return true;
+  };
+
+  const claimMaeveReward = (milestone: number) => {
+    const rewards: Record<number, string> = { 3: "shell-sanddollar", 8: "glass-teal", 15: "pearl-cream" };
+    const itemId = rewards[milestone];
+    if (!itemId || (stateRef.current.maeveFriendship || 0) < milestone || (stateRef.current.maeveRewardsClaimed || []).includes(milestone)) return false;
+    setState(s => ({
+      ...s,
+      maeveRewardsClaimed: [...(s.maeveRewardsClaimed || []), milestone],
+      inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) + 1 },
+    }));
+    return true;
+  };
+
   const haveTeaWithMaeve = (teaItemId: string) => {
     const teaIds = ["food-sweet-sugar-berry-tea", "food-lemon-tea", "food-mint-tea"];
     if (!teaIds.includes(teaItemId) || !stateRef.current.questProgress.keeperkettle) return false;
@@ -3009,6 +3053,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      talkToMaeve,
+      giftMaeve,
+      claimMaeveReward,
       collectWindTreasure,
       placeRobinNest,
       repairRobinNest,
