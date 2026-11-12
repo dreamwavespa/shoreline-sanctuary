@@ -5,6 +5,7 @@ import { MARSHMALLOW_TREAT_COOLDOWN_MS, useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
 import LighthouseLookout from "./LighthouseLookout";
 import WeatherStation from "./WeatherStation";
+import MarshmallowCarePanel from "./MarshmallowCarePanel";
 
 const SIGHTINGS = [
   { emoji: "⛵", text: "A distant sailboat, cutting a lazy line across the horizon." },
@@ -351,7 +352,7 @@ export default function LighthouseScreen() {
             </div>
             {activity === "maeve" && <WeatherStation mode="tea" />}
             {activity === "weather" && <WeatherStation mode="weather" />}
-            {activity === "marshmallow" && <><h3 className="px-2 py-2 font-semibold text-rose-900">Care and Play with Marshmallow</h3><MarshmallowCard /></>}
+            {activity === "marshmallow" && <><h3 className="px-2 py-2 font-semibold text-rose-900">Care and Play with Marshmallow</h3><MarshmallowCard /><MarshmallowCarePanel embedded /></>}
             {activity === "binoculars" && (
               <div className="space-y-3">
         <div className="rounded-2xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200">
