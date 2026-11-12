@@ -333,18 +333,18 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
 
           {scenePanel === "deep" && <section aria-labelledby="deep-tidepool-heading" className="mt-6 rounded-2xl bg-white/90 p-4 ring-1 ring-teal-200">
             <h3 id="deep-tidepool-heading" className="text-xl font-bold text-teal-950">Deeper Tide Pool Treasures</h3>
-            <p className="mt-2 text-teal-900">Search for washed-up recycled rubber, shipwreck teapot pieces, ancient crystals, fossils, rainbow-clear pearls, and the rare Whispering Seashell.</p>
+            <p className="mt-2 text-teal-900">Explore the deeper rocks for hidden treasures.</p>
             {!hasBoots ? <p className="mt-2 font-semibold text-teal-900">Craft Tide Pool Wading Boots in the Workshop to unlock deeper exploration.</p> : <>
-              <p className="mt-2 text-teal-900">Your reusable wading boots let you explore the deeper rocks safely.</p>
-              <p className="mt-3 text-sm text-teal-900">Explore the marked rocky pockets. Your latest discovery appears in the water, and every search area is accessible with VoiceOver.</p>
+
+              <p className="mt-2 text-sm text-teal-900">Choose a rocky pocket to search. Discoveries appear in the water.</p>
               <div className="relative mt-3 overflow-hidden rounded-xl border-2 border-teal-300">
                 <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pool with deeper rocky pockets" : "Sunlit tide pool with deeper rocky pockets"} width={900} height={1350} unoptimized className="h-auto w-full" />
-                {lastDeepTreasure && <div className="pointer-events-none absolute left-[31%] top-[40%] w-[38%] rounded-xl bg-cyan-50/70 p-1 shadow-lg" aria-hidden="true">
+                {lastDeepTreasure && <div className="pointer-events-none absolute left-[31%] top-[40%] w-[38%]" aria-hidden="true">
                   <Image src={({"recycled-rubber":"/images/TidePool/Recycled-Rubber-Strips.png","shipwreck-teapot-fragment-spout":"/images/TidePool/Teapot-Fragment-Spout.png","shipwreck-teapot-fragment-handle":"/images/TidePool/Teapot-Fragment-Handle.png","shipwreck-teapot-fragment-lid":"/images/TidePool/Teapot-Fragment-Lid.png","shipwreck-teapot-fragment-body":"/images/TidePool/Teapot-Fragment-Body-Upper.png","shipwreck-teapot-fragment-body-lower":"/images/TidePool/Teapot-Fragment-Body-Lower.png","ancient-tide-crystal":"/images/TidePool/Ancient-Tide-Crystal.png","tidepool-ammonite-fossil":"/images/TidePool/Ammonite-Fossil.png","rainbow-clear-pearl":"/images/TidePool/Rainbow-Clear-Pearl.png","whispering-seashell":"/images/TidePool/Whispering-Seashell.png","shoreline-looking-glass":"/images/Looking glass/Shoreline-Looking-Glass-Day.png"})[lastDeepTreasure] ?? "/images/TidePool/Recycled-Rubber-Strips.png"} alt="" width={220} height={220} unoptimized className="aspect-square w-full object-contain" />
                 </div>}
-                <button type="button" onClick={() => exploreDeep(false)} className="absolute left-[9%] top-[16%] min-h-11 w-[36%] rounded-xl border-2 border-white bg-teal-900/85 px-2 py-2 text-sm font-bold text-white shadow-lg">Search Rocky Ledge</button>
-                <button type="button" onClick={() => exploreDeep(false)} className="absolute right-[7%] top-[61%] min-h-11 w-[39%] rounded-xl border-2 border-white bg-teal-900/85 px-2 py-2 text-sm font-bold text-white shadow-lg">Search Deep Crevice</button>
-                {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="absolute bottom-[8%] left-[12%] min-h-11 w-[76%] rounded-xl border-2 border-white bg-indigo-900/90 px-2 py-2 text-sm font-bold text-white shadow-lg">Explore Hidden Pool — Low Tide</button>}
+                <button type="button" onClick={() => exploreDeep(false)} className="absolute left-[13%] top-[18%] min-h-11 w-[29%] rounded-full border border-white/70 bg-teal-950/65 px-2 py-2 text-xs font-semibold text-white shadow-sm">Search Rocky Ledge</button>
+                <button type="button" onClick={() => exploreDeep(false)} className="absolute right-[10%] top-[63%] min-h-11 w-[32%] rounded-full border border-white/70 bg-teal-950/65 px-2 py-2 text-xs font-semibold text-white shadow-sm">Search Deep Crevice</button>
+                {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="absolute bottom-[8%] left-[19%] min-h-11 w-[62%] rounded-full border border-white/70 bg-indigo-950/75 px-2 py-2 text-xs font-semibold text-white shadow-sm">Explore Hidden Pool — Low Tide</button>}
               </div>
               {lastDeepTreasure && <p className="mt-2 text-center font-semibold text-teal-950">Latest discovery: {lastDeepTreasure.replace(/-/g, " ").replace(/\b\w/g, letter => letter.toUpperCase())}</p>}
               <p className="mt-2 text-sm text-teal-800">Deeper finds this visit: {deepFinds.length}. Searches are repeatable; rare treasures are less common.</p>
