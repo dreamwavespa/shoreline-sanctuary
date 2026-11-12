@@ -8,7 +8,6 @@ import Workshop from "./Workshop";
 import BottleQuests from "./BottleQuests";
 import CoveScene from "./CoveScene";
 import LighthouseScreen from "./LighthouseScreen";
-import MarshmallowCarePanel from "./MarshmallowCarePanel";
 import MarshmallowCareSounds from "./MarshmallowCareSounds";
 import ReefScene from "./ReefScene";
 import ShipScene from "./ShipScene";
@@ -118,7 +117,7 @@ export default function GameShell() {
         {screen === "workshop" && <Workshop openKitchen={destination === "kitchen"} onGoToNursery={() => goTo("nursery")} onGoToCottage={() => { setDestination(null); setScreen("cottage"); }} />}
         {screen === "bottles" && <BottleQuests />}
         {screen === "cove" && <CoveScene />}
-        {screen === "lighthouse" && <><LighthouseScreen /><MarshmallowCarePanel /></>}
+        {screen === "lighthouse" && <LighthouseScreen />}
         {screen === "reef" && <ReefScene />}
         {screen === "ship" && <ShipScene />}
         {screen === "sandbars" && <SandbarsScene />}
