@@ -6,6 +6,7 @@ import { SCENES } from "@/lib/media";
 import LighthouseLookout from "./LighthouseLookout";
 import WeatherStation from "./WeatherStation";
 import MarshmallowCarePanel from "./MarshmallowCarePanel";
+import MaeveFriendship from "./MaeveFriendship";
 
 const SIGHTINGS = [
   { emoji: "⛵", text: "A distant sailboat, cutting a lazy line across the horizon." },
@@ -350,7 +351,7 @@ export default function LighthouseScreen() {
               <h2 id="lighthouse-activity-title" ref={activityHeadingRef} tabIndex={-1} className="text-lg font-bold text-amber-950">{activityTitle}</h2>
               <button type="button" onClick={closeActivity} className="rounded-lg bg-amber-800 px-4 py-2 font-semibold text-white">Close</button>
             </div>
-            {activity === "maeve" && <WeatherStation mode="tea" />}
+            {activity === "maeve" && <><WeatherStation mode="tea" /><MaeveFriendship /></>}
             {activity === "weather" && <WeatherStation mode="weather" />}
             {activity === "marshmallow" && <><h3 className="px-2 py-2 font-semibold text-rose-900">Care and Play with Marshmallow</h3><MarshmallowCard /><MarshmallowCarePanel embedded /></>}
             {activity === "binoculars" && (
