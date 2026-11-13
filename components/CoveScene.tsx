@@ -476,11 +476,11 @@ export default function CoveScene() {
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-3 sm:p-6">
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={showTrap ? "Cove lobster trap" : showLowTide ? "Unusually low tide Cove discoveries" : showCollection ? "Cove Treasures collection" : dockOpen ? "Cove Dock activities" : "Treasure chest activities"}
             className="flex max-h-[85dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#fbf3e3] shadow-2xl">
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
+            {!dockOpen && <div className="flex shrink-0 items-center justify-between gap-3 border-b border-amber-200 bg-white px-4 py-3">
               <h2 className="text-lg font-bold text-amber-950">{showTrap ? "Lobster Trap" : showLowTide ? "Exposed Cove Rocks" : showCollection ? "Cove Treasures" : dockOpen ? "Cove Dock" : "Treasure Chest"}</h2>
               <button type="button" onClick={closeActivity} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">Close and return to Cove</button>
-            </div>
-            <div className="min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5">
+            </div>}
+            <div className={dockOpen ? "min-h-0 overflow-y-auto overscroll-contain p-0" : "min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-5"}>
               {showTrap && <section aria-label="Lobster trap care" className="space-y-3 rounded-xl bg-white p-4">
                 <h3 className="font-bold text-teal-950">Cove Lobster Trap</h3>
                 <p className="text-sm text-teal-900">{trapPlaced ? "Your reusable trap is set in the sheltered water. Check it once a day, and release any creatures gently." : "Place a lobster trap you have crafted to begin daily discoveries. It stays in your inventory."}</p>
