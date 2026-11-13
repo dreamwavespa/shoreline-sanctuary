@@ -259,11 +259,11 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
           <p className="bg-cyan-50 px-4 py-3 text-sm text-teal-950">Tap the shallow water, deeper rocky ledge, or iridescent shell to explore. VoiceOver announces each interactive area.</p>
         </div>
 
-        {scenePanel && <div role="dialog" aria-modal="true" aria-labelledby="tide-pool-activity-title" className="fixed inset-0 z-[60] overflow-y-auto bg-teal-950/95 p-3 sm:p-6">
-          <div className="mx-auto max-w-2xl rounded-2xl bg-cyan-50 p-4 shadow-2xl sm:p-6">
-            <div className="sticky top-0 z-10 mb-4 flex items-center justify-between gap-3 rounded-xl bg-teal-950 p-3 text-white">
-              <h3 id="tide-pool-activity-title" ref={panelHeadingRef} tabIndex={-1} className="text-xl font-bold outline-none">{scenePanel === "shallow" ? "Shallow Pool" : scenePanel === "deep" ? "Deeper Rocks" : "Treasure Shelf"}</h3>
-              <button type="button" onClick={closeScenePanel} className="min-h-11 rounded-lg bg-white px-3 py-2 font-bold text-teal-950">Back to Tide Pool Scene</button>
+        {scenePanel && <div role="dialog" aria-modal="true" aria-labelledby="tide-pool-activity-title" className="fixed inset-0 z-[60] overflow-y-auto bg-teal-950/95 p-2 sm:p-5">
+          <div className="mx-auto max-w-2xl rounded-2xl bg-cyan-50 p-2 shadow-2xl sm:p-4">
+            <div className="sticky top-0 z-10 mb-2 flex items-center justify-between gap-2 rounded-xl bg-teal-950 p-2 text-white">
+              <h3 id="tide-pool-activity-title" ref={panelHeadingRef} tabIndex={-1} className="text-base font-bold outline-none">{scenePanel === "shallow" ? "Shallow Pool" : scenePanel === "deep" ? "Deeper Rocks" : "Treasure Shelf"}</h3>
+              <button type="button" onClick={closeScenePanel} className="min-h-11 rounded-lg bg-white px-3 py-2 text-sm font-bold text-teal-950">Back to Tide Pool Scene</button>
             </div>
           {scenePanel === "shallow" && (!playing && !complete ? (
             <div>
@@ -331,13 +331,13 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
             </div>
           ))}
 
-          {scenePanel === "deep" && <section aria-labelledby="deep-tidepool-heading" className="mt-6 rounded-2xl bg-white/90 p-4 ring-1 ring-teal-200">
-            <h3 id="deep-tidepool-heading" className="text-xl font-bold text-teal-950">Deeper Tide Pool Treasures</h3>
+          {scenePanel === "deep" && <section aria-labelledby="deep-tidepool-heading" className="mt-2 rounded-2xl bg-white/90 p-2 ring-1 ring-teal-200">
+            <h3 id="deep-tidepool-heading" className="sr-only">Deeper Tide Pool Treasures</h3>
 
             {!hasBoots ? <p className="mt-2 font-semibold text-teal-900">Craft Tide Pool Wading Boots in the Workshop to unlock deeper exploration.</p> : <>
 
-              <p className="mt-2 text-sm text-teal-900">Choose a rocky pocket to search.</p>
-              <div className="relative mt-3 overflow-hidden rounded-xl border-2 border-teal-300">
+              <p className="sr-only">Choose a rocky pocket to search.</p>
+              <div className="relative mt-1 overflow-hidden rounded-xl border-2 border-teal-300">
                 <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pool with deeper rocky pockets" : "Sunlit tide pool with deeper rocky pockets"} width={900} height={1350} unoptimized className="h-auto w-full" />
                 {lastDeepTreasure && <div className="pointer-events-none absolute left-[31%] top-[40%] w-[38%]" aria-hidden="true">
                   <Image src={({"recycled-rubber":"/images/TidePool/Recycled-Rubber-Strips.png","shipwreck-teapot-fragment-spout":"/images/TidePool/Teapot-Fragment-Spout.png","shipwreck-teapot-fragment-handle":"/images/TidePool/Teapot-Fragment-Handle.png","shipwreck-teapot-fragment-lid":"/images/TidePool/Teapot-Fragment-Lid.png","shipwreck-teapot-fragment-body":"/images/TidePool/Teapot-Fragment-Body-Upper.png","shipwreck-teapot-fragment-body-lower":"/images/TidePool/Teapot-Fragment-Body-Lower.png","ancient-tide-crystal":"/images/TidePool/Ancient-Tide-Crystal.png","tidepool-ammonite-fossil":"/images/TidePool/Ammonite-Fossil.png","rainbow-clear-pearl":"/images/TidePool/Rainbow-Clear-Pearl.png","whispering-seashell":"/images/TidePool/Whispering-Seashell.png","shoreline-looking-glass":"/images/Looking glass/Shoreline-Looking-Glass-Day.png"})[lastDeepTreasure] ?? "/images/TidePool/Recycled-Rubber-Strips.png"} alt="" width={220} height={220} unoptimized className="aspect-square w-full object-contain" />
@@ -347,7 +347,7 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
                 {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="absolute bottom-[8%] left-[19%] min-h-11 w-[62%] rounded-full border border-white/70 bg-indigo-950/75 px-2 py-2 text-xs font-semibold text-white shadow-sm">Explore Hidden Pool — Low Tide</button>}
               </div>
               {lastDeepTreasure && <p className="mt-2 text-center font-semibold text-teal-950">Latest discovery: {lastDeepTreasure.replace(/-/g, " ").replace(/\b\w/g, letter => letter.toUpperCase())}</p>}
-              <p className="mt-2 text-sm text-teal-800">Deeper finds this visit: {deepFinds.length}. Searches are repeatable; rare treasures are less common.</p>
+              <p className="mt-2 text-sm text-teal-800">Finds this visit: {deepFinds.length}. Rare treasures are less common.</p>
               <p className="mt-2 font-semibold text-teal-950" role="status" aria-live="polite" aria-atomic="true">{deepAnnouncement}</p>
               {((state.inventory["shoreline-looking-glass"] || 0) > 0 || deepFinds.includes("shoreline-looking-glass")) && <section className="mt-4 space-y-3 rounded-xl bg-rose-50 p-3" aria-labelledby="looking-glass-title">
                 <h4 id="looking-glass-title" className="font-bold text-rose-950">Shoreline Looking Glass</h4>
