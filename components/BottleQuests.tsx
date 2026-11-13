@@ -65,17 +65,16 @@ export default function BottleQuests() {
     return true;
   };
 
-  return <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
+  return <div className="h-full overflow-y-auto bg-[#123f3b]">
     <h1 className="sr-only">The Enchanted Bottle Station</h1>
-    <div className="relative w-full max-w-2xl mx-auto" style={{aspectRatio:"1024 / 1536"}}>
-      <Image src={isNight ? "/images/Bottle-quest-night.PNG" : "/images/Bottle-quest-day.PNG"} alt={isNight ? "Moonlit seaside bottle pavilion with shelves, a basket, hourglass, and journal" : "Sunlit seaside bottle pavilion with shelves, a basket, hourglass, and journal"} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-contain" priority />
+    <div className="relative w-full max-w-2xl mx-auto" style={{aspectRatio:"2 / 3"}}>
+      <Image src={isNight ? "/images/Bottle-quest-night.PNG" : "/images/Bottle-quest-day.PNG"} alt={isNight ? "Moonlit seaside bottle pavilion with shelves, a basket, hourglass, and journal" : "Sunlit seaside bottle pavilion with shelves, a basket, hourglass, and journal"} fill unoptimized sizes="(max-width: 640px) 100vw, 640px" className="object-cover" priority />
       <button type="button" aria-label="Open frosted bottles found on the beach" title="Open frosted bottles found on the beach" onClick={() => setStationPanel("frosted")} className="absolute rounded-xl border-2 border-transparent focus-visible:border-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700" style={{left:"0%",top:"20%",width:"32%",height:"64%"}}><span className="sr-only">Open frosted bottles found on the beach</span></button>
       <button type="button" aria-label="Open original bottle quests" title="Open original bottle quests" onClick={() => setStationPanel("original")} className="absolute rounded-xl border-2 border-transparent focus-visible:border-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700" style={{left:"72%",top:"19%",width:"28%",height:"42%"}}><span className="sr-only">Open original bottle quests</span></button>
       <button type="button" aria-label="View Sands of Time hourglass quest" title="View Sands of Time hourglass quest" onClick={() => setStationPanel("hourglass")} className="absolute rounded-xl border-2 border-transparent focus-visible:border-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700" style={{left:"35%",top:"39%",width:"23%",height:"16%"}}><span className="sr-only">View Sands of Time hourglass quest</span></button>
       <button type="button" aria-label="Open bottle message journal" title="Open bottle message journal" onClick={() => setStationPanel("journal")} className="absolute rounded-xl border-2 border-transparent focus-visible:border-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700" style={{left:"56%",top:"46%",width:"26%",height:"13%"}}><span className="sr-only">Open bottle message journal</span></button>
     </div>
-    <div className="max-w-2xl mx-auto px-4 py-3">
-      <p className="text-sm text-teal-900">Select the frosted bottles, colorful bottle shelves, hourglass, or journal to explore.</p>
+    <div className="max-w-2xl mx-auto px-4">
             {state.gameCompleted && <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-teal-100 p-5 shadow-md ring-1 ring-amber-300 text-center mb-2"><p className="text-3xl mb-1">🎉</p><p className="font-bold text-amber-900">Shoreline Sanctuary — Complete!</p><p className="text-xs text-amber-800 mt-1">Thank you for restoring this little corner of the ocean.</p></div>}
 
     </div>
