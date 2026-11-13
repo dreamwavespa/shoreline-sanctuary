@@ -1,0 +1,24 @@
+name: Showcase pull request build check
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/showcase/**"
+      - "app/api/showcase/**"
+      - "lib/showcaseAuth.ts"
+      - ".github/workflows/showcase-check.yml"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          SHOWCASE_PASSWORD: build-only-placeholder
+          SHOWCASE_SESSION_SECRET: build-only-placeholder-secret-32-characters
