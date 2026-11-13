@@ -107,24 +107,22 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
         <div className="mx-auto max-w-2xl">
           <h1 className="sr-only">Sea Glass Sisters Cottage</h1>
           <div className="relative w-full aspect-[2/3]">
-            <Image src={cottageImage} alt="Sea Glass Sisters cottage entrance with four enchanted doors" fill unoptimized className="object-contain" priority />
+            <Image src={cottageImage} alt="Sea Glass Sisters cottage entrance with doors to Melody, Coralie, Marella and Kaiana, a sea glass sorting station, kitchen and nursery" fill unoptimized className="object-contain" priority />
             <div className="absolute inset-0">
               {COTTAGE_ROOMS.map((r, index) => (
                 <button key={r.id} type="button" onClick={() => setRoomId(r.id)}
                   aria-label={"Enter " + VILLAGERS[r.ownerId].name + "'s room"}
-                  className="absolute top-[30%] h-[36%] w-[22%] rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/20 focus-visible:outline-none"
-                  style={{ left: (5 + index * 23) + "%" }}>
+                  className="absolute top-[12%] h-[29%] w-[18%] rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/20 focus-visible:outline-none"
+                  style={{ left: (3 + index * 25) + "%" }}>
                   <span className="sr-only">{VILLAGERS[r.ownerId].name}</span>
                 </button>
               ))}
+              <button type="button" onClick={() => setSortingOpen(true)} aria-label="Play Sea Glass Sorting" className="absolute right-[2%] top-[53%] h-[30%] w-[29%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Sea Glass Sorting</span></button>
+              <button type="button" onClick={onGoToKitchen} aria-label="Enter Cottage Kitchen" className="absolute bottom-[3%] left-[2%] h-[19%] w-[29%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Cottage Kitchen</span></button>
+              <button type="button" onClick={() => setCadenceOpen(true)} aria-label="Visit Cadence's Nursery" className="absolute bottom-[3%] left-[35%] h-[19%] w-[30%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Cadence's Nursery</span></button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 px-4 py-3">
-            <button type="button" onClick={() => setSortingOpen(true)} className="rounded-xl bg-teal-700 px-3 py-3 font-semibold text-white">Sea Glass Sorting</button>
-            <button type="button" onClick={() => setCadenceOpen(true)} className="rounded-xl bg-rose-700 px-3 py-3 font-semibold text-white">Cadence's Nursery</button>
-            <button type="button" onClick={onGoToKitchen} className="rounded-xl bg-amber-800 px-3 py-3 font-semibold text-white">Cottage Kitchen</button>
-            <button type="button" onClick={() => setNotebookOpen(true)} className="rounded-xl bg-indigo-700 px-3 py-3 font-semibold text-white">Explorer's Notebook</button>
-          </div>
+          <button type="button" onClick={() => setNotebookOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-indigo-700 px-4 py-2 font-semibold text-white">Explorer's Notebook</button>
           <p className="px-4 text-sm text-amber-100" aria-live="polite">{bondedSisterCount}/4 sisters bonded. {currentLayer?.description || "Give a sister a loved gift to begin the cottage harmony."}</p>
         </div>
       ) : (
