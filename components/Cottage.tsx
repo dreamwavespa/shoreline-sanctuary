@@ -138,8 +138,20 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
         <Image src={sceneImage} alt={room.name} fill unoptimized className="object-contain" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#241a3d]" />
         {completedMosaics.length > 0 && <div className="absolute right-3 top-3 flex gap-2 rounded-xl bg-[#241a3d]/80 p-2 shadow-lg" aria-label="Completed mosaics displayed in the cottage">{completedMosaics.map((mosaic) => <div key={mosaic.itemId} role="img" aria-label={`${mosaic.name} mosaic, created ${state.inventory[mosaic.itemId]} ${state.inventory[mosaic.itemId] === 1 ? "time" : "times"}`} className="flex h-14 w-12 items-center justify-center rounded-sm border-4 border-amber-500 bg-indigo-950 text-2xl shadow-inner"><span aria-hidden="true">{mosaic.icon}</span></div>)}</div>}
-        <button type="button" onClick={() => { setRoomPanel("friendship"); setRoomDetailsOpen(true); }} aria-label={"Meet " + sister.name + " and give gifts"} className="absolute bottom-[18%] left-[3%] h-[26%] w-[30%] rounded-xl border-2 border-transparent focus-visible:border-amber-300 focus-visible:bg-amber-200/20 focus-visible:outline-none"><span className="sr-only">Meet {sister.name}</span></button>
-        <button type="button" onClick={() => { setRoomPanel("activity"); setRoomDetailsOpen(true); }} aria-label={room.id === "celestial-observatory" ? "Use Marella's telescope and open Observatory Journal" : room.id === "bioluminescent-grotto" ? "Open Coralie's Underwater Garden at the botanical workbench" : room.id === "restoration-studio" ? "Open Kaiana's Mosaic and Restoration Studio" : "Open Melody's Reading Stand"} className="absolute top-[17%] right-[5%] h-[39%] w-[48%] rounded-xl border-2 border-transparent focus-visible:border-cyan-300 focus-visible:bg-cyan-200/20 focus-visible:outline-none"><span className="sr-only">Room activity</span></button>
+        {(() => {
+          const spots: Record<string, { friend: string; activity: string }> = {
+            "jewelry-parlor": { friend: "right-[2%] top-[27%] w-[32%] h-[38%]", activity: "left-[2%] top-[28%] w-[52%] h-[37%]" },
+            "bioluminescent-grotto": { friend: "left-[2%] top-[15%] w-[33%] h-[45%]", activity: "right-[3%] top-[19%] w-[53%] h-[43%]" },
+            "celestial-observatory": { friend: "right-[3%] top-[24%] w-[36%] h-[38%]", activity: "left-[10%] top-[9%] w-[40%] h-[51%]" },
+            "restoration-studio": { friend: "left-[2%] top-[20%] w-[36%] h-[42%]", activity: "right-[3%] top-[14%] w-[56%] h-[48%]" },
+          };
+          const spot = spots[room.id];
+          if (!spot) return null;
+          return <>
+            <button type="button" onClick={() => { setRoomPanel("friendship"); setRoomDetailsOpen(true); }} aria-label={"Meet " + sister.name + " and give gifts"} className={"absolute rounded-xl border-2 border-transparent focus-visible:border-amber-300 focus-visible:bg-amber-200/25 focus-visible:outline-none " + spot.friend}><span className="sr-only">Meet {sister.name}</span></button>
+            <button type="button" onClick={() => { setRoomPanel("activity"); setRoomDetailsOpen(true); }} aria-label={room.id === "celestial-observatory" ? "Use Marella's telescope and open Observatory Journal" : room.id === "bioluminescent-grotto" ? "Open Coralie's Underwater Garden at the botanical workbench" : room.id === "restoration-studio" ? "Open Kaiana's Mosaic and Restoration Studio at the workbench" : "Open Melody's Reading Stand at the jewelry workbench"} className={"absolute rounded-xl border-2 border-transparent focus-visible:border-cyan-300 focus-visible:bg-cyan-200/25 focus-visible:outline-none " + spot.activity}><span className="sr-only">Room activity</span></button>
+          </>;
+        })()}
         <div className="absolute bottom-3 left-3 right-3 bg-black/50 text-amber-50 rounded-xl px-3 py-2"><p className="font-serif text-sm font-bold">{room.name}</p><p className="text-[11px] text-amber-100/80">{room.levelLabel} · {room.station}</p></div>
       </div>
 
