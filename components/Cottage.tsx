@@ -29,7 +29,7 @@ const COTTAGE_MOSAICS = [
 
 export default function Cottage({ openNursery = false, onGoToKitchen }: { openNursery?: boolean; onGoToKitchen?: () => void }) {
   const { state, setMusicOverride, collectItem } = useGame();
-  const [roomId, setRoomId] = useState(COTTAGE_ROOMS[0].id);
+  const [roomId, setRoomId] = useState<string | null>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
   const [mosaicOpen, setMosaicOpen] = useState(false);
@@ -93,10 +93,45 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
     setMarellaResult(`${observation.name}. ${observation.interpretation} Marella gives you one ${rewardNames[observation.reward]} for your inventory.`);
   };
 
+  const cottageImage = "/images/Cottage/Cottage-" + (nighttime ? "night" : "day") + ".png";
+  const roomArt: Record<string, string> = {
+    "jewelry-parlor": "Melody", "bioluminescent-grotto": "Coralie",
+    "celestial-observatory": "Marella", "restoration-studio": "Kaiana"
+  };
+  const roomArtworkName = roomId ? roomArt[roomId] : null;
+  const sceneImage = roomArtworkName ? "/images/Cottage/" + roomArtworkName + "-" + (nighttime ? "night" : "day") + ".png" : cottageImage;
+
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#241a3d]">
-      <div className="relative w-full h-[42%] min-h-[220px] overflow-hidden select-none">
-        <Image src={room.imageUrl} alt={room.name} fill unoptimized className="object-cover" />
+      {!roomId ? (
+        <div className="mx-auto max-w-2xl">
+          <h1 className="sr-only">Sea Glass Sisters Cottage</h1>
+          <div className="relative w-full aspect-[2/3]">
+            <Image src={cottageImage} alt="Sea Glass Sisters cottage entrance with four enchanted doors" fill unoptimized className="object-contain" priority />
+            <div className="absolute inset-0">
+              {COTTAGE_ROOMS.map((r, index) => (
+                <button key={r.id} type="button" onClick={() => setRoomId(r.id)}
+                  aria-label={"Enter " + VILLAGERS[r.ownerId].name + "'s room"}
+                  className="absolute top-[30%] h-[36%] w-[22%] rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/20 focus-visible:outline-none"
+                  style={{ left: (5 + index * 23) + "%" }}>
+                  <span className="sr-only">{VILLAGERS[r.ownerId].name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 px-4 py-3">
+            <button type="button" onClick={() => setSortingOpen(true)} className="rounded-xl bg-teal-700 px-3 py-3 font-semibold text-white">Sea Glass Sorting</button>
+            <button type="button" onClick={() => setCadenceOpen(true)} className="rounded-xl bg-rose-700 px-3 py-3 font-semibold text-white">Cadence's Nursery</button>
+            <button type="button" onClick={onGoToKitchen} className="rounded-xl bg-amber-800 px-3 py-3 font-semibold text-white">Cottage Kitchen</button>
+            <button type="button" onClick={() => setNotebookOpen(true)} className="rounded-xl bg-indigo-700 px-3 py-3 font-semibold text-white">Explorer's Notebook</button>
+          </div>
+          <p className="px-4 text-sm text-amber-100" aria-live="polite">{bondedSisterCount}/4 sisters bonded. {currentLayer?.description || "Give a sister a loved gift to begin the cottage harmony."}</p>
+        </div>
+      ) : (
+      <>
+      <button type="button" onClick={() => setRoomId(null)} className="mx-4 my-3 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-indigo-950">Return to Cottage</button>
+      <div className="relative mx-auto w-full max-w-2xl aspect-[2/3] overflow-hidden select-none">
+        <Image src={sceneImage} alt={room.name} fill unoptimized className="object-contain" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#241a3d]" />
         {completedMosaics.length > 0 && <div className="absolute right-3 top-3 flex gap-2 rounded-xl bg-[#241a3d]/80 p-2 shadow-lg" aria-label="Completed mosaics displayed in the cottage">{completedMosaics.map((mosaic) => <div key={mosaic.itemId} role="img" aria-label={`${mosaic.name} mosaic, created ${state.inventory[mosaic.itemId]} ${state.inventory[mosaic.itemId] === 1 ? "time" : "times"}`} className="flex h-14 w-12 items-center justify-center rounded-sm border-4 border-amber-500 bg-indigo-950 text-2xl shadow-inner"><span aria-hidden="true">{mosaic.icon}</span></div>)}</div>}
         <div className="absolute bottom-3 left-3 right-3 bg-black/50 text-amber-50 rounded-xl px-3 py-2"><p className="font-serif text-sm font-bold">{room.name}</p><p className="text-[11px] text-amber-100/80">{room.levelLabel} · {room.station}</p></div>
@@ -108,6 +143,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
 
         {room.id === "jewelry-parlor" && <button type="button" onClick={() => setNotebookOpen(true)} className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"><div className="w-14 h-14 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-3xl">📖</div><div className="flex-1"><p className="font-bold text-amber-900">The Reading Stand</p><p className="text-xs text-amber-700">A sunlit wooden stand near Melody's workbench, holding your Sanctuary Explorer's Notebook.</p></div></button>}
 
+        {roomArtworkName && <div className="flex justify-center"><Image src={"/images/Cottage/" + roomArtworkName + ".png"} alt={roomArtworkName + ", one of the Sea Glass Sisters"} width={180} height={340} unoptimized className="h-52 w-auto object-contain" /></div>}
         {sister && <VillagerCard villager={sister} />}
 
         <HalloweenCauldron />
@@ -145,6 +181,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
         <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-indigo-200"><p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">Cottage Harmony Engine</p><p className="text-sm text-indigo-900 font-semibold mb-1">{bondedSisterCount}/4 Sisters bonded</p><p className="text-xs text-indigo-700">{currentLayer ? currentLayer.description : "Give a loved gift to a sister to start the music."}</p><div className="flex gap-1 mt-3">{COTTAGE_ROOMS.map((r) => { const bonded = (state.villagerGiftCounts[r.ownerId] || 0) > 0; return <div key={r.id} className={`flex-1 h-1.5 rounded-full ${bonded ? "bg-indigo-500" : "bg-indigo-100"}`} title={`${VILLAGERS[r.ownerId].name}${bonded ? " — bonded" : ""}`} />; })}</div></div>
       </div>
 
+      </>)}
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
       {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}
