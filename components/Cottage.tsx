@@ -30,6 +30,9 @@ const COTTAGE_MOSAICS = [
 export default function Cottage({ openNursery = false, onGoToKitchen }: { openNursery?: boolean; onGoToKitchen?: () => void }) {
   const { state, setMusicOverride, collectItem } = useGame();
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [roomDetailsOpen, setRoomDetailsOpen] = useState(false);
+  const [seasonalOpen, setSeasonalOpen] = useState(false);
+  const roomActivityRef = useRef<HTMLButtonElement>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
   const [mosaicOpen, setMosaicOpen] = useState(false);
@@ -63,6 +66,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
   const room = COTTAGE_ROOMS.find((r) => r.id === roomId) || COTTAGE_ROOMS[0];
   const sister = VILLAGERS[room.ownerId];
   const completedMosaics = COTTAGE_MOSAICS.filter((mosaic) => (state.inventory[mosaic.itemId] || 0) > 0);
+  const month = new Date().getMonth();
   const nighttime = (() => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; })();
 
   useEffect(() => {
@@ -110,7 +114,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
             <Image src={cottageImage} alt="Sea Glass Sisters cottage entrance with doors to Melody, Coralie, Marella and Kaiana, a sea glass sorting station, kitchen and nursery" fill unoptimized className="object-contain" priority />
             <div className="absolute inset-0">
               {COTTAGE_ROOMS.map((r, index) => (
-                <button key={r.id} type="button" onClick={() => setRoomId(r.id)}
+                <button key={r.id} type="button" onClick={() => { setRoomId(r.id); setRoomDetailsOpen(false); }}
                   aria-label={"Enter " + VILLAGERS[r.ownerId].name + "'s room"}
                   className="absolute top-[12%] h-[29%] w-[18%] rounded-xl border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/20 focus-visible:outline-none"
                   style={{ left: (3 + index * 25) + "%" }}>
@@ -122,12 +126,13 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
               <button type="button" onClick={() => setCadenceOpen(true)} aria-label="Visit Cadence's Nursery" className="absolute bottom-[3%] left-[35%] h-[19%] w-[30%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Cadence's Nursery</span></button>
             </div>
           </div>
+          <button type="button" onClick={() => setSeasonalOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-amber-700 px-4 py-2 font-semibold text-white">{month === 9 ? "Halloween Cauldron" : month === 11 ? "Christmas Tree — coming soon" : month === 3 ? "Spring Egg Hunt — coming soon" : month >= 5 && month <= 7 ? "Summer Campfire — coming soon" : "Seasonal Corner — coming soon"}</button>
           <button type="button" onClick={() => setNotebookOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-indigo-700 px-4 py-2 font-semibold text-white">Explorer's Notebook</button>
           <p className="px-4 text-sm text-amber-100" aria-live="polite">{bondedSisterCount}/4 sisters bonded. {currentLayer?.description || "Give a sister a loved gift to begin the cottage harmony."}</p>
         </div>
       ) : (
       <>
-      <button type="button" onClick={() => setRoomId(null)} className="mx-4 my-3 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-indigo-950">Return to Cottage</button>
+      <button type="button" onClick={() => { setRoomDetailsOpen(false); setRoomId(null); }} className="mx-4 my-3 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-indigo-950">Return to Cottage</button>
       <div className="relative mx-auto w-full max-w-2xl aspect-[3/4] overflow-hidden select-none">
         <Image src={sceneImage} alt={room.name} fill unoptimized className="object-contain" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#241a3d]" />
@@ -135,7 +140,10 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
         <div className="absolute bottom-3 left-3 right-3 bg-black/50 text-amber-50 rounded-xl px-3 py-2"><p className="font-serif text-sm font-bold">{room.name}</p><p className="text-[11px] text-amber-100/80">{room.levelLabel} · {room.station}</p></div>
       </div>
 
-      <div className="px-4 pt-4 space-y-4">
+      <button ref={roomActivityRef} type="button" onClick={() => setRoomDetailsOpen(true)} aria-label={"Meet " + sister.name + " and explore " + room.name + " activities"} className="mx-4 my-3 min-h-11 rounded-xl bg-amber-100 px-4 py-3 font-semibold text-indigo-950">Meet {sister.name} · Room Activities</button>
+      {roomDetailsOpen && <div role="dialog" aria-modal="true" aria-label={room.name + " activities"} className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4">
+      <button type="button" onClick={() => { setRoomDetailsOpen(false); window.setTimeout(() => roomActivityRef.current?.focus(), 0); }} className="sticky top-0 z-10 mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-indigo-950">Close {sister.name} Activities</button>
+      <div className="mx-auto max-w-2xl px-4 pt-4 space-y-4">
         <p className="text-xs text-indigo-100/80 leading-relaxed">{room.description}</p>
 
         {room.id === "jewelry-parlor" && <button type="button" onClick={() => setNotebookOpen(true)} className="w-full text-left rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"><div className="w-14 h-14 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center text-3xl">📖</div><div className="flex-1"><p className="font-bold text-amber-900">The Reading Stand</p><p className="text-xs text-amber-700">A sunlit wooden stand near Melody's workbench, holding your Sanctuary Explorer's Notebook.</p></div></button>}
@@ -161,9 +169,10 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
         {room.id === "restoration-studio" && <section aria-labelledby="mosaic-game-heading" className="rounded-2xl bg-gradient-to-br from-violet-50 to-cyan-100 p-4 shadow-md ring-1 ring-violet-200"><p className="text-[11px] font-semibold uppercase tracking-wide text-violet-800">Kaiana's Mini-Game</p><h2 id="mosaic-game-heading" className="mt-1 font-serif text-lg font-bold text-indigo-950">🎨 Kaiana's Mosaic Studio</h2><p className="mt-1 text-sm text-indigo-800">Fit oddly shaped sea glass into three mosaic designs. Finished pieces become framed cottage decorations.</p><button ref={mosaicButtonRef} type="button" onClick={() => setMosaicOpen(true)} className="mt-3 w-full rounded-xl bg-violet-700 py-3 font-bold text-white shadow active:bg-violet-800">Open Mosaic Studio</button></section>}
 
         <div className="rounded-2xl bg-white/90 p-4 shadow-md ring-1 ring-indigo-200"><p className="text-[11px] font-semibold text-indigo-800/70 uppercase tracking-wide mb-1.5">Cottage Harmony Engine</p><p className="text-sm text-indigo-900 font-semibold mb-1">{bondedSisterCount}/4 Sisters bonded</p><p className="text-xs text-indigo-700">{currentLayer ? currentLayer.description : "Give a loved gift to a sister to start the music."}</p><div className="flex gap-1 mt-3">{COTTAGE_ROOMS.map((r) => { const bonded = (state.villagerGiftCounts[r.ownerId] || 0) > 0; return <div key={r.id} className={`flex-1 h-1.5 rounded-full ${bonded ? "bg-indigo-500" : "bg-indigo-100"}`} title={`${VILLAGERS[r.ownerId].name}${bonded ? " — bonded" : ""}`} />; })}</div></div>
-      </div>
+      </div></div>}
 
       </>)}
+      {seasonalOpen && <div role="dialog" aria-modal="true" aria-label="Seasonal Corner" className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4"><button type="button" onClick={() => setSeasonalOpen(false)} className="mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-bold text-indigo-950">Close Seasonal Corner</button>{month === 9 ? <HalloweenCauldron /> : <p className="text-amber-100">This seasonal activity is coming soon.</p>}</div>}
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
       {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}
