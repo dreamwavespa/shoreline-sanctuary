@@ -1,6 +1,8 @@
 "use client";
 import "@/lib/coastalClay";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import OceanObservatory from "./OceanObservatory";
+import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 import { useGame, Screen } from "@/lib/store";
 import BeachScene from "./BeachScene";
 import BucketPanel from "./BucketPanel";
@@ -34,8 +36,23 @@ const TABS: { id: Screen; label: string; icon: string }[] = [
 ];
 
 export default function GameShell() {
-  const { screen, setScreen, lastToast, state, notebookOpen, setNotebookOpen } = useGame();
+  const { screen, setScreen, lastToast, state, notebookOpen, setNotebookOpen, setMusicOverride } = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [observatoryPreviewEnabled, setObservatoryPreviewEnabled] = useState(false);
+  const [observatoryPreviewOpen, setObservatoryPreviewOpen] = useState(false);
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("observatoryTest") === "1") sessionStorage.setItem("shoreline-observatory-test", "1");
+      if (params.get("observatoryTest") === "0") sessionStorage.removeItem("shoreline-observatory-test");
+      setObservatoryPreviewEnabled(sessionStorage.getItem("shoreline-observatory-test") === "1");
+    } catch {}
+  }, []);
+  useEffect(() => {
+    if (!observatoryPreviewOpen) return;
+    setMusicOverride("sunlitShallows");
+    return () => setMusicOverride(null);
+  }, [observatoryPreviewOpen, setMusicOverride]);
   const [destination, setDestination] = useState<"kitchen" | "nursery" | null>(null);
   const goTo = (target: "kitchen" | "nursery") => {
     setDestination(target);
@@ -110,7 +127,9 @@ export default function GameShell() {
         </div>
       </header>
 
+      {observatoryPreviewEnabled && <button type="button" className="mx-3 my-1 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-teal-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white" onClick={() => setObservatoryPreviewOpen(true)}>Preview Ocean Observatory (Test Mode)</button>}
       <main className="flex-1 relative overflow-hidden">
+        {observatoryPreviewOpen && <div role="dialog" aria-modal="true" aria-label="Ocean Observatory test preview" className="absolute inset-0 z-[200] overflow-y-auto bg-slate-950 p-3 text-white"><div className="mx-auto max-w-[680px]"><OceanObservatory discovered={AQUARIUM_SPECIES.map(s => s.id)} onClose={() => setObservatoryPreviewOpen(false)} /></div></div>}
         <OlliHuntOverlay />
         {screen === "beach" && <BeachScene />}
         {screen === "bucket" && <BucketPanel />}
