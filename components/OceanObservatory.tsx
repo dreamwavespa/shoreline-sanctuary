@@ -78,8 +78,8 @@ export default function OceanObservatory({ discovered, onClose, testMode = false
     </div>
     {!peaceful && <p>Watching {fish.length} discovered fish species. Elly, Olli, Snappy and Libby visit by day; Celeste and Orion visit at night.</p>}
     {!peaceful && <details><summary className="cursor-pointer font-semibold">Who visits the observatory?</summary><p>Daytime: Elly the jellyfish, Olli the octopus, Snappy the turtle, and Libby the lobster. Nighttime: Celeste the moon jellyfish and Orion the sea butterfly. Visitors appear occasionally without interrupting VoiceOver.</p></details>}
-    <div className="flex flex-wrap gap-1.5">
-      <button type="button" className="min-h-11 rounded-lg bg-teal-800 px-3 py-2 text-sm font-semibold text-white" onClick={() => setPeaceful(p => !p)}>{peaceful ? "Show Observatory Information" : "Peaceful Viewing Mode"}</button>
+    <div className="grid grid-cols-2 gap-1.5">
+      <button type="button" className="min-h-11 rounded-lg bg-teal-800 px-2 py-1.5 text-xs sm:text-sm font-semibold leading-tight text-white" onClick={() => setPeaceful(p => !p)}>{peaceful ? "Show Observatory Information" : "Peaceful Viewing Mode"}</button>
       <button type="button" className="min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white" onClick={() => setMotion(m => !m)}>{motion ? "Reduce Motion" : "Enable Swimming Animation"}</button>
       <button type="button" className="min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white" onClick={onClose}>Return to Marine Lab</button>
     </div>
