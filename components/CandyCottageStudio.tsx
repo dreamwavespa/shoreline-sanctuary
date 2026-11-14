@@ -15,6 +15,21 @@ const materials = {
   garden: ["Candy flowers", "Seashell candies", "Candy pumpkins", "Gumdrop trees", "Sugar pathways", "Chocolate fences"],
   decoration: ["Jellybeans", "Fruit sprinkles", "Maple candies", "Peppermint sticks", "Marshmallows", "Candy pearls"],
 } as const;
+const assetRoot = "/images/Candy%20cottage/";
+const houseArt: Record<string, string> = {
+  "Spring Candy Greenhouse": "Spring-Candy-Greenhouse.png",
+  "Summer Seaside Cottage": "Summer-Seaside-Cottage.png",
+  "Autumn Harvest House": "Autumn-Harvest-House.png",
+  "Winter Gingerbread Cabin": "Winter-Gingerbread-Log-Cabin.png",
+};
+const roofArt: Record<string, string> = {
+  "Snowy icing": "Snowy-Icing.png",
+  "Pastel wafers": "Pastel-Frosting.png",
+  "Coconut icing": "Pastel-Frosting.png",
+  "Caramel icing": "Caramel-Cinnamon.png",
+  "Chocolate tiles": "Chocolate-Shingles.png",
+  "Peppermint shingles": "Peppermint-Shingles.png",
+};
 const storageKey = "shoreline-candy-cottage-gallery-v1";
 export default function CandyCottageStudio({ onClose }: { onClose: () => void }) {
   const season = Math.floor(((new Date().getMonth() + 1) % 12) / 3);
@@ -56,7 +71,14 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <label className="block font-semibold" htmlFor="candy-house-name">Name your house</label>
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
-            <p aria-hidden="true" className="text-center text-5xl">🏡🍭🌸</p>
+            <div className="mx-auto w-full max-w-sm">
+              <p className="mb-2 text-center text-sm font-semibold">House preview (roof placement is experimental)</p>
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
+                <img src={assetRoot + (house.design === "Free Build" ? "Free-Build-Cookie-Cottage.png" : houseArt[house.name] || "Free-Build-Cookie-Cottage.png")} alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name} className="absolute inset-0 h-full w-full object-contain" />
+                <img src={assetRoot + roofArt[house.roof]} alt="" aria-hidden="true" className="pointer-events-none absolute left-[13%] top-[10%] w-[74%] object-contain opacity-90" />
+              </div>
+              <p className="mt-2 text-center text-xs text-amber-900">Roof overlays are approximate until we fit them to each house. The original roof remains in the base illustration.</p>
+            </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
           </div>
