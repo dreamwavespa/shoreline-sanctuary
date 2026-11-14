@@ -4,26 +4,15 @@ import Image from "next/image";
 import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 
 type Props = { discovered: string[]; onClose: () => void };
-const visitors = [
-  { name: "Elly", src: "/images/Elly.png" },
-  { name: "Olli", src: "/images/Olli.png" },
-  { name: "Snappy", src: "/images/Snappy.png" },
-];
 export default function OceanObservatory({ discovered, onClose }: Props) {
   const [night, setNight] = useState(false);
   const [peaceful, setPeaceful] = useState(false);
   const [motion, setMotion] = useState(true);
-  const [visitor, setVisitor] = useState<number | null>(null);
   useEffect(() => {
     const update = () => { const h = new Date().getHours(); setNight(h >= 19 || h < 6); };
     update(); const id = window.setInterval(update, 60000);
     return () => window.clearInterval(id);
   }, []);
-  useEffect(() => {
-    if (!motion) return;
-    const id = window.setInterval(() => setVisitor(Math.random() < 0.4 ? Math.floor(Math.random() * visitors.length) : null), 24000);
-    return () => window.clearInterval(id);
-  }, [motion]);
   const fish = AQUARIUM_SPECIES.filter(s => discovered.includes(s.id));
   return <section aria-label="Waverly's Ocean Observatory" className="space-y-3">
     {!peaceful && <><h4 className="text-xl font-bold">Waverly's Ocean Observatory</h4><p>All sixteen reef species discovered! Enjoy the living reef through Waverly's observation window.</p></>}
