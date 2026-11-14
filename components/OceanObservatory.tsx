@@ -19,8 +19,7 @@ const fishPosition = (index: number) => ({
 });
 export default function OceanObservatory({ discovered, onClose, testMode = false }: Props) {
   const [night, setNight] = useState(false);
-  const [previewTime, setPreviewTime] = useState<"auto" | "day" | "night">("auto");
-  const showNight = testMode && previewTime !== "auto" ? previewTime === "night" : night;
+  const showNight = night;
   const [peaceful, setPeaceful] = useState(false);
   const [motion, setMotion] = useState(true);
   const [backgroundFailed, setBackgroundFailed] = useState(false);
@@ -65,7 +64,6 @@ export default function OceanObservatory({ discovered, onClose, testMode = false
   const fish = AQUARIUM_SPECIES.filter(s => discovered.includes(s.id));
   return <section aria-label="Waverly's Ocean Observatory" className="space-y-3">
     {!peaceful && <><h4 className="text-xl font-bold">Waverly's Ocean Observatory</h4><p>All sixteen reef species discovered! Enjoy the living reef through Waverly's observation window.</p></>}
-    {testMode && <div className="space-y-1.5"><span className="block text-sm font-semibold">Preview lighting:</span><div className="grid grid-cols-3 gap-1.5">{(["day","night","auto"] as const).map(value => <button key={value} type="button" aria-pressed={previewTime === value} onClick={() => setPreviewTime(value)} className={`min-h-11 rounded-lg border px-1.5 py-1.5 text-xs sm:text-sm font-semibold ${previewTime === value ? "bg-amber-100 text-teal-950 border-amber-100" : "bg-teal-900 text-white border-white/50"}`}>{value === "auto" ? "Automatic" : value === "day" ? "Daytime" : "Nighttime"}</button>)}</div></div>}
     <div className="relative mx-auto w-full max-w-[680px] overflow-hidden rounded-xl bg-gradient-to-b from-cyan-700 via-blue-900 to-slate-950" aria-label={showNight ? "Moonlit underwater reef viewed through the observatory window" : "Sunlit underwater reef viewed through the observatory window"}>
       <Image key={backgroundSrc} src={backgroundSrc} onLoad={() => { setBackgroundLoaded(true); setBackgroundFailed(false); }} onError={() => setBackgroundFailed(true)} alt={showNight ? "Waverly's nighttime observatory, with luminous coral and open ocean beyond a large window." : "Waverly's daytime observatory, with colorful coral and clear blue water beyond a large window."} width={1024} height={1536} unoptimized priority className="block h-auto w-full" />
       {backgroundFailed && <div className="absolute inset-x-4 top-4 rounded-lg bg-slate-950/90 p-3 text-center text-white"><p role="status">The observatory background could not load. The fish are still visible.</p><button type="button" onClick={retryBackground} className="mt-2 min-h-11 rounded-lg bg-amber-100 px-4 py-2 font-semibold text-teal-950">Retry Background</button></div>}
