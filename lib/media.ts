@@ -39,6 +39,7 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  sunlitShallows: "/audio/Sunlit%20Shallows.mp3",
   hut: "/audio/Cozy%20Beach%20Haven.mp3",
   hutPatio: "/audio/Patio%20Wind%20%26%20Waves.mp3",
   beachGames: "/audio/Shoreline%20Volley.mp3",
