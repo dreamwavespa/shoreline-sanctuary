@@ -17,12 +17,12 @@ export default function OceanObservatory({ discovered, onClose }: Props) {
   return <section aria-label="Waverly's Ocean Observatory" className="space-y-3">
     {!peaceful && <><h4 className="text-xl font-bold">Waverly's Ocean Observatory</h4><p>All sixteen reef species discovered! Enjoy the living reef through Waverly's observation window.</p></>}
     <div className="relative mx-auto w-full max-w-[680px] overflow-hidden rounded-xl" aria-label={night ? "Moonlit underwater reef viewed through the observatory window" : "Sunlit underwater reef viewed through the observatory window"}>
-      <Image src={night ? "/images/Reef/Observatory-night.png" : "/images/Reef/Observatory-day.png"} alt={night ? "Waverly's nighttime observatory, with luminous coral and open ocean beyond a large window." : "Waverly's daytime observatory, with colorful coral and clear blue water beyond a large window."} width={1024} height={1536} unoptimized className="block h-auto w-full" />
+      <Image src={night ? "/images/Reef/Observatory-night.PNG" : "/images/Reef/Observatory-day.PNG"} alt={night ? "Waverly's nighttime observatory, with luminous coral and open ocean beyond a large window." : "Waverly's daytime observatory, with colorful coral and clear blue water beyond a large window."} width={1024} height={1536} unoptimized className="block h-auto w-full" />
       <div aria-hidden="true" className="pointer-events-none absolute overflow-hidden" style={{left:"13%",top:"10%",width:"74%",height:"51%",borderRadius:"40% 40% 25% 25%"}}>
         {fish.map((species, index) => {
           const row = Math.floor(index / 4); const col = index % 4;
           return <div key={species.id} className={motion ? "observatory-swim" : ""} style={{position:"absolute",left:`${6+col*23}%`,top:`${12+row*20}%`,width:"19%",animationDelay:`-${index*1.7}s`,animationDuration:`${13+(index%5)*4}s`}}>
-            <Image src={species.imageSrc} alt="" width={180} height={140} unoptimized className="w-full h-auto object-contain drop-shadow" />
+            <span className="relative block"><span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-3xl">{species.emoji}</span><Image src={species.imageSrc} alt="" width={180} height={140} unoptimized className="relative w-full h-auto object-contain drop-shadow" onError={(event) => { event.currentTarget.style.display = "none"; }} /></span>
           </div>;
         })}
       </div>
