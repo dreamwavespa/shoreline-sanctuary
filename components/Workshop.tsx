@@ -10,6 +10,7 @@ import { KITCHEN_RECIPES, JEWELRY_RECIPES, DECOR_RECIPES, RAFT_RECIPE, SAND_ART_
 import Notebook from "./Notebook";
 import WindChimeWorkshop from "./WindChimeWorkshop";
 import PicnicPacking from "./PicnicPacking";
+import CandyCottageStudio from "./CandyCottageStudio";
 import CupcakeMatching from "./CupcakeMatching";
 import SeashellBakingChallenge from "./SeashellBakingChallenge";
 import JewelryCounter from "./JewelryCounter";
@@ -970,6 +971,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [windChimeOpen, setWindChimeOpen] = useState(false);
   const [picnicPackingOpen, setPicnicPackingOpen] = useState(false);
+  const [candyCottageOpen, setCandyCottageOpen] = useState(false);
   const [cupcakeMatchingOpen, setCupcakeMatchingOpen] = useState(false);
   const [seashellBakingOpen, setSeashellBakingOpen] = useState(false);
   const [jewelryCounterOpen, setJewelryCounterOpen] = useState(false);
@@ -1091,7 +1093,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
           ))}
         </div>}
 
-        <button
+        {!openKitchen && <button
           type="button"
           onClick={() => setNotebookOpen(true)}
           className="w-full text-left rounded-2xl bg-white/90 p-4 mb-3 shadow-md ring-1 ring-amber-200 flex items-center gap-3 active:scale-[0.98] transition"
@@ -1103,7 +1105,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               A leather journal rests on the corner of the desk, next to the crafting bucket.
             </p>
           </div>
-        </button>
+        </button>}
 
         {!openKitchen && <h2 className="mb-3 text-center font-serif text-xl font-bold text-teal-950" aria-live="polite">{({general:"General Crafting",jewelry:"Jewelry Counter",pottery:"Pottery Studio",sewing:"Coastal Sewing Studio",candles:"Candle Making",sandart:"Sand Art",decor:"Decorative Crafts",painting:"Painting Studio"} as const)[studioStation]}</h2>}
         {!openKitchen && studioStation === "pottery" && state.workshopUnlocked && <PotteryStudio />}
@@ -1289,29 +1291,22 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
               </div>
               <p className="mt-2 text-center text-sm text-amber-950">Select the cookbook on the island to browse and prepare recipes.</p>
             </section>
-            <section aria-labelledby="picnic-packing-heading" className="mb-4 text-center">
-              <h2 id="picnic-packing-heading" className="font-serif text-lg font-bold text-amber-950">Picnic Packing</h2>
-              <p className="mt-1 text-sm text-amber-800">Pack food, a blanket, dishes, flowers, drinks, and treats for a seaside picnic.</p>
-              <button
-                ref={picnicPackingButtonRef}
-                type="button"
-                onClick={() => setPicnicPackingOpen(true)}
-                aria-label="Pack a Picnic Basket, open Picnic Packing game"
-                className="mx-auto mt-2 flex min-h-44 min-w-44 flex-col items-center justify-center gap-1 rounded-xl p-2 text-amber-950 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"
-              >
-                <Image src="/images/Picnic-basket-transparent.PNG" alt="" width={240} height={180} unoptimized className="max-h-44 w-auto max-w-full object-contain" />
-                <span className="font-semibold">Pack a Picnic Basket</span>
-              </button>
-            </section>
-            <section aria-labelledby="cupcake-matching-heading" className="mb-4 rounded-2xl bg-rose-50 p-4 text-center ring-1 ring-rose-200">
-              <h2 id="cupcake-matching-heading" className="font-serif text-lg font-bold text-amber-950">Cupcake Matching</h2>
-              <p className="mt-1 text-sm text-amber-800">Find matching cupcakes, pair frosting with cake, and complete decorated cupcakes in three levels.</p>
-              <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} aria-label="Play Cupcake Matching" className="mx-auto mt-3 flex min-h-44 min-w-44 items-center justify-center rounded-xl p-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800"><Image src="/images/Cupcakes/Cupcake-game-button.PNG?v=2" alt="" width={220} height={220} unoptimized className="h-44 w-auto max-w-full object-contain" /></button>
-            </section>
-            <section aria-labelledby="seashell-baking-heading" className="mb-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
-              <h2 id="seashell-baking-heading" className="font-serif text-lg font-bold text-amber-950">Seashell Baking Challenge</h2>
-              <p className="mt-1 text-sm text-amber-800">Choose ingredients, mix batter, fill seashell molds, bake, and decorate treats.</p>
-              <button ref={seashellBakingButtonRef} type="button" onClick={() => setSeashellBakingOpen(true)} aria-label="Start Seashell Baking Challenge" className="mt-3 inline-flex min-h-12 max-w-full items-center justify-center rounded-xl bg-transparent p-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700"><Image src="/images/Baking/Seashell-Baking-Challenge-button.png" alt="" width={480} height={170} unoptimized className="h-auto max-h-48 w-full max-w-md object-contain" /></button>
+            <section aria-labelledby="kitchen-activities-heading" className="mb-4">
+              <h2 id="kitchen-activities-heading" className="mb-3 text-center font-serif text-xl font-bold text-amber-950">Kitchen Activities</h2>
+              <div className="grid grid-cols-2 gap-3">
+                <button ref={picnicPackingButtonRef} type="button" onClick={() => setPicnicPackingOpen(true)} className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-amber-300 bg-white p-2 text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+                  <Image src="/images/Picnic-basket-transparent.PNG" alt="" width={150} height={100} unoptimized className="h-20 w-full object-contain" /><span className="mt-1 text-sm font-bold">Picnic Packing</span>
+                </button>
+                <button ref={cupcakeMatchingButtonRef} type="button" onClick={() => setCupcakeMatchingOpen(true)} className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-rose-300 bg-rose-50 p-2 text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+                  <Image src="/images/Cupcakes/Cupcake-game-button.PNG?v=2" alt="" width={150} height={100} unoptimized className="h-20 w-full object-contain" /><span className="mt-1 text-sm font-bold">Cupcake Matching</span>
+                </button>
+                <button ref={seashellBakingButtonRef} type="button" onClick={() => setSeashellBakingOpen(true)} className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-amber-300 bg-amber-50 p-2 text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+                  <Image src="/images/Baking/Seashell-Baking-Challenge-button.png" alt="" width={180} height={100} unoptimized className="h-20 w-full object-contain" /><span className="mt-1 text-sm font-bold">Seashell Baking Challenge</span>
+                </button>
+                <button type="button" onClick={() => setCandyCottageOpen(true)} className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-pink-300 bg-pink-50 p-2 text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
+                  <span aria-hidden="true" className="text-5xl">🏠🍬</span><span className="mt-1 text-sm font-bold">Candy Cottage Decorating</span>
+                </button>
+              </div>
             </section>
           </>
         ) : tab === "jewelry" ? (
@@ -1511,6 +1506,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {windChimeOpen && <WindChimeWorkshop onClose={closeWindChime} />}
       {picnicPackingOpen && <PicnicPacking onClose={closePicnicPacking} />}
+      {candyCottageOpen && <CandyCottageStudio onClose={() => setCandyCottageOpen(false)} />}
       {cupcakeMatchingOpen && <CupcakeMatching onClose={closeCupcakeMatching} />}
       {seashellBakingOpen && <SeashellBakingChallenge onClose={closeSeashellBaking} />}
       {jewelryCounterOpen && <JewelryCounter onClose={closeJewelryCounter} />}
