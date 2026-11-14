@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 
-type Props = { discovered: string[]; onClose: () => void };
+type Props = { discovered: string[]; onClose: () => void; testMode?: boolean };
 const VISITORS = {
   day: [{name:"Elly the jellyfish",symbol:"🪼",image:"/images/Elly-transparent.PNG"},{name:"Olli the octopus",symbol:"🐙",image:"/images/Olli-transparent.PNG"},{name:"Snappy the turtle",symbol:"🐢",image:"/images/Snappy-transparent.PNG"},{name:"Libby the lobster",symbol:"🦞",image:null}],
   night: [{name:"Celeste the moon jellyfish",symbol:"🪼",image:"/images/Celeste-transparent.PNG"},{name:"Orion the sea butterfly",symbol:"🦋",image:"/images/Orion-transparent.PNG"}]
@@ -17,8 +17,10 @@ const fishPosition = (index: number) => ({
   ["--drift-x" as string]: `${index % 2 ? -35 : 35}%`,
   ["--drift-y" as string]: `${index % 3 ? -15 : 12}%`
 });
-export default function OceanObservatory({ discovered, onClose }: Props) {
+export default function OceanObservatory({ discovered, onClose, testMode = false }: Props) {
   const [night, setNight] = useState(false);
+  const [previewTime, setPreviewTime] = useState<"auto" | "day" | "night">("auto");
+  const showNight = testMode && previewTime !== "auto" ? previewTime === "night" : night;
   const [peaceful, setPeaceful] = useState(false);
   const [motion, setMotion] = useState(true);
   const [backgroundFailed, setBackgroundFailed] = useState(false);
@@ -33,20 +35,21 @@ export default function OceanObservatory({ discovered, onClose }: Props) {
   useEffect(() => {
     if (!motion) { setVisitorIndex(null); return; }
     let turn = 0;
-    const id = window.setInterval(() => { turn += 1; setVisitorIndex(turn % 3 === 0 ? null : turn % (night ? 2 : 4)); }, 18000);
+    const id = window.setInterval(() => { turn += 1; setVisitorIndex(turn % 3 === 0 ? null : turn % (showNight ? 2 : 4)); }, 18000);
     return () => window.clearInterval(id);
-  }, [night, motion]);
+  }, [showNight, motion]);
   useEffect(() => {
     const update = () => { const h = new Date().getHours(); setNight(h >= 19 || h < 6); };
     update(); const id = window.setInterval(update, 60000);
     return () => window.clearInterval(id);
   }, []);
-  useEffect(() => { setBackgroundFailed(false); }, [night]);
+  useEffect(() => { setBackgroundFailed(false); }, [showNight]);
   const fish = AQUARIUM_SPECIES.filter(s => discovered.includes(s.id));
   return <section aria-label="Waverly's Ocean Observatory" className="space-y-3">
     {!peaceful && <><h4 className="text-xl font-bold">Waverly's Ocean Observatory</h4><p>All sixteen reef species discovered! Enjoy the living reef through Waverly's observation window.</p></>}
-    <div className="relative mx-auto w-full max-w-[680px] overflow-hidden rounded-xl bg-gradient-to-b from-cyan-700 via-blue-900 to-slate-950" aria-label={night ? "Moonlit underwater reef viewed through the observatory window" : "Sunlit underwater reef viewed through the observatory window"}>
-      <Image src={night ? "/images/Reef/Observatory-night.PNG" : "/images/Reef/Observatory-day.PNG"} onError={() => setBackgroundFailed(true)} alt={night ? "Waverly's nighttime observatory, with luminous coral and open ocean beyond a large window." : "Waverly's daytime observatory, with colorful coral and clear blue water beyond a large window."} width={1024} height={1536} unoptimized className="block h-auto w-full" style={backgroundFailed ? {visibility:"hidden"} : undefined} />
+    {testMode && <div className="flex flex-wrap items-center gap-2"><span className="font-semibold">Preview lighting:</span>{(["day","night","auto"] as const).map(value => <button key={value} type="button" aria-pressed={previewTime === value} onClick={() => setPreviewTime(value)} className={`min-h-11 rounded-lg border px-4 py-2 font-semibold ${previewTime === value ? "bg-amber-100 text-teal-950 border-amber-100" : "bg-teal-900 text-white border-white/50"}`}>{value === "auto" ? "Automatic" : value === "day" ? "Daytime" : "Nighttime"}</button>)}</div>}
+    <div className="relative mx-auto w-full max-w-[680px] overflow-hidden rounded-xl bg-gradient-to-b from-cyan-700 via-blue-900 to-slate-950" aria-label={showNight ? "Moonlit underwater reef viewed through the observatory window" : "Sunlit underwater reef viewed through the observatory window"}>
+      <Image src={showNight ? "/images/Reef/Observatory-night.PNG" : "/images/Reef/Observatory-day.PNG"} onError={() => setBackgroundFailed(true)} alt={night ? "Waverly's nighttime observatory, with luminous coral and open ocean beyond a large window." : "Waverly's daytime observatory, with colorful coral and clear blue water beyond a large window."} width={1024} height={1536} unoptimized className="block h-auto w-full" style={backgroundFailed ? {visibility:"hidden"} : undefined} />
       {backgroundFailed && <p className="absolute inset-x-4 top-4 rounded-lg bg-slate-950/80 p-3 text-center text-white">Observatory background image is unavailable. The reef scene is shown with a temporary ocean backdrop.</p>}
       <div aria-hidden="true" className="pointer-events-none absolute overflow-hidden" style={{left:"13%",top:"10%",width:"74%",height:"51%",borderRadius:"40% 40% 25% 25%"}}>
         {fish.map((species, index) => {
@@ -54,7 +57,7 @@ export default function OceanObservatory({ discovered, onClose }: Props) {
             <span className="relative block"><span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-3xl">{species.emoji}</span><Image src={species.imageSrc} alt="" width={180} height={140} unoptimized className="relative w-full h-auto object-contain drop-shadow" onError={(event) => { event.currentTarget.style.display = "none"; }} /></span>
           </div>;
         })}
-        {visitorIndex !== null && motion && <div className="observatory-visitor absolute bottom-[12%] left-[5%] rounded-full bg-cyan-950/50 px-3 py-2 text-center text-white shadow-lg" style={{fontSize:"clamp(18px,4vw,34px)"}}><span aria-hidden="true" className="relative block h-16 w-16"><span className="absolute inset-0 flex items-center justify-center">{VISITORS[night ? "night" : "day"][visitorIndex].symbol}</span>{VISITORS[night ? "night" : "day"][visitorIndex].image && <Image src={VISITORS[night ? "night" : "day"][visitorIndex].image!} alt="" width={120} height={120} unoptimized className="relative h-full w-full object-contain" onError={event => {event.currentTarget.style.display="none";}} />}</span></div>}
+        {visitorIndex !== null && motion && <div className="observatory-visitor absolute bottom-[12%] left-[5%] rounded-full bg-cyan-950/50 px-3 py-2 text-center text-white shadow-lg" style={{fontSize:"clamp(18px,4vw,34px)"}}><span aria-hidden="true" className="relative block h-16 w-16"><span className="absolute inset-0 flex items-center justify-center">{VISITORS[showNight ? "night" : "day"][visitorIndex].symbol}</span>{VISITORS[night ? "night" : "day"][visitorIndex].image && <Image src={VISITORS[night ? "night" : "day"][visitorIndex].image!} alt="" width={120} height={120} unoptimized className="relative h-full w-full object-contain" onError={event => {event.currentTarget.style.display="none";}} />}</span></div>}
       </div>
     </div>
     {!peaceful && <p>Watching {fish.length} discovered fish species. Elly, Olli, Snappy and Libby visit by day; Celeste and Orion visit at night.</p>}
