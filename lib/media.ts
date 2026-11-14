@@ -55,7 +55,7 @@ export const MUSIC = {
   beach: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2272649d13f1496683d46733ff6a4d7b.mp3",
   underwater: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/2922b0a505d240a28037f7b469dd7d87.mp3",
   lighthouse: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/14df5d6b36964c06b401262a8b56b24f.mp3",
-  kitchen: "https://cdn.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3/f7f0c00c5c1d490e95569e0fcb2273d8.mp3",
+  kitchen: "/audio/Sunny%20Tropical%20Kitchen.mp3",
   crafting: "/audio/Coastal%20Crafting%20Haven.mp3",
   cove: "/audio/Cove%20Treasure%20Hunt.mp3",
   bottles: "/audio/Message%20in%20a%20Bottle.mp3",
