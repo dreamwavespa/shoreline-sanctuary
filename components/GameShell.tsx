@@ -129,7 +129,7 @@ export default function GameShell() {
 
       {observatoryPreviewEnabled && <button type="button" className="mx-3 my-1 min-h-12 rounded-xl bg-amber-100 px-4 py-2 font-semibold text-teal-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white" onClick={() => setObservatoryPreviewOpen(true)}>Preview Ocean Observatory (Test Mode)</button>}
       <main className="flex-1 relative overflow-hidden">
-        {observatoryPreviewOpen && <div role="dialog" aria-modal="true" aria-label="Ocean Observatory test preview" className="absolute inset-0 z-[200] overflow-y-auto bg-slate-950 p-3 text-white"><div className="mx-auto max-w-[680px]"><OceanObservatory discovered={AQUARIUM_SPECIES.map(s => s.id)} onClose={() => setObservatoryPreviewOpen(false)} /></div></div>}
+        {observatoryPreviewOpen && <div role="dialog" aria-modal="true" aria-label="Ocean Observatory test preview" className="absolute inset-0 z-[200] overflow-y-auto bg-slate-950 p-3 text-white"><div className="mx-auto max-w-[680px]"><OceanObservatory discovered={AQUARIUM_SPECIES.map(s => s.id)} testMode onClose={() => setObservatoryPreviewOpen(false)} /></div></div>}
         <OlliHuntOverlay />
         {screen === "beach" && <BeachScene />}
         {screen === "bucket" && <BucketPanel />}
