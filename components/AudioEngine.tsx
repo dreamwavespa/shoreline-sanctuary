@@ -77,6 +77,7 @@ export default function AudioEngine() {
   const musicGainRef = useRef<GainNode | null>(null);
   const ambienceGainRef = useRef<GainNode | null>(null);
   const graphBuilt = useRef(false);
+  const musicRetryRef = useRef(0);
 
   zoneRef.current = zone;
   settingsRef.current = state.audio;
@@ -229,6 +230,7 @@ export default function AudioEngine() {
     const el = musicRef.current;
     if (!el) return;
     const wasPlaying = !el.paused;
+    musicRetryRef.current = 0;
     el.src = trackSrcFor(nextKey);
     el.loop = nextKey !== "beach";
     currentVol.current.music = 0;
@@ -246,6 +248,50 @@ export default function AudioEngine() {
       void el.play().catch(() => {});
     }
   }, [zone, musicOverride, unlocked]);
+
+  // Recover from a stalled track load or a playback attempt rejected by iOS.
+  // Keep retries bounded and reset them whenever the selected track changes.
+  useEffect(() => {
+    if (!unlocked) return;
+    const music = musicRef.current;
+    if (!music) return;
+    let retryTimer: number | undefined;
+    const recover = () => {
+      if (settingsRef.current.musicMuted || settingsRef.current.music <= 0 || settingsRef.current.master <= 0) return;
+      if (musicRetryRef.current >= 3) return;
+      musicRetryRef.current += 1;
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      retryTimer = window.setTimeout(() => {
+        if (music.error) {
+          const current = music.currentSrc || music.src;
+          music.src = current;
+          music.load();
+        }
+        void audioCtxRef.current?.resume().catch(() => {});
+        void music.play().catch(() => {});
+      }, 800 * musicRetryRef.current);
+    };
+    const ready = () => {
+      if (music.paused && !settingsRef.current.musicMuted) {
+        void music.play().catch(() => {});
+      }
+    };
+    const playing = () => {
+      musicRetryRef.current = 0;
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+    };
+    music.addEventListener("error", recover);
+    music.addEventListener("stalled", recover);
+    music.addEventListener("canplay", ready);
+    music.addEventListener("playing", playing);
+    return () => {
+      if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+      music.removeEventListener("error", recover);
+      music.removeEventListener("stalled", recover);
+      music.removeEventListener("canplay", ready);
+      music.removeEventListener("playing", playing);
+    };
+  }, [unlocked]);
 
   // Fade loop: guarded so a single bad frame can never permanently kill the
   // rAF chain. Prefers Web Audio GainNode volume control (works on iOS);
