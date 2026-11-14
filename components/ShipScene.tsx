@@ -147,6 +147,7 @@ export default function ShipScene() {
   const [ringTossOpen, setRingTossOpen] = useState(false);
   const [smoothieBarOpen, setSmoothieBarOpen] = useState(false);
   const [cabinDiscovery, setCabinDiscovery] = useState<string | null>(null);
+  const [chartDestination, setChartDestination] = useState<string | null>(null);
   const discoveryAnnouncementRef = useRef<HTMLParagraphElement>(null);
   const [musicInstrument, setMusicInstrument] = useState<"piano" | "drums" | "ukulele">("piano");
   const [deckArea, setDeckArea] = useState<"main" | "cabin">("main");
@@ -217,9 +218,27 @@ export default function ShipScene() {
       <p>{deckPanel === "treasure" ? "The old chest is open, revealing polished gemstones, pearls, and sea treasures. The captain's collection is safe aboard the Community Ship." : deckPanel === "navigation" ? "Unroll the sea charts and examine the compass, telescope, and maps. The navigation table holds memories of voyages across the sanctuary waters." : deckPanel === "wheel" ? "The polished wooden wheel once guided the ship through wind and waves. Imagine choosing a course toward the reef, the sandbar, or a new horizon." : "A delicate music box rests on the cabin shelf beside the captain's old sheet music. Its tiny melody is waiting to be rediscovered."}</p>
       {(deckPanel === "treasure" || deckPanel === "navigation") && <div className="space-y-3">
         <p className="text-sm">Choose an object to examine. These discoveries are for exploration and do not remove or award inventory items.</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {(deckPanel === "treasure" ? ["Pearl necklace", "Polished gemstones", "Carved seashell", "Captain's keepsake"] : ["Compass", "Sea charts", "Telescope", "Voyage journal"]).map((item) => <button key={item} type="button" onClick={() => selectDiscovery(item)} aria-pressed={cabinDiscovery === item} className="rounded-lg bg-teal-700 px-4 py-3 text-left font-semibold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{item}</button>)}
+        <div className="relative w-full overflow-hidden rounded-xl" aria-label={deckPanel === "treasure" ? "Illustrated open treasure chest with four selectable treasures" : "Illustrated nautical chart table with four selectable routes"}>
+          <Image src={deckPanel === "treasure" ? "/images/Ship/Captains-treasure-chest.PNG" : "/images/Ship/Captains-sea-charts.PNG"} alt={deckPanel === "treasure" ? "Open captain's chest displaying pearls, colorful gemstones, carved shell and compass keepsake. Choose a treasure using the labeled hotspots." : "Open sea atlas with illustrated destinations: Shoreline Isles, Reef Passage, Shipwreck Waters and Stargazer Route."} width={1536} height={1024} unoptimized className="block h-auto w-full" />
+          {(deckPanel === "treasure" ? ["Pearl necklace", "Polished gemstones", "Carved seashell", "Captain's keepsake"] : ["The Shoreline Isles", "Reef Passage", "Shipwreck Waters", "Stargazer Route"]).map((item, index) => (
+            <button key={item} type="button" aria-label={`Examine ${item}`} aria-pressed={deckPanel === "treasure" ? cabinDiscovery === item : chartDestination === item}
+              onClick={() => { if (deckPanel === "treasure") selectDiscovery(item); else setChartDestination(item); }}
+              className="absolute rounded-lg border-2 border-transparent focus-visible:border-yellow-300 focus-visible:bg-yellow-300/25 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"
+              style={{ left: "62%", width: "35%", top: `${29 + index * 12.1}%`, height: "11.5%" }} />
+          ))}
         </div>
+        {deckPanel === "navigation" && <>
+          <p className="text-sm">Explore the captain's navigation instruments:</p>
+          <div className="grid grid-cols-2 gap-2">
+            {["Compass", "Sea charts", "Telescope", "Voyage journal"].map(item => <button key={item} type="button" onClick={() => selectDiscovery(item)} aria-pressed={cabinDiscovery === item} className="rounded-lg bg-teal-700 px-3 py-3 text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">{item}</button>)}
+          </div>
+          {chartDestination && <p role="status" aria-live="polite" className="rounded-lg bg-amber-50 p-3 text-slate-900"><strong>{chartDestination}</strong>: {({
+            "The Shoreline Isles": "A chart of the islands and the lighthouse that guides ships home.",
+            "Reef Passage": "Bright coral reefs and winding passages shelter sea creatures below the waves.",
+            "Shipwreck Waters": "An old wreck rests in these waters, its story preserved by the sea.",
+            "Stargazer Route": "A nighttime course guided by stars and the lighthouse beam."
+          } as Record<string, string>)[chartDestination]}</p>}
+        </>}
         {cabinDiscovery && <div className="rounded-lg bg-amber-50 p-3 text-slate-900"><strong>{cabinDiscovery}</strong><p ref={discoveryAnnouncementRef} tabIndex={-1} role="status" aria-live="polite">{({
           "Pearl necklace": "A strand of luminous pearls, carefully kept among the captain's treasures.",
           "Polished gemstones": "Colorful stones catch the lantern light inside the open chest.",
