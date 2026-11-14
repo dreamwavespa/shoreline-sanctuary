@@ -39,6 +39,7 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  inventory: "/audio/Ambient%20Island%20Soundscape.mp3",
   sunlitShallows: "/audio/Sunlit%20Shallows.mp3",
   hut: "/audio/Cozy%20Beach%20Haven.mp3",
   hutPatio: "/audio/Patio%20Wind%20%26%20Waves.mp3",
