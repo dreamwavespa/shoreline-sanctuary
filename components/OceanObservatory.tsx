@@ -5,7 +5,7 @@ import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 
 type Props = { discovered: string[]; onClose: () => void; testMode?: boolean };
 const VISITORS = {
-  day: [{name:"Elly the jellyfish",symbol:"🪼",image:"/images/Elly-transparent.PNG"},{name:"Olli the octopus",symbol:"🐙",image:"/images/Olli-transparent.PNG"},{name:"Snappy the turtle",symbol:"🐢",image:"/images/Snappy-transparent.PNG"},{name:"Libby the lobster",symbol:"🦞",image:null}],
+  day: [{name:"Elly the jellyfish",symbol:"🪼",image:"/images/Elly-transparent.PNG"},{name:"Olli the octopus",symbol:"🐙",image:"/images/Olli-transparent.PNG"},{name:"Snappy the turtle",symbol:"🐢",image:"/images/Snappy-transparent.PNG"},{name:"Libby the blue lobster",symbol:"🦞",image:"/images/Reef/Libby-transparent.PNG"}],
   night: [{name:"Celeste the moon jellyfish",symbol:"🪼",image:"/images/Celeste-transparent.PNG"},{name:"Orion the sea butterfly",symbol:"🦋",image:"/images/Orion-transparent.PNG"}]
 };
 const fishPosition = (index: number) => ({
