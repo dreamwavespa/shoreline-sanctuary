@@ -78,10 +78,10 @@ export default function OceanObservatory({ discovered, onClose, testMode = false
     </div>
     {!peaceful && <p>Watching {fish.length} discovered fish species. Elly, Olli, Snappy and Libby visit by day; Celeste and Orion visit at night.</p>}
     {!peaceful && <details><summary className="cursor-pointer font-semibold">Who visits the observatory?</summary><p>Daytime: Elly the jellyfish, Olli the octopus, Snappy the turtle, and Libby the lobster. Nighttime: Celeste the moon jellyfish and Orion the sea butterfly. Visitors appear occasionally without interrupting VoiceOver.</p></details>}
-    <div className="grid grid-cols-2 gap-1.5">
-      <button type="button" className="min-h-11 rounded-lg bg-teal-800 px-2 py-1.5 text-xs sm:text-sm font-semibold leading-tight text-white" onClick={() => setPeaceful(p => !p)}>{peaceful ? "Show Observatory Information" : "Peaceful Viewing Mode"}</button>
-      <button type="button" className="min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white" onClick={() => setMotion(m => !m)}>{motion ? "Reduce Motion" : "Enable Swimming Animation"}</button>
-      <button type="button" className="min-h-12 rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white" onClick={onClose}>Return to Marine Lab</button>
+    <div className="grid grid-cols-3 gap-1.5">
+      <button type="button" aria-label={peaceful ? "Show Observatory Information" : "Peaceful Viewing Mode"} aria-pressed={peaceful} className="min-h-11 rounded-lg bg-teal-800 px-1.5 py-1.5 text-xs sm:text-sm font-semibold leading-tight text-white" onClick={() => setPeaceful(p => !p)}>{peaceful ? "Show Info" : "Peaceful View"}</button>
+      <button type="button" aria-label={motion ? "Reduce Motion" : "Enable Swimming Animation"} aria-pressed={!motion} className="min-h-11 rounded-lg bg-teal-800 px-1.5 py-1.5 text-xs sm:text-sm font-semibold leading-tight text-white" onClick={() => setMotion(m => !m)}>{motion ? "Reduce Motion" : "Enable Motion"}</button>
+      <button type="button" aria-label="Return to Marine Lab" className="min-h-11 rounded-lg bg-teal-800 px-1.5 py-1.5 text-xs sm:text-sm font-semibold leading-tight text-white" onClick={onClose}>Return to Lab</button>
     </div>
     {!peaceful && <details><summary className="cursor-pointer font-semibold">Accessible fish directory</summary><ul className="list-disc pl-6">{fish.map(s => <li key={s.id}>{s.name}</li>)}</ul></details>}
     <style jsx>{`@keyframes observatoryDrift {0%,100%{transform:translate(0,0)}50%{transform:translate(var(--drift-x),var(--drift-y))}}@keyframes visitorPass {0%{transform:translateX(-35%);opacity:0}20%,80%{opacity:1}100%{transform:translateX(120%);opacity:0}}.observatory-swim{animation-name:observatoryDrift;animation-timing-function:ease-in-out;animation-iteration-count:infinite}.observatory-visitor{animation:visitorPass 18s ease-in-out both}@media(prefers-reduced-motion:reduce){.observatory-swim,.observatory-visitor{animation:none!important}}`}</style>
