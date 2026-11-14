@@ -5,8 +5,8 @@ import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 
 type Props = { discovered: string[]; onClose: () => void };
 const VISITORS = {
-  day: [{name:"Elly the jellyfish",symbol:"🪼"},{name:"Olli the octopus",symbol:"🐙"},{name:"Snappy the turtle",symbol:"🐢"},{name:"Libby the lobster",symbol:"🦞"}],
-  night: [{name:"Celeste the moon jellyfish",symbol:"🪼"},{name:"Orion the sea butterfly",symbol:"🦋"}]
+  day: [{name:"Elly the jellyfish",symbol:"🪼",image:"/images/Elly-transparent.PNG"},{name:"Olli the octopus",symbol:"🐙",image:"/images/Olli-transparent.PNG"},{name:"Snappy the turtle",symbol:"🐢",image:"/images/Snappy-transparent.PNG"},{name:"Libby the lobster",symbol:"🦞",image:null}],
+  night: [{name:"Celeste the moon jellyfish",symbol:"🪼",image:"/images/Celeste-transparent.PNG"},{name:"Orion the sea butterfly",symbol:"🦋",image:"/images/Orion-transparent.PNG"}]
 };
 const fishPosition = (index: number) => ({
   left: `${8 + (index * 31 % 76)}%`,
@@ -54,7 +54,7 @@ export default function OceanObservatory({ discovered, onClose }: Props) {
             <span className="relative block"><span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-3xl">{species.emoji}</span><Image src={species.imageSrc} alt="" width={180} height={140} unoptimized className="relative w-full h-auto object-contain drop-shadow" onError={(event) => { event.currentTarget.style.display = "none"; }} /></span>
           </div>;
         })}
-        {visitorIndex !== null && motion && <div className="observatory-visitor absolute bottom-[12%] left-[5%] rounded-full bg-cyan-950/50 px-3 py-2 text-center text-white shadow-lg" style={{fontSize:"clamp(18px,4vw,34px)"}}><span aria-hidden="true">{VISITORS[night ? "night" : "day"][visitorIndex].symbol}</span></div>}
+        {visitorIndex !== null && motion && <div className="observatory-visitor absolute bottom-[12%] left-[5%] rounded-full bg-cyan-950/50 px-3 py-2 text-center text-white shadow-lg" style={{fontSize:"clamp(18px,4vw,34px)"}}><span aria-hidden="true" className="relative block h-16 w-16"><span className="absolute inset-0 flex items-center justify-center">{VISITORS[night ? "night" : "day"][visitorIndex].symbol}</span>{VISITORS[night ? "night" : "day"][visitorIndex].image && <Image src={VISITORS[night ? "night" : "day"][visitorIndex].image!} alt="" width={120} height={120} unoptimized className="relative h-full w-full object-contain" onError={event => {event.currentTarget.style.display="none";}} />}</span></div>}
       </div>
     </div>
     {!peaceful && <p>Watching {fish.length} discovered fish species. Elly, Olli, Snappy and Libby visit by day; Celeste and Orion visit at night.</p>}
