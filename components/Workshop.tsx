@@ -1047,7 +1047,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
       {openKitchen ? (
-        <div className="relative w-full h-48"><Image src="/images/Kitchen-background.PNG" alt="Cottage Kitchen" fill unoptimized className="object-cover" /></div>
+        <></>
       ) : (
         <section aria-label="Coastal Art Studio crafting stations" className="relative">
           <div className="relative w-full aspect-[3/4] sm:aspect-[16/9] overflow-hidden bg-sky-100">
