@@ -315,7 +315,7 @@ export default function AudioEngine() {
         const beachBallDucking = document.querySelector('[data-beach-ball-game="active"]') ? 0.7 : 1;
         const trackKey = currentTrackKeyRef.current;
         const isNewBeachTrack = trackKey === "beach" && beachOrderRef.current[beachPositionRef.current] !== 0;
-        const trackVolumeBoost = trackKey === "cadencePlayroom" ? 1.6
+        const trackVolumeBoost = trackKey === "cadencePlayroom" || trackKey === "kitchen" ? 1.6
           : trackKey === "hut" || trackKey === "hutPatio" || isNewBeachTrack ? 1.22 : 1;
         const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * blockDucking * instrumentDucking * beachBallDucking);
         const ambienceTarget = ambience * master;
