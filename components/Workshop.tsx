@@ -958,6 +958,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
   };
   const { play } = useGame();
   const [cookbookOpen, setCookbookOpen] = useState(false);
+  const [cookbookSection, setCookbookSection] = useState<"menu" | "recipes" | "icecream" | "rewards">("menu");
   const [fridgeOpen, setFridgeOpen] = useState(false);
   const [soupStirring, setSoupStirring] = useState(false);
   const [selectedSpice, setSelectedSpice] = useState<"pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves">("pumpkin-spice");
@@ -1479,7 +1480,31 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
             <div className="flex shrink-0 justify-end border-b border-amber-200 p-3">
               <button type="button" onClick={closeCookbook} className="min-h-11 rounded-xl bg-teal-900 px-5 font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">Close Cookbook</button>
             </div>
-            <div className="overflow-y-auto p-3"><ShorelineCookbook /><IceCreamStation /><KitchenRecipeRewards /></div>
+            <div className="min-h-0 overflow-y-auto p-3">
+              {cookbookSection === "menu" ? (
+                <div className="space-y-3">
+                  <h2 id="shoreline-cookbook-heading" className="font-serif text-2xl font-bold text-teal-950">📖 The Shoreline Cookbook</h2>
+                  <p className="text-teal-900">Choose what you would like to explore.</p>
+                  {([
+                    ["recipes", "📖 Recipes", "Browse categories and prepare dishes"],
+                    ["icecream", "🍨 Seashell Ice Cream Station", "Collect flavors, toppings, and make desserts"],
+                    ["rewards", "🎁 Kitchen Collection Rewards", "View progress and claim unlocked rewards"],
+                  ] as const).map(([section, title, description]) => (
+                    <button key={section} type="button" onClick={() => setCookbookSection(section)} className="block w-full min-h-16 rounded-xl border border-amber-300 bg-white p-4 text-left text-teal-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">
+                      <span className="block text-lg font-bold">{title}</span>
+                      <span className="block text-sm">{description}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <button type="button" onClick={() => setCookbookSection("menu")} className="min-h-11 rounded-xl border border-teal-700 bg-white px-4 py-2 font-semibold text-teal-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400">← Back to Cookbook</button>
+                  {cookbookSection === "recipes" && <ShorelineCookbook />}
+                  {cookbookSection === "icecream" && <IceCreamStation />}
+                  {cookbookSection === "rewards" && <KitchenRecipeRewards />}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
