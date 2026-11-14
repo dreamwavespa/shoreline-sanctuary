@@ -30,6 +30,14 @@ const roofArt: Record<string, string> = {
   "Chocolate tiles": "Chocolate-Shingles.png",
   "Peppermint shingles": "Peppermint-Shingles.png",
 };
+// Each illustration has a different roof position. Keep these adjustments in one place.
+const roofPlacement: Record<string, { left: string; top: string; width: string }> = {
+  "Spring Candy Greenhouse": { left: "13%", top: "15%", width: "74%" },
+  "Summer Seaside Cottage": { left: "12%", top: "16%", width: "76%" },
+  "Autumn Harvest House": { left: "11%", top: "15%", width: "78%" },
+  "Winter Gingerbread Cabin": { left: "12%", top: "16%", width: "76%" },
+  "Free Build": { left: "13%", top: "16%", width: "74%" },
+};
 const storageKey = "shoreline-candy-cottage-gallery-v1";
 export default function CandyCottageStudio({ onClose }: { onClose: () => void }) {
   const season = Math.floor(((new Date().getMonth() + 1) % 12) / 3);
@@ -72,12 +80,27 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
             <div className="mx-auto w-full max-w-sm">
-              <p className="mb-2 text-center text-sm font-semibold">House preview (roof placement is experimental)</p>
+              <p className="mb-2 text-center text-sm font-semibold">Your candy house</p>
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
-                <img src={assetRoot + (house.design === "Free Build" ? "Free-Build-Cookie-Cottage.png" : houseArt[house.name] || "Free-Build-Cookie-Cottage.png")} alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name} className="absolute inset-0 h-full w-full object-contain" />
-                <img src={assetRoot + roofArt[house.roof]} alt="" aria-hidden="true" className="pointer-events-none absolute left-[13%] top-[10%] w-[74%] object-contain opacity-90" />
+                <img
+                  src={assetRoot + (house.design === "Free Build" ? "Free-Build-Cookie-Cottage.png" : houseArt[house.name] || "Free-Build-Cookie-Cottage.png")}
+                  alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
+                />
+                <img
+                  src={assetRoot + roofArt[house.roof]}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute object-contain"
+                  style={{
+                    ...(roofPlacement[house.design === "Free Build" ? "Free Build" : house.name] || roofPlacement["Free Build"]),
+                    maskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+                    WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+                  }}
+                />
               </div>
-              <p className="mt-2 text-center text-xs text-amber-900">Roof overlays are approximate until we fit them to each house. The original roof remains in the base illustration.</p>
+              <p className="mt-2 text-center text-xs text-amber-900">Roof positions are being refined for each house. Some original roof details may still show beneath the selected topping.</p>
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
