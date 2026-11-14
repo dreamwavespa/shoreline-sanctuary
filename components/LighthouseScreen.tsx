@@ -323,11 +323,10 @@ export default function LighthouseScreen() {
 
   return (
     <div className="h-full overflow-y-auto pb-24 bg-[#fbf3e3]">
-      <h1 ref={floorHeadingRef} tabIndex={-1} className="px-4 pt-4 text-xl font-bold text-amber-950">
+      <h1 ref={floorHeadingRef} tabIndex={-1} className="sr-only">
         Lighthouse — {floor === "downstairs" ? "Keeper's Living Room" : "Upper Observatory"}
       </h1>
-      <p className="px-4 text-sm text-amber-900">{isNight ? "Nighttime" : "Daytime"} at the lighthouse. Select an object in the scene to explore.</p>
-      <div className="relative mx-auto mt-3 w-full max-w-xl">
+      <div className="relative mx-auto w-full max-w-xl">
         <Image src={image} alt={floor === "downstairs" ? "Cozy lighthouse room with Maeve's tea table, Marshmallow sleeping in his bed, bookshelves and spiral staircase" : "Circular observatory with telescope, weather instruments, binoculars, observation journal and staircase"} width={1024} height={1536} unoptimized priority className="block h-auto w-full" />
         {floor === "downstairs" ? (
           <>
