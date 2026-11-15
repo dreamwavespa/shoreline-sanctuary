@@ -16,7 +16,8 @@ const SPOTS: { id: Spot; label: string; description: string; left: string; top: 
 ];
 
 export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
-  const { state, giftVillager } = useGame();
+  const { state, giftVillager, setMusicOverride } = useGame();
+  useEffect(() => { setMusicOverride("snowyWinterCove"); return () => setMusicOverride("grove"); }, [setMusicOverride]);
   const [giftMessage,setGiftMessage] = useState("");
   const favoriteGifts = VILLAGERS.snowy.gift.lovedGiftIds;
   const [spot, setSpot] = useState<Spot | null>(null);
