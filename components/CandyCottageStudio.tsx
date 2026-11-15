@@ -114,7 +114,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               <p className="mb-2 text-center text-sm font-semibold">Your candy house</p>
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
                 <img
-                  src={assetRoot + (house.design === "Free Build" ? "Cookie-Cottage-Free-Build.PNG" : houseArt[house.name] || "Cookie-Cottage-Free-Build.PNG")}
+                  src={assetRoot + (house.design === "Free Build" ? "Cookie-cottage-free-build-clean.PNG" : houseArt[house.name] || "Cookie-cottage-free-build-clean.PNG")}
                   alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name}
                   className="absolute inset-0 h-full w-full object-contain"
                   style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
@@ -136,12 +136,12 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
                 </>}
               </div>
-              <p className="mt-2 text-center text-xs text-amber-900">Preview placement is approximate; original details may remain visible beneath selected decorations.</p>
+              <p className="mt-2 text-center text-xs text-amber-900">Free Build uses a clean cottage base for your selected doors and windows.</p>
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
+          {house.design === "Free Build" && (\n          <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
             <label className="block font-semibold">Door artwork
               <select value={house.doorArt || ""} onChange={event => { setHouse({ ...house, doorArt: event.target.value }); setMessage("Door artwork updated."); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                 {doorChoices.map(([label, filename]) => <option key={label} value={filename}>{label}</option>)}
@@ -153,7 +153,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               </select>
             </label>
           </div>
-          {(Object.keys(materials) as (keyof typeof materials)[]).map(part => (
+          )}\n          {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
             <label key={part} className="block font-semibold">
               {part.charAt(0).toUpperCase() + part.slice(1)}
               <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
