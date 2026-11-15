@@ -1,6 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useGame } from "@/lib/store";
+import { ITEMS } from "@/lib/items";
+import { VILLAGERS } from "@/lib/villagers";
 import { useEffect, useRef, useState } from "react";
 
 type Spot = "snowy" | "floes" | "blocks" | "snowmen" | "pool";
@@ -13,6 +16,9 @@ const SPOTS: { id: Spot; label: string; description: string; left: string; top: 
 ];
 
 export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
+  const { state, giftVillager } = useGame();
+  const [giftMessage,setGiftMessage] = useState("");
+  const favoriteGifts = VILLAGERS.snowy.gift.lovedGiftIds;
   const [spot, setSpot] = useState<Spot | null>(null);
   const [night, setNight] = useState(false);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
@@ -24,7 +30,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     return () => window.clearInterval(interval);
   }, []);
   useEffect(() => { if (spot) dialogHeading.current?.focus(); }, [spot]);
-  const close = () => { setSpot(null); window.setTimeout(() => returnFocus.current?.focus(), 0); };
+  const close = () => { setGiftMessage(""); setSpot(null); window.setTimeout(() => returnFocus.current?.focus(), 0); };
   const selected = SPOTS.find(s => s.id === spot);
   return <section aria-label="Snowy's Winter Cove" className="mx-auto max-w-3xl space-y-3 rounded-xl bg-indigo-950 p-3 text-white">
     <button type="button" onClick={onBack} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Coconut Grove</button>
@@ -41,6 +47,13 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
         <h2 ref={dialogHeading} tabIndex={-1} id="snowy-dialog-title" className="text-xl font-bold">{selected.label}</h2>
         {spot === "snowy" && <Image src="/images/Snowy-portrait.PNG" alt="Snowy, a fluffy white harp seal pup wearing a blue snowflake scarf." width={280} height={280} unoptimized className="mx-auto my-3 h-52 w-auto object-contain" />}
         <p id="snowy-dialog-description" className="my-4">{selected.description}</p>
+        {spot === "snowy" && <section aria-label="Snowy's friendship and gifts" className="my-4 space-y-3 rounded-xl bg-indigo-900 p-3">
+          <h3 className="font-bold">Snowy's Friendship</h3>
+          <p aria-live="polite">Favorite gifts given: {state.villagerGiftCounts.snowy || 0}</p>
+          <p className="text-sm">Snowy loves fresh reef fish, beach balls, snowflake pearls, coconut drops, and frozen drinks.</p>
+          <div className="grid gap-2">{favoriteGifts.map(id=><button key={id} type="button" disabled={(state.inventory[id]||0)<1} onClick={()=>{const success=giftVillager("snowy",id);setGiftMessage(success?`Snowy happily accepts your ${ITEMS[id]?.name||id}! Your friendship grows.`:`You need a ${ITEMS[id]?.name||id} in your inventory first.`);}} className="min-h-11 rounded-lg border border-sky-200 bg-indigo-800 p-2 text-left disabled:opacity-50">Give {ITEMS[id]?.name||id} — {state.inventory[id]||0} available</button>)}</div>
+          {giftMessage&&<p role="status" className="font-semibold">{giftMessage}</p>}
+        </section>}
         <button type="button" onClick={close} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Winter Cove</button>
       </div>
     </div>}
