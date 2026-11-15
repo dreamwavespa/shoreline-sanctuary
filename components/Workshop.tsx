@@ -1364,7 +1364,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
                   <Image src="/images/Baking/Seashell-Baking-Challenge-button.png" alt="" width={180} height={100} unoptimized className="h-20 w-full object-contain" /><span className="mt-1 text-sm font-bold">Seashell Baking Challenge</span>
                 </button>
                 <button type="button" onClick={() => setCandyCottageOpen(true)} className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-pink-300 bg-pink-50 p-2 text-amber-950 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-700">
-                  <span aria-hidden="true" className="text-5xl">🏠🍬</span><span className="mt-1 text-sm font-bold">Candy Cottage Decorating</span>
+                  <Image src="/images/Candy%20cottage/Candy-cottage-entrance.PNG" alt="" width={180} height={110} unoptimized className="h-20 w-full object-contain" /><span className="mt-1 text-sm font-bold">Candy Cottage Decorating</span>
                 </button>
               </div>
             </section>
