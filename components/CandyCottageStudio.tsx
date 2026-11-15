@@ -24,7 +24,7 @@ type OverlayPlacement = { left: string; top: string; width: string; height: stri
 const doorPlacement: Record<string, OverlayPlacement> = {
   "Chocolate-Peppermint-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
   "Pastel-Candy-Door.png": { left: "36%", top: "43%", width: "28%", height: "42%" },
-  "Seaside-Candy-Door.png": { left: "39%", top: "46%", width: "22%", height: "37%" },
+  "Seaside-Candy-Door.png": { left: "40%", top: "48%", width: "20%", height: "34%" },
   "Autumn-Caramel-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
   "Door-Lavender.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Mint.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
@@ -32,7 +32,7 @@ const doorPlacement: Record<string, OverlayPlacement> = {
   "Door-Teal-Heart.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Blue.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Garland.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Wreath.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Wreath.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
 };
 const defaultDoorPlacement: OverlayPlacement = { left: "35%", top: "42%", width: "30%", height: "45%" };
 type WindowPlacement = { left: string; right: string; top: string; width: string; height: string };
@@ -41,7 +41,7 @@ const windowPlacement: Record<string, WindowPlacement> = {
   "Pastel-Floral-Window.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
   "Seaside-Seashell-Window.png": { left: "16%", right: "59%", top: "46%", width: "25%", height: "31%" },
   "Autumn-Caramel-Window.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
-  "Window-Round.png": { left: "12%", right: "55%", top: "43%", width: "33%", height: "37%" },
+  "Window-Round.png": { left: "16%", right: "59%", top: "46%", width: "25%", height: "29%" },
   "Window-Flowerbox.png": { left: "14%", right: "57%", top: "41%", width: "29%", height: "34%" },
   "Window-Lattice.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
   "Window-Shutters.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
