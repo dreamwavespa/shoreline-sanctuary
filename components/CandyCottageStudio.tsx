@@ -38,7 +38,7 @@ const roofPlacement: Record<string, { left: string; top: string; width: string }
   "Summer Seaside Cottage": { left: "12%", top: "16%", width: "76%" },
   "Autumn Harvest House": { left: "11%", top: "15%", width: "78%" },
   "Winter Gingerbread Cabin": { left: "12%", top: "16%", width: "76%" },
-  "Free Build": { left: "13%", top: "16%", width: "74%" },
+  "Free Build": { left: "1%", top: "7%", width: "98%" },
 };
 const storageKey = "shoreline-candy-cottage-gallery-v1";
 export default function CandyCottageStudio({ onClose }: { onClose: () => void }) {
@@ -103,11 +103,11 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                 />}
                 {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "35%", top: "42%", width: "30%", height: "45%" }} />}
                 {house.windowArt && <>
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "17%", top: "45%", width: "28%", height: "34%" }} />
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "55%", top: "45%", width: "28%", height: "34%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "12%", top: "43%", width: "33%", height: "37%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "55%", top: "43%", width: "33%", height: "37%" }} />
                 </>}
               </div>
-              <p className="mt-2 text-center text-xs text-amber-900">Door and window placement is being tested. Original house details remain underneath the selected artwork.</p>
+              <p className="mt-2 text-center text-xs text-amber-900">Preview placement is approximate; original details may remain visible beneath selected decorations.</p>
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
