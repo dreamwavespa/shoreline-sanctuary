@@ -39,6 +39,7 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  snowyWinterCove: "/audio/Snowy%E2%80%99s%20Winter%20Playground.mp3",
   christmasAdvent: "/audio/Gifts%20by%20the%20Coast.mp3",
   inventory: "/audio/Ambient%20Island%20Soundscape.mp3",
   sunlitShallows: "/audio/Sunlit%20Shallows.mp3",
