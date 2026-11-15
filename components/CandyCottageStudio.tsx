@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string };
+type PlacedDecoration = { id: number; art: string; spot: string; x: number; y: number };
+type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string; placedDecorations?: PlacedDecoration[] };
 const seasonal = [
   { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans" },
   { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Fruit sprinkles" },
@@ -16,6 +17,35 @@ const materials = {
   decoration: ["Jellybeans", "Fruit sprinkles", "Maple candies", "Peppermint sticks", "Marshmallows", "Candy pearls"],
 } as const;
 const assetRoot = "/images/Candy%20cottage/";
+const decorationChoices = [
+  ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
+  ["Candy sand dollar", "Candy-Sand-Dollar.png"], ["Candy cane", "Candy-Cane.png"],
+  ["Crossed candy canes", "Crossed-Candy-Canes-With-Bow.png"],
+  ["Pink lollipop", "Lollipop-Pink.png"], ["Rainbow lollipop", "Lollipop-Rainbow.png"],
+  ["Peppermint lollipop", "Lollipop-Peppermint.png"], ["Marshmallows", "Marshmallows.png"],
+  ["Pastel gumdrops", "Pastel-Gumdrops.png"], ["Copper candy lantern", "Candy-Lantern-Copper.png"],
+  ["Teal candy lantern", "Candy-Lantern-Teal.png"],
+] as const;
+const gardenChoices = [
+  ["Candy flowers", "Candy-Flowers.png"], ["Flower bush", "Flower-Bush.png"],
+  ["Blue flower bush", "Blue-Flower-Bush.png"], ["Candy pumpkins", "Candy-Pumpkins.png"],
+  ["Gumdrop tree", "Gumdrop-Tree.png"], ["Pink candy tree", "Pink-Candy-Tree.png"],
+  ["Snow tree", "Snow-Tree.png"], ["Sunflowers", "Sunflowers.png"],
+  ["Cookie birdhouse", "Cookie-Birdhouse.png"], ["Lollipop bush", "Lollipop-Bush.png"],
+  ["Cookie fence", "Cookie-Fence.png"], ["Gingerbread fence", "Gingerbread-Cookie-Fence.png"],
+  ["Rope fence", "Rope-Fence.png"],
+] as const;
+const decorationSpots = {
+  "Front gable": { left: 44, top: 33, width: 12, height: 12 },
+  "Above door": { left: 44, top: 48, width: 12, height: 12 },
+  "Left garden": { left: 4, top: 69, width: 23, height: 22 },
+  "Right garden": { left: 73, top: 69, width: 23, height: 22 },
+  "Left path": { left: 23, top: 77, width: 17, height: 17 },
+  "Right path": { left: 60, top: 77, width: 17, height: 17 },
+} as const;
+type DecorationSpot = keyof typeof decorationSpots;
+const decorationName = (art: string) => [...decorationChoices, ...gardenChoices].find((item) => item[1] === art)?.[0] || art;
+
 const doorChoices = [["Original door",""],["Chocolate Peppermint","Chocolate-Peppermint-Door.png"],["Pastel Candy","Pastel-Candy-Door.png"],["Seaside Candy","Seaside-Candy-Door.png"],["Autumn Caramel","Autumn-Caramel-Door.png"],["Lavender","Door-Lavender.png"],["Mint","Door-Mint.png"],["Pink","Door-Pink.png"],["Teal Heart","Door-Teal-Heart.png"],["Blue","Door-Blue.png"],["Garland","Door-Garland.png"],["Wreath","Door-Wreath.png"]] as const;
 const windowChoices = [["Original windows",""],["Gingerbread Sugar Glass","Gingerbread-Sugar-Glass-Window.png"],["Pastel Floral","Pastel-Floral-Window.png"],["Seaside Seashell","Seaside-Seashell-Window.png"],["Autumn Caramel","Autumn-Caramel-Window.png"],["Round","Window-Round.png"],["Flowerbox","Window-Flowerbox.png"],["Lattice","Window-Lattice.png"],["Shutters","Window-Shutters.png"]] as const;
 // Each artwork batch has different transparent margins and proportions.
@@ -24,7 +54,7 @@ type OverlayPlacement = { left: string; top: string; width: string; height: stri
 const doorPlacement: Record<string, OverlayPlacement> = {
   "Chocolate-Peppermint-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
   "Pastel-Candy-Door.png": { left: "36%", top: "43%", width: "28%", height: "42%" },
-  "Seaside-Candy-Door.png": { left: "40%", top: "48%", width: "20%", height: "34%" },
+  "Seaside-Candy-Door.png": { left: "39%", top: "46%", width: "22%", height: "37%" },
   "Autumn-Caramel-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
   "Door-Lavender.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Mint.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
@@ -76,6 +106,27 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
   const [house, setHouse] = useState<House>({ ...featured, design: "Seasonal Project" });
   const [gallery, setGallery] = useState<House[]>([]);
   const [message, setMessage] = useState("");
+  const [selectedArt, setSelectedArt] = useState<string>(decorationChoices[0][1]);
+  const [selectedSpot, setSelectedSpot] = useState<DecorationSpot>("Front gable");
+  const [selectedDecorationId, setSelectedDecorationId] = useState<number | null>(null);
+  const decorations = house.placedDecorations || [];
+  const addDecoration = () => {
+    const id = Math.max(0, ...decorations.map(item => item.id)) + 1;
+    setHouse({ ...house, placedDecorations: [...decorations, { id, art: selectedArt, spot: selectedSpot, x: 0, y: 0 }] });
+    setSelectedDecorationId(id);
+    setMessage(decorationName(selectedArt) + " added to " + selectedSpot + ".");
+  };
+  const moveDecoration = (dx: number, dy: number) => {
+    if (selectedDecorationId === null) return;
+    setHouse({ ...house, placedDecorations: decorations.map(item => item.id === selectedDecorationId
+      ? { ...item, x: Math.max(-12, Math.min(12, item.x + dx)), y: Math.max(-12, Math.min(12, item.y + dy)) } : item) });
+    setMessage("Decoration position adjusted.");
+  };
+  const removeDecoration = () => {
+    setHouse({ ...house, placedDecorations: decorations.filter(item => item.id !== selectedDecorationId) });
+    setSelectedDecorationId(null);
+    setMessage("Decoration removed.");
+  };
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
@@ -84,7 +135,8 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
   }, []);
   const chooseDesign = (index: number) => {
     const chosen = seasonal[index];
-    setHouse({ ...chosen, design: "Seasonal Project" });
+    setHouse({ ...chosen, design: "Seasonal Project", placedDecorations: [] });
+    setSelectedDecorationId(null);
     setMessage(chosen.name + " ready to decorate.");
   };
   const save = () => {
@@ -106,7 +158,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <div className="grid grid-cols-2 gap-2">
             {seasonal.map((option, index) => <button key={option.name} type="button" onClick={() => chooseDesign(index)} className="min-h-11 rounded-xl border border-amber-400 bg-white p-2 text-sm font-semibold">{option.name}</button>)}
           </div>
-          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans", doorArt: "", windowArt: "" }); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
+          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans", doorArt: "", windowArt: "", placedDecorations: [] }); setSelectedDecorationId(null); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
           <label className="block font-semibold" htmlFor="candy-house-name">Name your house</label>
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
@@ -130,13 +182,20 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
                   }}
                 />}
-                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={doorPlacement[house.doorArt] || defaultDoorPlacement} />}
-                {house.windowArt && <>
+                {house.design === "Free Build" && house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={doorPlacement[house.doorArt] || defaultDoorPlacement} />}
+                {house.design === "Free Build" && house.windowArt && <>
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
                 </>}
+                {decorations.map(item => {
+                  const spot = decorationSpots[item.spot as DecorationSpot];
+                  if (!spot) return null;
+                  return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
+                    className="pointer-events-none absolute object-contain"
+                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
+                })}
               </div>
-              <p className="mt-2 text-center text-xs text-amber-900">Free Build uses a clean cottage base for your selected doors and windows.</p>
+              {house.design === "Free Build" && <p className="mt-2 text-center text-xs text-amber-900">Free Build uses a clean cottage base for your selected doors and windows.</p>}
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
@@ -163,6 +222,39 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               </select>
             </label>
           ))}
+          <section className="space-y-3 rounded-xl border border-amber-300 bg-white p-3" aria-label="Candy and garden decorating">
+            <h3 className="font-serif text-lg font-bold">Candy and garden decorations</h3>
+            <p className="text-sm">Choose an item and a location, then add it to your house. Select an added decoration to move or remove it. No dragging required.</p>
+            <label className="block font-semibold">Decoration
+              <select value={selectedArt} onChange={event => setSelectedArt(event.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                <optgroup label="Candy decorations">{decorationChoices.map(([name, file]) => <option key={file} value={file}>{name}</option>)}</optgroup>
+                <optgroup label="Garden decorations">{gardenChoices.map(([name, file]) => <option key={file} value={file}>{name}</option>)}</optgroup>
+              </select>
+            </label>
+            <label className="block font-semibold">Placement area
+              <select value={selectedSpot} onChange={event => setSelectedSpot(event.target.value as DecorationSpot)} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                {Object.keys(decorationSpots).map(spot => <option key={spot} value={spot}>{spot}</option>)}
+              </select>
+            </label>
+            <button type="button" onClick={addDecoration} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Add decoration to preview</button>
+            {decorations.length > 0 && <>
+              <label className="block font-semibold">Edit placed decoration
+                <select value={selectedDecorationId ?? ""} onChange={event => setSelectedDecorationId(Number(event.target.value))} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                  <option value="" disabled>Choose a decoration</option>
+                  {decorations.map(item => <option key={item.id} value={item.id}>{decorationName(item.art)} — {item.spot} (item {item.id})</option>)}
+                </select>
+              </label>
+              <div className="grid grid-cols-3 gap-2" role="group" aria-label="Move selected decoration">
+                <span />
+                <button type="button" disabled={selectedDecorationId === null} onClick={() => moveDecoration(0, -2)} className="min-h-11 rounded-lg bg-amber-100 disabled:opacity-50">Move up</button>
+                <span />
+                <button type="button" disabled={selectedDecorationId === null} onClick={() => moveDecoration(-2, 0)} className="min-h-11 rounded-lg bg-amber-100 disabled:opacity-50">Move left</button>
+                <button type="button" disabled={selectedDecorationId === null} onClick={() => moveDecoration(0, 2)} className="min-h-11 rounded-lg bg-amber-100 disabled:opacity-50">Move down</button>
+                <button type="button" disabled={selectedDecorationId === null} onClick={() => moveDecoration(2, 0)} className="min-h-11 rounded-lg bg-amber-100 disabled:opacity-50">Move right</button>
+              </div>
+              <button type="button" disabled={selectedDecorationId === null} onClick={removeDecoration} className="min-h-11 rounded-lg border border-amber-500 px-3 py-2 disabled:opacity-50">Remove selected decoration</button>
+            </>}
+          </section>
           <p role="status" aria-live="polite">{message}</p>
           <button type="button" onClick={save} className="min-h-11 w-full rounded-xl bg-teal-900 p-3 font-bold text-white">Save House to Gallery</button>
           <section aria-label="Candy Cottage Gallery" className="space-y-2">
@@ -170,7 +262,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
             {gallery.length === 0 ? <p>No saved houses yet.</p> : gallery.map((saved, index) => (
               <div key={index} className="flex items-center justify-between gap-2 rounded-lg border border-amber-300 bg-white p-2">
                 <span className="text-sm">{saved.name} — {saved.design}</span>
-                <button type="button" onClick={() => { setHouse(saved); setMessage(saved.name + " loaded for editing."); }} className="min-h-11 rounded-lg bg-amber-200 px-3 font-semibold">Edit</button>
+                <button type="button" onClick={() => { setHouse(saved); setSelectedDecorationId(null); setMessage(saved.name + " loaded for editing."); }} className="min-h-11 rounded-lg bg-amber-200 px-3 font-semibold">Edit</button>
               </div>
             ))}
           </section>
