@@ -47,11 +47,14 @@ const orders: BakingOrder[] = [
 ];
 const ingredients = ["Flour", "Eggs", "Vanilla", "Cocoa powder", "Coconut cream", "Strawberries", "Butter", "Sugar", "Almond flour", "Cream cheese", "Biscuits", "Blueberries", "Lemons", "Sea salt", "Mint"];
 const decorations = ["Pearl sprinkles", "Chocolate curls", "Coconut flakes", "Berry glaze", "Pastel icing", "Vanilla cream", "Blueberry topping", "Chocolate drizzle", "Whipped cream"];
+const CHRISTMAS_CUPCAKE_ORDER: BakingOrder = { name: "Christmas Cupcake", ingredients: ["Flour", "Eggs", "Vanilla"], decoration: "Pastel icing", image: "/images/Christmas/Gifts/Christmas-Cupcake.png", steps: ["Mix festive cupcake batter", "Fill cupcake molds", "Bake and cool cupcakes"] };
 const day = () => new Date().toLocaleDateString("en-CA");
 type Stage = "ingredients" | "mix" | "molds" | "bake" | "decorate" | "complete";
 
 export default function SeashellBakingChallenge({ onClose }: { onClose: () => void }) {
-  const { collectItem, play } = useGame();
+  const { collectItem, play, state } = useGame();
+  const christmasUnlocked = (state.inventory["advent-christmas-cupcake"] || 0) > 0;
+  const availableOrders = christmasUnlocked ? [...orders, CHRISTMAS_CUPCAKE_ORDER] : orders;
   const [orderIndex, setOrderIndex] = useState<number | null>(null);
   const [lastOrder, setLastOrder] = useState<number | null>(null);
   const [stage, setStage] = useState<Stage>("ingredients");
@@ -63,7 +66,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
   const heading = useRef<HTMLHeadingElement>(null);
   const close = useRef(onClose);
   close.current = onClose;
-  const order = orderIndex === null ? null : orders[orderIndex];
+  const order = orderIndex === null ? null : availableOrders[orderIndex];
   useEffect(() => {
     heading.current?.focus();
     const keydown = (event: KeyboardEvent) => { if (event.key === "Escape") close.current(); };
@@ -71,12 +74,12 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
     return () => window.removeEventListener("keydown", keydown);
   }, []);
   const start = () => {
-    const available = orders.map((_, i) => i).filter(i => i !== lastOrder);
+    const available = availableOrders.map((_, i) => i).filter(i => i !== lastOrder);
     const index = available[Math.floor(Math.random() * available.length)];
     setLastOrder(index);
     setOrderIndex(index); setStage("ingredients"); setChosen([]);
     setProgress(0); setMistakes(0); setReward("");
-    setAnnouncement("New order: " + orders[index].name + ". Choose " + orders[index].ingredients.join(", ") + ".");
+    setAnnouncement("New order: " + availableOrders[index].name + ". Choose " + availableOrders[index].ingredients.join(", ") + ".");
   };
   const chooseIngredient = (ingredient: string) => {
     if (!order || chosen.includes(ingredient)) return;
@@ -132,6 +135,7 @@ export default function SeashellBakingChallenge({ onClose }: { onClose: () => vo
         <h2 id="seashell-baking-title" tabIndex={-1} ref={heading} className="font-serif text-2xl font-bold outline-none">Seashell Baking Challenge</h2>
         <button type="button" onClick={onClose} className="rounded-lg bg-white p-3 font-bold">Close</button>
       </div>
+      {christmasUnlocked && <p className="mt-3 font-semibold text-emerald-800">Christmas Cupcake unlocked! Festive cupcake orders are now available.</p>}
       <p className="mt-3">Prepare a seaside baking order. No timer or inventory ingredients are required. Your first completed order each day awards one surprise baking ingredient.</p>
       {order && <section className="mt-4 rounded-xl bg-white p-4" aria-label="Current baking order">
         <h3 className="text-xl font-bold">{order.name}</h3>
