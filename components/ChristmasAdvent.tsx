@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGame } from "../lib/store";
 
 const ORNAMENTS = ["Starfish_Pearls","Pink_Scallop_Shell","Sand_Dollar","Lighthouse_Globe","Crystal_Snowflake","Christmas_Whale","Maeve_Teacup","Maeve_Teapot","Lobster_Trap","Marshmallow_Cat","Seahorse","Shelby_Turtle","Elly_Jellyfish","Libby_Lobster","Olli_Octopus","Sailboat","Snowy_Cottage_Globe","Starfish_Lantern","Binoculars","Archie_Books","Sea_Glass_Jar","Rope_Anchor","Ice_Skate","Coastal_Wreath","Seashell_Bell","Moonlit_Crescent","Nautilus_Shell","Robin_Bird","Snowy_Lantern","Christmas_Present"];
@@ -10,7 +10,18 @@ type Progress = { opened: number[]; placed: Record<string,number> };
 const empty = (): Progress => ({opened:[],placed:{}});
 const slots = Array.from({length:30},(_,i)=>({left: 34+(i%5)*8, top: 17+Math.floor(i/5)*11}));
 function key(preview:boolean,year:number){return `shoreline-advent-${preview?"preview":"real"}-${year}`;}
-export default function ChristmasAdvent() {
+export default function ChristmasAdvent({ musicEnabled = true, onMusicChange }: { musicEnabled?: boolean; onMusicChange?: (enabled:boolean)=>void }) {
+ const soundsRef = useRef<HTMLAudioElement[]>([]);
+ const playSound = (filename:string, volume=0.45) => {
+   try {
+     const sound = new Audio(`/audio/${filename}`);
+     sound.volume = volume;
+     soundsRef.current.push(sound);
+     sound.addEventListener("ended", () => { soundsRef.current = soundsRef.current.filter(a => a !== sound); }, { once:true });
+     void sound.play().catch(() => {});
+   } catch {}
+ };
+ useEffect(() => () => { soundsRef.current.forEach(a => { a.pause(); a.currentTime = 0; }); soundsRef.current = []; }, []);
  const { collectItem } = useGame();
  const [preview,setPreview]=useState(false);
  const [progress,setProgress]=useState<Progress>(empty);
@@ -25,12 +36,13 @@ export default function ChristmasAdvent() {
  const save=(next:Progress)=>{setProgress(next);try{localStorage.setItem(key(preview,year),JSON.stringify(next));}catch{setMessage("Unable to save on this device.");}};
  const month=now?.getMonth();const day=now?.getDate()||0;
  const active=month===11 && day<=31;
- const open=(d:number)=>{if(!preview && (!active||d>day)){setMessage("This present is not available yet.");return;}if(progress.opened.includes(d)){setMessage(`December ${d}. Gift already opened. You received ${rewards[d-1].name} and the ${ORNAMENTS[d-1].replaceAll("_"," ")} ornament.`);return;}const reward=rewards[d-1];if(!preview)collectItem(reward.itemId,{silent:true});save({...progress,opened:[...progress.opened,d]});setMessage(`December ${d}. You've received ${reward.name} and the ${ORNAMENTS[d-1].replaceAll("_"," ")} ornament! ${preview?"Preview only. No items added to your real inventory.":"The reward has been added to your inventory."} Select the ornament below to decorate your tree.`);};
+ const open=(d:number)=>{if(!preview && (!active||d>day)){setMessage("This present is not available yet.");return;}if(progress.opened.includes(d)){setMessage(`December ${d}. Gift already opened. You received ${rewards[d-1].name} and the ${ORNAMENTS[d-1].replaceAll("_"," ")} ornament.`);return;}const reward=rewards[d-1];playSound("Advent-Wrapping-Paper.mp3",0.3);playSound(d===25||[6,12,16,20,21].includes(d)?"Advent-Sleigh-Bells.mp3":"Advent-Magic-Reveal.mp3",0.35);if(!preview)collectItem(reward.itemId,{silent:true});save({...progress,opened:[...progress.opened,d]});setMessage(`December ${d}. You've received ${reward.name} and the ${ORNAMENTS[d-1].replaceAll("_"," ")} ornament! ${preview?"Preview only. No items added to your real inventory.":"The reward has been added to your inventory."} Select the ornament below to decorate your tree.`);};
  const place=(slot:number)=>{if(selected===null){const occupant=Object.entries(progress.placed).find(([,v])=>v===slot);setMessage(occupant?`Branch ${slot+1} has the ${ORNAMENTS[Number(occupant[0])].replaceAll("_"," ")} ornament. Select an ornament below to change it.`:`Branch ${slot+1} is empty. Select an ornament below to place it.`);return;}const placed={...progress.placed};for(const [k,v] of Object.entries(placed)){if(v===slot)delete placed[k];}placed[String(selected)]=slot;save({...progress,placed});setMessage(`${ORNAMENTS[selected].replaceAll("_"," ")} placed on branch ${slot+1}.`);};
  const archive=()=>{if(preview){setMessage("Preview trees cannot be saved to the real Christmas Memory Book.");return;}const next={...memories,[String(year)]:progress};setMemories(next);try{localStorage.setItem("shoreline-christmas-memory-book",JSON.stringify(next));}catch{}setMessage(`Christmas tree saved to the ${year} Memory Book.`);};
  const claimed=progress.opened.length;
  return <section className="mx-auto max-w-5xl text-amber-50">
   <h2 className="text-2xl font-bold">Shoreline Christmas Advent Tree</h2>
+  {onMusicChange&&<button type="button" aria-pressed={musicEnabled} onClick={()=>onMusicChange(!musicEnabled)} className="my-2 rounded-lg border border-amber-200 px-4 py-2">Christmas music: {musicEnabled?"On":"Off"}</button>}
   <p className="my-2">Open presents from December 1–25, including missed days through December 31, then decorate your tree. {claimed} of 25 gifts opened.</p>
   <label className="my-3 flex items-center gap-3"><input type="checkbox" checked={preview} onChange={e=>setPreview(e.target.checked)} className="h-5 w-5"/> Christmas Preview Mode (testing only)</label>
   {preview&&<p className="mb-2 text-yellow-200">Preview mode: all dates are unlocked. Progress is separate from the real Advent calendar.</p>}
