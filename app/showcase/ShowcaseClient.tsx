@@ -78,7 +78,7 @@ export default function ShowcaseClient({ authenticated, configured }: { authenti
     const context = ctx.current, buffer = file ? buffers.current.get(file) : undefined;
     if (!context || !buffer) return;
     const source = context.createBufferSource(), gain = context.createGain();
-    source.buffer = buffer; gain.gain.value = file?.includes("Fireplace") ? 0.25 : 0.85;
+    source.buffer = buffer; gain.gain.value = file?.includes("Fireplace") ? 0.35 : 1.0;
     source.connect(gain).connect(context.destination);
     effects.current.push(source);
     source.onended = () => { effects.current = effects.current.filter(item => item !== source); };
@@ -95,7 +95,7 @@ export default function ShowcaseClient({ authenticated, configured }: { authenti
       source.connect(gain).connect(context.destination);
       const now = context.currentTime;
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.36, now + 1.5);
+      gain.gain.linearRampToValueAtTime(0.46, now + 1.5);
       source.start();
       playing.current = {source, gain};
       if (old) {
