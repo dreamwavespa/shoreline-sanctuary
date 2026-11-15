@@ -61,7 +61,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
     // Restore the cottage harmony track whenever a popup closes.
     if (sortingOpen || mosaicOpen || gardenOpen || cadenceOpen) return;
     if (seasonalOpen && (new Date().getMonth() === 10 || new Date().getMonth() === 11)) {
-      setMusicOverride(adventMusicEnabled ? "christmasAdvent" : "silentAdvent");
+      setMusicOverride(adventMusicEnabled ? "christmasAdvent" : (bondedSisterCount >= 1 ? `cottage${Math.min(4, bondedSisterCount)}` : null));
       return () => setMusicOverride(null);
     }
     if (bondedSisterCount >= 1) setMusicOverride(`cottage${Math.min(4, bondedSisterCount)}`);
