@@ -47,6 +47,14 @@ export interface VillagerDef {
 }
 
 export const VILLAGERS: Record<string, VillagerDef> = {
+  snowy: {
+    id: "snowy", name: "Snowy", title: "The Little Harp Seal", group: "shoreline-resident",
+    personality: "Playful and affectionate; she loves winter treasures and refreshing treats.",
+    role: "Welcomes visitors to her floating ice-floe home.",
+    gameplay: "Give Snowy favorite gifts to build a lasting friendship.",
+    location: "Snowy's Winter Cove", imageUrl: "/images/Snowy-portrait.PNG",
+    gift: { lovedGiftIds: ["fresh-reef-fish","beach-ball","seashell-beach-ball","advent-snowflake-pearls","food-coconut-drops","food-frozen-pineapple-drink","food-frosted-coconut-drink","food-iced-berry-drink","food-iced-mint-tea"], reactionSfx: "happy seal chirp", reactionVisual: "Snowflake sparkles", redirectTo: [] },
+  },
   lacey: {
     id: "lacey", name: "Lacey", title: "The Coastal Seamstress", group: "underwater-village",
     personality: "Warm, imaginative and patient; she loves sharing stories stitched into her work.",
