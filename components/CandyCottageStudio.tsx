@@ -141,7 +141,8 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
           </div>
-          {house.design === "Free Build" && (\n          <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
+          {house.design === "Free Build" && (
+          <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
             <label className="block font-semibold">Door artwork
               <select value={house.doorArt || ""} onChange={event => { setHouse({ ...house, doorArt: event.target.value }); setMessage("Door artwork updated."); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                 {doorChoices.map(([label, filename]) => <option key={label} value={filename}>{label}</option>)}
@@ -153,7 +154,8 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               </select>
             </label>
           </div>
-          )}\n          {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
+          )}
+          {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
             <label key={part} className="block font-semibold">
               {part.charAt(0).toUpperCase() + part.slice(1)}
               <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
