@@ -15,6 +15,16 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "advent-sea-glitter": { id: "advent-sea-glitter", name: "Sea Glitter", category: "raw", icon: "✨", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-snowflake-pearls": { id: "advent-snowflake-pearls", name: "Snowflake Pearls", category: "raw", icon: "/images/Christmas/Gifts/Snowflake-Pearls.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-fluffy-pompoms": { id: "advent-fluffy-pompoms", name: "Fluffy Pompoms", category: "raw", icon: "/images/Christmas/Gifts/Fluffy-Pompoms.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-fabric-scraps": { id: "advent-fabric-scraps", name: "Fabric Scraps", category: "raw", icon: "/images/Christmas/Gifts/Fabric-Scraps.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-cookies-milk-recipe": { id: "advent-cookies-milk-recipe", name: "Cookies and Milk Recipe", category: "special", icon: "/images/Christmas/Gifts/Cookies-and-Milk.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-christmas-cupcake": { id: "advent-christmas-cupcake", name: "Christmas Cupcake", category: "special", icon: "/images/Christmas/Gifts/Christmas-Cupcake.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-lighthouse-bookmark": { id: "advent-lighthouse-bookmark", name: "Lighthouse Winter Bookmark", category: "special", icon: "/images/Christmas/Gifts/Lighthouse-Winter-Bookmark.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-snowball-mold": { id: "advent-snowball-mold", name: "Snowball Mold", category: "special", icon: "/images/Christmas/Gifts/Snowball-Mold.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-snowflake-stocking": { id: "advent-snowflake-stocking", name: "Fluffy Snowflake Stocking", category: "decor", icon: "/images/Christmas/Gifts/Fluffy-Snowflake-Stocking.png", rarity: "uncommon", sfx: "craftSuccess" },
+  "advent-christmas-surprise": { id: "advent-christmas-surprise", name: "Christmas Surprise Bundle", category: "special", icon: "/images/Christmas/Gifts/Christmas-Surprise-Bundle.png", rarity: "uncommon", sfx: "craftSuccess" },
   "tidekeeper-vase": { id: "tidekeeper-vase", name: "Restored Tidekeeper\u0027s Vase", category: "special", icon: "/images/Cove/Tidekeeper-vase.png", rarity: "rare", sfx: "craftSuccess" },
   "pottery-fragment-lighthouse": { id: "pottery-fragment-lighthouse", name: "Tidekeeper Vase Fragment: Lighthouse", category: "special", icon: "/images/Cove/Pottery-fragment-lighthouse.png", rarity: "rare", sfx: "stone" },
   "pottery-fragment-wave": { id: "pottery-fragment-wave", name: "Tidekeeper Vase Fragment: Wave", category: "special", icon: "/images/Cove/Pottery-fragment-wave.png", rarity: "rare", sfx: "stone" },
@@ -302,7 +312,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "lacey-seashell-pattern": { id: "lacey-seashell-pattern", name: "Seashell Embroidery Pattern", category: "special", icon: "🐚", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "lacey-special-embroidery-needle": { id: "lacey-special-embroidery-needle", name: "Lacey\'s Special Embroidery Needle", category: "special", icon: "🪡", isEmoji: true, rarity: "rare", sfx: "craftSuccess" },
   "wind-glitter-ribbon": { id: "wind-glitter-ribbon", name: "Glittery Sea Ribbon", category: "raw", icon: "🎀", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
-  "wind-fabric-scrap": { id: "wind-fabric-scrap", name: "Windblown Fabric Scrap", category: "raw", icon: "🧵", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "wind-fabric-scrap": { id: "wind-fabric-scrap", name: "Windblown Fabric Scrap", category: "raw", icon: "/images/Christmas/Gifts/Fabric-Scraps.png", rarity: "common", sfx: "craftSuccess" },
   "wind-shell-button": { id: "wind-shell-button", name: "Seashell Button", category: "raw", icon: "🐚", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "wind-glass-button": { id: "wind-glass-button", name: "Sea Glass Button", category: "raw", icon: "🔘", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "wind-journal": { id: "wind-journal", name: "Washed-Up Journal", category: "special", icon: "📖", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
