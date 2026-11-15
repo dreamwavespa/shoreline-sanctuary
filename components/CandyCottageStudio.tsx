@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string };
+type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string };
 const seasonal = [
   { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans" },
   { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Fruit sprinkles" },
@@ -16,6 +16,8 @@ const materials = {
   decoration: ["Jellybeans", "Fruit sprinkles", "Maple candies", "Peppermint sticks", "Marshmallows", "Candy pearls"],
 } as const;
 const assetRoot = "/images/Candy%20cottage/";
+const doorChoices = [["Original door",""],["Chocolate Peppermint","Chocolate-Peppermint-Door.png"],["Pastel Candy","Pastel-Candy-Door.png"],["Seaside Candy","Seaside-Candy-Door.png"],["Autumn Caramel","Autumn-Caramel-Door.png"],["Lavender","Door-Lavender.png"],["Mint","Door-Mint.png"],["Pink","Door-Pink.png"],["Teal Heart","Door-Teal-Heart.png"],["Blue","Door-Blue.png"],["Garland","Door-Garland.png"],["Wreath","Door-Wreath.png"]] as const;
+const windowChoices = [["Original windows",""],["Gingerbread Sugar Glass","Gingerbread-Sugar-Glass-Window.png"],["Pastel Floral","Pastel-Floral-Window.png"],["Seaside Seashell","Seaside-Seashell-Window.png"],["Autumn Caramel","Autumn-Caramel-Window.png"],["Round","Window-Round.png"],["Flowerbox","Window-Flowerbox.png"],["Lattice","Window-Lattice.png"],["Shutters","Window-Shutters.png"]] as const;
 const houseArt: Record<string, string> = {
   "Spring Candy Greenhouse": "Spring-Candy-Greenhouse.png",
   "Summer Seaside Cottage": "Summer-Seaside-Cottage.png",
@@ -75,7 +77,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <div className="grid grid-cols-2 gap-2">
             {seasonal.map((option, index) => <button key={option.name} type="button" onClick={() => chooseDesign(index)} className="min-h-11 rounded-xl border border-amber-400 bg-white p-2 text-sm font-semibold">{option.name}</button>)}
           </div>
-          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans" }); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
+          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans", doorArt: "", windowArt: "" }); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
           <label className="block font-semibold" htmlFor="candy-house-name">Name your house</label>
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
@@ -83,12 +85,12 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               <p className="mb-2 text-center text-sm font-semibold">Your candy house</p>
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
                 <img
-                  src={assetRoot + (house.design === "Free Build" ? "Free-Build-Cookie-Cottage.png" : houseArt[house.name] || "Free-Build-Cookie-Cottage.png")}
+                  src={assetRoot + (house.design === "Free Build" ? "Cookie-Cottage-Free-Build.PNG" : houseArt[house.name] || "Cookie-Cottage-Free-Build.PNG")}
                   alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name}
                   className="absolute inset-0 h-full w-full object-contain"
                   style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
                 />
-                <img
+                {house.design === "Free Build" && <img
                   src={assetRoot + roofArt[house.roof]}
                   alt=""
                   aria-hidden="true"
@@ -98,12 +100,29 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     maskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
                     WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
                   }}
-                />
+                />}
+                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "43%", top: "48%", width: "15%", height: "31%" }} />}
+                {house.windowArt && <>
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "27%", top: "52%", width: "15%", height: "21%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "59%", top: "52%", width: "15%", height: "21%" }} />
+                </>}
               </div>
-              <p className="mt-2 text-center text-xs text-amber-900">Roof positions are being refined for each house. Some original roof details may still show beneath the selected topping.</p>
+              <p className="mt-2 text-center text-xs text-amber-900">Door and window placement is being tested. Original house details remain underneath the selected artwork.</p>
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
             <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
+            <label className="block font-semibold">Door artwork
+              <select value={house.doorArt || ""} onChange={event => { setHouse({ ...house, doorArt: event.target.value }); setMessage("Door artwork updated."); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                {doorChoices.map(([label, filename]) => <option key={label} value={filename}>{label}</option>)}
+              </select>
+            </label>
+            <label className="block font-semibold">Window artwork (both windows)
+              <select value={house.windowArt || ""} onChange={event => { setHouse({ ...house, windowArt: event.target.value }); setMessage("Window artwork updated."); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                {windowChoices.map(([label, filename]) => <option key={label} value={filename}>{label}</option>)}
+              </select>
+            </label>
           </div>
           {(Object.keys(materials) as (keyof typeof materials)[]).map(part => (
             <label key={part} className="block font-semibold">
