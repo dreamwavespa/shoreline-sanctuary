@@ -366,9 +366,17 @@ function IceCreamPreview({ first, second, fruit, topping, description }: {
       {fruit !== "none" && ICE_CREAM_FRUIT_ART[fruit] && <div className="absolute left-[10%] top-[13%] aspect-square w-[80%]">
         <Image src={root + ICE_CREAM_FRUIT_ART[fruit]} alt="" fill unoptimized sizes="307px" className="pointer-events-none object-contain" />
       </div>}
-      <div className="absolute" style={topping === "melted-chocolate" ? { left: "12%", top: "37%", width: "76%", height: "25%" } : { left: "10%", top: "1%", width: "80%", aspectRatio: "1" }}>
+      {topping === "melted-chocolate" ? [0, 1].map(index => (
+        <div key={index} className="absolute" style={{
+          left: index === 0 ? "11%" : "50%", top: "40%", width: "39%", height: "21%",
+          transform: index === 0 ? "rotate(-8deg)" : "rotate(8deg)",
+          clipPath: "ellipse(50% 50% at 50% 50%)",
+        }}>
+          <Image src={root + ICE_CREAM_TOPPING_ART[topping]} alt="" fill unoptimized sizes="150px" className="pointer-events-none object-fill" />
+        </div>
+      )) : <div className="absolute left-[10%] top-[5%] aspect-square w-[80%]">
         <Image src={root + ICE_CREAM_TOPPING_ART[topping]} alt="" fill unoptimized sizes="307px" className="pointer-events-none object-contain" />
-      </div>
+      </div>}
       {/* Redraw only the bowl front to tuck the scoops behind its rim. */}
       <Image src={root + "Bowl.png"} alt="" fill unoptimized sizes="384px" className="pointer-events-none object-contain" style={{ transform: "translateY(20%)", clipPath: "inset(54% 0 0 0)" }} />
     </div>
