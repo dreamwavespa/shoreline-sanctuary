@@ -36,10 +36,10 @@ const gardenChoices = [
   ["Rope fence", "Rope-Fence.png"],
 ] as const;
 const decorationSpots = {
-  "Front gable": { left: 44, top: 33, width: 12, height: 12 },
-  "Above door": { left: 44, top: 48, width: 12, height: 12 },
-  "Left garden": { left: 4, top: 69, width: 23, height: 22 },
-  "Right garden": { left: 73, top: 69, width: 23, height: 22 },
+  "Front gable": { left: 42, top: 33, width: 12, height: 12 },
+  "Above door": { left: 44, top: 46, width: 12, height: 12 },
+  "Left garden": { left: 0, top: 70, width: 20, height: 20 },
+  "Right garden": { left: 80, top: 70, width: 20, height: 20 },
   "Left path": { left: 23, top: 77, width: 17, height: 17 },
   "Right path": { left: 60, top: 77, width: 17, height: 17 },
 } as const;
@@ -61,7 +61,7 @@ const doorPlacement: Record<string, OverlayPlacement> = {
   "Door-Pink.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Teal-Heart.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
   "Door-Blue.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Garland.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Garland.png": { left: "38%", top: "46%", width: "24%", height: "36%" },
   "Door-Wreath.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
 };
 const defaultDoorPlacement: OverlayPlacement = { left: "35%", top: "42%", width: "30%", height: "45%" };
