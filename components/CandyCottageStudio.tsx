@@ -45,6 +45,18 @@ const decorationSpots = {
 } as const;
 type DecorationSpot = keyof typeof decorationSpots;
 const decorationName = (art: string) => [...decorationChoices, ...gardenChoices].find((item) => item[1] === art)?.[0] || art;
+const allowedSpots = (art: string): DecorationSpot[] => {
+  if (/Tree|Bush|Flowers|Pumpkins|Sunflowers|Fence|Birdhouse/i.test(art)) return ["Left garden", "Right garden", "Left path", "Right path"];
+  if (/Lantern/i.test(art)) return ["Left path", "Right path", "Left garden", "Right garden"];
+  if (/Cane|Lollipop/i.test(art)) return ["Left garden", "Right garden", "Left path", "Right path", "Front gable"];
+  if (/Heart|Star|Seashell|Sand-Dollar/i.test(art)) return ["Above door", "Front gable"];
+  return ["Front gable", "Above door", "Left garden", "Right garden", "Left path", "Right path"];
+};
+const movementDescription = (item: PlacedDecoration) => {
+  const horizontal = item.x < 0 ? Math.abs(item.x / 2) + " steps left" : item.x > 0 ? (item.x / 2) + " steps right" : "centered horizontally";
+  const vertical = item.y < 0 ? Math.abs(item.y / 2) + " steps up" : item.y > 0 ? (item.y / 2) + " steps down" : "centered vertically";
+  return decorationName(item.art) + ", " + item.spot + ", " + horizontal + ", " + vertical;
+};
 
 const doorChoices = [["Original door",""],["Chocolate Peppermint","Chocolate-Peppermint-Door.png"],["Pastel Candy","Pastel-Candy-Door.png"],["Seaside Candy","Seaside-Candy-Door.png"],["Autumn Caramel","Autumn-Caramel-Door.png"],["Lavender","Door-Lavender.png"],["Mint","Door-Mint.png"],["Pink","Door-Pink.png"],["Teal Heart","Door-Teal-Heart.png"],["Blue","Door-Blue.png"],["Garland","Door-Garland.png"],["Wreath","Door-Wreath.png"]] as const;
 const windowChoices = [["Original windows",""],["Gingerbread Sugar Glass","Gingerbread-Sugar-Glass-Window.png"],["Pastel Floral","Pastel-Floral-Window.png"],["Seaside Seashell","Seaside-Seashell-Window.png"],["Autumn Caramel","Autumn-Caramel-Window.png"],["Round","Window-Round.png"],["Flowerbox","Window-Flowerbox.png"],["Lattice","Window-Lattice.png"],["Shutters","Window-Shutters.png"]] as const;
@@ -110,17 +122,21 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
   const [selectedSpot, setSelectedSpot] = useState<DecorationSpot>("Front gable");
   const [selectedDecorationId, setSelectedDecorationId] = useState<number | null>(null);
   const decorations = house.placedDecorations || [];
+  const availableSpots = allowedSpots(selectedArt);
+  const effectiveSpot = availableSpots.includes(selectedSpot) ? selectedSpot : availableSpots[0];
   const addDecoration = () => {
     const id = Math.max(0, ...decorations.map(item => item.id)) + 1;
-    setHouse({ ...house, placedDecorations: [...decorations, { id, art: selectedArt, spot: selectedSpot, x: 0, y: 0 }] });
+    setHouse({ ...house, placedDecorations: [...decorations, { id, art: selectedArt, spot: effectiveSpot, x: 0, y: 0 }] });
     setSelectedDecorationId(id);
-    setMessage(decorationName(selectedArt) + " added to " + selectedSpot + ".");
+    setMessage(decorationName(selectedArt) + " added to " + effectiveSpot + ", centered horizontally and vertically.");
   };
   const moveDecoration = (dx: number, dy: number) => {
     if (selectedDecorationId === null) return;
-    setHouse({ ...house, placedDecorations: decorations.map(item => item.id === selectedDecorationId
-      ? { ...item, x: Math.max(-12, Math.min(12, item.x + dx)), y: Math.max(-12, Math.min(12, item.y + dy)) } : item) });
-    setMessage("Decoration position adjusted.");
+    const updated = decorations.map(item => item.id === selectedDecorationId
+      ? { ...item, x: Math.max(-12, Math.min(12, item.x + dx)), y: Math.max(-12, Math.min(12, item.y + dy)) } : item);
+    setHouse({ ...house, placedDecorations: updated });
+    const moved = updated.find(item => item.id === selectedDecorationId);
+    if (moved) setMessage(movementDescription(moved) + ".");
   };
   const removeDecoration = () => {
     setHouse({ ...house, placedDecorations: decorations.filter(item => item.id !== selectedDecorationId) });
@@ -226,20 +242,20 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
             <h3 className="font-serif text-lg font-bold">Candy and garden decorations</h3>
             <p className="text-sm">Choose an item and a location, then add it to your house. Select an added decoration to move or remove it. No dragging required.</p>
             <label className="block font-semibold">Decoration
-              <select value={selectedArt} onChange={event => setSelectedArt(event.target.value)} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+              <select value={selectedArt} onChange={event => { const art = event.target.value; setSelectedArt(art); setSelectedSpot(allowedSpots(art)[0]); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                 <optgroup label="Candy decorations">{decorationChoices.map(([name, file]) => <option key={file} value={file}>{name}</option>)}</optgroup>
                 <optgroup label="Garden decorations">{gardenChoices.map(([name, file]) => <option key={file} value={file}>{name}</option>)}</optgroup>
               </select>
             </label>
             <label className="block font-semibold">Placement area
-              <select value={selectedSpot} onChange={event => setSelectedSpot(event.target.value as DecorationSpot)} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
-                {Object.keys(decorationSpots).map(spot => <option key={spot} value={spot}>{spot}</option>)}
+              <select value={effectiveSpot} onChange={event => setSelectedSpot(event.target.value as DecorationSpot)} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                {availableSpots.map(spot => <option key={spot} value={spot}>{spot}</option>)}
               </select>
             </label>
             <button type="button" onClick={addDecoration} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Add decoration to preview</button>
             {decorations.length > 0 && <>
               <label className="block font-semibold">Edit placed decoration
-                <select value={selectedDecorationId ?? ""} onChange={event => setSelectedDecorationId(Number(event.target.value))} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+                <select value={selectedDecorationId ?? ""} onChange={event => { const id = Number(event.target.value); setSelectedDecorationId(id); const item = decorations.find(d => d.id === id); if (item) setMessage(movementDescription(item) + "."); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                   <option value="" disabled>Choose a decoration</option>
                   {decorations.map(item => <option key={item.id} value={item.id}>{decorationName(item.art)} — {item.spot} (item {item.id})</option>)}
                 </select>
@@ -255,7 +271,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               <button type="button" disabled={selectedDecorationId === null} onClick={removeDecoration} className="min-h-11 rounded-lg border border-amber-500 px-3 py-2 disabled:opacity-50">Remove selected decoration</button>
             </>}
           </section>
-          <p role="status" aria-live="polite">{message}</p>
+          <p role="status" aria-live="polite" aria-atomic="true">{message}</p>
           <button type="button" onClick={save} className="min-h-11 w-full rounded-xl bg-teal-900 p-3 font-bold text-white">Save House to Gallery</button>
           <section aria-label="Candy Cottage Gallery" className="space-y-2">
             <h3 className="font-serif text-lg font-bold">Candy Cottage Gallery ({gallery.length})</h3>
