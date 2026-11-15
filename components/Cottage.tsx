@@ -34,6 +34,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
   const [roomDetailsOpen, setRoomDetailsOpen] = useState(false);
   const [roomPanel, setRoomPanel] = useState<"friendship" | "activity">("friendship");
   const [seasonalOpen, setSeasonalOpen] = useState(false);
+  const [adventMusicEnabled, setAdventMusicEnabled] = useState(true);
   const roomActivityRef = useRef<HTMLButtonElement>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [sortingOpen, setSortingOpen] = useState(false);
@@ -59,10 +60,14 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
     // Nested activities can clear their own music override on close.
     // Restore the cottage harmony track whenever a popup closes.
     if (sortingOpen || mosaicOpen || gardenOpen || cadenceOpen) return;
+    if (seasonalOpen && (new Date().getMonth() === 10 || new Date().getMonth() === 11)) {
+      setMusicOverride(adventMusicEnabled ? "christmasAdvent" : "silentAdvent");
+      return () => setMusicOverride(null);
+    }
     if (bondedSisterCount >= 1) setMusicOverride(`cottage${Math.min(4, bondedSisterCount)}`);
     else setMusicOverride(null);
     return () => setMusicOverride(null);
-  }, [bondedSisterCount, sortingOpen, mosaicOpen, gardenOpen, cadenceOpen, setMusicOverride]);
+  }, [bondedSisterCount, sortingOpen, mosaicOpen, gardenOpen, cadenceOpen, seasonalOpen, adventMusicEnabled, setMusicOverride]);
 
   const currentLayer = [...COTTAGE_HARMONY_LAYERS].reverse().find((l) => l.sisterCount <= bondedSisterCount) || null;
   const room = COTTAGE_ROOMS.find((r) => r.id === roomId) || COTTAGE_ROOMS[0];
@@ -187,7 +192,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
       </div></div>}
 
       </>)}
-      {seasonalOpen && <div role="dialog" aria-modal="true" aria-label="Seasonal Corner" className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4"><button type="button" onClick={() => setSeasonalOpen(false)} className="mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-bold text-indigo-950">Close Seasonal Corner</button>{month === 9 ? <HalloweenCauldron /> : month === 11 || month === 10 ? <ChristmasAdvent /> : <p className="text-amber-100">This seasonal activity is coming soon.</p>}</div>}
+      {seasonalOpen && <div role="dialog" aria-modal="true" aria-label="Seasonal Corner" className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4"><button type="button" onClick={() => setSeasonalOpen(false)} className="mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-bold text-indigo-950">Close Seasonal Corner</button>{month === 9 ? <HalloweenCauldron /> : month === 11 || month === 10 ? <ChristmasAdvent musicEnabled={adventMusicEnabled} onMusicChange={setAdventMusicEnabled} /> : <p className="text-amber-100">This seasonal activity is coming soon.</p>}</div>}
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
       {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}
