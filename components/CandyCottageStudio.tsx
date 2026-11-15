@@ -101,10 +101,10 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
                   }}
                 />}
-                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "43%", top: "48%", width: "15%", height: "31%" }} />}
+                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "35%", top: "42%", width: "30%", height: "45%" }} />}
                 {house.windowArt && <>
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "27%", top: "52%", width: "15%", height: "21%" }} />
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "59%", top: "52%", width: "15%", height: "21%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "17%", top: "45%", width: "28%", height: "34%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "55%", top: "45%", width: "28%", height: "34%" }} />
                 </>}
               </div>
               <p className="mt-2 text-center text-xs text-amber-900">Door and window placement is being tested. Original house details remain underneath the selected artwork.</p>
