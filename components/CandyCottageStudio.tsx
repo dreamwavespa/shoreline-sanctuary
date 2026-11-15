@@ -18,6 +18,35 @@ const materials = {
 const assetRoot = "/images/Candy%20cottage/";
 const doorChoices = [["Original door",""],["Chocolate Peppermint","Chocolate-Peppermint-Door.png"],["Pastel Candy","Pastel-Candy-Door.png"],["Seaside Candy","Seaside-Candy-Door.png"],["Autumn Caramel","Autumn-Caramel-Door.png"],["Lavender","Door-Lavender.png"],["Mint","Door-Mint.png"],["Pink","Door-Pink.png"],["Teal Heart","Door-Teal-Heart.png"],["Blue","Door-Blue.png"],["Garland","Door-Garland.png"],["Wreath","Door-Wreath.png"]] as const;
 const windowChoices = [["Original windows",""],["Gingerbread Sugar Glass","Gingerbread-Sugar-Glass-Window.png"],["Pastel Floral","Pastel-Floral-Window.png"],["Seaside Seashell","Seaside-Seashell-Window.png"],["Autumn Caramel","Autumn-Caramel-Window.png"],["Round","Window-Round.png"],["Flowerbox","Window-Flowerbox.png"],["Lattice","Window-Lattice.png"],["Shutters","Window-Shutters.png"]] as const;
+// Each artwork batch has different transparent margins and proportions.
+// Tune the bounding boxes independently without modifying the PNGs.
+type OverlayPlacement = { left: string; top: string; width: string; height: string };
+const doorPlacement: Record<string, OverlayPlacement> = {
+  "Chocolate-Peppermint-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
+  "Pastel-Candy-Door.png": { left: "36%", top: "43%", width: "28%", height: "42%" },
+  "Seaside-Candy-Door.png": { left: "39%", top: "46%", width: "22%", height: "37%" },
+  "Autumn-Caramel-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
+  "Door-Lavender.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Mint.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Pink.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Teal-Heart.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Blue.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Garland.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+  "Door-Wreath.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
+};
+const defaultDoorPlacement: OverlayPlacement = { left: "35%", top: "42%", width: "30%", height: "45%" };
+type WindowPlacement = { left: string; right: string; top: string; width: string; height: string };
+const windowPlacement: Record<string, WindowPlacement> = {
+  "Gingerbread-Sugar-Glass-Window.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
+  "Pastel-Floral-Window.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
+  "Seaside-Seashell-Window.png": { left: "16%", right: "59%", top: "46%", width: "25%", height: "31%" },
+  "Autumn-Caramel-Window.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
+  "Window-Round.png": { left: "12%", right: "55%", top: "43%", width: "33%", height: "37%" },
+  "Window-Flowerbox.png": { left: "14%", right: "57%", top: "41%", width: "29%", height: "34%" },
+  "Window-Lattice.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
+  "Window-Shutters.png": { left: "13%", right: "56%", top: "44%", width: "31%", height: "35%" },
+};
+const defaultWindowPlacement: WindowPlacement = { left: "12%", right: "55%", top: "43%", width: "33%", height: "37%" };
 const houseArt: Record<string, string> = {
   "Spring Candy Greenhouse": "Spring-Candy-Greenhouse.png",
   "Summer Seaside Cottage": "Summer-Seaside-Cottage.png",
@@ -101,10 +130,10 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
                   }}
                 />}
-                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "35%", top: "42%", width: "30%", height: "45%" }} />}
+                {house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={doorPlacement[house.doorArt] || defaultDoorPlacement} />}
                 {house.windowArt && <>
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "12%", top: "43%", width: "33%", height: "37%" }} />
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ left: "55%", top: "43%", width: "33%", height: "37%" }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
                 </>}
               </div>
               <p className="mt-2 text-center text-xs text-amber-900">Preview placement is approximate; original details may remain visible beneath selected decorations.</p>
