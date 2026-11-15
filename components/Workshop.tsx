@@ -335,15 +335,64 @@ function RecipeThumbnail({ recipeId }: { recipeId: string }) {
   );
 }
 
+const ICE_CREAM_ART: Record<string, string> = {
+  coconut: "Scoop-Coconut.png", strawberry: "Scoop-Strawberry.png",
+  pineapple: "Scoop-Pineapple.png", "chocolate-seashell": "Scoop-Chocolate-Seashell.png",
+  vanilla: "Scoop-Vanilla.png",
+};
+const ICE_CREAM_FRUIT_ART: Record<string, string> = {
+  strawberry: "Fruit-Strawberry.png", blueberry: "Fruit-Blueberry.png",
+  raspberry: "Fruit-Raspberry.png", pineapple: "Fruit-Pineapple.png",
+  mango: "Fruit-Mango.png", "wild-beach-plum": "Fruit-Beach-Plum.png",
+};
+const ICE_CREAM_TOPPING_ART: Record<string, string> = {
+  "chocolate-seashells": "Topping-Chocolate-Seashells.png",
+  "candy-seashells": "Topping-Candy-Seashells.png",
+  "dried-sugar-berries": "Topping-Dried-Sugar-Berries.png",
+  marshmallows: "Topping-Marshmallows.png", "coconut-flakes": "Topping-Coconut-Flakes.png",
+  "melted-chocolate": "Topping-Chocolate-Drizzle.png",
+};
+
+function IceCreamPreview({ first, second, fruit, topping, description }: {
+  first: string; second: string; fruit: string; topping: string; description: string;
+}) {
+  const root = "/images/Icecream/";
+  return <figure className="my-3 rounded-2xl border border-sky-200 bg-white p-3">
+    <div role="img" aria-label={description} className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 via-white to-amber-50">
+      <Image src={root + "Bowl.png"} alt="" fill unoptimized sizes="384px" className="pointer-events-none object-contain" style={{ transform: "translateY(20%)" }} />
+      {[first, second].map((flavor, index) => <div key={index} className="absolute aspect-square w-[60%]" style={{ left: index === 0 ? "1%" : "39%", top: "23%" }}>
+        <Image src={root + ICE_CREAM_ART[flavor]} alt="" fill unoptimized sizes="230px" className="pointer-events-none object-contain" />
+      </div>)}
+      {fruit !== "none" && ICE_CREAM_FRUIT_ART[fruit] && <div className="absolute left-[10%] top-[13%] aspect-square w-[80%]">
+        <Image src={root + ICE_CREAM_FRUIT_ART[fruit]} alt="" fill unoptimized sizes="307px" className="pointer-events-none object-contain" />
+      </div>}
+      <div className="absolute" style={topping === "melted-chocolate" ? { left: "12%", top: "37%", width: "76%", height: "25%" } : { left: "10%", top: "1%", width: "80%", aspectRatio: "1" }}>
+        <Image src={root + ICE_CREAM_TOPPING_ART[topping]} alt="" fill unoptimized sizes="307px" className="pointer-events-none object-contain" />
+      </div>
+      {/* Redraw only the bowl front to tuck the scoops behind its rim. */}
+      <Image src={root + "Bowl.png"} alt="" fill unoptimized sizes="384px" className="pointer-events-none object-contain" style={{ transform: "translateY(20%)", clipPath: "inset(54% 0 0 0)" }} />
+    </div>
+    <figcaption className="mt-2 text-center text-sm" aria-live="polite" aria-atomic="true">{description}</figcaption>
+  </figure>;
+}
+
 function IceCreamStation() {
   const { state, iceCreamAction } = useGame();
   const [first, setFirst] = useState("coconut");
   const [second, setSecond] = useState("strawberry");
   const [fruit, setFruit] = useState("none");
   const [topping, setTopping] = useState("chocolate-seashells");
+  const [finishedDessert, setFinishedDessert] = useState("");
   const flavors = [["coconut", "Coconut"], ["strawberry", "Strawberry"], ["pineapple", "Pineapple"], ["chocolate-seashell", "Chocolate Seashell"], ["vanilla", "Vanilla"]];
   const toppings = [["chocolate-seashells", "Chocolate Seashells"], ["candy-seashells", "Candy Seashells"], ["dried-sugar-berries", "Dried Sugar Berries"], ["marshmallows", "Marshmallows"], ["coconut-flakes", "Coconut Flakes"], ["melted-chocolate", "Melted Chocolate"]];
   const fruits = [["none", "No extra fruit"], ["strawberry", "Strawberry"], ["blueberry", "Blueberry"], ["raspberry", "Raspberry"], ["pineapple", "Pineapple"], ["mango", "Mango"], ["wild-beach-plum", "Beach Plum"]];
+  const flavorName = (id: string) => flavors.find(([key]) => key === id)?.[1] || id;
+  const description = `${flavorName(first)} and ${flavorName(second)} ice cream${fruit === "none" ? "" : " with " + (fruits.find(([key]) => key === fruit)?.[1] || fruit)}${fruit === "none" ? " with " : " and "}${toppings.find(([key]) => key === topping)?.[1] || topping}.`;
+  const makeDessert = () => {
+    if (iceCreamAction("assemble", first, second, fruit, topping)) {
+      setFinishedDessert("Made " + description + " Your dessert has been added to inventory.");
+    }
+  };
   const date = new Date().toLocaleDateString("en-CA");
   const flavorCount = (id: string) => [1,2].filter(n => state.notebookDiscovered[`ice-cream-daily:${date}:flavor:${id}:${n}`]).length;
   const toppingCount = [1,2].filter(n => state.notebookDiscovered[`ice-cream-daily:${date}:topping:${n}`]).length;
@@ -359,12 +408,15 @@ function IceCreamStation() {
     <h4 className="mt-4 font-bold">Saved portions</h4>
     <ul>{flavors.map(([id,name]) => <li key={id}>{name}: {state.inventory[`ice-cream-portion-${id}`] || 0}</li>)}{toppings.map(([id,name]) => <li key={id}>{name} topping: {state.inventory[`ice-cream-topping-${id}`] || 0}</li>)}</ul>
     <h4 className="mt-4 font-bold">Assemble a custom dessert</h4>
+    <IceCreamPreview first={first} second={second} fruit={fruit} topping={topping} description={description} />
+    <p className="text-sm">Your preview changes as you choose flavors, fruit, and a topping. Ingredients are used when you make the dessert.</p>
     <label className="mt-2 block">First flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={first} onChange={e => setFirst(e.target.value)}>{flavors.filter(([id]) => id !== "vanilla" || state.notebookDiscovered["recipe:classic-vanilla-ice-cream"]).map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Second flavor<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={second} onChange={e => setSecond(e.target.value)}>{flavors.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Optional fresh fruit<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={fruit} onChange={e => setFruit(e.target.value)}>{fruits.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <label className="mt-2 block">Topping<select className="mt-1 block min-h-11 w-full rounded-lg border p-2" value={topping} onChange={e => setTopping(e.target.value)}>{toppings.map(([id,name]) => <option key={id} value={id}>{name}</option>)}</select></label>
     <p className="mt-2 text-sm">You can use saved toppings or compatible ingredients already collected elsewhere, such as chocolate seashells, dried sugar berries, or marshmallows.</p>
-    <button type="button" onClick={() => iceCreamAction("assemble",first,second,fruit,topping)} className="mt-3 min-h-12 rounded-xl bg-amber-700 px-4 py-2 font-bold text-white">Make Custom Ice Cream</button>
+    <button type="button" onClick={makeDessert} className="mt-3 min-h-12 rounded-xl bg-amber-700 px-4 py-2 font-bold text-white">Make Custom Ice Cream</button>
+    <p role="status" className="mt-2 text-sm">{finishedDessert}</p>
   </section>;
 }
 
