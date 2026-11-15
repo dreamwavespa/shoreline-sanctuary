@@ -37,7 +37,7 @@ const gardenChoices = [
 ] as const;
 const decorationSpots = {
   "Front gable": { left: 42, top: 33, width: 12, height: 12 },
-  "Above door": { left: 44, top: 46, width: 12, height: 12 },
+  "Above door": { left: 32, top: 36, width: 12, height: 12 },
   "Left garden": { left: 0, top: 70, width: 20, height: 20 },
   "Right garden": { left: 80, top: 70, width: 20, height: 20 },
   "Left path": { left: 23, top: 77, width: 17, height: 17 },
@@ -56,13 +56,13 @@ const doorPlacement: Record<string, OverlayPlacement> = {
   "Pastel-Candy-Door.png": { left: "36%", top: "43%", width: "28%", height: "42%" },
   "Seaside-Candy-Door.png": { left: "39%", top: "46%", width: "22%", height: "37%" },
   "Autumn-Caramel-Door.png": { left: "36%", top: "44%", width: "28%", height: "41%" },
-  "Door-Lavender.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Mint.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Pink.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Teal-Heart.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Blue.png": { left: "35%", top: "43%", width: "30%", height: "43%" },
-  "Door-Garland.png": { left: "38%", top: "46%", width: "24%", height: "36%" },
-  "Door-Wreath.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Lavender.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Mint.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Pink.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Teal-Heart.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Blue.png": { left: "38%", top: "46%", width: "24%", height: "37%" },
+  "Door-Garland.png": { left: "40%", top: "48%", width: "20%", height: "32%" },
+  "Door-Wreath.png": { left: "40%", top: "48%", width: "20%", height: "33%" },
 };
 const defaultDoorPlacement: OverlayPlacement = { left: "35%", top: "42%", width: "30%", height: "45%" };
 type WindowPlacement = { left: string; right: string; top: string; width: string; height: string };
