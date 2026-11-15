@@ -32,10 +32,8 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
   const [locked, setLocked] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const closeRef = useRef(onClose);
-  const pendingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectedRef = useRef<string[]>([]);
   const matchedRef = useRef<string[]>([]);
-  const gameIdRef = useRef(0);
   closeRef.current = onClose;
 
   useEffect(() => {
@@ -44,14 +42,10 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
     window.addEventListener("keydown", escape);
     return () => {
       window.removeEventListener("keydown", escape);
-      if (pendingRef.current) clearTimeout(pendingRef.current);
-      gameIdRef.current += 1;
     };
   }, []);
 
   const start = (nextMode: Mode) => {
-    if (pendingRef.current) clearTimeout(pendingRef.current);
-    gameIdRef.current += 1;
     setMode(nextMode);
     const flavors = nextMode === "beginner" ? FLAVORS.slice(0, 3) : FLAVORS;
     const nextCards = flavors.flatMap((flavor) => {
@@ -71,7 +65,7 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
   };
 
   const selectCard = (card: Card, position: number) => {
-    if (locked || matchedRef.current.includes(card.id)) return;
+    if (locked || selectedRef.current.length >= 2 || matchedRef.current.includes(card.id)) return;
     if (selectedRef.current.includes(card.id)) {
       setMessage(`Card ${position + 1}, ${card.label}, is already selected. Choose another card.`);
       return;
@@ -93,18 +87,19 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
       const nextMatched = [...matchedRef.current, ...selected];
       matchedRef.current = nextMatched;
       setMatched(nextMatched);
-      setMessage(`Match! ${label(card.flavor)} cupcake pair found. ${nextMatched.length / 2} of ${cards.length / 2} pairs completed.`);
+      setMessage(`Card ${position + 1}: ${card.label}. Match with ${first.label}! ${nextMatched.length / 2} of ${cards.length / 2} pairs completed. Press Continue when ready.`);
     } else {
       play("plastic");
-      setMessage(`Not a match. ${first.label} and ${card.label}. Try again.`);
+      setMessage(`Card ${position + 1}: ${card.label}. Not a match with ${first.label}. Both cards will stay revealed until you press Continue.`);
     }
-    const gameId = gameIdRef.current;
-    pendingRef.current = setTimeout(() => {
-      if (gameId !== gameIdRef.current) return;
+  };
+
+  const continueTurn = () => {
+      if (!locked) return;
       selectedRef.current = [];
       setRevealed([]);
       setLocked(false);
-      if (correct && matchedRef.current.length === cards.length) {
+      if (matchedRef.current.length === cards.length) {
         let bonus = "Today's baking ingredient bonus was already collected. You can keep playing!";
         try {
           if (localStorage.getItem(REWARD_KEY) !== localDay()) {
@@ -118,9 +113,10 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
           bonus = "Round complete. Your daily reward could not be saved.";
         }
         setReward(bonus);
-        setMessage(`All ${cards.length / 2} cupcake pairs matched in ${moves + 1} turns. ${bonus}`);
+        setMessage(`All ${cards.length / 2} cupcake pairs matched in ${moves} turns. ${bonus}`);
+      } else {
+        setMessage("Choose a card to start your next turn.");
       }
-    }, correct ? 450 : 950);
   };
 
   return (
@@ -136,7 +132,7 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={() => start("intermediate")} className="rounded-lg bg-teal-800 px-4 py-3 font-semibold text-white">Intermediate: 6 pairs</button>
           <button type="button" onClick={() => start("advanced")} className="rounded-lg bg-purple-800 px-4 py-3 font-semibold text-white">Advanced: 6 pairs</button>
         </div>
-        <p className="mt-3 text-sm">One surprise baking ingredient per day for your first completed round. No ingredients are spent to play. Flip cards to hear the bubble pop sound.</p>
+        <p className="mt-3 text-sm">One surprise baking ingredient per day for your first completed round. No ingredients are spent to play. Flip cards to hear the bubble pop sound. After revealing two cards, press Continue when you are ready. Cards do not turn back over automatically.</p>
         {started && (
           <>
             <p className="mt-4 font-semibold">Level: {mode}. Moves: {moves}. Pairs matched: {matched.length / 2} of {cards.length / 2}.</p>
@@ -145,7 +141,7 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
                 const found = matched.includes(card.id);
                 const faceUp = found || revealed.includes(card.id);
                 return (
-                  <button key={card.id} type="button" onClick={() => selectCard(card, index)} disabled={found || locked}
+                  <button key={card.id} type="button" onClick={() => selectCard(card, index)} aria-disabled={found || locked}
                     aria-label={`Card ${index + 1}: ${faceUp ? card.label : "hidden cupcake"}. ${found ? "Matched." : faceUp ? "Revealed." : "Select to reveal."}`}
                     className={`flex min-h-28 flex-col items-center justify-center rounded-xl border-2 p-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800 ${found ? "border-emerald-600 bg-emerald-100" : "border-rose-300 bg-white"}`}>
                     {faceUp ? (
@@ -156,10 +152,11 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
                 );
               })}
             </div>
-            {matched.length === cards.length && <p className="mt-4 font-bold text-emerald-800">All cupcakes matched! {reward}</p>}
+            {locked && <button type="button" onClick={continueTurn} className="mt-4 rounded-lg bg-teal-800 px-4 py-3 font-semibold text-white">Continue</button>}
+            {matched.length === cards.length && !locked && <p className="mt-4 font-bold text-emerald-800">All cupcakes matched! {reward}</p>}
           </>
         )}
-        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{message}</p>
+        <p className="mt-4 font-semibold" role="status" aria-live="polite" aria-atomic="true">{message}</p>
         <p className="mt-4 text-sm text-amber-800">Choose any level again to replay. Press Escape to close.</p>
       </div>
     </div>
