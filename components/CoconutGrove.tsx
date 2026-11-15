@@ -8,6 +8,7 @@ import { getShopDateKey } from "@/lib/shop";
 import { BEE_VISIT_COOLDOWN_MS, useGame } from "@/lib/store";
 import HiddenGroveNursery, { WateringCanIcon } from "./HiddenGroveNursery";
 import WoodlandTrail from "./WoodlandTrail";
+import SnowyWinterCove from "./SnowyWinterCove";
 
 
 type NodeId = "orange" | "palms" | "berries" | "herbs" | "coastal" | "fruit" | "roots" | "seasonal" | "vegetables";
@@ -73,6 +74,7 @@ export default function CoconutGrove() {
   const [now, setNow] = useState(() => Date.now());
   const [nurseryOpen, setNurseryOpen] = useState(false);
   const [woodlandOpen, setWoodlandOpen] = useState(false);
+  const [snowyCoveOpen, setSnowyCoveOpen] = useState(false);
   const [flowerBedOpen, setFlowerBedOpen] = useState(false);
   const [mysteryHerbOpen, setMysteryHerbOpen] = useState(false);
   const [mysteryHerb, setMysteryHerb] = useState<MysteryHerb | null>(null);
@@ -330,6 +332,7 @@ export default function CoconutGrove() {
   };
 
   if (woodlandOpen) return <WoodlandTrail onBack={() => setWoodlandOpen(false)} />;
+  if (snowyCoveOpen) return <SnowyWinterCove onBack={() => setSnowyCoveOpen(false)} />;
 
   return (
     <div className="h-full overflow-y-auto bg-[#edf5df] pb-24">
@@ -338,6 +341,7 @@ export default function CoconutGrove() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-emerald-950/30" />
         <h1 className="pointer-events-none absolute left-4 top-4 font-serif text-3xl font-bold text-white drop-shadow-lg">Coconut Grove</h1>
         <button type="button" onClick={() => setWoodlandOpen(true)} aria-label="Follow the Woodland Trail to Robin’s Bird Sanctuary" className="absolute left-3 top-[27%] z-20 min-h-11 rounded-xl bg-emerald-950/90 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">🌲 Woodland Trail</button>
+        <button type="button" onClick={() => setSnowyCoveOpen(true)} aria-label="Enter Snowy's Winter Cove" className="absolute right-3 top-[27%] z-20 min-h-11 rounded-xl bg-indigo-950/90 px-3 py-2 text-sm font-bold text-white shadow-lg ring-2 ring-amber-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300">❄️ Snowy's Winter Cove</button>
         {/* Seasonal plants are decorative; the existing garden hotspot handles all interaction. */}
         <div className="pointer-events-none absolute left-[62%] top-[49%] z-[5] h-[40%] w-[38%]" aria-hidden="true">
           <Image src={seasonalGardenImage} alt="" fill unoptimized sizes="(max-width: 640px) 42vw, 25vw" className="object-contain object-bottom" />
