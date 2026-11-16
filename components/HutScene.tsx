@@ -83,6 +83,9 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     { id: "sky-blue-curtains", name: "Sky Blue Curtains", file: "Sky_Blue_Curtains" },
     { id: "pink-flower-curtains", name: "Pink Flower Curtains", file: "Pink_Flower_Curtains" },
     { id: "seafoam-flower-curtains", name: "Seafoam Flower Curtains", file: "Seafoam_Flower_Curtains" },
+    { id: "lavender-blossom-curtains", name: "Lavender Blossom Curtains", file: "Lavender-blossom-open", closedFile: "Lavender-blossom-closed" },
+    { id: "snowflake-white-curtains", name: "Snowflake White Curtains", file: "Snowflake-white-open", closedFile: "Snowflake-white-closed" },
+    { id: "ivory-cream-curtains", name: "Ivory Cream Curtains", file: "Ivory-cream-open", closedFile: "Ivory-cream-closed" },
   ];
   useEffect(() => {
     try {
@@ -522,7 +525,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <Image src={imagePath(area, night)} alt={area === "inside" ? (night ? "Cozy hut interior at night with a glowing fireplace and moonlit ocean beyond the patio door" : "Sunny hut interior with three wooden shelves, fireplace, cozy furniture and a glass door to the patio") : (night ? "Wooden oceanfront patio beneath the moon and lantern light" : "Sunny oceanfront patio with flowers, wind chimes and room for decorations")} fill unoptimized priority sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
           {area === "inside" && activeCurtains && (
             <div aria-hidden="true" className="pointer-events-none absolute z-[2]" style={{ left: "45%", top: "17%", width: "29%", height: "35%" }}>
-              <Image src={`/images/Hut/${activeCurtains.file}${curtainsClosed ? "_Closed" : ""}.png`} alt="" fill unoptimized sizes="220px" className="object-contain" />
+              <Image src={`/images/Hut/${curtainsClosed ? (activeCurtains.closedFile || activeCurtains.file + "_Closed") : activeCurtains.file}.png`} alt="" fill unoptimized sizes="220px" className="object-contain" />
             </div>
           )}
           {area === "inside" && fireOn && (
