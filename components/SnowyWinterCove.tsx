@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { VILLAGERS } from "@/lib/villagers";
+import SnowmanMaking from "./SnowmanMaking";
 import { useEffect, useRef, useState } from "react";
 
 type Spot = "snowy" | "floes" | "blocks" | "snowmen" | "pool";
@@ -11,7 +12,7 @@ const SPOTS: { id: Spot; label: string; description: string; left: string; top: 
   { id: "snowy", label: "Visit Snowy the harp seal pup", description: "Snowy welcomes you from her favorite ice floe. Her blue snowflake scarf keeps her cozy.", left: "22%", top: "73%" },
   { id: "floes", label: "Explore the floating ice floes", description: "Search the floating ice floes for winter treasures and unopened frozen ice blocks.", left: "43%", top: "44%" },
   { id: "blocks", label: "Visit the ice block game area", description: "Use Snowy’s carving tool to chip open saved winter ice blocks and discover hidden treasures.", left: "81%", top: "54%" },
-  { id: "snowmen", label: "Visit the snowman-making clearing", description: "A snowman waits by the trees. The snowball mold will unlock snowman-making in a future update.", left: "83%", top: "27%" },
+  { id: "snowmen", label: "Visit the snowman-making clearing", description: "Build and decorate a snowman with a live preview. Save your creations to the Winter Memory Book. Available December through February, with a separate testing preview.", left: "83%", top: "27%" },
   { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "The cove's sheltered water stays open for Snowy to swim and play.", left: "47%", top: "66%" },
 ];
 
@@ -134,6 +135,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
           <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
           {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
         </section>}
+        {spot === "snowmen" && <SnowmanMaking night={night} />}
         {spot === "blocks" && <section aria-label="Frozen Treasure Discovery" className="my-4 space-y-3 rounded-xl bg-indigo-900 p-3">
           <h3 className="font-bold">Frozen Treasure Discovery</h3>
           <p>Unopened ice blocks: {state.inventory["winter-ice-block"]||0}</p>
