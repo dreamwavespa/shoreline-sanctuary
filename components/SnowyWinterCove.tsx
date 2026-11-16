@@ -10,15 +10,36 @@ type Spot = "snowy" | "floes" | "blocks" | "snowmen" | "pool";
 const SPOTS: { id: Spot; label: string; description: string; left: string; top: string }[] = [
   { id: "snowy", label: "Visit Snowy the harp seal pup", description: "Snowy welcomes you from her favorite ice floe. Her blue snowflake scarf keeps her cozy.", left: "22%", top: "73%" },
   { id: "floes", label: "Explore the floating ice floes", description: "Search the floating ice floes for winter treasures and unopened frozen ice blocks.", left: "43%", top: "44%" },
-  { id: "blocks", label: "Visit the ice block game area", description: "Translucent blue ice blocks are ready for future stacking and sliding games.", left: "81%", top: "54%" },
+  { id: "blocks", label: "Visit the ice block game area", description: "Use Snowy’s carving tool to chip open saved winter ice blocks and discover hidden treasures.", left: "81%", top: "54%" },
   { id: "snowmen", label: "Visit the snowman-making clearing", description: "A snowman waits by the trees. The snowball mold will unlock snowman-making in a future update.", left: "83%", top: "27%" },
   { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "The cove's sheltered water stays open for Snowy to swim and play.", left: "47%", top: "66%" },
 ];
 
 export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
-  const { state, giftVillager, collectItem, play, setMusicOverride } = useGame();
+  const { state, giftVillager, collectItem, openWinterIceBlock, play, setMusicOverride } = useGame();
   useEffect(() => { setMusicOverride("snowyWinterCove"); return () => setMusicOverride("grove"); }, [setMusicOverride]);
   const [giftMessage,setGiftMessage] = useState("");
+  const [chipStage,setChipStage] = useState(0);
+  const [iceReward,setIceReward] = useState("");
+  const [carvingStatus,setCarvingStatus] = useState("");
+  const rewardPool = ["winter-frosted-sea-glass","winter-snowball-pearl","winter-frosted-scallop-shell","winter-snowflake-sand-dollar","winter-everlasting-ice-crystal","winter-silver-snowflake-key","winter-golden-shell-key","winter-crystal-seal"];
+  const beginCarving = () => {
+    if ((state.inventory["winter-ice-block"]||0)<1 || (state.inventory["snowy-ice-carving-tool"]||0)<1) return;
+    setIceReward(rewardPool[Math.floor(Math.random()*rewardPool.length)]);
+    setChipStage(1);
+    setCarvingStatus("Ice block ready. Select Chip Ice to begin.");
+  };
+  const chipIce = () => {
+    if (!iceReward || chipStage<1) return;
+    if (chipStage===1) {play("winterIceFirstChip",0.6);setChipStage(2);setCarvingStatus("The first cracks appear in the ice.");}
+    else if (chipStage===2) {play("winterIceFurtherCracks",0.6);setChipStage(3);setCarvingStatus("The cracks spread. One final chip will reveal the treasure.");}
+    else if (chipStage===3) {
+      if (!openWinterIceBlock(iceReward)) {setCarvingStatus("Unable to open this block. Check your inventory.");return;}
+      play("winterIceFinalShatter",0.5);
+      setChipStage(4);
+      setCarvingStatus("The ice shatters! You discovered "+(ITEMS[iceReward]?.name||"a winter treasure")+". Added to inventory.");
+    }
+  };
   const [iceSearchDate,setIceSearchDate] = useState("");
   const [iceSearchFound,setIceSearchFound] = useState<number[]>([]);
   const [iceAnnouncement,setIceAnnouncement] = useState("");
@@ -49,7 +70,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     try {localStorage.setItem(iceSearchKey,JSON.stringify(next));} catch {}
     setIceSearchFound(next);
     collectItem(choice.id,{silent:true});
-    play("seaGlass");
+    play(choice.id==="winter-ice-block"?"winterIceCollect":"seaGlass",0.6);
     setLastIceImage("/images/Winter/"+choice.image);
     setLastIceName(choice.name);
     setIceAnnouncement(choice.name+" found on ice floe "+(slot+1)+". Added to inventory.");
@@ -66,7 +87,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     return () => window.clearInterval(interval);
   }, []);
   useEffect(() => { if (spot) dialogHeading.current?.focus(); }, [spot]);
-  const close = () => { setGiftMessage(""); setSpot(null); window.setTimeout(() => returnFocus.current?.focus(), 0); };
+  const close = () => { setChipStage(0);setIceReward("");setCarvingStatus("");setGiftMessage(""); setSpot(null); window.setTimeout(() => returnFocus.current?.focus(), 0); };
   const selected = SPOTS.find(s => s.id === spot);
   return <section aria-label="Snowy's Winter Cove" className="mx-auto max-w-3xl space-y-3 rounded-xl bg-indigo-950 p-3 text-white">
     <button type="button" onClick={onBack} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Coconut Grove</button>
@@ -98,6 +119,15 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
           {lastIceImage&&<Image src={lastIceImage} alt={lastIceName} width={180} height={180} unoptimized className="mx-auto h-36 w-36 object-contain" />}
           <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
           {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
+        </section>}
+        {spot === "blocks" && <section aria-label="Frozen Treasure Discovery" className="my-4 space-y-3 rounded-xl bg-indigo-900 p-3">
+          <h3 className="font-bold">Frozen Treasure Discovery</h3>
+          <p>Unopened ice blocks: {state.inventory["winter-ice-block"]||0}</p>
+          <p>{(state.inventory["snowy-ice-carving-tool"]||0)>0?"Snowy's Ice Carving Tool unlocked.":"Snowy's carving tool is locked. Give Snowy three favorite gifts to earn it. Save your ice blocks until then."}</p>
+          {chipStage>0&&<Image src={chipStage===4?ITEMS[iceReward]?.icon||"/images/Winter/Winter-ice-block.PNG":"/images/Winter/Winter-ice-block.PNG"} alt={chipStage===4?(ITEMS[iceReward]?.name||"Discovered treasure"):"Unopened ice block, carving stage "+chipStage} width={240} height={240} unoptimized className="mx-auto h-48 w-48 object-contain" />}
+          {chipStage===0||chipStage===4?<button type="button" disabled={(state.inventory["winter-ice-block"]||0)<1||(state.inventory["snowy-ice-carving-tool"]||0)<1} onClick={beginCarving} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950 disabled:opacity-50">Select an Ice Block</button>:<button type="button" onClick={chipIce} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950">Chip Ice — {chipStage} of 3</button>}
+          <p role="status" aria-live="polite" aria-atomic="true">{carvingStatus}</p>
+          {chipStage===4&&<p>You can open another saved ice block, if you have one.</p>}
         </section>}
         <button type="button" onClick={close} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Winter Cove</button>
       </div>
