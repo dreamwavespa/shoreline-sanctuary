@@ -490,6 +490,7 @@ interface Ctx {
   zone: Zone;
   setScreen: (s: Screen) => void;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
+  openWinterIceBlock: (rewardId: string) => boolean;
   talkToMaeve: () => boolean;
   giftMaeve: (itemId: string) => boolean;
   claimMaeveReward: (milestone: number) => boolean;
@@ -1052,6 +1053,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
     toast(`Windblown treasure found: ${ITEMS[itemId].name}!`);
     return itemId;
+  };
+
+  const openWinterIceBlock = (rewardId: string): boolean => {
+    if (!ITEMS[rewardId] || !rewardId.startsWith("winter-") || rewardId === "winter-ice-block") return false;
+    const s = stateRef.current;
+    if ((s.inventory["winter-ice-block"] || 0) < 1 || (s.inventory["snowy-ice-carving-tool"] || 0) < 1) return false;
+    setState(prev => {
+      if ((prev.inventory["winter-ice-block"] || 0) < 1 || (prev.inventory["snowy-ice-carving-tool"] || 0) < 1) return prev;
+      return { ...prev, inventory: {
+        ...prev.inventory,
+        "winter-ice-block": prev.inventory["winter-ice-block"] - 1,
+        [rewardId]: (prev.inventory[rewardId] || 0) + 1
+      }, totalCollected: prev.totalCollected + 1 };
+    });
+    return true;
   };
 
   const collectItem = (itemId: string, opts?: { silent?: boolean }) => {
@@ -1924,6 +1940,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           const surprise = surprisePool[Math.floor(Math.random() * surprisePool.length)];
           inv[surprise] = (inv[surprise] || 0) + 1;
         }
+      }
+
+      if (villagerId === "snowy" && loved && nextGiftCount >= 3 && !crafted.includes("snowy-friendship:carving-tool")) {
+        inv["snowy-ice-carving-tool"] = (inv["snowy-ice-carving-tool"] || 0) + 1;
+        crafted.push("snowy-friendship:carving-tool");
       }
 
       // Lacey's friendship grows through loved gifts; milestones award permanent sewing keepsakes.
@@ -3053,6 +3074,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScreen,
       offshoreAction,
       collectItem,
+      openWinterIceBlock,
       talkToMaeve,
       giftMaeve,
       claimMaeveReward,
