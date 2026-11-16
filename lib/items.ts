@@ -15,6 +15,11 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "snowy-ice-carving-tool": { id:"snowy-ice-carving-tool",name:"Snowy's Ice Carving Tool",category:"special",icon:"/images/Winter/Snowy_Ice_Carving_Tool.png",rarity:"rare",sfx:"craftSuccess" },
+  "winter-everlasting-ice-crystal": { id:"winter-everlasting-ice-crystal",name:"Everlasting Ice Crystal",category:"raw",icon:"/images/Winter/Everlasting_Ice_Crystal.png",rarity:"rare",sfx:"seaGlass" },
+  "winter-silver-snowflake-key": { id:"winter-silver-snowflake-key",name:"Silver Snowflake Key",category:"special",icon:"/images/Winter/Silver_Snowflake_Key.png",rarity:"rare",sfx:"seaGlass" },
+  "winter-golden-shell-key": { id:"winter-golden-shell-key",name:"Golden Shell Key",category:"special",icon:"/images/Winter/Golden_Shell_Key.png",rarity:"rare",sfx:"seaGlass" },
+  "winter-crystal-seal": { id:"winter-crystal-seal",name:"Crystal Seal",category:"special",icon:"/images/Winter/Crystal_Seal.png",rarity:"rare",sfx:"seaGlass" },
   "winter-ice-block": { id: "winter-ice-block", name: "Unopened Winter Ice Block", category: "special", icon: "/images/Winter/Winter-ice-block.PNG", rarity: "uncommon", sfx: "seaGlass" },
   "winter-snowball-pearl": { id: "winter-snowball-pearl", name: "Snowball Pearl", category: "pearl", icon: "/images/Winter/Snowball_Pearl.png", rarity: "uncommon", sfx: "seaGlass" },
   "winter-frosted-sea-glass": { id: "winter-frosted-sea-glass", name: "Frosted Sea Glass", category: "glass", icon: "/images/Winter/Frosted_Sea_Glass.png", rarity: "common", sfx: "seaGlass" },
