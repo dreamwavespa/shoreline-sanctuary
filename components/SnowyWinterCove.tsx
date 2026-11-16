@@ -9,16 +9,47 @@ import { useEffect, useRef, useState } from "react";
 type Spot = "snowy" | "floes" | "blocks" | "snowmen" | "pool";
 const SPOTS: { id: Spot; label: string; description: string; left: string; top: string }[] = [
   { id: "snowy", label: "Visit Snowy the harp seal pup", description: "Snowy welcomes you from her favorite ice floe. Her blue snowflake scarf keeps her cozy.", left: "22%", top: "73%" },
-  { id: "floes", label: "Explore the floating ice floes", description: "Wide, glittering ice floes drift gently across the sheltered cove. Ice-floe games are coming soon.", left: "43%", top: "44%" },
+  { id: "floes", label: "Explore the floating ice floes", description: "Search the floating ice floes for winter treasures and unopened frozen ice blocks.", left: "43%", top: "44%" },
   { id: "blocks", label: "Visit the ice block game area", description: "Translucent blue ice blocks are ready for future stacking and sliding games.", left: "81%", top: "54%" },
   { id: "snowmen", label: "Visit the snowman-making clearing", description: "A snowman waits by the trees. The snowball mold will unlock snowman-making in a future update.", left: "83%", top: "27%" },
   { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "The cove's sheltered water stays open for Snowy to swim and play.", left: "47%", top: "66%" },
 ];
 
 export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
-  const { state, giftVillager, setMusicOverride } = useGame();
+  const { state, giftVillager, collectItem, play, setMusicOverride } = useGame();
   useEffect(() => { setMusicOverride("snowyWinterCove"); return () => setMusicOverride("grove"); }, [setMusicOverride]);
   const [giftMessage,setGiftMessage] = useState("");
+  const [iceSearchDate,setIceSearchDate] = useState("");
+  const [iceSearchFound,setIceSearchFound] = useState<number[]>([]);
+  const [iceAnnouncement,setIceAnnouncement] = useState("");
+  const iceSearchToday = new Date().toLocaleDateString("en-CA");
+  const iceSearchKey = "shoreline-winter-ice-floes-v1-" + iceSearchToday;
+  const iceFinds = [
+    {id:"winter-ice-block",name:"Unopened Winter Ice Block",image:"Winter-ice-block.PNG"},
+    {id:"winter-frosted-sea-glass",name:"Frosted Sea Glass",image:"Frosted_Sea_Glass.png"},
+    {id:"winter-snowball-pearl",name:"Snowball Pearl",image:"Snowball_Pearl.png"},
+    {id:"winter-frosted-scallop-shell",name:"Frosted Scallop Shell",image:"Frosted_Scallop_Shell.png"},
+    {id:"winter-frosted-spiral-shell",name:"Frosted Spiral Shell",image:"Frosted_Spiral_Shell.png"},
+    {id:"winter-snowflake-sand-dollar",name:"Snowflake Sand Dollar",image:"Snowflake_Sand_Dollar.png"},
+    {id:"winter-ice-coral",name:"Ice Coral",image:"Ice_Coral.png"},
+    {id:"winter-iridescent-starfish",name:"Iridescent Starfish",image:"Iridescent_Starfish.png"},
+  ];
+  useEffect(() => {
+    try { const saved=JSON.parse(localStorage.getItem(iceSearchKey)||"[]");setIceSearchFound(Array.isArray(saved)?saved.filter((n:unknown)=>typeof n==="number"&&n>=0&&n<5):[]); } catch {setIceSearchFound([]);}
+    setIceSearchDate(iceSearchToday);
+  },[iceSearchKey,iceSearchToday]);
+  const searchIce = (slot:number) => {
+    if (iceSearchDate!==iceSearchToday || iceSearchFound.includes(slot)) return;
+    // Each daily slot has a stable discovery, including a guaranteed ice block.
+    const pool = [iceFinds[0],...iceFinds.slice(1)];
+    const choice = slot===0 ? pool[0] : pool[1+Math.floor(Math.random()*(pool.length-1))];
+    const next=[...iceSearchFound,slot];
+    try {localStorage.setItem(iceSearchKey,JSON.stringify(next));} catch {}
+    setIceSearchFound(next);
+    collectItem(choice.id,{silent:true});
+    play("seaGlass");
+    setIceAnnouncement(choice.name+" found on ice floe "+(slot+1)+". Added to inventory.");
+  };
   const favoriteGifts = VILLAGERS.snowy.gift.lovedGiftIds;
   const [spot, setSpot] = useState<Spot | null>(null);
   const [night, setNight] = useState(false);
@@ -53,6 +84,15 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
           <p className="text-sm">Snowy loves fresh reef fish, beach balls, snowflake pearls, coconut drops, and frozen drinks.</p>
           <div className="grid gap-2">{favoriteGifts.map(id=><button key={id} type="button" disabled={(state.inventory[id]||0)<1} onClick={()=>{const success=giftVillager("snowy",id);setGiftMessage(success?`Snowy happily accepts your ${ITEMS[id]?.name||id}! Your friendship grows.`:`You need a ${ITEMS[id]?.name||id} in your inventory first.`);}} className="min-h-11 rounded-lg border border-sky-200 bg-indigo-800 p-2 text-left disabled:opacity-50">Give {ITEMS[id]?.name||id} — {state.inventory[id]||0} available</button>)}</div>
           {giftMessage&&<p role="status" className="font-semibold">{giftMessage}</p>}
+        </section>}
+        {spot === "floes" && <section className="space-y-3" aria-label="Ice Floe Exploration">
+          <p>Search five ice floes each day. Ice blocks are stored unopened in your inventory until Snowy's carving tool is unlocked.</p>
+          <p>Unopened ice blocks in inventory: {state.inventory["winter-ice-block"]||0}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[0,1,2,3,4].map(slot=><button key={slot} type="button" disabled={iceSearchDate!==iceSearchToday||iceSearchFound.includes(slot)} onClick={()=>searchIce(slot)} className="min-h-16 rounded-xl border border-sky-200 bg-sky-900 p-3 text-left font-semibold disabled:opacity-60" aria-label={`Ice floe ${slot+1}, ${iceSearchFound.includes(slot)?"searched today":"search for a treasure"}`}>❄️ Ice floe {slot+1}{iceSearchFound.includes(slot)?" ✓":""}</button>)}
+          </div>
+          <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
+          {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
         </section>}
         <button type="button" onClick={close} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Winter Cove</button>
       </div>
