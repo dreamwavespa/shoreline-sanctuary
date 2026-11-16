@@ -51,17 +51,26 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
   ] },
 ];
 const DEFAULT: Snowman = {body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
+// Percentages refer to the full clearing image. Keep all decorations anchored to the body.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
-  {part:"arms",left:"26%",top:"35%",width:"48%",height:"30%"},
-  {part:"body",left:"32%",top:"24%",width:"36%",height:"63%"},
-  {part:"eyes",left:"43%",top:"38%",width:"14%",height:"7%"},
-  {part:"nose",left:"45%",top:"44%",width:"13%",height:"7%"},
-  {part:"mouth",left:"44%",top:"50%",width:"13%",height:"7%"},
-  {part:"buttons",left:"46%",top:"64%",width:"8%",height:"8%"},
-  {part:"scarf",left:"35%",top:"52%",width:"30%",height:"21%"},
-  {part:"hat",left:"38%",top:"19%",width:"24%",height:"18%"},
-  {part:"accessory",left:"63%",top:"69%",width:"17%",height:"16%"},
+  {part:"arms",left:"14%",top:"29%",width:"72%",height:"44%"},
+  {part:"body",left:"23%",top:"19%",width:"54%",height:"68%"},
+  {part:"eyes",left:"40%",top:"34%",width:"20%",height:"9%"},
+  {part:"nose",left:"44%",top:"41%",width:"15%",height:"8%"},
+  {part:"mouth",left:"41%",top:"48%",width:"18%",height:"8%"},
+  {part:"buttons",left:"44%",top:"65%",width:"12%",height:"10%"},
+  {part:"scarf",left:"32%",top:"51%",width:"36%",height:"22%"},
+  {part:"hat",left:"34%",top:"17%",width:"32%",height:"19%"},
+  {part:"accessory",left:"67%",top:"69%",width:"19%",height:"17%"},
 ];
+function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
+  return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
+    <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
+    {LAYERS.map(layer=>parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:layer.left,top:layer.top,width:layer.width,height:layer.height}}>
+      <Image src={ROOT+parts[layer.part]} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
+    </div>:null)}
+  </div>;
+}
 const STORAGE = "shoreline-snowman-winter-v1";
 const PREVIEW_STORAGE = "shoreline-snowman-preview-v1";
 type Memory = { date:string; parts:Snowman };
@@ -106,13 +115,16 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     {!inWinter&&<p>The winter activity opens December 1 and remains available through February. Preview mode lets you test without changing winter progress.</p>}
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={preview} onChange={e=>{setLoaded(false);setPreview(e.target.checked);setAnnouncement("");}}/> Snowman preview mode (separate testing progress)</label>
     {(inWinter||preview)&&<>
-      <div className="relative w-full overflow-hidden rounded-xl" style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={"Snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}>
-        <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 450px" className="object-cover"/>
-        {LAYERS.map(layer=>parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:layer.left,top:layer.top,width:layer.width,height:layer.height}}>
-          <Image src={ROOT+parts[layer.part]} alt="" fill unoptimized sizes="220px" className="object-contain"/>
-        </div>:null)}
-      </div>
+      <SnowmanScene night={night} parts={parts} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
       <p className="text-sm">Live snowman preview. Choose a category, then select an item. Changes are saved automatically on this device.</p>
+      <div className="sticky top-0 z-20 flex items-center gap-3 rounded-xl border border-sky-300 bg-indigo-950/95 p-2 shadow-lg" aria-label="Live snowman mini preview">
+        <div className="w-28 shrink-0"><SnowmanScene night={night} parts={parts} compact description={"Current snowman: "+describe(parts)}/></div>
+        <div className="min-w-0 space-y-1">
+          <p className="font-semibold">Your snowman</p>
+          <p className="text-sm">Preview updates as you decorate.</p>
+          <p className="text-xs text-sky-100">{PARTS.find(group=>group.key===active)?.label}: {PARTS.find(group=>group.key===active)?.options.find(o=>o.file===parts[active])?.name||"None"}</p>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Snowman decoration categories">
         {PARTS.map(group=><button type="button" key={group.key} aria-pressed={active===group.key} onClick={()=>setActive(group.key)} className={`min-h-11 rounded-lg border px-3 py-2 ${active===group.key?"border-yellow-300 bg-indigo-700":"border-sky-200 bg-indigo-900"}`}>{group.label}</button>)}
       </div>
