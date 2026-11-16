@@ -22,6 +22,8 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
   const [iceSearchDate,setIceSearchDate] = useState("");
   const [iceSearchFound,setIceSearchFound] = useState<number[]>([]);
   const [iceAnnouncement,setIceAnnouncement] = useState("");
+  const [lastIceImage,setLastIceImage] = useState("");
+  const [lastIceName,setLastIceName] = useState("");
   const iceSearchToday = new Date().toLocaleDateString("en-CA");
   const iceSearchKey = "shoreline-winter-ice-floes-v1-" + iceSearchToday;
   const iceFinds = [
@@ -48,6 +50,8 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     setIceSearchFound(next);
     collectItem(choice.id,{silent:true});
     play("seaGlass");
+    setLastIceImage("/images/Winter/"+choice.image);
+    setLastIceName(choice.name);
     setIceAnnouncement(choice.name+" found on ice floe "+(slot+1)+". Added to inventory.");
   };
   const favoriteGifts = VILLAGERS.snowy.gift.lovedGiftIds;
@@ -91,6 +95,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
           <div className="grid grid-cols-2 gap-2">
             {[0,1,2,3,4].map(slot=><button key={slot} type="button" disabled={iceSearchDate!==iceSearchToday||iceSearchFound.includes(slot)} onClick={()=>searchIce(slot)} className="min-h-16 rounded-xl border border-sky-200 bg-sky-900 p-3 text-left font-semibold disabled:opacity-60" aria-label={`Ice floe ${slot+1}, ${iceSearchFound.includes(slot)?"searched today":"search for a treasure"}`}>❄️ Ice floe {slot+1}{iceSearchFound.includes(slot)?" ✓":""}</button>)}
           </div>
+          {lastIceImage&&<Image src={lastIceImage} alt={lastIceName} width={180} height={180} unoptimized className="mx-auto h-36 w-36 object-contain" />}
           <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
           {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
         </section>}
