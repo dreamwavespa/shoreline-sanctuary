@@ -57,6 +57,9 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     {id:"winter-snowflake-sand-dollar",name:"Snowflake Sand Dollar",image:"Snowflake_Sand_Dollar.png"},
     {id:"winter-ice-coral",name:"Ice Coral",image:"Ice_Coral.png"},
     {id:"winter-iridescent-starfish",name:"Iridescent Starfish",image:"Iridescent_Starfish.png"},
+    {id:"winter-everlasting-snowball-small",name:"Everlasting Snowball (Small)",image:"Snowman/Small_Snowball.png"},
+    {id:"winter-everlasting-snowball-medium",name:"Everlasting Snowball (Medium)",image:"Snowman/Medium_Snowball.png"},
+    {id:"winter-everlasting-snowball-large",name:"Everlasting Snowball (Large)",image:"Snowman/Large_Snowball.png"},
   ];
   useEffect(() => {
     try { const saved=JSON.parse(localStorage.getItem(iceSearchKey)||"[]");setIceSearchFound(Array.isArray(saved)?saved.filter((n:unknown)=>typeof n==="number"&&n>=0&&n<5):[]); } catch {setIceSearchFound([]);}
@@ -66,7 +69,12 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     if (iceSearchDate!==iceSearchToday || iceSearchFound.includes(slot)) return;
     // Each daily slot has a stable discovery, including a guaranteed ice block.
     const pool = [iceFinds[0],...iceFinds.slice(1)];
-    const choice = slot===0 ? pool[0] : pool[1+Math.floor(Math.random()*(pool.length-1))];
+    const winterMonth = [11,0,1].includes(new Date().getMonth());
+    const rareSnowballs = iceFinds.slice(-3);
+    const ordinaryFinds = iceFinds.slice(1,-3);
+    const choice = slot===0 ? pool[0] : winterMonth && Math.random()<0.075
+      ? rareSnowballs[Math.floor(Math.random()*rareSnowballs.length)]
+      : ordinaryFinds[Math.floor(Math.random()*ordinaryFinds.length)];
     const next=[...iceSearchFound,slot];
     try {localStorage.setItem(iceSearchKey,JSON.stringify(next));} catch {}
     setIceSearchFound(next);
