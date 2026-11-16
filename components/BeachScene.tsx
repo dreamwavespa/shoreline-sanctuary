@@ -62,6 +62,11 @@ const BEACH_RESIDENT_POSITIONS = [
 
 function rollSeasonalBeachItem(night: boolean): string {
   const month = new Date().getMonth();
+  // Rare everlasting snowballs can wash ashore in any winter month.
+  if (month === 11 || month === 0 || month === 1) {
+    const roll = Math.random();
+    if (roll < 0.009) return ["winter-everlasting-snowball-small","winter-everlasting-snowball-medium","winter-everlasting-snowball-large"][Math.floor(Math.random()*3)];
+  }
   // December, January and February: uncommon winter blocks among regular beach finds.
   if ((month === 11 || month === 0 || month === 1) && Math.random() < 0.035) {
     return "winter-ice-block";
