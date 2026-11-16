@@ -80,6 +80,10 @@ export const PWA_ICONS = {
 const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  winterIceCollect: "/audio/ice-block-collect.mp3",
+  winterIceFirstChip: "/audio/ice-first-chip.mp3",
+  winterIceFurtherCracks: "/audio/ice-further-cracks.mp3",
+  winterIceFinalShatter: "/audio/ice-final-shatter.mp3",
   bakingEggCrack: "/audio/Baking-egg-crack.mp3",
   bakingMixing: "/audio/Baking-mixing.mp3",
   bakingMixingSoft: "/audio/Baking-mixing-soft.mp3",
