@@ -19,6 +19,7 @@ const PROJECTS = [
   ["crinkly-starfish","Crinkly Starfish",2,0,0,0,0],
 ] as const;
 const NEW_PROJECTS = [
+  ["snowy-scarf","Snowy's Snowflake Scarf",2,2,0,0,0],
   ["sky-blue-curtains","Sky Blue Curtains",3,0,0,0,0],
   ["pink-flower-curtains","Pink Flower Curtains",3,0,0,1,0],
   ["seafoam-flower-curtains","Seafoam Flower Curtains",3,0,0,1,0],
@@ -36,7 +37,7 @@ const NEW_PROJECTS = [
 ] as const;
 const ALL_PROJECTS = [...PROJECTS,...NEW_PROJECTS] as const;
 const SEASONAL_PROJECTS: Record<string,"winter"|"autumn"|"year-round"> = {"seaside-knit-hat":"winter","seaside-mittens":"winter","cozy-christmas-sweater":"winter","fluffy-snowflake-stocking":"winter","pumpkin-spice-latte-plush":"autumn","fluffy-snowman-plush":"winter","rainbow-and-cloud-plush":"year-round","plush-flower-pillow":"year-round"};
-const PROJECT_ART: Record<string,string> = {"lavender-blossom-curtains":"/images/Hut/Lavender-blossom-open.png","snowflake-white-curtains":"/images/Hut/Snowflake-white-open.png","ivory-cream-curtains":"/images/Hut/Ivory-cream-open.png","sky-blue-curtains":"/images/Hut/Sky_Blue_Curtains.png","pink-flower-curtains":"/images/Hut/Pink_Flower_Curtains.png","seafoam-flower-curtains":"/images/Hut/Seafoam_Flower_Curtains.png","seaside-knit-hat":"Seaside-Knit-Hat.png","seaside-mittens":"Seaside-mittens.PNG","cozy-christmas-sweater":"Cozy-Christmas-sweater.PNG","fluffy-snowflake-stocking":"/images/Christmas/Gifts/Fluffy-Snowflake-Stocking.png","pumpkin-spice-latte-plush":"Pumpkin-Spice-Latte-Plush.png","fluffy-snowman-plush":"Fluffy-Snowman-Plush.png","rainbow-and-cloud-plush":"Rainbow-and-Cloud-Plush.png","plush-flower-pillow":"Plush-Flower-Pillow.png"};
+const PROJECT_ART: Record<string,string> = {"snowy-scarf":"Snowy-scarf.PNG","lavender-blossom-curtains":"/images/Hut/Lavender-blossom-open.png","snowflake-white-curtains":"/images/Hut/Snowflake-white-open.png","ivory-cream-curtains":"/images/Hut/Ivory-cream-open.png","sky-blue-curtains":"/images/Hut/Sky_Blue_Curtains.png","pink-flower-curtains":"/images/Hut/Pink_Flower_Curtains.png","seafoam-flower-curtains":"/images/Hut/Seafoam_Flower_Curtains.png","seaside-knit-hat":"Seaside-Knit-Hat.png","seaside-mittens":"Seaside-mittens.PNG","cozy-christmas-sweater":"Cozy-Christmas-sweater.PNG","fluffy-snowflake-stocking":"/images/Christmas/Gifts/Fluffy-Snowflake-Stocking.png","pumpkin-spice-latte-plush":"Pumpkin-Spice-Latte-Plush.png","fluffy-snowman-plush":"Fluffy-Snowman-Plush.png","rainbow-and-cloud-plush":"Rainbow-and-Cloud-Plush.png","plush-flower-pillow":"Plush-Flower-Pillow.png"};
 const THREADS = ["Pearl White","Ocean Blue","Seafoam Green","Rose Pink","Lavender","Golden Sand"];
 const EMBROIDERY_BASES = [["seashell-pillow","Seashell Pillow"],["moon-pillow","Moon Pillow"],["patchwork-beach-blanket","Patchwork Beach Blanket"],["cozy-fluffy-baby-blanket","Cozy Fluffy Baby Blanket"]] as const;
 const EMBROIDERY_PATTERNS = [["seashell","Seashell"],["starfish","Starfish"],["flower","Flower"],["moon","Moon"]] as const;
