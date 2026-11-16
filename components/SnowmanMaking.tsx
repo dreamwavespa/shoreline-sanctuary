@@ -52,16 +52,17 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
 ];
 const DEFAULT: Snowman = {body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
 // Percentages refer to the full clearing image. Keep all decorations anchored to the body.
+// Percentage positions in the clearing; facial features stay on the top snowball.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
-  {part:"arms",left:"14%",top:"29%",width:"72%",height:"44%"},
-  {part:"body",left:"23%",top:"19%",width:"54%",height:"68%"},
-  {part:"eyes",left:"40%",top:"34%",width:"20%",height:"9%"},
-  {part:"nose",left:"44%",top:"41%",width:"15%",height:"8%"},
-  {part:"mouth",left:"41%",top:"48%",width:"18%",height:"8%"},
-  {part:"buttons",left:"44%",top:"65%",width:"12%",height:"10%"},
-  {part:"scarf",left:"32%",top:"51%",width:"36%",height:"22%"},
-  {part:"hat",left:"34%",top:"17%",width:"32%",height:"19%"},
-  {part:"accessory",left:"67%",top:"69%",width:"19%",height:"17%"},
+  {part:"arms",left:"11%",top:"33%",width:"78%",height:"44%"},
+  {part:"body",left:"23%",top:"23%",width:"54%",height:"68%"},
+  {part:"eyes",left:"40%",top:"36%",width:"20%",height:"9%"},
+  {part:"nose",left:"46%",top:"42%",width:"12%",height:"7%"},
+  {part:"mouth",left:"43%",top:"46%",width:"14%",height:"6%"},
+  {part:"buttons",left:"44%",top:"69%",width:"12%",height:"10%"},
+  {part:"scarf",left:"32%",top:"55%",width:"36%",height:"22%"},
+  {part:"hat",left:"34%",top:"21%",width:"32%",height:"19%"},
+  {part:"accessory",left:"59%",top:"68%",width:"25%",height:"22%"},
 ];
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
