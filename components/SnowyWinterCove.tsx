@@ -113,9 +113,18 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
         {spot === "floes" && <section className="space-y-3" aria-label="Ice Floe Exploration">
           <p>Search five ice floes each day. Ice blocks are stored unopened in your inventory until Snowy's carving tool is unlocked.</p>
           <p>Unopened ice blocks in inventory: {state.inventory["winter-ice-block"]||0}</p>
-          <div className="grid grid-cols-2 gap-2">
-            {[0,1,2,3,4].map(slot=><button key={slot} type="button" disabled={iceSearchDate!==iceSearchToday||iceSearchFound.includes(slot)} onClick={()=>searchIce(slot)} className="min-h-16 rounded-xl border border-sky-200 bg-sky-900 p-3 text-left font-semibold disabled:opacity-60" aria-label={`Ice floe ${slot+1}, ${iceSearchFound.includes(slot)?"searched today":"search for a treasure"}`}>❄️ Ice floe {slot+1}{iceSearchFound.includes(slot)?" ✓":""}</button>)}
+          <div className="relative mx-auto w-full overflow-hidden rounded-xl" style={{aspectRatio:"2 / 3"}}>
+            <Image src={night?"/images/Winter/Ice-flow-search-night.PNG":"/images/Winter/Ice-flow-search-day.PNG"} alt={night?"Moonlit ice floe search area with five floating ice platforms, Snowy, glowing crystals, snowy cliffs and northern lights.":"Sunny ice floe search area with five floating ice platforms, Snowy, glowing crystals and snowy cliffs."} fill unoptimized sizes="(max-width: 768px) 100vw, 450px" className="object-cover" />
+            {[
+              {left:"70%",top:"28%"},
+              {left:"43%",top:"39%"},
+              {left:"82%",top:"40%"},
+              {left:"27%",top:"52%"},
+              {left:"70%",top:"57%"},
+            ].map((position,slot)=><button key={slot} type="button" style={{left:position.left,top:position.top,transform:"translate(-50%,-50%)"}} disabled={iceSearchDate!==iceSearchToday||iceSearchFound.includes(slot)} onClick={()=>searchIce(slot)} aria-label={`Ice floe ${slot+1}, ${iceSearchFound.includes(slot)?"already searched today":"search for a winter treasure"}`} className="absolute z-10 flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/70 bg-sky-100/30 text-2xl text-white shadow-md backdrop-blur-[1px] hover:bg-sky-100/50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300 disabled:border-white/40 disabled:bg-slate-800/35 disabled:text-white/70" >{iceSearchFound.includes(slot)?"✓":"❄"}</button>)}
           </div>
+          <p className="text-sm text-sky-100">Select a snowflake on an ice floe to search it. A checkmark means that floe has already been searched today.</p>
+          <p aria-live="off">{iceSearchFound.length} of 5 ice floes searched today.</p>
           {lastIceImage&&<Image src={lastIceImage} alt={lastIceName} width={180} height={180} unoptimized className="mx-auto h-36 w-36 object-contain" />}
           <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
           {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
