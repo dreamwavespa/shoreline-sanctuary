@@ -15,6 +15,14 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "winter-ice-block": { id: "winter-ice-block", name: "Unopened Winter Ice Block", category: "special", icon: "/images/Winter/Winter-ice-block.PNG", rarity: "uncommon", sfx: "seaGlass" },
+  "winter-snowball-pearl": { id: "winter-snowball-pearl", name: "Snowball Pearl", category: "pearl", icon: "/images/Winter/Snowball_Pearl.png", rarity: "uncommon", sfx: "seaGlass" },
+  "winter-frosted-sea-glass": { id: "winter-frosted-sea-glass", name: "Frosted Sea Glass", category: "glass", icon: "/images/Winter/Frosted_Sea_Glass.png", rarity: "common", sfx: "seaGlass" },
+  "winter-frosted-scallop-shell": { id: "winter-frosted-scallop-shell", name: "Frosted Scallop Shell", category: "shell", icon: "/images/Winter/Frosted_Scallop_Shell.png", rarity: "common", sfx: "seaGlass" },
+  "winter-frosted-spiral-shell": { id: "winter-frosted-spiral-shell", name: "Frosted Spiral Shell", category: "shell", icon: "/images/Winter/Frosted_Spiral_Shell.png", rarity: "common", sfx: "seaGlass" },
+  "winter-snowflake-sand-dollar": { id: "winter-snowflake-sand-dollar", name: "Snowflake Sand Dollar", category: "shell", icon: "/images/Winter/Snowflake_Sand_Dollar.png", rarity: "uncommon", sfx: "seaGlass" },
+  "winter-ice-coral": { id: "winter-ice-coral", name: "Ice Coral", category: "raw", icon: "/images/Winter/Ice_Coral.png", rarity: "uncommon", sfx: "seaGlass" },
+  "winter-iridescent-starfish": { id: "winter-iridescent-starfish", name: "Iridescent Starfish", category: "special", icon: "/images/Winter/Iridescent_Starfish.png", rarity: "uncommon", sfx: "seaGlass" },
   "advent-sea-glitter": { id: "advent-sea-glitter", name: "Sea Glitter", category: "raw", icon: "✨", isEmoji: true, rarity: "uncommon", sfx: "craftSuccess" },
   "advent-snowflake-pearls": { id: "advent-snowflake-pearls", name: "Snowflake Pearls", category: "raw", icon: "/images/Christmas/Gifts/Snowflake-Pearls.png", rarity: "uncommon", sfx: "craftSuccess" },
   "advent-fluffy-pompoms": { id: "advent-fluffy-pompoms", name: "Fluffy Pompoms", category: "raw", icon: "/images/Christmas/Gifts/Fluffy-Pompoms.png", rarity: "uncommon", sfx: "craftSuccess" },
