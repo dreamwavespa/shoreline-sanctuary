@@ -70,7 +70,11 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     try {localStorage.setItem(iceSearchKey,JSON.stringify(next));} catch {}
     setIceSearchFound(next);
     collectItem(choice.id,{silent:true});
-    play(choice.id==="winter-ice-block"?"winterIceCollect":"seaGlass",0.6);
+    const collectionSound = choice.id === "winter-ice-block" ? "winterIceCollect"
+      : choice.id === "winter-snowball-pearl" ? "pearl"
+      : choice.id === "winter-snowflake-sand-dollar" ? "sandDollarCoin"
+      : "seaGlass";
+    play(collectionSound, choice.id === "winter-ice-block" ? 1 : 0.6);
     setLastIceImage("/images/Winter/"+choice.image);
     setLastIceName(choice.name);
     setIceAnnouncement(choice.name+" found on ice floe "+(slot+1)+". Added to inventory.");
