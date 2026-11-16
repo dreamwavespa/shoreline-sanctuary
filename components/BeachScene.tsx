@@ -60,12 +60,21 @@ const BEACH_RESIDENT_POSITIONS = [
   { x: 92, y: 12 }, { x: 12, y: 52 }, { x: 42, y: 11 }, { x: 72, y: 13 },
 ];
 
+function rollSeasonalBeachItem(night: boolean): string {
+  const month = new Date().getMonth();
+  // December, January and February: uncommon winter blocks among regular beach finds.
+  if ((month === 11 || month === 0 || month === 1) && Math.random() < 0.035) {
+    return "winter-ice-block";
+  }
+  return night ? rollNightBeachItem() : rollSpawn();
+}
+
 function randomSpots(n: number, night = false, existing: Spot[] = []): Spot[] {
   const spots: Spot[] = [];
   for (let i = 0; i < n; i++) {
     // Star Wish Bottles are a rare beach-after-dark discovery. Daytime
     // continues to use the existing beach spawn table unchanged.
-    const itemId = night ? rollNightBeachItem() : rollSpawn();
+    const itemId = rollSeasonalBeachItem(night);
     let x = 50, y = 50, found = false;
     for (let attempt = 0; attempt < 120; attempt++) {
       const candidateX = 8 + Math.random() * 84;
@@ -679,7 +688,8 @@ export default function BeachScene() {
   const handleTap = (spot: Spot) => {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
-    collectItem(spot.itemId);
+    collectItem(spot.itemId, spot.itemId === "winter-ice-block" ? { silent: true } : undefined);
+    if (spot.itemId === "winter-ice-block") play("winterIceCollect", 1);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => {
