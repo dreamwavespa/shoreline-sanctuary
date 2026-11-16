@@ -3,13 +3,17 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-type Part = "body" | "eyes" | "nose" | "mouth" | "arms" | "hat" | "scarf" | "buttons" | "accessory";
+type Part = "snowball" | "body" | "eyes" | "nose" | "mouth" | "arms" | "hat" | "scarf" | "buttons" | "accessory";
 type Choice = { name: string; file: string };
 type Snowman = Record<Part, string>;
 const ROOT = "/images/Winter/Snowman/";
 const PARTS: { key: Part; label: string; options: Choice[] }[] = [
   { key: "body", label: "Snowballs and body", options: [
     {name:"Three snowball body",file:"Three_Ball_Snowman_Base.png"},{name:"Two snowball body",file:"Two_Ball_Snowman_Base.png"},
+    {name:"One large snowball",file:"Large_Snowball.png"},{name:"One medium snowball",file:"Medium_Snowball.png"},{name:"One small snowball",file:"Small_Snowball.png"},
+  ] },
+  { key: "snowball", label: "Extra snowballs", options: [
+    {name:"Large snowball",file:"Large_Snowball.png"},{name:"Medium snowball",file:"Medium_Snowball.png"},{name:"Small snowball",file:"Small_Snowball.png"},
   ] },
   { key: "eyes", label: "Eyes", options: [
     {name:"Black coal eyes",file:"Black_Coal_Eyes.png"},{name:"Blue eyes",file:"Blue_Eyes.png"},
@@ -48,27 +52,33 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
     {name:"Mini lantern",file:"Mini_Lantern.png"},{name:"Golden anchor",file:"Golden_Anchor.png"},
     {name:"Seashell",file:"Seashell.png"},{name:"Starfish",file:"Starfish.png"},
     {name:"Toy sailboat",file:"Toy_Sailboat.png"},{name:"Robin bird",file:"Robin_Bird.png"},
+    {name:"Snowball basket",file:"Snowball_Basket.png"},{name:"Wooden sled",file:"Wooden_Sled.png"},
+    {name:"Snow shovel",file:"Snow_Shovel.png"},{name:"Seagull",file:"Seagull.png"},
+    {name:"Winter lantern",file:"Lantern.png"},{name:"Holly and pinecone",file:"Holly_Pinecone.png"},
+    {name:"Icicle snowflake",file:"Icicle_Snowflake.png"},{name:"Pink scallop shell",file:"Pink_Scallop_Shell.png"},
+    {name:"Snowflake",file:"Snowflake.png"},
   ] },
 ];
-const DEFAULT: Snowman = {body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
+const DEFAULT: Snowman = {snowball:"",body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
 // Percentages refer to the full clearing image. Keep all decorations anchored to the body.
 // Percentage positions in the clearing; facial features stay on the top snowball.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
+  {part:"snowball",left:"13%",top:"77%",width:"23%",height:"17%"},
   {part:"arms",left:"11%",top:"33%",width:"78%",height:"44%"},
   {part:"body",left:"23%",top:"23%",width:"54%",height:"68%"},
   {part:"eyes",left:"40%",top:"36%",width:"20%",height:"9%"},
   {part:"nose",left:"46%",top:"42%",width:"12%",height:"7%"},
   {part:"mouth",left:"43%",top:"46%",width:"14%",height:"6%"},
   {part:"buttons",left:"44%",top:"69%",width:"12%",height:"10%"},
-  {part:"scarf",left:"32%",top:"55%",width:"36%",height:"22%"},
-  {part:"hat",left:"34%",top:"21%",width:"32%",height:"19%"},
-  {part:"accessory",left:"59%",top:"68%",width:"25%",height:"22%"},
+  {part:"scarf",left:"33%",top:"48%",width:"34%",height:"23%"},
+  {part:"hat",left:"34%",top:"18%",width:"32%",height:"20%"},
+  {part:"accessory",left:"63%",top:"72%",width:"26%",height:"22%"},
 ];
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     {LAYERS.map(layer=>parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:layer.left,top:layer.top,width:layer.width,height:layer.height}}>
-      <Image src={ROOT+parts[layer.part]} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
+      <Image src={ROOT+parts[layer.part]+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
     </div>:null)}
   </div>;
 }
@@ -132,7 +142,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       <h4 className="font-semibold">Choose {PARTS.find(p=>p.key===active)?.label.toLowerCase()}</h4>
       <div className="grid grid-cols-2 gap-2">
         {PARTS.find(p=>p.key===active)?.options.map(choice=><button key={choice.file} type="button" aria-pressed={parts[active]===choice.file} onClick={()=>select(active,choice)} className={`min-h-28 rounded-xl border p-2 ${parts[active]===choice.file?"border-yellow-300 bg-indigo-700":"border-sky-300 bg-indigo-900"}`}>
-          <Image src={ROOT+choice.file} alt="" width={92} height={92} unoptimized className="mx-auto h-20 w-20 object-contain"/>
+          <Image src={ROOT+choice.file+"?v=20261116-clean"} alt="" width={92} height={92} unoptimized className="mx-auto h-20 w-20 object-contain"/>
           <span className="block text-sm">{choice.name}{parts[active]===choice.file?" — selected":""}</span>
         </button>)}
         {active!=="body"&&<button type="button" onClick={()=>select(active,null)} className="min-h-11 rounded-lg border border-sky-200 p-2">No {PARTS.find(p=>p.key===active)?.label.toLowerCase()}</button>}
