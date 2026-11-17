@@ -5,6 +5,14 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 
 type Area = "inside" | "patio";
+const SNOW_BASKETS = [
+  {id:"snow-basket-small",name:"Small Everlasting Snowball Basket",required:3},
+  {id:"snow-basket-medium",name:"Medium Everlasting Snowball Basket",required:5},
+  {id:"snow-basket-large",name:"Large Everlasting Snowball Basket",required:8},
+] as const;
+const SNOW_BASKET_IMAGE = "/images/Winter/Snowman/Snowball_Basket.png";
+const snowBasket = (id:string) => SNOW_BASKETS.find(b=>b.id===id);
+
 function DisplayArt({ icon, name, isEmoji }: { icon: string; name: string; isEmoji?: boolean }) {
   const [failed, setFailed] = useState(false);
   if (isEmoji || !icon || failed) return <span aria-hidden="true" className="text-xl">{isEmoji ? icon : "🏺"}</span>;
@@ -132,7 +140,9 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   ];
   const isPatioSlot = (id: string) => id.startsWith("patio-");
   const activeSlots = slots.filter(slot => area === "patio" ? isPatioSlot(slot.id) : !isPatioSlot(slot.id));
+  const snowballTotal = ["small","medium","large"].reduce((n,size)=>n+(state.inventory["winter-everlasting-snowball-"+size]||0),0);
   const patioMatches = (slot: string, id: string) => {
+    if (snowBasket(id)) return slot === "patio-table";
     const name = id + " " + (ITEMS[id]?.name || "");
     if (slot === "patio-fountain") return /fountain/i.test(name);
     if (slot === "patio-birdbath") return /bird.?bath/i.test(name);
@@ -153,12 +163,13 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   const isDisplayFlower = (id: string) => id.startsWith("plant-") && /flower|rose/i.test(ITEMS[id]?.name || "") || id.startsWith("flower-") && /flower|rose|bouquet/i.test(ITEMS[id]?.name || "");
   // Only finished display objects belong on furniture; supplies and wearable crafts do not.
   const isSurfaceDecor = (id: string) => {
-    if (isArrangement(id)) return true;
+    if (isArrangement(id) || snowBasket(id)) return true;
     const label = id + " " + (ITEMS[id]?.name || "");
     if (/curtain|boot|wading|glitter|pigment|powder|ingredient|fabric|ribbon|seed|flower.petal|paint.brush|rubber.duck|beach.ball|raft|umbrella|bag|hat|mitten|sweater|necklace|bracelet|earring|ring|pillow|cushion|chair|fountain|bird.?bath|wind.chime|painting|artwork|mirror|wall|canvas|portrait/i.test(label)) return false;
     return /vase|pottery|ceramic|plate|mug|cup|teapot|tea.set|snow.globe|snowglobe|sand.art|sand.bottle|bottle|candle|lamp|lantern|hourglass|crystal|sculpture|figurine|shell.chest|treasure.chest|decorative.bowl|flower.arrangement|flower.bouquet|salt.lamp/i.test(label);
   };
   const slotAccepts = (slot: string, id: string) => {
+    if (snowBasket(id)) return slot === "coffee-table" || slot === "side-table" || slot.startsWith("shelf") || slot === "patio-table";
     if (isWallSlot(slot)) return !isArrangement(id) && isWallDecor(id);
     if (isPillowSlot(slot)) return !isArrangement(id) && isPillowDecor(id);
     if (isChairSlot(slot)) return !isArrangement(id) && isChairDecor(id);
@@ -166,8 +177,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     return isSurfaceDecor(id);
   };
   const arrangementFor = (id: string) => state.flowerArrangements.find(a => "arrangement:" + a.id === id);
-  const decorName = (id: string) => isArrangement(id) ? (arrangementFor(id)?.name || "Flower arrangement") : (ITEMS[id]?.name || id);
-  const decorIcon = (id: string) => isArrangement(id) ? (ITEMS[arrangementFor(id)?.vaseId || ""]?.icon || "") : (ITEMS[id]?.icon || "");
+  const decorName = (id: string) => snowBasket(id)?.name || (isArrangement(id) ? (arrangementFor(id)?.name || "Flower arrangement") : (ITEMS[id]?.name || id));
+  const decorIcon = (id: string) => snowBasket(id) ? SNOW_BASKET_IMAGE : isArrangement(id) ? (ITEMS[arrangementFor(id)?.vaseId || ""]?.icon || "") : (ITEMS[id]?.icon || "");
   const usedCount = (id: string, excluding?: string) => Object.entries(placements).filter(([slot, item]) => slot !== excluding && item === id).length;
   const ownedDecor = Object.entries(state.inventory).filter(([id, count]) =>
     count > 0 && ITEMS[id] && (ITEMS[id].category === "decor" || id === "tidekeeper-vase" || isDisplayFlower(id) || id.startsWith("flower-") || id.includes("painting") || id.includes("artwork"))
@@ -201,7 +212,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or plushie for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
-    const count = isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
+    const count = snowBasket(id) ? (snowballTotal >= snowBasket(id)!.required ? 1 : 0) : isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
     const usedElsewhere = Object.entries(placements).filter(([slot, item]) => slot !== selectedSlot && item === id).length;
     if (usedElsewhere >= count) { setAnnouncement("All owned copies of that decoration are already displayed."); return; }
     savePlacement({ ...placements, [selectedSlot]: id });
@@ -588,7 +599,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
             const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
-            const item = id && (isArrangement(id) ? { id, name: decorName(id), icon: decorIcon(id), isEmoji: false } : ITEMS[id]);
+            const item = id && (isArrangement(id) || snowBasket(id) ? { id, name: decorName(id), icon: decorIcon(id), isEmoji: false } : ITEMS[id]);
             const smallTableDecor = isTableSlot(slot.id) && /cup|mug|candle|teacup/i.test(item ? item.name : "");
             const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "16%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "14%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
@@ -688,6 +699,9 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
             {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id) && !(selectedSlot === "patio-planter" && isDisplayFlower(id))).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
+            {SNOW_BASKETS.filter(b=>slotAccepts(selectedSlot,b.id)).map(b=><button key={b.id} type="button" disabled={snowballTotal<b.required || usedCount(b.id,selectedSlot)>0} onClick={()=>place(b.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">
+              {b.name} — requires {b.required} Everlasting Snowballs ({snowballTotal} collected). {snowballTotal>=b.required?"Unlocked":"Locked"}
+            </button>)}
             {isFlowerSlot(selectedSlot) && availableArrangements.map(a => <button key={a.id} type="button" onClick={() => place("arrangement:" + a.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">Flower arrangement: {a.name}</button>)}
             {isFlowerSlot(selectedSlot) && state.flowerArrangements.filter(a => usedCount("arrangement:" + a.id) > 0).map(a => <p key={a.id} className="text-sm">{a.name}: displayed at {slots.find(s => placements[s.id] === "arrangement:" + a.id)?.name || "another spot"}</p>)}
             {ownedDecor.length === 0 && availableArrangements.length === 0 && <p>No available decorations in inventory yet.</p>}
