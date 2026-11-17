@@ -217,22 +217,25 @@ function SnowyPoolGame({ night }: { night: boolean }) {
   };
   const active = phase !== "ready";
   const far = phase === "swim" || phase === "catch";
-  const sealLeft = far ? distance - 12 : 18;
-  const ballLeft = phase === "throw" || far ? distance : phase === "return" ? 30 : 16;
+  const sealLeft = far ? distance - 22 : 18;
+  const ballLeft = phase === "throw" || far ? distance : phase === "return" ? 40 : 16;
   return <section aria-label="Play ball with Snowy" className="my-4 space-y-4">
     <p>Choose a throw and Snowy will fetch your ball. Every third catch earns a playful flip. Play as long as you like, with no timer or missed catches.</p>
-    <div aria-hidden="true" className="snowy-pool relative h-64 overflow-hidden rounded-2xl border-4 border-sky-100"
-      style={{ background: night ? "linear-gradient(#122b53, #176883 65%, #388c9b)" : "linear-gradient(#b9efff, #50b8d0 65%, #258eac)" }}>
-      <div className="absolute inset-x-0 bottom-0 h-12 rounded-[50%] border-t-4 border-white/60 bg-white/10" />
-      <div className="snowy-pool-seal absolute top-[38%] w-[36%]" style={{ left: sealLeft + "%", transitionDuration: phase === "swim" || phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "600ms" }}>
-        <div className={phase === "celebrate" ? "snowy-pool-flip" : active ? "snowy-pool-bob" : ""}>
-          <Image src="/images/Snowy-portrait.PNG" alt="" width={180} height={180} unoptimized className="h-32 w-full object-contain" />
+    <div aria-hidden="true" className="snowy-pool relative w-full overflow-hidden rounded-2xl border-4 border-sky-100"
+      style={{ aspectRatio: "4 / 3", backgroundColor: "#258eac" }}>
+      <Image src="/images/Winter/Snowy-pool-background.PNG" alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 400px" className="object-cover" style={{ filter: night ? "brightness(0.62) saturate(0.85)" : undefined }} />
+      <div className="snowy-pool-seal absolute top-[44%] h-[40%] w-[32%]" style={{ left: sealLeft + "%", transitionDuration: phase === "swim" || phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "600ms" }}>
+        <div className="absolute inset-0" style={{ maskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 65%, transparent 94%)", WebkitMaskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 65%, transparent 94%)" }}>
+          <div className={(phase === "celebrate" ? "snowy-pool-flip" : active ? "snowy-pool-bob" : "") + " h-full"}>
+            <Image src="/images/Snowy-portrait.PNG" alt="" width={180} height={180} unoptimized className="h-full w-full object-contain" />
+          </div>
         </div>
-        {active && <div className="snowy-pool-ripple absolute bottom-0 h-4 w-full rounded-[50%] border-2 border-white/70" />}
+        <div className="absolute bottom-[8%] left-[8%] h-[12%] w-[84%] rounded-[50%] border-b-2 border-white/80 bg-cyan-100/10" />
+        {active && <div className="snowy-pool-ripple absolute bottom-[6%] left-[8%] h-[14%] w-[84%] rounded-[50%] border-2 border-white/70" />}
       </div>
       <Image src={balls[ball].image} alt="" width={64} height={64} unoptimized
-        className="snowy-pool-ball absolute h-12 w-12 object-contain"
-        style={{ left: ballLeft + "%", top: phase === "throw" ? "32%" : phase === "catch" ? "44%" : "65%", transitionDuration: phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "900ms" }} />
+        className="snowy-pool-ball absolute h-auto w-[10%] object-contain"
+        style={{ left: ballLeft + "%", top: phase === "throw" ? "38%" : phase === "catch" || phase === "return" ? "59%" : "73%", transitionDuration: phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "900ms" }} />
     </div>
     <label className="block font-semibold">Pool ball
       <select value={ball} disabled={active} onChange={e => setBall(Number(e.target.value))} className="mt-2 block min-h-12 w-full rounded-lg bg-white p-2 text-indigo-950">
