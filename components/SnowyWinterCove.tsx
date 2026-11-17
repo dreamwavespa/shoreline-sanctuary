@@ -217,37 +217,37 @@ function SnowyPoolGame({ night }: { night: boolean }) {
   };
   const active = phase !== "ready";
   const far = phase === "swim" || phase === "catch";
-  const sealLeft = far ? distance - 22 : 18;
+  const sealLeft = far ? Math.min(distance - 22, 50) : 18;
   const ballLeft = phase === "throw" || far ? distance : phase === "return" ? 40 : 16;
-  return <section aria-label="Play ball with Snowy" className="my-4 space-y-4">
-    <p>Choose a throw and Snowy will fetch your ball. Every third catch earns a playful flip. Play as long as you like, with no timer or missed catches.</p>
+  return <section aria-label="Play ball with Snowy" className="my-3 space-y-3">
+    <p>Choose a throw for Snowy to fetch. Every third catch earns a flip. Play freely, with no timer or missed catches.</p>
     <div aria-hidden="true" className="snowy-pool relative w-full overflow-hidden rounded-2xl border-4 border-sky-100"
       style={{ aspectRatio: "4 / 3", backgroundColor: "#258eac" }}>
-      <Image src="/images/Winter/Snowy-pool-background.PNG" alt="" fill unoptimized sizes="(max-width: 768px) 100vw, 400px" className="object-cover" style={{ filter: night ? "brightness(0.62) saturate(0.85)" : undefined }} />
-      <div className="snowy-pool-seal absolute top-[44%] h-[40%] w-[32%]" style={{ left: sealLeft + "%", transitionDuration: phase === "swim" || phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "600ms" }}>
-        <div className="absolute inset-0" style={{ maskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 65%, transparent 94%)", WebkitMaskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 65%, transparent 94%)" }}>
+      <Image src="/images/Winter/Snowy-pool-background.PNG" alt="" fill unoptimized priority sizes="(max-width: 768px) 100vw, 400px" className="object-cover" style={{ filter: night ? "brightness(0.62) saturate(0.85)" : undefined }} />
+      <div className="snowy-pool-seal absolute top-[50%] h-[36%] w-[30%]" style={{ left: sealLeft + "%", transitionDuration: phase === "swim" || phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "600ms" }}>
+        <div className="absolute inset-0" style={{ maskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 53%, transparent 82%)", WebkitMaskImage: phase === "celebrate" ? undefined : "linear-gradient(to bottom, black 53%, transparent 82%)" }}>
           <div className={(phase === "celebrate" ? "snowy-pool-flip" : active ? "snowy-pool-bob" : "") + " h-full"}>
             <Image src="/images/Snowy-portrait.PNG" alt="" width={180} height={180} unoptimized className="h-full w-full object-contain" />
           </div>
         </div>
-        <div className="absolute bottom-[8%] left-[8%] h-[12%] w-[84%] rounded-[50%] border-b-2 border-white/80 bg-cyan-100/10" />
-        {active && <div className="snowy-pool-ripple absolute bottom-[6%] left-[8%] h-[14%] w-[84%] rounded-[50%] border-2 border-white/70" />}
+        <div className="absolute bottom-[20%] left-[8%] h-[12%] w-[84%] rounded-[50%] border-b-2 border-white/80 bg-cyan-100/10" />
+        {active && <div className="snowy-pool-ripple absolute bottom-[18%] left-[8%] h-[14%] w-[84%] rounded-[50%] border-2 border-white/70" />}
       </div>
       <Image src={balls[ball].image} alt="" width={64} height={64} unoptimized
         className="snowy-pool-ball absolute h-auto w-[10%] object-contain"
-        style={{ left: ballLeft + "%", top: phase === "throw" ? "38%" : phase === "catch" || phase === "return" ? "59%" : "73%", transitionDuration: phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "900ms" }} />
+        style={{ left: ballLeft + "%", top: phase === "throw" ? "38%" : phase === "catch" || phase === "return" ? "65%" : "73%", transitionDuration: phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "900ms" }} />
     </div>
+    <p>Catches this visit: {catches}</p>
+    <p role="status" aria-live="polite" aria-atomic="true" className="min-h-16 rounded-lg bg-indigo-900 p-3">{status}</p>
     <label className="block font-semibold">Pool ball
       <select value={ball} disabled={active} onChange={e => setBall(Number(e.target.value))} className="mt-2 block min-h-12 w-full rounded-lg bg-white p-2 text-indigo-950">
         {balls.map((b, i) => <option key={b.name} value={i}>{b.name}</option>)}
       </select>
     </label>
-    <div className="flex flex-wrap gap-2" aria-label="Throw distance">
-      {([{ label: "Short", target: 46, duration: 2200 }, { label: "Medium", target: 64, duration: 3000 }, { label: "Long", target: 80, duration: 3800 }]).map(t =>
-        <button key={t.label} type="button" aria-disabled={active} onClick={() => toss(t.label, t.target, t.duration)} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950 aria-disabled:opacity-50">{t.label} throw</button>)}
+    <div className="grid grid-cols-3 gap-2" aria-label="Throw distance">
+      {([{ label: "Short", target: 46, duration: 2200 }, { label: "Medium", target: 64, duration: 3000 }, { label: "Long", target: 74, duration: 3800 }]).map(t =>
+        <button key={t.label} type="button" aria-disabled={active} onClick={() => toss(t.label, t.target, t.duration)} className="min-h-12 rounded-lg bg-amber-100 px-2 py-2 text-sm font-bold text-indigo-950 aria-disabled:opacity-50">{t.label} throw</button>)}
     </div>
-    <p>Catches this visit: {catches}</p>
-    <p role="status" aria-live="polite" aria-atomic="true" className="min-h-16 rounded-lg bg-indigo-900 p-3">{status}</p>
     <style>{`
       .snowy-pool-seal { transition-property: left; transition-timing-function: ease-in-out; }
       .snowy-pool-ball { transition-property: left, top; transition-timing-function: ease-in-out; }
