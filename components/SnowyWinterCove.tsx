@@ -13,7 +13,7 @@ const SPOTS: { id: Spot; label: string; description: string; left: string; top: 
   { id: "floes", label: "Explore the floating ice floes", description: "Search the floating ice floes for winter treasures and unopened frozen ice blocks.", left: "43%", top: "44%" },
   { id: "blocks", label: "Visit the ice block game area", description: "Use Snowy’s carving tool to chip open saved winter ice blocks and discover hidden treasures.", left: "81%", top: "54%" },
   { id: "snowmen", label: "Visit the snowman-making clearing", description: "Build and decorate a snowman with a live preview. Save your creations to the Winter Memory Book. Available December through February, with a separate testing preview.", left: "83%", top: "27%" },
-  { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "The cove's sheltered water stays open for Snowy to swim and play.", left: "47%", top: "66%" },
+  { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "Toss a floating ball for Snowy. She swims, catches it, and brings it back.", left: "47%", top: "66%" },
 ];
 
 export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
@@ -106,13 +106,18 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
   return <section aria-label="Snowy's Winter Cove" className="mx-auto max-w-3xl space-y-3 rounded-xl bg-indigo-950 p-3 text-white">
     <button type="button" onClick={onBack} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Coconut Grove</button>
     <h1 className="text-2xl font-bold">Snowy's Winter Cove</h1>
-    <p className="text-sm text-indigo-100">Visit Snowy, explore the floating ice, and discover the future winter activity areas. The cove changes from day to night automatically.</p>
+    <p className="text-sm text-indigo-100">Visit Snowy, explore the floating ice, and play with Snowy in her sheltered pool. The cove changes from day to night automatically.</p>
     <div className="relative w-full overflow-hidden rounded-xl" style={{ aspectRatio: "2 / 3" }}>
       <Image src={night ? "/images/Winter-cove-night.PNG" : "/images/Winter-cove-day.PNG"} alt={night ? "Moonlit winter cove with Snowy the white seal, glowing lanterns, floating ice floes, an ice block area, and a snowy clearing." : "Sunny winter cove with Snowy the white seal, floating ice floes, a sheltered swimming pool, an ice block area, and a snowman clearing."} fill unoptimized priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
       {SPOTS.map(s => <button key={s.id} type="button" style={{ left:s.left, top:s.top, transform:"translate(-50%,-50%)" }} className="absolute z-10 flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-white/45 bg-sky-100/20 px-2 text-lg text-white shadow-[0_1px_5px_rgba(0,20,50,0.28)] backdrop-blur-[1px] transition-colors hover:bg-sky-100/40 focus-visible:bg-indigo-950/90 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300" aria-label={s.label} onClick={e => { returnFocus.current = e.currentTarget; setSpot(s.id); }}>{s.id === "snowy" ? "🦭" : s.id === "blocks" ? "🧊" : s.id === "snowmen" ? "⛄" : s.id === "pool" ? "🌊" : "❄️"}</button>)}
     </div>
     <p className="text-sm text-indigo-100">Explore the five interactive areas directly in the cove illustration.</p>
-    {selected && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/90 p-4" onKeyDown={e => { if(e.key==="Escape"){e.preventDefault();close();} if(e.key==="Tab"){e.preventDefault();(e.currentTarget.querySelector('[role="dialog"] button') as HTMLButtonElement)?.focus();} }}>
+    {selected && <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/90 p-4" onKeyDown={e => { if(e.key==="Escape"){e.preventDefault();close();} if(e.key==="Tab"){
+        const controls=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), [tabindex="0"]'));
+        const first=controls[0], last=controls[controls.length-1];
+        if(e.shiftKey && (document.activeElement===first || document.activeElement===dialogHeading.current)){e.preventDefault();last?.focus();}
+        else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first?.focus();}
+      } }}>
       <div role="dialog" aria-modal="true" aria-labelledby="snowy-dialog-title" aria-describedby="snowy-dialog-description" className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border-2 border-amber-200 bg-indigo-950 p-5 text-white">
         <h2 ref={dialogHeading} tabIndex={-1} id="snowy-dialog-title" className="text-xl font-bold">{selected.label}</h2>
         {spot === "snowy" && <Image src="/images/Snowy-portrait.PNG" alt="Snowy, a fluffy white harp seal pup wearing a blue snowflake scarf." width={280} height={280} unoptimized className="mx-auto my-3 h-52 w-auto object-contain" />}
@@ -144,6 +149,7 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
           <p role="status" aria-live="polite">{iceAnnouncement||`${iceSearchFound.length} of 5 ice floes searched today.`}</p>
           {iceSearchFound.length===5&&<p>All five floes explored today. Come back tomorrow for more discoveries!</p>}
         </section>}
+        {spot === "pool" && <SnowyPoolGame night={night} />}
         {spot === "snowmen" && <SnowmanMaking night={night} />}
         {spot === "blocks" && <section aria-label="Frozen Treasure Discovery" className="my-4 space-y-3 rounded-xl bg-indigo-900 p-3">
           <h3 className="font-bold">Frozen Treasure Discovery</h3>
@@ -157,5 +163,101 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
         <button type="button" onClick={close} className="min-h-12 rounded-lg bg-amber-100 px-5 py-3 font-bold text-indigo-950">Return to Winter Cove</button>
       </div>
     </div>}
+  </section>;
+}
+
+
+// Local play session: balls are borrowed toys and never consume inventory.
+function SnowyPoolGame({ night }: { night: boolean }) {
+  const { play } = useGame();
+  const balls = [
+    { name: "Seashell beach ball", image: "/images/Seashell_Beach_Ball.png" },
+    { name: "Sea glass ball", image: "/images/Sea_Glass_Bouncy_Ball.png" },
+    { name: "Firefly ball", image: "/images/Firefly_Bouncy_Ball.png" },
+  ];
+  const [ball, setBall] = useState(0);
+  const [phase, setPhase] = useState<"ready" | "throw" | "swim" | "catch" | "return" | "celebrate">("ready");
+  const [distance, setDistance] = useState(46);
+  const [catches, setCatches] = useState(0);
+  const [status, setStatus] = useState("Snowy is ready to play. Choose a ball and a throw distance.");
+  const busy = useRef(false);
+  const timers = useRef<number[]>([]);
+  useEffect(() => () => { timers.current.forEach(window.clearTimeout); busy.current = false; }, []);
+  const toss = (label: string, target: number, duration: number) => {
+    if (busy.current) return;
+    busy.current = true;
+    timers.current.forEach(window.clearTimeout);
+    timers.current = [];
+    const later = (ms: number, action: () => void) => { timers.current.push(window.setTimeout(action, ms)); };
+    const next = catches + 1;
+    setDistance(target);
+    setPhase("throw");
+    setStatus(label + " throw! The " + balls[ball].name.toLowerCase() + " splashes into the pool. Snowy dives in.");
+    play("oceanWaterSplash", 0.35);
+    later(1200, () => { setPhase("swim"); });
+    later(1200 + duration, () => {
+      setPhase("catch");
+      play("oceanWaterSplash", 0.3);
+      setStatus("Snowy caught the ball with her nose! She turns to bring it back.");
+    });
+    later(3200 + duration, () => { setPhase("return"); });
+    later(3200 + duration * 2, () => {
+      setCatches(next);
+      if (next % 3 === 0) {
+        setPhase("celebrate");
+        play("oceanWaterSplash", 0.4);
+        setStatus("Snowy brought the ball back! " + next + " catches. She celebrates with a playful flip!");
+        later(3000, () => { setPhase("ready"); busy.current = false; });
+      } else {
+        setPhase("ready");
+        busy.current = false;
+        setStatus("Snowy brought the ball back! " + next + (next === 1 ? " catch." : " catches.") + " Ready for another throw.");
+      }
+    });
+  };
+  const active = phase !== "ready";
+  const far = phase === "swim" || phase === "catch";
+  const sealLeft = far ? distance - 12 : 18;
+  const ballLeft = phase === "throw" || far ? distance : phase === "return" ? 30 : 16;
+  return <section aria-label="Play ball with Snowy" className="my-4 space-y-4">
+    <p>Choose a throw and Snowy will fetch your ball. Every third catch earns a playful flip. Play as long as you like, with no timer or missed catches.</p>
+    <div aria-hidden="true" className="snowy-pool relative h-64 overflow-hidden rounded-2xl border-4 border-sky-100"
+      style={{ background: night ? "linear-gradient(#122b53, #176883 65%, #388c9b)" : "linear-gradient(#b9efff, #50b8d0 65%, #258eac)" }}>
+      <div className="absolute inset-x-0 bottom-0 h-12 rounded-[50%] border-t-4 border-white/60 bg-white/10" />
+      <div className="snowy-pool-seal absolute top-[38%] w-[36%]" style={{ left: sealLeft + "%", transitionDuration: phase === "swim" || phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "600ms" }}>
+        <div className={phase === "celebrate" ? "snowy-pool-flip" : active ? "snowy-pool-bob" : ""}>
+          <Image src="/images/Snowy-portrait.PNG" alt="" width={180} height={180} unoptimized className="h-32 w-full object-contain" />
+        </div>
+        {active && <div className="snowy-pool-ripple absolute bottom-0 h-4 w-full rounded-[50%] border-2 border-white/70" />}
+      </div>
+      <Image src={balls[ball].image} alt="" width={64} height={64} unoptimized
+        className="snowy-pool-ball absolute h-12 w-12 object-contain"
+        style={{ left: ballLeft + "%", top: phase === "throw" ? "32%" : phase === "catch" ? "44%" : "65%", transitionDuration: phase === "return" ? (distance === 46 ? 2200 : distance === 64 ? 3000 : 3800) + "ms" : "900ms" }} />
+    </div>
+    <label className="block font-semibold">Pool ball
+      <select value={ball} disabled={active} onChange={e => setBall(Number(e.target.value))} className="mt-2 block min-h-12 w-full rounded-lg bg-white p-2 text-indigo-950">
+        {balls.map((b, i) => <option key={b.name} value={i}>{b.name}</option>)}
+      </select>
+    </label>
+    <div className="flex flex-wrap gap-2" aria-label="Throw distance">
+      {([{ label: "Short", target: 46, duration: 2200 }, { label: "Medium", target: 64, duration: 3000 }, { label: "Long", target: 80, duration: 3800 }]).map(t =>
+        <button key={t.label} type="button" aria-disabled={active} onClick={() => toss(t.label, t.target, t.duration)} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950 aria-disabled:opacity-50">{t.label} throw</button>)}
+    </div>
+    <p>Catches this visit: {catches}</p>
+    <p role="status" aria-live="polite" aria-atomic="true" className="min-h-16 rounded-lg bg-indigo-900 p-3">{status}</p>
+    <style>{`
+      .snowy-pool-seal { transition-property: left; transition-timing-function: ease-in-out; }
+      .snowy-pool-ball { transition-property: left, top; transition-timing-function: ease-in-out; }
+      .snowy-pool-bob { animation: snowyPoolBob 1s ease-in-out infinite; }
+      .snowy-pool-flip { animation: snowyPoolFlip 2.4s ease-in-out; }
+      .snowy-pool-ripple { animation: snowyPoolRipple 1.4s ease-out infinite; }
+      @keyframes snowyPoolBob { 50% { transform: translateY(6px) rotate(-4deg); } }
+      @keyframes snowyPoolFlip { 50% { transform: translateY(-48px) rotate(180deg); } 100% { transform: rotate(360deg); } }
+      @keyframes snowyPoolRipple { from { transform: scale(.65); opacity: .9; } to { transform: scale(1.4); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .snowy-pool-seal, .snowy-pool-ball { transition: none !important; }
+        .snowy-pool-bob, .snowy-pool-flip, .snowy-pool-ripple { animation: none !important; }
+      }
+    `}</style>
   </section>;
 }
