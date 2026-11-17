@@ -64,39 +64,59 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
   ] },
 ];
 const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body:"",eyes:"",nose:"",mouth:"",arms:"",hat:"",scarf:"",buttons:"",accessory:""};
-// Percentages refer to the full clearing image. Keep all decorations anchored to the body.
-// Percentage positions in the clearing; facial features stay on the top snowball.
-const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
-  {part:"snowball",left:"13%",top:"77%",width:"23%",height:"17%"},
-  {part:"arms",left:"15%",top:"35%",width:"70%",height:"40%"},
-  {part:"body",left:"23%",top:"23%",width:"54%",height:"68%"},
-  {part:"baseBall",left:"29%",top:"61%",width:"42%",height:"28%"},
-  {part:"middleBall",left:"34%",top:"45%",width:"32%",height:"23%"},
-  {part:"headBall",left:"39%",top:"31%",width:"22%",height:"19%"},
-  {part:"eyes",left:"40%",top:"39%",width:"20%",height:"9%"},
-  {part:"nose",left:"46%",top:"42%",width:"12%",height:"7%"},
-  {part:"mouth",left:"43%",top:"48%",width:"14%",height:"6%"},
-  {part:"buttons",left:"45%",top:"65%",width:"10%",height:"9%"},
-  {part:"scarf",left:"37%",top:"48%",width:"26%",height:"18%"},
-  {part:"hat",left:"34%",top:"27%",width:"32%",height:"20%"},
-  {part:"accessory",left:"63%",top:"72%",width:"26%",height:"22%"},
-];
-// Individually stacked snowballs occupy a smaller, higher silhouette than premade bodies.
-// Keep facial features and clothing anchored to that silhouette.
-const STACKED_LAYERS: Partial<Record<Part,{left:string;top:string;width:string;height:string}>> = {
-  eyes:{left:"43%",top:"43%",width:"14%",height:"5%"},
-  nose:{left:"47%",top:"46%",width:"9%",height:"5%"},
-  mouth:{left:"45%",top:"49%",width:"11%",height:"4%"},
-  buttons:{left:"47%",top:"68%",width:"6%",height:"6%"},
-  scarf:{left:"40%",top:"50%",width:"20%",height:"13%"},
-  hat:{left:"39%",top:"31%",width:"22%",height:"13%"},
-  arms:{left:"24%",top:"43%",width:"52%",height:"31%"},
+type Rect = {left:number;top:number;width:number;height:number};
+const rect=(left:number,top:number,width:number,height:number):Rect=>({left,top,width,height});
+const BALL_RECTS: Record<"baseBall"|"middleBall"|"headBall",Rect> = {
+  baseBall:rect(29,61,42,28),middleBall:rect(34,45,32,23),headBall:rect(39,31,22,19),
 };
+const BALL_SCALE: Record<string,number> = {Large_Snowball:1,Medium_Snowball:0.82,Small_Snowball:0.67};
+const ballSize=(file:string)=>Object.entries(BALL_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;
+function centered(rectangle:Rect,scale:number):Rect {
+  return rect(rectangle.left+rectangle.width*(1-scale)/2,rectangle.top+rectangle.height*(1-scale)/2,rectangle.width*scale,rectangle.height*scale);
+}
+function snowmanLayout(parts:Snowman):Record<Part,Rect>{
+  const custom=!parts.body && !!(parts.baseBall||parts.middleBall||parts.headBall);
+  const layout={} as Record<Part,Rect>;
+  layout.body=rect(23,23,54,68);
+  layout.snowball=rect(13,77,23,17);
+  if(custom){
+    for(const part of ["baseBall","middleBall","headBall"] as const){
+      layout[part]=centered(BALL_RECTS[part],ballSize(parts[part]));
+    }
+  }else{
+    Object.assign(layout,BALL_RECTS);
+  }
+  // The anchor is determined by the topmost selected snowball, not by the accessory.
+  const head=custom ? (parts.headBall?layout.headBall:parts.middleBall?layout.middleBall:layout.baseBall)
+    : parts.body==="Two_Ball_Snowman_Base.png"?rect(36,36,28,24):rect(39,35,22,19);
+  const center=head.left+head.width/2;
+  const faceY=head.top+head.height*0.46;
+  const neckY=head.top+head.height*0.92;
+  const lower=custom?(parts.middleBall?layout.middleBall:layout.baseBall):rect(29,60,42,28);
+  const middle=custom?(parts.middleBall?layout.middleBall:layout.baseBall):rect(34,50,32,23);
+  const accessory=(width:number,height:number,top:number):Rect=>rect(center-width/2,top,width,height);
+  layout.eyes=accessory(head.width*0.68,head.height*0.27,faceY-head.height*0.13);
+  layout.nose=accessory(head.width*0.39,head.height*0.30,faceY+head.height*0.03);
+  layout.mouth=accessory(head.width*0.55,head.height*0.23,faceY+head.height*0.25);
+  layout.hat=accessory(head.width*1.4,head.height*1.05,head.top-head.height*0.62);
+  layout.scarf=accessory(middle.width*0.8,middle.height*0.8,neckY-head.height*0.08);
+  layout.buttons=accessory(lower.width*0.22,lower.height*0.29,lower.top+lower.height*0.39);
+  layout.arms=accessory(middle.width*2.1,middle.height*1.8,middle.top-middle.height*0.12);
+  layout.accessory=rect(63,72,26,22);
+  return layout;
+}
+// Small per-artwork adjustments compensate for transparent padding and unusual silhouettes.
+const ART_SCALE: Record<string,number> = {
+  Santa_Hat:0.94,Straw_Beach_Hat:1.06,Black_Top_Hat:0.92,
+  Red_Plaid_Scarf:0.85,Blue_Snowflake_Scarf:0.93,
+  Blue_Mitten_Arms:0.88,Wooden_Button:0.78,
+};
+const renderOrder:Part[]=["snowball","arms","body","baseBall","middleBall","headBall","eyes","nose","mouth","buttons","scarf","hat","accessory"];
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {LAYERS.map(layer=>{const position=(!parts.body && (parts.baseBall||parts.middleBall||parts.headBall)) ? (STACKED_LAYERS[layer.part]||layer) : layer;return parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:position.left,top:position.top,width:position.width,height:position.height}}>
-      <Image src={ROOT+parts[layer.part]+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
+    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const scale=Object.entries(ART_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;const position=centered(layout[part],scale);return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%"}}>
+      <Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
     </div>:null;})}
   </div>;
 }
