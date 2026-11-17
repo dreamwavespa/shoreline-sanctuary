@@ -98,7 +98,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   // Hat artwork is centered on the head with its lower edge overlapping the crown.
   // Place the visible hat brim across the crown rather than above it.
   // Keep this correction isolated from all other snowman parts.
-  layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*.18);
+  layout.hat=centered(head.width*1.35,head.height*.83,head.top-head.height*.12);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
   layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.65);
   layout.arms=centered(torso.width*1.40,torso.height*1.05,torso.top+torso.height*.08);
