@@ -15,6 +15,9 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "snow-basket-small": {id:"snow-basket-small",name:"Small Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "snow-basket-medium": {id:"snow-basket-medium",name:"Medium Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"uncommon",sfx:"craftSuccess"},
+  "snow-basket-large": {id:"snow-basket-large",name:"Large Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"rare",sfx:"craftSuccess"},
   "snowy-ice-carving-tool": { id:"snowy-ice-carving-tool",name:"Snowy's Ice Carving Tool",category:"special",icon:"/images/Winter/Snowy_Ice_Carving_Tool.png",rarity:"rare",sfx:"craftSuccess" },
   "winter-everlasting-ice-crystal": { id:"winter-everlasting-ice-crystal",name:"Everlasting Ice Crystal",category:"raw",icon:"/images/Winter/Everlasting_Ice_Crystal.png",rarity:"rare",sfx:"seaGlass" },
   "winter-silver-snowflake-key": { id:"winter-silver-snowflake-key",name:"Silver Snowflake Key",category:"special",icon:"/images/Winter/Silver_Snowflake_Key.png",rarity:"rare",sfx:"seaGlass" },
