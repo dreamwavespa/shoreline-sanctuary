@@ -89,7 +89,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
       const height=width*0.78;
       const top=bottom-height;
       placed[key]=rect(50-width/2,top,width,height);
-      bottom=top+height*0.19;
+      // Position the next ball closer to the visible top of the lower ball.\n      // The transparent snowball assets leave extra empty space inside their image boxes.\n      bottom=top+height*0.47;
     }
     for(const key of ["baseBall","middleBall","headBall"] as const){
       layout[key]=placed[key]??rect(50,88,0,0);
