@@ -63,7 +63,7 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
     {name:"Snowflake",file:"Snowflake.png"},
   ] },
 ];
-const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
+const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body:"",eyes:"",nose:"",mouth:"",arms:"",hat:"",scarf:"",buttons:"",accessory:""};
 // Percentages refer to the full clearing image. Keep all decorations anchored to the body.
 // Percentage positions in the clearing; facial features stay on the top snowball.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
@@ -178,7 +178,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       <p role="status" aria-live="polite">{announcement}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={save} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950">Save Snowman to Winter Memory Book</button>
-        <button type="button" onClick={()=>{setParts(DEFAULT);setAnnouncement("Started a new snowman.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
+        <button type="button" onClick={()=>{const fresh={...DEFAULT};setParts(fresh);setActive("body");try{localStorage.setItem(storageKey,JSON.stringify({parts:fresh,memories}));}catch{}setAnnouncement("Started a new snowman. All snowballs, facial features, clothing, and accessories have been cleared. Your Winter Memory Book is unchanged.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
       </div>
       <section aria-label="Winter Memory Book" className="space-y-2">
         <h4 className="font-bold">Winter Memory Book — {memories.length} saved snowmen</h4>
