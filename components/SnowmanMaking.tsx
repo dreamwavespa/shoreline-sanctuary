@@ -114,7 +114,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   layout.eyes=at(head.width*0.48,head.height*0.16,faceTop);
   layout.nose=at(head.width*0.34,head.height*0.18,faceTop+head.height*0.18);
   layout.mouth=at(head.width*0.43,head.height*0.15,faceTop+head.height*0.37);
-  layout.hat=at(head.width*1.12,head.height*0.64,head.top-head.height*0.43);
+  layout.hat=at(head.width*1.12,head.height*0.64,head.top-head.height*0.08);
   layout.scarf=at(torso.width*0.61,torso.height*0.56,head.top+head.height*0.76);
   layout.buttons=at(base.width*0.16,base.height*0.22,base.top+base.height*0.45);
   layout.arms=at(torso.width*1.34,torso.height*0.93,torso.top+torso.height*0.05);
@@ -128,10 +128,8 @@ const ART_SCALE: Record<string,number> = {
   Blue_Mitten_Arms:0.88,Wooden_Button:0.78,
 };
 // Per-hat offsets are measured in scene percentage points; beanies and tall hats have different transparent margins.
-const HAT_OFFSETS: Record<string,number> = {
-  Blue_Snowflake_Beanie:1.2,Lavender_Beanie:1.2,Santa_Hat:0.8,
-  Black_Top_Hat:-0.8,Straw_Beach_Hat:0.4,Red_Plaid_Cap:0.7,Purple_Flower_Beret:0.7,
-};
+// Keep all hats anchored to the head; avoid style-specific vertical shifts.
+const HAT_OFFSETS: Record<string,number> = {};
 const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","arms","buttons","scarf","eyes","nose","mouth","hat","accessory"];
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
