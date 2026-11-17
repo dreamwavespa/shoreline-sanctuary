@@ -203,6 +203,15 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
                 </>}
+                {house.decoration === "Marshmallows" && (
+                  <img
+                    src={assetRoot + "Marshmallows.png"}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute object-contain"
+                    style={{ left: "38%", top: "78%", width: "24%", height: "12%" }}
+                  />
+                )}
                 {decorations.map(item => {
                   const spot = decorationSpots[item.spot as DecorationSpot];
                   if (!spot) return null;
@@ -233,7 +242,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
             <label key={part} className="block font-semibold">
               {part.charAt(0).toUpperCase() + part.slice(1)}
-              <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+              <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value + (part === "decoration" && event.target.value !== "Marshmallows" ? ". This candy material is currently a description only; use Candy and garden decorations to add visible pieces." : "")); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                 {Array.from(new Set<string>([house[part], ...materials[part]])).map(value => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
