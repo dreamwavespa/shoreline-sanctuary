@@ -37,6 +37,11 @@ const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
     // A short trim over the entrance, not a horizontal strip across the roof slope.
     "Candy pearls": { left: "38%", top: "47%", width: "20%", height: "3%" },
   },
+  "Spring Candy Greenhouse": {
+    // Keep icing off the translucent roof panes and inside the entrance frame.
+    "Candy pearls": { left: "37%", top: "37%", width: "25%", height: "3%" },
+    "Sprinkled icing swirls": { left: "39%", top: "38%", width: "20%", height: "6%" },
+  },
   "Autumn Harvest House": {
     "Sprinkled icing swirls": { left: "34%", top: "29%", width: "32%", height: "13%" },
     "Candy pearls": { left: "33%", top: "49%", width: "34%", height: "3%" },
@@ -247,7 +252,9 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                 {decorations.map(item => {
                   const baseSpot = decorationSpots[item.spot as DecorationSpot];
                   if (!baseSpot) return null;
-                  const spot = baseSpot;
+                  const spot = house.design !== "Free Build" && house.name === "Spring Candy Greenhouse" && /Candy-Heart/i.test(item.art) && (item.spot === "Above door" || item.spot === "Front gable")
+                    ? { left: 38, top: 37, width: 11, height: 11 }
+                    : baseSpot;
                   return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
                     style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
