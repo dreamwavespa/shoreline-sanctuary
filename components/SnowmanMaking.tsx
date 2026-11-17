@@ -72,53 +72,43 @@ const rect=(left:number,top:number,width:number,height:number):Rect=>({left,top,
 // their previous screen position or from another accessory.
 function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const layout={} as Record<Part,Rect>;
-  const custom=!parts.body && !!(parts.baseBall||parts.middleBall||parts.headBall);
   const empty=rect(50,84,0,0);
-  layout.body=empty;
-  layout.baseBall=empty;
-  layout.middleBall=empty;
-  layout.headBall=empty;
+  for(const key of ["body","baseBall","middleBall","headBall"] as const)layout[key]=empty;
   layout.snowball=rect(13,77,23,17);
-  let head:Rect, torso:Rect, base:Rect;
+  let head:Rect,torso:Rect,base:Rect;
+  const custom=!parts.body;
   if(custom){
     const keys=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
-    // Use a single set of three attachment slots. Changing the artwork size
-    // does not move the face, hat, arms, or scarf independently.
-    const sizes:Record<string,number>={Large_Snowball:38,Medium_Snowball:31,Small_Snowball:24};
-    const widths=keys.map(key=>Object.entries(sizes).find(([name])=>parts[key].startsWith(name))?.[1]??28);
-    const heights=widths.map(width=>width*0.78);
-    const overlap=0.24;
-    const total=heights.reduce((sum,h,i)=>sum+h*(i===0?1:1-overlap),0);
-    const factor=Math.min(1,53/total);
-    let bottom=88;
-    for(let i=0;i<keys.length;i++){
-      const width=widths[i]*factor, height=heights[i]*factor;
-      const top=bottom-height;
-      layout[keys[i]]=rect(50-width/2,top,width,height);
-      bottom=top+height*overlap;
-    }
-    base=layout[keys[0]];
-    head=layout[keys[keys.length-1]];
-    torso=layout[keys.length>=3?keys[1]:keys[0]];
+    // Fixed, non-overlapping assembly slots: one, two, or three snowballs.
+    // Each image is centered in its slot; accessories attach to those slots.
+    const slots:Rect[]=keys.length===1
+      ?[rect(36,68,28,22)]
+      :keys.length===2
+      ?[rect(33,73,34,21),rect(39,58,22,17)]
+      :[rect(32,73,36,21),rect(37,60,26,17),rect(42,48,16,14)];
+    keys.forEach((key,i)=>layout[key]=slots[i]);
+    base=slots[0]||empty;
+    head=slots[slots.length-1]||empty;
+    torso=slots.length>1?slots[slots.length-2]:slots[0]||empty;
   }else{
     const two=parts.body==="Two_Ball_Snowman_Base.png";
-    // Premade silhouettes occupy one assembled body slot, with their own
-    // head and torso anchors within that slot.
-    layout.body=two?rect(28,53,44,36):rect(27,47,46,43);
-    head=two?rect(39,57,22,15):rect(40,50,20,14);
-    torso=two?rect(30,68,40,20):rect(33,64,34,18);
-    base=two?torso:rect(29,75,42,15);
+    layout.body=two?rect(31,57,38,36):rect(30,49,40,44);
+    head=two?rect(40,59,20,15):rect(42,51,16,13);
+    torso=two?rect(33,72,34,20):rect(37,65,26,15);
+    base=two?torso:rect(32,76,36,17);
   }
+  // Nothing floats in an empty scene: no snowball means no attachment anchors.
   const cx=head.left+head.width/2;
   const at=(width:number,height:number,top:number):Rect=>rect(cx-width/2,top,width,height);
-  const faceTop=head.top+head.height*0.35;
-  layout.eyes=at(head.width*0.40,head.height*0.16,faceTop);
-  layout.nose=at(head.width*0.30,head.height*0.18,faceTop+head.height*0.19);
-  layout.mouth=at(head.width*0.35,head.height*0.14,faceTop+head.height*0.39);
-  layout.hat=at(head.width*1.08,head.height*0.64,head.top-head.height*0.14);
-  layout.scarf=at(torso.width*0.60,torso.height*0.52,head.top+head.height*0.78);
-  layout.buttons=at(base.width*0.12,base.height*0.16,base.top+base.height*0.55);
-  layout.arms=at(torso.width*1.14,torso.height*0.73,torso.top+torso.height*0.08);
+  const single=custom&&[parts.baseBall,parts.middleBall,parts.headBall].filter(Boolean).length===1;
+  const faceTop=head.top+head.height*0.30;
+  layout.eyes=at(head.width*.38,head.height*.15,faceTop);
+  layout.nose=at(head.width*.28,head.height*.16,faceTop+head.height*.20);
+  layout.mouth=at(head.width*.32,head.height*.13,faceTop+head.height*.39);
+  layout.hat=at(head.width*1.08,head.height*.55,head.top-head.height*.34);
+  layout.scarf=at(torso.width*(single?.54:.63),torso.height*.50,single?head.top+head.height*.58:head.top+head.height*.80);
+  layout.buttons=at(base.width*.10,base.height*.12,base.top+base.height*.60);
+  layout.arms=at(torso.width*1.14,torso.height*.75,torso.top+torso.height*.08);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
@@ -126,7 +116,7 @@ const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const position=layout[part];const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:part==="arms"?3:individualBall?2:part==="body"?2:4}}>
+    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const hasBody=!!(parts.body||parts.baseBall||parts.middleBall||parts.headBall);const file=hasBody||part==="snowball"?parts[part]:"";const position=layout[part];const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:part==="arms"?3:individualBall?2:part==="body"?2:4}}>
       {individualBall?<img src={ROOT+file+"?v=20261116-snowball-fix"} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>:<Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>}
     </div>:null;})}
   </div>;
