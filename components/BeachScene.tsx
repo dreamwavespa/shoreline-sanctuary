@@ -693,7 +693,8 @@ export default function BeachScene() {
   const handleTap = (spot: Spot) => {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
-    collectItem(spot.itemId, spot.itemId === "winter-ice-block" ? { silent: true } : undefined);
+    collectItem(spot.itemId, spot.itemId === "winter-ice-block" || spot.itemId.startsWith("winter-everlasting-snowball-") ? { silent: true } : undefined);
+    if (spot.itemId.startsWith("winter-everlasting-snowball-")) play("snowballCollect", 0.85);
     if (spot.itemId === "winter-ice-block") play("winterIceCollect", 1);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
