@@ -21,6 +21,32 @@ import PotteryStudio from "./PotteryStudio";
 import GlazedPotteryImage from "./GlazedPotteryImage";
 import CoastalSewingStudio from "./CoastalSewingStudio";
 
+const SNOW_BASKET_RECIPES = [
+  {id:"snow-basket-small",name:"Small Everlasting Snowball Basket",snowballs:3,wood:2,ribbons:0},
+  {id:"snow-basket-medium",name:"Medium Everlasting Snowball Basket",snowballs:5,wood:3,ribbons:1},
+  {id:"snow-basket-large",name:"Large Everlasting Snowball Basket",snowballs:8,wood:5,ribbons:2},
+] as const;
+function EverlastingSnowballBasketCrafts(){
+  const {state,craft}=useGame();
+  const [notice,setNotice]=useState("");
+  const total=["small","medium","large"].reduce((sum,size)=>sum+(state.inventory["winter-everlasting-snowball-"+size]||0),0);
+  return <section aria-labelledby="snow-basket-crafts" className="mb-6 space-y-3">
+    <h2 id="snow-basket-crafts" className="text-lg font-bold text-teal-950">Everlasting Snowball Baskets</h2>
+    <p className="text-sm text-teal-900">Craft baskets for your Hut and Patio all year. Collected Everlasting Snowballs are required but never consumed; driftwood and ribbon are used when crafting.</p>
+    {SNOW_BASKET_RECIPES.map(recipe=>{
+      const costs=[{itemId:"raw-driftwood-planks",count:recipe.wood},...(recipe.ribbons?[{itemId:"wind-glitter-ribbon",count:recipe.ribbons}]:[])];
+      const enough=total>=recipe.snowballs&&costs.every(cost=>(state.inventory[cost.itemId]||0)>=cost.count);
+      return <div key={recipe.id} className="rounded-xl border border-amber-300 bg-white/90 p-4">
+        <h3 className="font-semibold text-amber-950">{recipe.name}</h3>
+        <Image src="/images/Winter/Snowman/Snowball_Basket.png" alt="Woven basket filled with snowballs" width={130} height={130} unoptimized className="mx-auto h-28 w-28 object-contain"/>
+        <p className="text-sm text-amber-950">Everlasting Snowballs: {total} of {recipe.snowballs} required (reusable). Weathered Planks: {state.inventory["raw-driftwood-planks"]||0} of {recipe.wood}. {recipe.ribbons? `Glittery Sea Ribbon: ${state.inventory["wind-glitter-ribbon"]||0} of ${recipe.ribbons}.`:""}</p>
+        <button type="button" disabled={!enough} onClick={()=>{if(craft(recipe.id,costs))setNotice(recipe.name+" crafted and added to inventory. Your Everlasting Snowballs were kept.");else setNotice("Could not craft basket. Check your materials.");}} className="mt-3 min-h-11 w-full rounded-lg bg-teal-700 p-3 font-semibold text-white disabled:opacity-50">{enough?"Craft basket":"Need more materials"}</button>
+      </div>;
+    })}
+    <p role="status" aria-live="polite" className="text-sm text-teal-950">{notice}</p>
+  </section>;
+}
+
 const WIND_CHIME_COST = [
   { itemId: "glass-green", count: 2 },
   { itemId: "glass-blue", count: 1 },
@@ -1394,6 +1420,7 @@ export default function Workshop({ openKitchen = false, onGoToNursery, onGoToCot
         ) : tab === "decor" ? (
           <>
             <p className="text-xs text-sky-800/70 mb-3 text-center">Resort furnishings and gear for the whole sanctuary.</p>
+            {studioStation === "decor" && <EverlastingSnowballBasketCrafts />}
             {studioStation === "decor" && DECOR_RECIPES.filter(r => ["christmas-wreath","winter-chimes"].includes(r.id)).map(r => <RecipeCard key={r.id} title={r.name} description={r.description} cost={r.cost} recipeId={r.id} repeatable imageSrc={r.id === "christmas-wreath" ? "/images/Christmas_Wreath.png" : "/images/Winter-chimes.PNG"} />)}
             {studioStation === "decor" && <RecipeCard
               title="Melodic Wind Chime"
