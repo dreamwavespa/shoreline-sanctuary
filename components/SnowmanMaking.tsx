@@ -95,23 +95,66 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   layout.eyes=centered(head.width*.43,head.height*.20,head.top+head.height*.30);
   layout.nose=centered(head.width*.37,head.height*.19,head.top+head.height*.47);
   layout.mouth=centered(head.width*.43,head.height*.17,head.top+head.height*.66);
-  // Hat artwork is centered on the head with its lower edge overlapping the crown.
-  // Place the visible hat brim across the crown rather than above it.
-  // Keep this correction isolated from all other snowman parts.
-  layout.hat=centered(head.width*1.35,head.height*.83,head.top-head.height*.12);
+  // The three-ball body artwork sits lower inside its image box.
+  const hatOffset = !custom && count === 3 ? .14 : -.12;
+  layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
-  layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.65);
-  layout.arms=centered(torso.width*1.40,torso.height*1.05,torso.top+torso.height*.08);
+  layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.38);
+  layout.arms=parts.arms==="Blue_Mitten_Arms.png"
+    ? centered(torso.width*1.55,torso.height*1.20,torso.top-torso.height*(count === 2 ? .40 : .30))
+    : centered(torso.width*1.40,torso.height*1.05,torso.top+torso.height*.08);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
 const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","arms","buttons","scarf","eyes","nose","mouth","hat","accessory"];
+// Crop transparent padding and stray sheet borders while preserving the image scale.
+const snowmanArtworkClips: Record<string, string> = {
+  "Two_Ball_Snowman_Base.png": "inset(20% 18% 8% 24%)",
+  "Three_Ball_Snowman_Base.png": "inset(11% 19% 6% 21%)",
+  "Black_Top_Hat.png": "inset(24% 8% 16% 19%)",
+  "Red_Plaid_Cap.png": "inset(28% 8% 18% 21%)",
+  "Purple_Flower_Beret.png": "inset(30% 5% 24% 14%)",
+  "Santa_Hat.png": "inset(24% 6% 21% 16%)",
+  "Blue_Snowflake_Scarf.png": "inset(14% 11% 6% 14%)",
+};
+
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
+  const layout = snowmanLayout(parts);
+  const hasBody = !!(parts.body || parts.baseBall || parts.middleBall || parts.headBall);
+  const sizes = compact ? "110px" : "250px";
+
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const hasBody=!!(parts.body||parts.baseBall||parts.middleBall||parts.headBall);const file=hasBody||part==="snowball"?parts[part]:"";const position=layout[part];const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:part==="arms"?3:individualBall?2:part==="body"?2:4}}>
-      {individualBall?<img src={ROOT+file+"?v=20261116-snowball-fix"} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>:<Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>}
-    </div>:null;})}
+    {renderOrder.map(part => {
+      const file = parts[part];
+      if (!file || (!hasBody && part !== "snowball")) return null;
+      const position = layout[part];
+      const individualBall = part === "baseBall" || part === "middleBall" || part === "headBall";
+      const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
+      const clipPath = snowmanArtworkClips[file];
+      const isMittenPair = file === "Blue_Mitten_Arms.png";
+      let {left, top, width, height} = position;
+      if (clipPath || isMittenPair) {
+        // Match object-contain's square image area in the 4:5 scene.
+        const squareWidth = Math.min(width, height * 1.25);
+        const squareHeight = squareWidth / 1.25;
+        left += (width - squareWidth) / 2;
+        top += (height - squareHeight) / 2;
+        width = squareWidth;
+        height = squareHeight;
+      }
+
+      return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:isMittenPair?1:part==="arms"?3:individualBall||part==="body"?2:4}}>
+        {isMittenPair ? <>
+          <Image src={source} alt="" fill unoptimized sizes={sizes} style={{clipPath:"inset(0 45% 0 15%)",transform:"rotate(-45deg)",transformOrigin:"50% 81%"}}/>
+          <Image src={source} alt="" fill unoptimized sizes={sizes} style={{clipPath:"inset(0 0 0 57%)",transform:"rotate(45deg)",transformOrigin:"61% 81%"}}/>
+        </> : individualBall ? (
+          <img src={source} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>
+        ) : (
+          <Image src={source} alt="" fill unoptimized sizes={sizes} className="object-contain" style={{clipPath}}/>
+        )}
+      </div>;
+    })}
   </div>;
 }
 const STORAGE = "shoreline-snowman-winter-v1";
