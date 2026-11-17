@@ -5,7 +5,7 @@ type PlacedDecoration = { id: number; art: string; spot: string; x: number; y: n
 type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string; placedDecorations?: PlacedDecoration[] };
 const seasonal = [
   { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Candy pearls" },
-  { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Fruit sprinkles" },
+  { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Sprinkled icing swirls" },
   { name: "Autumn Harvest House", walls: "Chocolate panels", roof: "Caramel icing", windows: "Candy panes", garden: "Candy pumpkins", decoration: "Marshmallows" },
   { name: "Winter Gingerbread Cabin", walls: "Gingerbread", roof: "Snowy icing", windows: "Candy panes", garden: "Gumdrop trees", decoration: "Peppermint sticks" },
 ] as const;
@@ -14,16 +14,16 @@ const materials = {
   roof: ["Snowy icing", "Pastel wafers", "Coconut icing", "Caramel icing", "Chocolate tiles", "Peppermint shingles"],
   windows: ["Sugar glass", "Candy panes", "Chocolate shutters", "Glowing candy windows"],
   garden: ["Candy flowers", "Seashell candies", "Candy pumpkins", "Gumdrop trees", "Sugar pathways", "Chocolate fences"],
-  decoration: ["Fruit sprinkles", "Peppermint sticks", "Marshmallows", "Candy pearls", "Pastel gumdrops"],
+  decoration: ["Sprinkled icing swirls", "Peppermint sticks", "Marshmallows", "Candy pearls", "Pastel gumdrops"],
 } as const;
 const assetRoot = "/images/Candy%20cottage/";
 // Only list candy materials with an existing matching illustration.
 const candyMaterialArt: Record<string, { file: string; left: string; top: string; width: string; height: string }> = {
-  "Fruit sprinkles": { file: "Sprinkled-Icing-Swirl.png", left: "34%", top: "29%", width: "32%", height: "13%" },
-  "Peppermint sticks": { file: "Candy-Cane.png", left: "19%", top: "76%", width: "15%", height: "17%" },
-  "Marshmallows": { file: "Marshmallows.png", left: "38%", top: "78%", width: "24%", height: "12%" },
-  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "30%", top: "37%", width: "40%", height: "10%" },
-  "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "67%", top: "77%", width: "17%", height: "15%" },
+  "Sprinkled icing swirls": { file: "Sprinkled-Icing-Swirl.png", left: "34%", top: "29%", width: "32%", height: "13%" },
+  "Peppermint sticks": { file: "Candy-Cane.png", left: "10%", top: "76%", width: "15%", height: "17%" },
+  "Marshmallows": { file: "Marshmallows.png", left: "61%", top: "79%", width: "20%", height: "11%" },
+  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "28%", top: "42%", width: "44%", height: "8%" },
+  "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "74%", top: "78%", width: "20%", height: "17%" },
 };
 const decorationChoices = [
   ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
