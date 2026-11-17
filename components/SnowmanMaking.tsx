@@ -98,10 +98,10 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   layout.eyes=accessory(head.width*0.64,head.height*0.24,faceY-head.height*0.06);
   layout.nose=accessory(head.width*0.39,head.height*0.30,faceY+head.height*0.03);
   layout.mouth=accessory(head.width*0.55,head.height*0.23,faceY+head.height*0.25);
-  layout.hat=accessory(head.width*1.32,head.height*0.75,head.top-head.height*0.32);
-  layout.scarf=accessory(middle.width*0.70,middle.height*0.67,neckY-head.height*0.02);
+  layout.hat=accessory(head.width*1.32,head.height*0.75,head.top+head.height*0.08);
+  layout.scarf=accessory(middle.width*0.70,middle.height*0.67,neckY-head.height*0.16);
   layout.buttons=accessory(lower.width*0.22,lower.height*0.29,lower.top+lower.height*0.39);
-  layout.arms=accessory(middle.width*1.58,middle.height*1.22,middle.top+middle.height*0.02);
+  layout.arms=accessory(middle.width*1.90,middle.height*1.22,middle.top+middle.height*0.02);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
