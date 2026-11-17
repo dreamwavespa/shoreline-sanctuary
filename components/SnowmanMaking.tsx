@@ -68,17 +68,17 @@ const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body
 // Percentage positions in the clearing; facial features stay on the top snowball.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
   {part:"snowball",left:"13%",top:"77%",width:"23%",height:"17%"},
-  {part:"arms",left:"11%",top:"33%",width:"78%",height:"44%"},
+  {part:"arms",left:"15%",top:"35%",width:"70%",height:"40%"},
   {part:"body",left:"23%",top:"23%",width:"54%",height:"68%"},
   {part:"baseBall",left:"29%",top:"61%",width:"42%",height:"28%"},
   {part:"middleBall",left:"34%",top:"45%",width:"32%",height:"23%"},
   {part:"headBall",left:"39%",top:"31%",width:"22%",height:"19%"},
   {part:"eyes",left:"40%",top:"39%",width:"20%",height:"9%"},
   {part:"nose",left:"46%",top:"42%",width:"12%",height:"7%"},
-  {part:"mouth",left:"43%",top:"46%",width:"14%",height:"6%"},
-  {part:"buttons",left:"44%",top:"69%",width:"12%",height:"10%"},
-  {part:"scarf",left:"37%",top:"50%",width:"26%",height:"18%"},
-  {part:"hat",left:"34%",top:"25%",width:"32%",height:"20%"},
+  {part:"mouth",left:"43%",top:"48%",width:"14%",height:"6%"},
+  {part:"buttons",left:"45%",top:"65%",width:"10%",height:"9%"},
+  {part:"scarf",left:"37%",top:"48%",width:"26%",height:"18%"},
+  {part:"hat",left:"34%",top:"27%",width:"32%",height:"20%"},
   {part:"accessory",left:"63%",top:"72%",width:"26%",height:"22%"},
 ];
 // Individually stacked snowballs occupy a smaller, higher silhouette than premade bodies.
