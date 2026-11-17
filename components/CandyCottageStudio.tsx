@@ -25,6 +25,18 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
   "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "33%", top: "49%", width: "34%", height: "3%" },
   "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "74%", top: "78%", width: "20%", height: "17%" },
 };
+// Seasonal placement overrides leave the shared artwork and Free Build positions unchanged.
+const seasonalMaterialPlacement: Record<string, Record<string, Partial<{ left: string; top: string; width: string; height: string }>>> = {
+  "Winter Gingerbread Cabin": {
+    "Sprinkled icing swirls": { left: "34%", top: "34%", width: "27%", height: "9%" },
+    "Peppermint sticks": { left: "23%", top: "78%", width: "12%", height: "15%" },
+  },
+};
+const seasonalDecorationPlacement: Record<string, Record<string, Partial<{ left: number; top: number; width: number; height: number }>>> = {
+  "Winter Gingerbread Cabin": {
+    "Front gable": { left: 43, top: 36, width: 10, height: 10 },
+  },
+};
 const decorationChoices = [
   ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
   ["Candy sand dollar", "Candy-Sand-Dollar.png"], ["Candy cane", "Candy-Cane.png"],
@@ -219,16 +231,17 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
                     style={{
-                      left: candyMaterialArt[house.decoration].left,
-                      top: candyMaterialArt[house.decoration].top,
-                      width: candyMaterialArt[house.decoration].width,
-                      height: candyMaterialArt[house.decoration].height,
+                      ...candyMaterialArt[house.decoration],
+                      ...(house.design !== "Free Build" ? seasonalMaterialPlacement[house.name]?.[house.decoration] : {}),
                     }}
                   />
                 )}
                 {decorations.map(item => {
-                  const spot = decorationSpots[item.spot as DecorationSpot];
-                  if (!spot) return null;
+                  const baseSpot = decorationSpots[item.spot as DecorationSpot];
+                  if (!baseSpot) return null;
+                  const spot = house.design !== "Free Build" && item.spot === "Front gable" && /Lollipop/i.test(item.art)
+                    ? { ...baseSpot, ...seasonalDecorationPlacement[house.name]?.[item.spot] }
+                    : baseSpot;
                   return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
                     style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
