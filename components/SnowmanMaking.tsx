@@ -4,15 +4,18 @@ import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { useEffect, useState } from "react";
 
-type Part = "snowball" | "body" | "eyes" | "nose" | "mouth" | "arms" | "hat" | "scarf" | "buttons" | "accessory";
+type Part = "baseBall" | "middleBall" | "headBall" | "snowball" | "body" | "eyes" | "nose" | "mouth" | "arms" | "hat" | "scarf" | "buttons" | "accessory";
 type Choice = { name: string; file: string };
 type Snowman = Record<Part, string>;
 const ROOT = "/images/Winter/Snowman/";
 const PARTS: { key: Part; label: string; options: Choice[] }[] = [
   { key: "body", label: "Snowballs and body", options: [
     {name:"Three snowball body",file:"Three_Ball_Snowman_Base.png"},{name:"Two snowball body",file:"Two_Ball_Snowman_Base.png"},
-    {name:"One large snowball",file:"Large_Snowball.png"},{name:"One medium snowball",file:"Medium_Snowball.png"},{name:"One small snowball",file:"Small_Snowball.png"},
+
   ] },
+  { key: "baseBall", label: "Base snowball", options: [{name:"Large snowball",file:"Large_Snowball.png"},{name:"Medium snowball",file:"Medium_Snowball.png"},{name:"Small snowball",file:"Small_Snowball.png"}] },
+  { key: "middleBall", label: "Middle snowball", options: [{name:"Medium snowball",file:"Medium_Snowball.png"},{name:"Large snowball",file:"Large_Snowball.png"},{name:"Small snowball",file:"Small_Snowball.png"}] },
+  { key: "headBall", label: "Head snowball", options: [{name:"Small snowball",file:"Small_Snowball.png"},{name:"Medium snowball",file:"Medium_Snowball.png"},{name:"Large snowball",file:"Large_Snowball.png"}] },
   { key: "snowball", label: "Extra snowballs", options: [
     {name:"Large snowball",file:"Large_Snowball.png"},{name:"Medium snowball",file:"Medium_Snowball.png"},{name:"Small snowball",file:"Small_Snowball.png"},
   ] },
@@ -60,13 +63,16 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
     {name:"Snowflake",file:"Snowflake.png"},
   ] },
 ];
-const DEFAULT: Snowman = {snowball:"",body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
+const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body:"Three_Ball_Snowman_Base.png",eyes:"Black_Coal_Eyes.png",nose:"Carrot_Nose.png",mouth:"Coal_Smile.png",arms:"Plain_Twig_Arms.png",hat:"",scarf:"",buttons:"",accessory:""};
 // Percentages refer to the full clearing image. Keep all decorations anchored to the body.
 // Percentage positions in the clearing; facial features stay on the top snowball.
 const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = [
   {part:"snowball",left:"13%",top:"77%",width:"23%",height:"17%"},
   {part:"arms",left:"11%",top:"33%",width:"78%",height:"44%"},
   {part:"body",left:"23%",top:"23%",width:"54%",height:"68%"},
+  {part:"baseBall",left:"29%",top:"61%",width:"42%",height:"28%"},
+  {part:"middleBall",left:"34%",top:"45%",width:"32%",height:"23%"},
+  {part:"headBall",left:"39%",top:"31%",width:"22%",height:"19%"},
   {part:"eyes",left:"40%",top:"39%",width:"20%",height:"9%"},
   {part:"nose",left:"46%",top:"42%",width:"12%",height:"7%"},
   {part:"mouth",left:"43%",top:"46%",width:"14%",height:"6%"},
@@ -110,9 +116,14 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     try {localStorage.setItem(storageKey,JSON.stringify({parts,memories}));} catch {}
   },[parts,memories,storageKey,loaded]);
   const select=(key:Part,choice:Choice|null)=>{
-    if (choice && (key==="body" || key==="snowball") && /Snowball|Snowman_Base/.test(choice.file)) play("snowballCollect",0.65);
-    setParts(prev=>({...prev,[key]:choice?.file||""}));
-    setAnnouncement(choice?choice.name+" added to your snowman.":"Removed "+PARTS.find(p=>p.key===key)?.label+".");
+    if (choice && (["body","snowball","baseBall","middleBall","headBall"].includes(key)) && /Snowball|Snowman_Base/.test(choice.file)) play("snowballCollect",0.65);
+    setParts(prev=>({
+      ...prev,
+      ...(key==="body" && choice ? {baseBall:"",middleBall:"",headBall:""} : {}),
+      ...(["baseBall","middleBall","headBall"].includes(key) && choice ? {body:""} : {}),
+      [key]:choice?.file||""
+    }));
+    setAnnouncement(choice?choice.name+" added as "+(PARTS.find(p=>p.key===key)?.label||key)+".":"Removed "+PARTS.find(p=>p.key===key)?.label+".");
   };
   const save=()=>{
     const entry={date:new Date().toLocaleString(),parts:{...parts}};
