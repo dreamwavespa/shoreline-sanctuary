@@ -27,6 +27,27 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
   "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "28%", top: "32%", width: "44%", height: "8%" },
   "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "74%", top: "78%", width: "20%", height: "17%" },
 };
+// House-specific attachment zones for structural candy details.
+// These zones are independent of freely placed decorations and do not alter saved designs.
+type CandyAnchor = { left: string; top: string; width: string; height: string };
+const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
+  "Winter Gingerbread Cabin": {
+    // Compact accent inside the timber gable, avoiding the sloped roof tiles.
+    "Sprinkled icing swirls": { left: "34%", top: "37%", width: "23%", height: "7%" },
+    // A short trim over the entrance, not a horizontal strip across the roof slope.
+    "Candy pearls": { left: "38%", top: "47%", width: "20%", height: "3%" },
+  },
+  "Autumn Harvest House": {
+    "Sprinkled icing swirls": { left: "34%", top: "29%", width: "32%", height: "13%" },
+    "Candy pearls": { left: "33%", top: "49%", width: "34%", height: "3%" },
+  },
+};
+const materialAttachment = (house: House): CandyAnchor => {
+  const { left, top, width, height } = candyMaterialArt[house.decoration];
+  return house.design === "Free Build"
+    ? { left, top, width, height }
+    : structuralAttachments[house.name]?.[house.decoration] || { left, top, width, height };
+};
 const decorationChoices = [
   ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
   ["Candy sand dollar", "Candy-Sand-Dollar.png"], ["Candy cane", "Candy-Cane.png"],
@@ -220,9 +241,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                     alt=""
                     aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
-                    style={{
-                      ...candyMaterialArt[house.decoration],
-                    }}
+                    style={materialAttachment(house)}
                   />
                 )}
                 {decorations.map(item => {
