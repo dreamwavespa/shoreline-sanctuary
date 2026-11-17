@@ -67,9 +67,9 @@ const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body
 type Rect = {left:number;top:number;width:number;height:number};
 const rect=(left:number,top:number,width:number,height:number):Rect=>({left,top,width,height});
 const BALL_RECTS: Record<"baseBall"|"middleBall"|"headBall",Rect> = {
-  baseBall:rect(29,61,42,28),middleBall:rect(34,45,32,23),headBall:rect(39,31,22,19),
+  baseBall:rect(29,61,42,28),middleBall:rect(34,53,32,24),headBall:rect(39,45,22,19),
 };
-const BALL_SCALE: Record<string,number> = {Large_Snowball:1,Medium_Snowball:0.82,Small_Snowball:0.67};
+const BALL_SCALE: Record<string,number> = {Large_Snowball:1,Medium_Snowball:1,Small_Snowball:1};
 const ballSize=(file:string)=>Object.entries(BALL_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;
 function centered(rectangle:Rect,scale:number):Rect {
   return rect(rectangle.left+rectangle.width*(1-scale)/2,rectangle.top+rectangle.height*(1-scale)/2,rectangle.width*scale,rectangle.height*scale);
