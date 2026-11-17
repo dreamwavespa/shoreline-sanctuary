@@ -22,7 +22,7 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
   "Sprinkled icing swirls": { file: "Sprinkled-Icing-Swirl.png", left: "34%", top: "29%", width: "32%", height: "13%" },
   "Peppermint sticks": { file: "Candy-Cane.png", left: "10%", top: "76%", width: "15%", height: "17%" },
   "Marshmallows": { file: "Marshmallows.png", left: "61%", top: "79%", width: "20%", height: "11%" },
-  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "28%", top: "42%", width: "44%", height: "8%" },
+  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "48%", top: "43%", width: "27%", height: "6%" },
   "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "74%", top: "78%", width: "20%", height: "17%" },
 };
 const decorationChoices = [
@@ -56,6 +56,7 @@ const decorationName = (art: string) => [...decorationChoices, ...gardenChoices]
 const allowedSpots = (art: string): DecorationSpot[] => {
   if (/Tree|Bush|Flowers|Pumpkins|Sunflowers|Fence|Birdhouse/i.test(art)) return ["Left garden", "Right garden", "Left path", "Right path"];
   if (/Lantern/i.test(art)) return ["Left path", "Right path", "Left garden", "Right garden"];
+  if (/Marshmallows|Gumdrops/i.test(art)) return ["Right path", "Left path", "Right garden", "Left garden"];
   if (/Cane|Lollipop/i.test(art)) return ["Left garden", "Right garden", "Left path", "Right path", "Front gable"];
   if (/Heart|Star|Seashell|Sand-Dollar/i.test(art)) return ["Above door", "Front gable"];
   return ["Front gable", "Above door", "Left garden", "Right garden", "Left path", "Right path"];
