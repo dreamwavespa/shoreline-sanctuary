@@ -79,7 +79,8 @@ export default function SnowyWinterCove({ onBack }: { onBack: () => void }) {
     try {localStorage.setItem(iceSearchKey,JSON.stringify(next));} catch {}
     setIceSearchFound(next);
     collectItem(choice.id,{silent:true});
-    const collectionSound = choice.id === "winter-ice-block" ? "winterIceCollect"
+    const collectionSound = choice.id.startsWith("winter-everlasting-snowball-") ? "snowballCollect"
+      : choice.id === "winter-ice-block" ? "winterIceCollect"
       : choice.id === "winter-snowball-pearl" ? "pearl"
       : choice.id === "winter-snowflake-sand-dollar" ? "sandDollarCoin"
       : "seaGlass";
