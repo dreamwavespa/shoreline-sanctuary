@@ -70,45 +70,36 @@ const rect=(left:number,top:number,width:number,height:number):Rect=>({left,top,
 // All coordinates below are percentages of the same winter scene.
 // Accessories are derived from the assembled head and torso, never from
 // their previous screen position or from another accessory.
+// Fixed scene-space assembly presets. Each snowman uses one coordinate frame;
+// decoration positions never depend on the dimensions of another decoration.
 function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const layout={} as Record<Part,Rect>;
-  const empty=rect(50,84,0,0);
-  for(const key of ["body","baseBall","middleBall","headBall"] as const)layout[key]=empty;
+  const hidden=rect(50,80,0,0);
+  for(const key of ["body","baseBall","middleBall","headBall"] as const) layout[key]=hidden;
   layout.snowball=rect(13,77,23,17);
-  let head:Rect,torso:Rect,base:Rect;
   const custom=!parts.body;
-  if(custom){
-    const keys=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
-    // Fixed, non-overlapping assembly slots: one, two, or three snowballs.
-    // Each image is centered in its slot; accessories attach to those slots.
-    const slots:Rect[]=keys.length===1
-      ?[rect(36,68,28,22)]
-      :keys.length===2
-      ?[rect(33,73,34,21),rect(39,58,22,17)]
-      :[rect(32,73,36,21),rect(37,60,26,17),rect(42,48,16,14)];
-    keys.forEach((key,i)=>layout[key]=slots[i]);
-    base=slots[0]||empty;
-    head=slots[slots.length-1]||empty;
-    torso=slots.length>1?slots[slots.length-2]:slots[0]||empty;
-  }else{
-    const two=parts.body==="Two_Ball_Snowman_Base.png";
-    layout.body=two?rect(31,57,38,36):rect(30,49,40,44);
-    head=two?rect(40,59,20,15):rect(42,51,16,13);
-    torso=two?rect(33,72,34,20):rect(37,65,26,15);
-    base=two?torso:rect(32,76,36,17);
-  }
-  // Nothing floats in an empty scene: no snowball means no attachment anchors.
-  const cx=head.left+head.width/2;
-  const at=(width:number,height:number,top:number):Rect=>rect(cx-width/2,top,width,height);
-  const single=custom&&[parts.baseBall,parts.middleBall,parts.headBall].filter(Boolean).length===1;
-  const faceTop=head.top+head.height*0.30;
-  layout.eyes=at(head.width*.38,head.height*.15,faceTop);
-  layout.nose=at(head.width*.28,head.height*.16,faceTop+head.height*.20);
-  layout.mouth=at(head.width*.32,head.height*.13,faceTop+head.height*.39);
-  layout.hat=at(head.width*1.08,head.height*.55,head.top-head.height*.34);
-  layout.scarf=at(torso.width*(single?.54:.63),torso.height*.50,single?head.top+head.height*.58:head.top+head.height*.80);
-  layout.buttons=at(base.width*.10,base.height*.12,base.top+base.height*.60);
-  layout.arms=at(torso.width*1.14,torso.height*.75,torso.top+torso.height*.08);
+  const keys=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
+  const count=custom?keys.length:(parts.body==="Two_Ball_Snowman_Base.png"?2:3);
+  // Snowballs are arranged bottom-up and meet at stable overlap points.
+  const slots:Rect[]=count===1?[rect(37,72,26,22)]:count===2?
+    [rect(34,73,32,22),rect(40,58,20,17)]:
+    [rect(33,76,34,19),rect(39,64,22,15),rect(43,54,14,12)];
+  if(custom) keys.forEach((key,i)=>layout[key]=slots[i]);
+  else layout.body=count===2?rect(31,57,38,37):rect(30,51,40,43);
+  // These anchors are independent of the chosen hat, scarf, or face art.
+  const head=count===1?slots[0]:count===2?slots[1]:slots[2];
+  const torso=count===1?slots[0]:count===2?slots[0]:slots[1];
+  const base=slots[0];
+  const cx=50;
+  const centered=(w:number,h:number,y:number)=>rect(cx-w/2,y,w,h);
+  layout.eyes=centered(head.width*.43,head.height*.20,head.top+head.height*.30);
+  layout.nose=centered(head.width*.37,head.height*.19,head.top+head.height*.47);
+  layout.mouth=centered(head.width*.43,head.height*.17,head.top+head.height*.66);
+  // Hat artwork is centered on the head with its lower edge overlapping the crown.
+  layout.hat=centered(head.width*1.35,head.height*.83,head.top-head.height*.57);
+  layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
+  layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.65);
+  layout.arms=centered(torso.width*1.40,torso.height*1.05,torso.top+torso.height*.08);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
