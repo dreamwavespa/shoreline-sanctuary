@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useGame } from "@/lib/store";
 import { useEffect, useState } from "react";
 
 type Part = "snowball" | "body" | "eyes" | "nose" | "mouth" | "arms" | "hat" | "scarf" | "buttons" | "accessory";
@@ -86,6 +87,7 @@ const STORAGE = "shoreline-snowman-winter-v1";
 const PREVIEW_STORAGE = "shoreline-snowman-preview-v1";
 type Memory = { date:string; parts:Snowman };
 export default function SnowmanMaking({night}:{night:boolean}) {
+  const {state,play}=useGame();
   const month=new Date().getMonth();
   const inWinter=month===11||month===0||month===1;
   const [preview,setPreview]=useState(!inWinter);
@@ -108,6 +110,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     try {localStorage.setItem(storageKey,JSON.stringify({parts,memories}));} catch {}
   },[parts,memories,storageKey,loaded]);
   const select=(key:Part,choice:Choice|null)=>{
+    if (choice && (key==="body" || key==="snowball") && /Snowball|Snowman_Base/.test(choice.file)) play("snowballCollect",0.65);
     setParts(prev=>({...prev,[key]:choice?.file||""}));
     setAnnouncement(choice?choice.name+" added to your snowman.":"Removed "+PARTS.find(p=>p.key===key)?.label+".");
   };
@@ -136,6 +139,20 @@ export default function SnowmanMaking({night}:{night:boolean}) {
           <p className="text-xs text-sky-100">{PARTS.find(group=>group.key===active)?.label}: {PARTS.find(group=>group.key===active)?.options.find(o=>o.file===parts[active])?.name||"None"}</p>
         </div>
       </div>
+      <section className="space-y-2 rounded-xl border border-sky-300 p-3" aria-label="Everlasting Snowball collection">
+        <h4 className="font-semibold">Everlasting Snowballs</h4>
+        <p>Rare snowballs stay in your inventory when used. Choose a collected size to display beside your snowman. Preview mode allows testing all sizes without adding them to inventory.</p>
+        <div className="grid grid-cols-3 gap-2">
+          {(["small","medium","large"] as const).map(size=>{
+            const owned=state.inventory["winter-everlasting-snowball-"+size]||0;
+            const option=PARTS.find(p=>p.key==="snowball")?.options.find(o=>o.file.toLowerCase().startsWith(size));
+            return <button key={size} type="button" disabled={!preview&&owned===0} aria-pressed={!!option&&parts.snowball===option.file} onClick={()=>{if(option)select("snowball",option);}} className="min-h-12 rounded-lg border border-sky-200 p-2 disabled:opacity-50">
+              {size.charAt(0).toUpperCase()+size.slice(1)} — {owned} collected{preview?" (preview)":""}
+            </button>;
+          })}
+        </div>
+        {parts.snowball&&<button type="button" className="min-h-11 rounded-lg border border-sky-200 px-3 py-2" onClick={()=>select("snowball",null)}>Remove displayed snowball</button>}
+      </section>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Snowman decoration categories">
         {PARTS.map(group=><button type="button" key={group.key} aria-pressed={active===group.key} onClick={()=>setActive(group.key)} className={`min-h-11 rounded-lg border px-3 py-2 ${active===group.key?"border-yellow-300 bg-indigo-700":"border-sky-200 bg-indigo-900"}`}>{group.label}</button>)}
       </div>
