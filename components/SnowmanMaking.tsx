@@ -115,8 +115,8 @@ const renderOrder:Part[]=["snowball","arms","body","baseBall","middleBall","head
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const scale=Object.entries(ART_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;const position=centered(layout[part],scale);return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%"}}>
-      <Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
+    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const scale=Object.entries(ART_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;const position=centered(layout[part],scale);const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:individualBall?2:part==="body"?2:3}}>
+      {individualBall?<img src={ROOT+file+"?v=20261116-snowball-fix"} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>:<Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>}
     </div>:null;})}
   </div>;
 }
