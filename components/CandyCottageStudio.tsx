@@ -22,7 +22,7 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
   "Sprinkled icing swirls": { file: "Sprinkled-Icing-Swirl.png", left: "34%", top: "29%", width: "32%", height: "13%" },
   "Peppermint sticks": { file: "Candy-Cane.png", left: "10%", top: "76%", width: "15%", height: "17%" },
   "Marshmallows": { file: "Marshmallows.png", left: "61%", top: "79%", width: "20%", height: "11%" },
-  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "48%", top: "43%", width: "27%", height: "6%" },
+  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "33%", top: "49%", width: "34%", height: "3%" },
   "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "74%", top: "78%", width: "20%", height: "17%" },
 };
 const decorationChoices = [
