@@ -212,7 +212,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (isPillowSlot(selectedSlot) && !isPillowDecor(id)) { setAnnouncement("Choose a pillow or plushie for the sofa."); return; }
     if (isChairSlot(selectedSlot) && !isChairDecor(id)) { setAnnouncement("Choose your seashell chair for this corner."); return; }
     if (isWallSlot(selectedSlot) && !isWallDecor(id)) { setAnnouncement("Choose a painting, mirror, or other wall artwork for this position."); return; }
-    const count = snowBasket(id) ? (snowballTotal >= snowBasket(id)!.required ? 1 : 0) : isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
+    const count = isArrangement(id) ? (arrangementFor(id) ? 1 : 0) : (state.inventory[id] || 0);
     const usedElsewhere = Object.entries(placements).filter(([slot, item]) => slot !== selectedSlot && item === id).length;
     if (usedElsewhere >= count) { setAnnouncement("All owned copies of that decoration are already displayed."); return; }
     savePlacement({ ...placements, [selectedSlot]: id });
@@ -699,8 +699,8 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
           <p className="mt-2 text-sm">Choose an owned decoration:</p>
           <div className="mt-2 max-h-52 overflow-y-auto">
             {ownedDecor.filter(([id]) => slotAccepts(selectedSlot, id) && !(selectedSlot === "patio-planter" && isDisplayFlower(id))).map(([id, count]) => <button key={id} type="button" disabled={usedCount(id, selectedSlot) >= count} onClick={() => place(id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">{ITEMS[id].name} (available: {Math.max(0, count - usedCount(id, selectedSlot))})</button>)}
-            {SNOW_BASKETS.filter(b=>slotAccepts(selectedSlot,b.id)).map(b=><button key={b.id} type="button" disabled={snowballTotal<b.required || usedCount(b.id,selectedSlot)>0} onClick={()=>place(b.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">
-              {b.name} — requires {b.required} Everlasting Snowballs ({snowballTotal} collected). {snowballTotal>=b.required?"Unlocked":"Locked"}
+            {SNOW_BASKETS.filter(b=>slotAccepts(selectedSlot,b.id)).map(b=><button key={b.id} type="button" disabled={(state.inventory[b.id]||0)<=usedCount(b.id,selectedSlot)} onClick={()=>place(b.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950 disabled:opacity-50">
+              {b.name} — crafted: {state.inventory[b.id]||0}, available: {Math.max(0,(state.inventory[b.id]||0)-usedCount(b.id,selectedSlot))}. Craft in the Workshop.
             </button>)}
             {isFlowerSlot(selectedSlot) && availableArrangements.map(a => <button key={a.id} type="button" onClick={() => place("arrangement:" + a.id)} className="mb-1 block min-h-11 w-full rounded-lg border border-slate-300 p-2 text-left text-teal-950">Flower arrangement: {a.name}</button>)}
             {isFlowerSlot(selectedSlot) && state.flowerArrangements.filter(a => usedCount("arrangement:" + a.id) > 0).map(a => <p key={a.id} className="text-sm">{a.name}: displayed at {slots.find(s => placements[s.id] === "arrangement:" + a.id)?.name || "another spot"}</p>)}
