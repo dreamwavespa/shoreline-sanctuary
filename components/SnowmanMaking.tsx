@@ -66,50 +66,44 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
 const DEFAULT: Snowman = {baseBall:"",middleBall:"",headBall:"",snowball:"",body:"",eyes:"",nose:"",mouth:"",arms:"",hat:"",scarf:"",buttons:"",accessory:""};
 type Rect = {left:number;top:number;width:number;height:number};
 const rect=(left:number,top:number,width:number,height:number):Rect=>({left,top,width,height});
-const BALL_DIAMETERS: Record<string,number> = {Large_Snowball:39,Medium_Snowball:30,Small_Snowball:22};
-const diameter=(file:string,fallback:number)=>Object.entries(BALL_DIAMETERS).find(([name])=>file.startsWith(name))?.[1]??fallback;
-function centered(r:Rect,scale:number):Rect {
-  return rect(r.left+r.width*(1-scale)/2,r.top+r.height*(1-scale)/2,r.width*scale,r.height*scale);
-}
+// One assembled snowman coordinate system for every body choice.
+// All coordinates below are percentages of the same winter scene.
+// Accessories are derived from the assembled head and torso, never from
+// their previous screen position or from another accessory.
 function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const layout={} as Record<Part,Rect>;
   const custom=!parts.body && !!(parts.baseBall||parts.middleBall||parts.headBall);
-  layout.body=rect(0,0,0,0);
+  const empty=rect(50,84,0,0);
+  layout.body=empty;
+  layout.baseBall=empty;
+  layout.middleBall=empty;
+  layout.headBall=empty;
   layout.snowball=rect(13,77,23,17);
-  let head:Rect;
-  let torso:Rect;
-  let base:Rect;
+  let head:Rect, torso:Rect, base:Rect;
   if(custom){
-    // Stack each selected ball on the previous one, sharing the same centerline.
-    // The overlap accounts for transparent padding within individual snowball art.
-    const selections=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
-    const sizes=selections.map(key=>diameter(parts[key],26));
-    const heights=sizes.map(width=>width*0.78);
-    const overlap=0.26;
-    const stackHeight=heights.reduce((sum,h,i)=>sum+h*(i===0?1:1-overlap),0);
-    const factor=Math.min(1,58/stackHeight);
-    let bottom=89;
-    const placed:Partial<Record<"baseBall"|"middleBall"|"headBall",Rect>>={};
-    for(let i=0;i<selections.length;i++){
-      const width=sizes[i]*factor;
-      const height=heights[i]*factor;
+    const keys=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
+    // Use a single set of three attachment slots. Changing the artwork size
+    // does not move the face, hat, arms, or scarf independently.
+    const sizes:Record<string,number>={Large_Snowball:38,Medium_Snowball:31,Small_Snowball:24};
+    const widths=keys.map(key=>Object.entries(sizes).find(([name])=>parts[key].startsWith(name))?.[1]??28);
+    const heights=widths.map(width=>width*0.78);
+    const overlap=0.24;
+    const total=heights.reduce((sum,h,i)=>sum+h*(i===0?1:1-overlap),0);
+    const factor=Math.min(1,53/total);
+    let bottom=88;
+    for(let i=0;i<keys.length;i++){
+      const width=widths[i]*factor, height=heights[i]*factor;
       const top=bottom-height;
-      placed[selections[i]]=rect(50-width/2,top,width,height);
+      layout[keys[i]]=rect(50-width/2,top,width,height);
       bottom=top+height*overlap;
     }
-    for(const key of ["baseBall","middleBall","headBall"] as const){
-      layout[key]=placed[key]??rect(50,89,0,0);
-    }
-    base=placed[selections[0]]!;
-    head=placed[selections[selections.length-1]]!;
-    torso=placed[selections.length>2?selections[1]:selections[0]]!;
+    base=layout[keys[0]];
+    head=layout[keys[keys.length-1]];
+    torso=layout[keys.length>=3?keys[1]:keys[0]];
   }else{
-    // Independent anchors for the two premade silhouettes. The head is not
-    // at the top of the full image: each PNG includes transparent padding.
     const two=parts.body==="Two_Ball_Snowman_Base.png";
-    layout.baseBall=rect(0,0,0,0);
-    layout.middleBall=rect(0,0,0,0);
-    layout.headBall=rect(0,0,0,0);
+    // Premade silhouettes occupy one assembled body slot, with their own
+    // head and torso anchors within that slot.
     layout.body=two?rect(28,53,44,36):rect(27,47,46,43);
     head=two?rect(39,57,22,15):rect(40,50,20,14);
     torso=two?rect(30,68,40,20):rect(33,64,34,18);
@@ -117,32 +111,22 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   }
   const cx=head.left+head.width/2;
   const at=(width:number,height:number,top:number):Rect=>rect(cx-width/2,top,width,height);
-  const faceTop=head.top+head.height*0.34;
-  layout.eyes=at(head.width*0.43,head.height*0.17,faceTop);
-  layout.nose=at(head.width*0.33,head.height*0.19,faceTop+head.height*0.19);
-  layout.mouth=at(head.width*0.39,head.height*0.15,faceTop+head.height*0.39);
-  // Hats overlap the crown rather than sitting above its image rectangle.
-  layout.hat=at(head.width*1.13,head.height*0.67,head.top-head.height*0.22);
-  layout.scarf=at(torso.width*0.59,torso.height*0.53,head.top+head.height*0.76);
-  layout.buttons=at(base.width*0.14,base.height*0.19,base.top+base.height*0.55);
-  layout.arms=at(torso.width*1.26,torso.height*0.78,torso.top+torso.height*0.04);
+  const faceTop=head.top+head.height*0.35;
+  layout.eyes=at(head.width*0.40,head.height*0.16,faceTop);
+  layout.nose=at(head.width*0.30,head.height*0.18,faceTop+head.height*0.19);
+  layout.mouth=at(head.width*0.35,head.height*0.14,faceTop+head.height*0.39);
+  layout.hat=at(head.width*1.08,head.height*0.64,head.top-head.height*0.14);
+  layout.scarf=at(torso.width*0.60,torso.height*0.52,head.top+head.height*0.78);
+  layout.buttons=at(base.width*0.12,base.height*0.16,base.top+base.height*0.55);
+  layout.arms=at(torso.width*1.14,torso.height*0.73,torso.top+torso.height*0.08);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
-// Small per-artwork adjustments compensate for transparent padding and unusual silhouettes.
-const ART_SCALE: Record<string,number> = {
-  Santa_Hat:0.94,Straw_Beach_Hat:1.06,Black_Top_Hat:0.92,
-  Red_Plaid_Scarf:0.85,Blue_Snowflake_Scarf:0.93,
-  Blue_Mitten_Arms:0.88,Wooden_Button:0.78,
-};
-// Per-hat offsets are measured in scene percentage points; beanies and tall hats have different transparent margins.
-// Keep all hats anchored to the head; avoid style-specific vertical shifts.
-const HAT_OFFSETS: Record<string,number> = {};
 const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","arms","buttons","scarf","eyes","nose","mouth","hat","accessory"];
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const scale=Object.entries(ART_SCALE).find(([name])=>file.startsWith(name))?.[1]||1;const basePosition=centered(layout[part],scale);const hatOffset=part==="hat"?(Object.entries(HAT_OFFSETS).find(([name])=>file.startsWith(name))?.[1]??0):0;const position={...basePosition,top:basePosition.top+hatOffset};const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:part==="arms"?3:individualBall?2:part==="body"?2:4}}>
+    {renderOrder.map(part=>{const layout=snowmanLayout(parts);const file=parts[part];const position=layout[part];const individualBall=part==="baseBall"||part==="middleBall"||part==="headBall";return file?<div key={part} className="pointer-events-none absolute" style={{left:position.left+"%",top:position.top+"%",width:position.width+"%",height:position.height+"%",zIndex:part==="arms"?3:individualBall?2:part==="body"?2:4}}>
       {individualBall?<img src={ROOT+file+"?v=20261116-snowball-fix"} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>:<Image src={ROOT+file+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>}
     </div>:null;})}
   </div>;
