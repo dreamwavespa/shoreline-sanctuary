@@ -28,7 +28,8 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
 // Seasonal placement overrides leave the shared artwork and Free Build positions unchanged.
 const seasonalMaterialPlacement: Record<string, Record<string, Partial<{ left: string; top: string; width: string; height: string }>>> = {
   "Winter Gingerbread Cabin": {
-    "Sprinkled icing swirls": { left: "34%", top: "34%", width: "27%", height: "9%" },
+    "Sprinkled icing swirls": { left: "30%", top: "35%", width: "23%", height: "8%" },
+    "Candy pearls": { left: "27%", top: "44%", width: "29%", height: "3%" },
     "Peppermint sticks": { left: "23%", top: "78%", width: "12%", height: "15%" },
   },
 };
