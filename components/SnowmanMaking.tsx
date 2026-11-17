@@ -74,50 +74,58 @@ function centered(r:Rect,scale:number):Rect {
 function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const layout={} as Record<Part,Rect>;
   const custom=!parts.body && !!(parts.baseBall||parts.middleBall||parts.headBall);
-  layout.body=rect(26,48,48,42);
+  layout.body=rect(0,0,0,0);
   layout.snowball=rect(13,77,23,17);
   let head:Rect;
   let torso:Rect;
   let base:Rect;
   if(custom){
-    // Snowballs share a common centerline and overlap naturally; no floating gaps.
+    // Stack each selected ball on the previous one, sharing the same centerline.
+    // The overlap accounts for transparent padding within individual snowball art.
     const selections=(["baseBall","middleBall","headBall"] as const).filter(key=>!!parts[key]);
-    let bottom=88;
+    const sizes=selections.map(key=>diameter(parts[key],26));
+    const heights=sizes.map(width=>width*0.78);
+    const overlap=0.26;
+    const stackHeight=heights.reduce((sum,h,i)=>sum+h*(i===0?1:1-overlap),0);
+    const factor=Math.min(1,58/stackHeight);
+    let bottom=89;
     const placed:Partial<Record<"baseBall"|"middleBall"|"headBall",Rect>>={};
-    for(const key of selections){
-      const width=diameter(parts[key],26);
-      const height=width*0.78;
+    for(let i=0;i<selections.length;i++){
+      const width=sizes[i]*factor;
+      const height=heights[i]*factor;
       const top=bottom-height;
-      placed[key]=rect(50-width/2,top,width,height);
-      // Position the next ball closer to the visible top of the lower ball.\n      // The transparent snowball assets leave extra empty space inside their image boxes.\n      bottom=top+height*0.47;
+      placed[selections[i]]=rect(50-width/2,top,width,height);
+      bottom=top+height*overlap;
     }
     for(const key of ["baseBall","middleBall","headBall"] as const){
-      layout[key]=placed[key]??rect(50,88,0,0);
+      layout[key]=placed[key]??rect(50,89,0,0);
     }
     base=placed[selections[0]]!;
     head=placed[selections[selections.length-1]]!;
     torso=placed[selections.length>2?selections[1]:selections[0]]!;
   }else{
-    // Premade artwork has different built-in proportions from loose snowballs.
+    // Independent anchors for the two premade silhouettes. The head is not
+    // at the top of the full image: each PNG includes transparent padding.
     const two=parts.body==="Two_Ball_Snowman_Base.png";
     layout.baseBall=rect(0,0,0,0);
     layout.middleBall=rect(0,0,0,0);
     layout.headBall=rect(0,0,0,0);
     layout.body=two?rect(28,53,44,36):rect(27,47,46,43);
-    head=two?rect(38,51,24,19):rect(40,47,20,16);
-    torso=two?rect(28,65,44,24):rect(32,62,36,19);
-    base=two?torso:rect(27,73,46,17);
+    head=two?rect(39,57,22,15):rect(40,50,20,14);
+    torso=two?rect(30,68,40,20):rect(33,64,34,18);
+    base=two?torso:rect(29,75,42,15);
   }
   const cx=head.left+head.width/2;
-  const faceTop=head.top+head.height*0.37;
   const at=(width:number,height:number,top:number):Rect=>rect(cx-width/2,top,width,height);
-  layout.eyes=at(head.width*0.48,head.height*0.16,faceTop);
-  layout.nose=at(head.width*0.34,head.height*0.18,faceTop+head.height*0.18);
-  layout.mouth=at(head.width*0.43,head.height*0.15,faceTop+head.height*0.37);
-  layout.hat=at(head.width*1.12,head.height*0.64,head.top-head.height*0.08);
-  layout.scarf=at(torso.width*0.61,torso.height*0.56,head.top+head.height*0.76);
-  layout.buttons=at(base.width*0.16,base.height*0.22,base.top+base.height*0.45);
-  layout.arms=at(torso.width*1.34,torso.height*0.93,torso.top+torso.height*0.05);
+  const faceTop=head.top+head.height*0.34;
+  layout.eyes=at(head.width*0.43,head.height*0.17,faceTop);
+  layout.nose=at(head.width*0.33,head.height*0.19,faceTop+head.height*0.19);
+  layout.mouth=at(head.width*0.39,head.height*0.15,faceTop+head.height*0.39);
+  // Hats overlap the crown rather than sitting above its image rectangle.
+  layout.hat=at(head.width*1.13,head.height*0.67,head.top-head.height*0.22);
+  layout.scarf=at(torso.width*0.59,torso.height*0.53,head.top+head.height*0.76);
+  layout.buttons=at(base.width*0.14,base.height*0.19,base.top+base.height*0.55);
+  layout.arms=at(torso.width*1.26,torso.height*0.78,torso.top+torso.height*0.04);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
