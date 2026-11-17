@@ -37,6 +37,12 @@ const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
     // A short trim over the entrance, not a horizontal strip across the roof slope.
     "Candy pearls": { left: "38%", top: "47%", width: "20%", height: "3%" },
   },
+  "Summer Seaside Cottage": {
+    // Keep the seaside shell and starfish visible beneath the gable accent.
+    "Sprinkled icing swirls": { left: "37%", top: "30%", width: "25%", height: "7%" },
+    // A small pearl accent beneath the gable, rather than over blue roof tiles.
+    "Candy pearls": { left: "39%", top: "42%", width: "22%", height: "3%" },
+  },
   "Spring Candy Greenhouse": {
     // Keep icing off the translucent roof panes and inside the entrance frame.
     "Candy pearls": { left: "37%", top: "37%", width: "25%", height: "3%" },
