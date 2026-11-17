@@ -81,12 +81,23 @@ const LAYERS: {part:Part;left:string;top:string;width:string;height:string}[] = 
   {part:"hat",left:"34%",top:"25%",width:"32%",height:"20%"},
   {part:"accessory",left:"63%",top:"72%",width:"26%",height:"22%"},
 ];
+// Individually stacked snowballs occupy a smaller, higher silhouette than premade bodies.
+// Keep facial features and clothing anchored to that silhouette.
+const STACKED_LAYERS: Partial<Record<Part,{left:string;top:string;width:string;height:string}>> = {
+  eyes:{left:"43%",top:"43%",width:"14%",height:"5%"},
+  nose:{left:"47%",top:"46%",width:"9%",height:"5%"},
+  mouth:{left:"45%",top:"49%",width:"11%",height:"4%"},
+  buttons:{left:"47%",top:"68%",width:"6%",height:"6%"},
+  scarf:{left:"40%",top:"50%",width:"20%",height:"13%"},
+  hat:{left:"39%",top:"31%",width:"22%",height:"13%"},
+  arms:{left:"24%",top:"43%",width:"52%",height:"31%"},
+};
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
-    {LAYERS.map(layer=>parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:layer.left,top:layer.top,width:layer.width,height:layer.height}}>
+    {LAYERS.map(layer=>{const position=(!parts.body && (parts.baseBall||parts.middleBall||parts.headBall)) ? (STACKED_LAYERS[layer.part]||layer) : layer;return parts[layer.part]?<div key={layer.part} className="pointer-events-none absolute" style={{left:position.left,top:position.top,width:position.width,height:position.height}}>
       <Image src={ROOT+parts[layer.part]+"?v=20261116-clean"} alt="" fill unoptimized sizes={compact?"110px":"250px"} className="object-contain"/>
-    </div>:null)}
+    </div>:null;})}
   </div>;
 }
 const STORAGE = "shoreline-snowman-winter-v1";
