@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 type PlacedDecoration = { id: number; art: string; spot: string; x: number; y: number };
 type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string; placedDecorations?: PlacedDecoration[] };
 const seasonal = [
-  { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans" },
+  { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Candy pearls" },
   { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Fruit sprinkles" },
-  { name: "Autumn Harvest House", walls: "Chocolate panels", roof: "Caramel icing", windows: "Candy panes", garden: "Candy pumpkins", decoration: "Maple candies" },
+  { name: "Autumn Harvest House", walls: "Chocolate panels", roof: "Caramel icing", windows: "Candy panes", garden: "Candy pumpkins", decoration: "Marshmallows" },
   { name: "Winter Gingerbread Cabin", walls: "Gingerbread", roof: "Snowy icing", windows: "Candy panes", garden: "Gumdrop trees", decoration: "Peppermint sticks" },
 ] as const;
 const materials = {
@@ -14,9 +14,17 @@ const materials = {
   roof: ["Snowy icing", "Pastel wafers", "Coconut icing", "Caramel icing", "Chocolate tiles", "Peppermint shingles"],
   windows: ["Sugar glass", "Candy panes", "Chocolate shutters", "Glowing candy windows"],
   garden: ["Candy flowers", "Seashell candies", "Candy pumpkins", "Gumdrop trees", "Sugar pathways", "Chocolate fences"],
-  decoration: ["Jellybeans", "Fruit sprinkles", "Maple candies", "Peppermint sticks", "Marshmallows", "Candy pearls"],
+  decoration: ["Fruit sprinkles", "Peppermint sticks", "Marshmallows", "Candy pearls", "Pastel gumdrops"],
 } as const;
 const assetRoot = "/images/Candy%20cottage/";
+// Only list candy materials with an existing matching illustration.
+const candyMaterialArt: Record<string, { file: string; left: string; top: string; width: string; height: string }> = {
+  "Fruit sprinkles": { file: "Sprinkled-Icing-Swirl.png", left: "34%", top: "29%", width: "32%", height: "13%" },
+  "Peppermint sticks": { file: "Candy-Cane.png", left: "19%", top: "76%", width: "15%", height: "17%" },
+  "Marshmallows": { file: "Marshmallows.png", left: "38%", top: "78%", width: "24%", height: "12%" },
+  "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "30%", top: "37%", width: "40%", height: "10%" },
+  "Pastel gumdrops": { file: "Pastel-Gumdrops.png", left: "67%", top: "77%", width: "17%", height: "15%" },
+};
 const decorationChoices = [
   ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
   ["Candy sand dollar", "Candy-Sand-Dollar.png"], ["Candy cane", "Candy-Cane.png"],
@@ -174,7 +182,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <div className="grid grid-cols-2 gap-2">
             {seasonal.map((option, index) => <button key={option.name} type="button" onClick={() => chooseDesign(index)} className="min-h-11 rounded-xl border border-amber-400 bg-white p-2 text-sm font-semibold">{option.name}</button>)}
           </div>
-          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Jellybeans", doorArt: "", windowArt: "", placedDecorations: [] }); setSelectedDecorationId(null); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
+          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Candy pearls", doorArt: "", windowArt: "", placedDecorations: [] }); setSelectedDecorationId(null); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
           <label className="block font-semibold" htmlFor="candy-house-name">Name your house</label>
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
@@ -203,13 +211,18 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
                   <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
                 </>}
-                {house.decoration === "Marshmallows" && (
+                {candyMaterialArt[house.decoration] && (
                   <img
-                    src={assetRoot + "Marshmallows.png"}
+                    src={assetRoot + candyMaterialArt[house.decoration].file}
                     alt=""
                     aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
-                    style={{ left: "38%", top: "78%", width: "24%", height: "12%" }}
+                    style={{
+                      left: candyMaterialArt[house.decoration].left,
+                      top: candyMaterialArt[house.decoration].top,
+                      width: candyMaterialArt[house.decoration].width,
+                      height: candyMaterialArt[house.decoration].height,
+                    }}
                   />
                 )}
                 {decorations.map(item => {
@@ -242,7 +255,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
             <label key={part} className="block font-semibold">
               {part.charAt(0).toUpperCase() + part.slice(1)}
-              <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value + (part === "decoration" && event.target.value !== "Marshmallows" ? ". This candy material is currently a description only; use Candy and garden decorations to add visible pieces." : "")); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
+              <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value + (part === "decoration" && !candyMaterialArt[event.target.value] ? ". This candy material is currently a description only; use Candy and garden decorations to add visible pieces." : "")); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
                 {Array.from(new Set<string>([house[part], ...materials[part]])).map(value => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
