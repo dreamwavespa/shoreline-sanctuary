@@ -82,8 +82,8 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const count=custom?keys.length:(parts.body==="Two_Ball_Snowman_Base.png"?2:3);
   // Snowballs are arranged bottom-up and meet at stable overlap points.
   const slots:Rect[]=count===1?[rect(37,72,26,22)]:count===2?
-    [rect(34,73,32,22),rect(40,58,20,17)]:
-    [rect(33,76,34,19),rect(39,64,22,15),rect(43,54,14,12)];
+    [rect(34,73,32,22),rect(40,64,20,17)]:
+    [rect(33,76,34,19),rect(39,67,22,15),rect(43,59,14,12)];
   if(custom) keys.forEach((key,i)=>layout[key]=slots[i]);
   else layout.body=count===2?rect(31,57,38,37):rect(30,51,40,43);
   // These anchors are independent of the chosen hat, scarf, or face art.
@@ -150,7 +150,7 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":expanded?"max-w-[min(92vw,70vh)]":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     <div className="pointer-events-none absolute inset-0" style={expanded?{transform:"scale(1.15)",transformOrigin:"52% 76%"}:undefined}>
-    {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-25%":"25%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
+    {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-18%":"18%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
     {renderOrder.map(part => {
       const file = snowman[part];
       if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
