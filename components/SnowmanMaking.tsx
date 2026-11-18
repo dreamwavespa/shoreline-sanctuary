@@ -100,9 +100,10 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
   layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.38);
-  layout.arms=parts.arms==="Blue_Mitten_Arms.png"
-    ? centered(torso.width*1.55,torso.height*1.20,torso.top-torso.height*(count === 2 ? .40 : .30))
-    : centered(torso.width*1.40,torso.height*1.05,torso.top+torso.height*.08);
+  const armJointSpacing = torso.width * (!custom && count === 3 ? .70 : .52);
+  const armImageHeight = torso.width * (count === 2 ? .64 : .76);
+  const armJointTop = torso.top + torso.height * (count === 2 ? .34 : .44);
+  layout.arms=centered(armJointSpacing,armImageHeight,armJointTop);
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
@@ -119,6 +120,29 @@ const snowmanArtworkClips: Record<string, string> = {
   "Red_Plaid_Scarf.png": "inset(10% 12% 0 20%)",
 };
 
+type ArmArtwork = { clipPath: string; jointX: number; jointY: number; rotation: number };
+
+// Each sprite has two arms sharing a square. Clip each half and pivot it
+// around the cut end of its twig so it stays attached when rotated.
+const snowmanArmArtwork: Record<string, readonly [ArmArtwork, ArmArtwork]> = {
+  "Plain_Twig_Arms.png": [
+    {clipPath:"inset(0 48% 0 17%)",jointX:43,jointY:83,rotation:-48},
+    {clipPath:"inset(0 0 0 53%)",jointX:60,jointY:83,rotation:48},
+  ],
+  "Berry_Twig_Arms.png": [
+    {clipPath:"inset(0 47% 0 18%)",jointX:46,jointY:82,rotation:-42},
+    {clipPath:"inset(0 0 0 54%)",jointX:59,jointY:82,rotation:42},
+  ],
+  "Blue_Mitten_Arms.png": [
+    {clipPath:"inset(0 45% 0 15%)",jointX:50,jointY:81,rotation:-32},
+    {clipPath:"inset(0 0 0 57%)",jointX:62,jointY:81,rotation:32},
+  ],
+  "Starfish_Twig_Arms.png": [
+    {clipPath:"inset(0 39% 0 19%)",jointX:54,jointY:79,rotation:-30},
+    {clipPath:"inset(0 0 0 63%)",jointX:68,jointY:79,rotation:30},
+  ],
+};
+
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
   const layout = snowmanLayout(parts);
   const hasBody = !!(parts.body || parts.baseBall || parts.middleBall || parts.headBall);
@@ -132,10 +156,26 @@ function SnowmanScene({night,parts,description,compact=false}:{night:boolean;par
       const position = layout[part];
       const individualBall = part === "baseBall" || part === "middleBall" || part === "headBall";
       const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
+      const arms = part === "arms" ? snowmanArmArtwork[file] : undefined;
+      if (arms) {
+        const height = position.height;
+        const width = height * 1.25;
+        return arms.map(({clipPath, jointX, jointY, rotation}, index) => (
+          <div key={index === 0 ? "leftArm" : "rightArm"} className="pointer-events-none absolute" style={{
+            left: (position.left + index * position.width - width * jointX / 100) + "%",
+            top: (position.top - height * jointY / 100) + "%",
+            width: width + "%",
+            height: height + "%",
+            zIndex: 1,
+          }}>
+            <Image src={source} alt="" fill unoptimized sizes={sizes}
+              style={{clipPath, transform:`rotate(${rotation}deg)`, transformOrigin:`${jointX}% ${jointY}%`}}/>
+          </div>
+        ));
+      }
       const clipPath = snowmanArtworkClips[file];
-      const isMittenPair = file === "Blue_Mitten_Arms.png";
       let {left, top, width, height} = position;
-      if (clipPath || isMittenPair) {
+      if (clipPath) {
         // Match object-contain's square image area in the 4:5 scene.
         const squareWidth = Math.min(width, height * 1.25);
         const squareHeight = squareWidth / 1.25;
@@ -145,11 +185,8 @@ function SnowmanScene({night,parts,description,compact=false}:{night:boolean;par
         height = squareHeight;
       }
 
-      return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:isMittenPair?1:part==="arms"?3:individualBall||part==="body"?2:4}}>
-        {isMittenPair ? <>
-          <Image src={source} alt="" fill unoptimized sizes={sizes} style={{clipPath:"inset(0 45% 0 15%)",transform:"rotate(-45deg)",transformOrigin:"50% 81%"}}/>
-          <Image src={source} alt="" fill unoptimized sizes={sizes} style={{clipPath:"inset(0 0 0 57%)",transform:"rotate(45deg)",transformOrigin:"61% 81%"}}/>
-        </> : individualBall ? (
+      return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:part==="arms"?3:individualBall||part==="body"?2:4}}>
+        {individualBall ? (
           <img src={source} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>
         ) : (
           <Image src={source} alt="" fill unoptimized sizes={sizes} className="object-contain" style={{clipPath}}/>
