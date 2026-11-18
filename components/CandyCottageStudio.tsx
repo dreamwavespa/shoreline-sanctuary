@@ -21,7 +21,7 @@ const assetRoot = "/images/Candy%20cottage/";
 // Fixed decoration zones in the square cottage preview. Each material is
 // anchored to its intended part of the house, regardless of other selections.
 const candyMaterialArt: Record<string, { file: string; left: string; top: string; width: string; height: string }> = {
-  "Sprinkled icing swirls": { file: "Sprinkled-Icing-Swirl.png", left: "25%", top: "23%", width: "50%", height: "16%" },
+  "Sprinkled icing swirls": { file: "Sprinkled-Icing-Swirl.png", left: "31%", top: "28%", width: "38%", height: "12%" },
   "Peppermint sticks": { file: "Candy-Cane.png", left: "10%", top: "76%", width: "15%", height: "17%" },
   "Marshmallows": { file: "Marshmallows.png", left: "61%", top: "79%", width: "20%", height: "11%" },
   "Candy pearls": { file: "Icing-Pearl-Trim.png", left: "28%", top: "32%", width: "44%", height: "8%" },
@@ -45,7 +45,7 @@ const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
   },
   "Spring Candy Greenhouse": {
     // Keep icing off the translucent roof panes and inside the entrance frame.
-    "Candy pearls": { left: "37%", top: "37%", width: "25%", height: "3%" },
+    "Candy pearls": { left: "38%", top: "41%", width: "23%", height: "3%" },
     "Sprinkled icing swirls": { left: "39%", top: "38%", width: "20%", height: "6%" },
   },
   "Autumn Harvest House": {
