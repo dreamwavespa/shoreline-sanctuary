@@ -1,12 +1,17 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import { useGame } from "@/lib/store";
+import { getStardustNight } from "@/lib/customSandArt";
 import LunaDiscovery from "./LunaDiscovery";
 import TwinkleCorner from "./TwinkleCorner";
 import GlimmerSandArt from "./GlimmerSandArt";
 import MothieFireflyLights from "./MothieFireflyLights";
 
 export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
+  const { state, collectStardust } = useGame();
+  const night = getStardustNight();
+  const stardustCollected = state.stardustClaimDate === night;
   const [visitor, setVisitor] = useState<"luna" | "twinkle" | "glimmer" | "mothie" | null>(null);
   return <section aria-labelledby="moonlit-sandbar-heading" className="space-y-3">
     {!visitor ? <>
@@ -38,6 +43,12 @@ export default function MoonlitSandbar({ onReturn }: { onReturn: () => void }) {
         </div>
       </div>
       <p className="text-sm text-indigo-100">Meet Boo’s four nighttime friends along the glowing shore.</p>
+      {night && (state.nightVisitorVisits.orion || 0) >= 3 && (
+        <button type="button" aria-disabled={stardustCollected} onClick={collectStardust}
+          className="min-h-12 w-full rounded-xl bg-indigo-200 px-4 py-3 font-bold text-indigo-950 focus-visible:ring-4 focus-visible:ring-amber-300">
+          {stardustCollected ? "Stardust Drifts collected tonight" : "Collect Stardust Drifts"}
+        </button>
+      )}
     </> : <>
       <button type="button" onClick={() => setVisitor(null)} className="min-h-12 w-full rounded-xl bg-indigo-200 px-4 py-3 font-bold text-indigo-950 focus:ring-4 focus:ring-amber-300">← Return to Moonlit Sandbar</button>
       {(visitor === "luna" || visitor === "twinkle") ? <>
