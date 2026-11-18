@@ -92,9 +92,9 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const base=slots[0];
   const cx=50;
   const centered=(w:number,h:number,y:number)=>rect(cx-w/2,y,w,h);
-  layout.eyes=centered(head.width*.43,head.height*.20,head.top+head.height*.30);
-  layout.nose=centered(head.width*.37,head.height*.19,head.top+head.height*.47);
-  layout.mouth=centered(head.width*.43,head.height*.17,head.top+head.height*.66);
+  layout.eyes=centered(head.width*.58,head.height*.23,head.top+head.height*.34);
+  layout.nose=centered(head.width*.52,head.height*.23,head.top+head.height*.51);
+  layout.mouth=centered(head.width*.54,head.height*.21,head.top+head.height*.70);
   // The three-ball body artwork sits lower inside its image box.
   const hatOffset = !custom && count === 3 ? .14 : -.12;
   layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
@@ -107,7 +107,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   layout.accessory=rect(63,72,26,22);
   return layout;
 }
-const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","arms","buttons","scarf","eyes","nose","mouth","hat","accessory"];
+const renderOrder:Part[]=["snowball","body","baseBall","middleBall","headBall","arms","buttons","scarf","hat","eyes","nose","mouth","accessory"];
 // Crop transparent padding and stray sheet borders while preserving the image scale.
 const snowmanArtworkClips: Record<string, string> = {
   "Two_Ball_Snowman_Base.png": "inset(20% 18% 8% 24%)",
@@ -185,7 +185,7 @@ function SnowmanScene({night,parts,description,compact=false}:{night:boolean;par
         height = squareHeight;
       }
 
-      return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:part==="arms"?3:individualBall||part==="body"?2:4}}>
+      return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:part==="arms"?3:individualBall||part==="body"?2:(part==="eyes"||part==="nose"||part==="mouth")?6:4}}>
         {individualBall ? (
           <img src={source} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>
         ) : (
