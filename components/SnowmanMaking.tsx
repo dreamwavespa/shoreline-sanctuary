@@ -257,7 +257,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
           <h3 className="text-lg font-bold">{viewingMemory?"Winter Memory Book Scene":"Your Winter Snowman Scene"}</h3>
           <button type="button" autoFocus onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="min-h-12 rounded-lg border border-amber-200 bg-indigo-800 px-4 font-semibold">Close full-screen view</button>
         </div>
-        <SnowmanScene night={night} parts={viewingMemory?viewingMemory.parts:parts} expanded description={(viewingMemory?"Saved snowman":"Enlarged snowman") in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(viewingMemory?viewingMemory.parts:parts)}/>
+        <SnowmanScene night={night} parts={viewingMemory?viewingMemory.parts:parts} expanded description={(viewingMemory?"Saved snowman":"Enlarged snowman")+" in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(viewingMemory?viewingMemory.parts:parts)}/>
         <p className="mx-auto mt-3 max-w-2xl text-sm">{viewingMemory?"Saved "+viewingMemory.date+". "+describe(viewingMemory.parts):"Your snowman and winter clearing. Close this view to change decorations or save your snowman in the Winter Memory Book."}</p>
         <button type="button" onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="mx-auto mt-3 min-h-12 rounded-lg border border-sky-200 px-6">{viewingMemory?"Return to Winter Memory Book":"Return to decorating"}</button>
       </div>}
