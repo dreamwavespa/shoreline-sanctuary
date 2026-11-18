@@ -143,12 +143,12 @@ const snowmanArmArtwork: Record<string, readonly [ArmArtwork, ArmArtwork]> = {
   ],
 };
 
-function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
+function SnowmanScene({night,parts,description,compact=false,expanded=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean;expanded?:boolean}) {
   const layout = snowmanLayout(parts);
   const hasBody = !!(parts.body || parts.baseBall || parts.middleBall || parts.headBall);
-  const sizes = compact ? "110px" : "250px";
+  const sizes = compact ? "110px" : expanded ? "600px" : "250px";
 
-  return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
+  return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":expanded?"max-w-[min(92vw,70vh)]":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     {renderOrder.map(part => {
       const file = parts[part];
@@ -203,6 +203,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
   const month=new Date().getMonth();
   const inWinter=month===11||month===0||month===1;
   const [preview,setPreview]=useState(!inWinter);
+  const [expanded,setExpanded]=useState(false);
   const [parts,setParts]=useState<Snowman>(DEFAULT);
   const [active,setActive]=useState<Part>("body");
   const [memories,setMemories]=useState<Memory[]>([]);
@@ -246,7 +247,17 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     {!inWinter&&<p>The winter activity opens December 1 and remains available through February. Preview mode lets you test without changing winter progress.</p>}
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={preview} onChange={e=>{setLoaded(false);setPreview(e.target.checked);setAnnouncement("");}}/> Snowman preview mode (separate testing progress)</label>
     {(inWinter||preview)&&<>
+      <button type="button" onClick={()=>setExpanded(true)} className="min-h-12 w-full rounded-xl border border-amber-200 bg-indigo-800 px-4 py-3 font-semibold">View Snowman Scene Full Screen</button>
       <SnowmanScene night={night} parts={parts} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
+      {expanded&&<div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-indigo-950 p-3 text-white" role="dialog" aria-modal="true" aria-label="Full-screen snowman scene">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 pb-3">
+          <h3 className="text-lg font-bold">Your Winter Snowman Scene</h3>
+          <button type="button" autoFocus onClick={()=>setExpanded(false)} className="min-h-12 rounded-lg border border-amber-200 bg-indigo-800 px-4 font-semibold">Close full-screen view</button>
+        </div>
+        <SnowmanScene night={night} parts={parts} expanded description={"Enlarged snowman in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
+        <p className="mx-auto mt-3 max-w-2xl text-sm">Your snowman and winter clearing. Close this view to change decorations or save your snowman in the Winter Memory Book.</p>
+        <button type="button" onClick={()=>setExpanded(false)} className="mx-auto mt-3 min-h-12 rounded-lg border border-sky-200 px-6">Return to decorating</button>
+      </div>}
       <p className="text-sm">Live snowman preview. Choose a category, then select an item. Changes are saved automatically on this device.</p>
       <div className="sticky top-0 z-20 flex items-center gap-3 rounded-xl border border-sky-300 bg-indigo-950/95 p-2 shadow-lg" aria-label="Live snowman mini preview">
         <div className="w-28 shrink-0"><SnowmanScene night={night} parts={parts} compact description={"Current snowman: "+describe(parts)}/></div>
