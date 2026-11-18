@@ -92,11 +92,11 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const base=slots[0];
   const cx=50;
   const centered=(w:number,h:number,y:number)=>rect(cx-w/2,y,w,h);
-  layout.eyes=centered(head.width*.58,head.height*.23,head.top+head.height*.34);
-  layout.nose=centered(head.width*.52,head.height*.23,head.top+head.height*.51);
-  layout.mouth=centered(head.width*.54,head.height*.21,head.top+head.height*.70);
+  layout.eyes=centered(head.width*.58,head.height*.23,head.top+head.height*.44);
+  layout.nose=centered(head.width*.52,head.height*.23,head.top+head.height*.59);
+  layout.mouth=centered(head.width*.54,head.height*.21,head.top+head.height*.76);
   // The three-ball body artwork sits lower inside its image box.
-  const hatOffset = !custom && count === 3 ? .14 : -.12;
+  const hatOffset = !custom && count === 3 ? -.12 : -.38;
   layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
   layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.38);
