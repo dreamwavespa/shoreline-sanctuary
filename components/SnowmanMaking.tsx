@@ -206,6 +206,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
   const inWinter=month===11||month===0||month===1;
   const [preview,setPreview]=useState(!inWinter);
   const [expanded,setExpanded]=useState(false);
+  const [viewingMemory,setViewingMemory]=useState<Memory|null>(null);
   const [parts,setParts]=useState<Snowman>(DEFAULT);
   const [active,setActive]=useState<Part>("body");
   const [memories,setMemories]=useState<Memory[]>([]);
@@ -251,14 +252,14 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     {(inWinter||preview)&&<>
       <button type="button" onClick={()=>setExpanded(true)} className="min-h-12 w-full rounded-xl border border-amber-200 bg-indigo-800 px-4 py-3 font-semibold">View Snowman Scene Full Screen</button>
       <SnowmanScene night={night} parts={parts} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
-      {expanded&&<div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-indigo-950 p-3 text-white" role="dialog" aria-modal="true" aria-label="Full-screen snowman scene">
+      {(expanded||viewingMemory)&&<div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-indigo-950 p-3 text-white" role="dialog" aria-modal="true" aria-label={viewingMemory?"Saved winter snowman scene":"Full-screen snowman scene"}>
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 pb-3">
-          <h3 className="text-lg font-bold">Your Winter Snowman Scene</h3>
-          <button type="button" autoFocus onClick={()=>setExpanded(false)} className="min-h-12 rounded-lg border border-amber-200 bg-indigo-800 px-4 font-semibold">Close full-screen view</button>
+          <h3 className="text-lg font-bold">{viewingMemory?"Winter Memory Book Scene":"Your Winter Snowman Scene"}</h3>
+          <button type="button" autoFocus onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="min-h-12 rounded-lg border border-amber-200 bg-indigo-800 px-4 font-semibold">Close full-screen view</button>
         </div>
-        <SnowmanScene night={night} parts={parts} expanded description={"Enlarged snowman in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
-        <p className="mx-auto mt-3 max-w-2xl text-sm">Your snowman and winter clearing. Close this view to change decorations or save your snowman in the Winter Memory Book.</p>
-        <button type="button" onClick={()=>setExpanded(false)} className="mx-auto mt-3 min-h-12 rounded-lg border border-sky-200 px-6">Return to decorating</button>
+        <SnowmanScene night={night} parts={viewingMemory?viewingMemory.parts:parts} expanded description={(viewingMemory?"Saved snowman":"Enlarged snowman") in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(viewingMemory?viewingMemory.parts:parts)}/>
+        <p className="mx-auto mt-3 max-w-2xl text-sm">{viewingMemory?"Saved "+viewingMemory.date+". "+describe(viewingMemory.parts):"Your snowman and winter clearing. Close this view to change decorations or save your snowman in the Winter Memory Book."}</p>
+        <button type="button" onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="mx-auto mt-3 min-h-12 rounded-lg border border-sky-200 px-6">{viewingMemory?"Return to Winter Memory Book":"Return to decorating"}</button>
       </div>}
       <p className="text-sm">Live snowman preview. Choose a category, then select an item. Changes are saved automatically on this device.</p>
       <div className="sticky top-0 z-20 flex items-center gap-3 rounded-xl border border-sky-300 bg-indigo-950/95 p-2 shadow-lg" aria-label="Live snowman mini preview">
@@ -303,7 +304,8 @@ export default function SnowmanMaking({night}:{night:boolean}) {
         <h4 className="font-bold">Winter Memory Book — {memories.length} saved snowmen</h4>
         {memories.length===0?<p>No snowmen saved yet.</p>:<div className="space-y-2">{memories.map((entry,i)=><div key={i} className="rounded-lg border border-indigo-400 p-3">
           <p>Snowman {memories.length-i}, saved {entry.date}. {describe(entry.parts)}</p>
-          <button type="button" className="mt-2 min-h-11 rounded-lg border border-sky-200 px-3 py-2" onClick={()=>{setParts({...DEFAULT,...entry.parts});setAnnouncement("Saved snowman loaded into preview.");}}>Load this snowman</button>
+          <button type="button" className="mt-2 mr-2 min-h-11 rounded-lg border border-amber-200 px-3 py-2" onClick={()=>setViewingMemory(entry)}>View saved scene full screen</button>
+           <button type="button" className="mt-2 min-h-11 rounded-lg border border-sky-200 px-3 py-2" onClick={()=>{setParts({...DEFAULT,...entry.parts});setAnnouncement("Saved snowman loaded into preview.");}}>Load this snowman</button>
         </div>)}</div>}
       </section>
     </>}
