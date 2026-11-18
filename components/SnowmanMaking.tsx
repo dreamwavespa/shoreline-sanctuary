@@ -154,7 +154,7 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
     {renderOrder.map(part => {
       const file = snowman[part];
       if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
-      const position = snowman===parts?layout:snowmanLayout(snowman)[part];
+      const position:Rect = snowman===parts ? layout[part] : snowmanLayout(snowman)[part];
       const individualBall = part === "baseBall" || part === "middleBall" || part === "headBall";
       const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
       const arms = part === "arms" ? snowmanArmArtwork[file] : undefined;
