@@ -116,6 +116,7 @@ const snowmanArtworkClips: Record<string, string> = {
   "Purple_Flower_Beret.png": "inset(30% 5% 24% 14%)",
   "Santa_Hat.png": "inset(24% 6% 21% 16%)",
   "Blue_Snowflake_Scarf.png": "inset(14% 11% 6% 14%)",
+  "Red_Plaid_Scarf.png": "inset(10% 12% 0 20%)",
 };
 
 function SnowmanScene({night,parts,description,compact=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean}) {
