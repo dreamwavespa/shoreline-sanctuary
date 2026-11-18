@@ -143,18 +143,18 @@ const snowmanArmArtwork: Record<string, readonly [ArmArtwork, ArmArtwork]> = {
   ],
 };
 
-function SnowmanScene({night,parts,description,compact=false,expanded=false}:{night:boolean;parts:Snowman;description:string;compact?:boolean;expanded?:boolean}) {
+function SnowmanScene({night,parts,second,description,compact=false,expanded=false}:{night:boolean;parts:Snowman;second?:Snowman|null;description:string;compact?:boolean;expanded?:boolean}) {
   const layout = snowmanLayout(parts);
-  const hasBody = !!(parts.body || parts.baseBall || parts.middleBall || parts.headBall);
   const sizes = compact ? "110px" : expanded ? "600px" : "250px";
 
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":expanded?"max-w-[min(92vw,70vh)]":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     <div className="pointer-events-none absolute inset-0" style={expanded?{transform:"scale(1.15)",transformOrigin:"52% 76%"}:undefined}>
+    {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-25%":"25%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
     {renderOrder.map(part => {
-      const file = parts[part];
-      if (!file || (!hasBody && part !== "snowball")) return null;
-      const position = layout[part];
+      const file = snowman[part];
+      if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
+      const position = snowman===parts?layout:snowmanLayout(snowman)[part];
       const individualBall = part === "baseBall" || part === "middleBall" || part === "headBall";
       const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
       const arms = part === "arms" ? snowmanArmArtwork[file] : undefined;
@@ -194,12 +194,13 @@ function SnowmanScene({night,parts,description,compact=false,expanded=false}:{ni
         )}
       </div>;
     })}
+    </div>)}
     </div>
   </div>;
 }
 const STORAGE = "shoreline-snowman-winter-v1";
 const PREVIEW_STORAGE = "shoreline-snowman-preview-v1";
-type Memory = { date:string; parts:Snowman };
+type Memory = { date:string; parts:Snowman; second?:Snowman|null };
 export default function SnowmanMaking({night}:{night:boolean}) {
   const {state,play}=useGame();
   const month=new Date().getMonth();
@@ -208,6 +209,9 @@ export default function SnowmanMaking({night}:{night:boolean}) {
   const [expanded,setExpanded]=useState(false);
   const [viewingMemory,setViewingMemory]=useState<Memory|null>(null);
   const [parts,setParts]=useState<Snowman>(DEFAULT);
+  const [second,setSecond]=useState<Snowman|null>(null);
+  const [editingSecond,setEditingSecond]=useState(false);
+  const editingParts=editingSecond&&second?second:parts;
   const [active,setActive]=useState<Part>("body");
   const [memories,setMemories]=useState<Memory[]>([]);
   const [announcement,setAnnouncement]=useState("");
@@ -217,17 +221,20 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     try {
       const raw=JSON.parse(localStorage.getItem(storageKey)||"{}");
       setParts({...DEFAULT,...(raw.parts||{})});
+      setSecond(raw.second?{...DEFAULT,...raw.second}:null);
+      setEditingSecond(false);
       setMemories(Array.isArray(raw.memories)?raw.memories:[]);
-    } catch {setParts(DEFAULT);setMemories([]);}
+    } catch {setParts(DEFAULT);setSecond(null);setMemories([]);}
     setLoaded(true);
   },[storageKey]);
   useEffect(()=>{
     if(!loaded)return;
-    try {localStorage.setItem(storageKey,JSON.stringify({parts,memories}));} catch {}
-  },[parts,memories,storageKey,loaded]);
+    try {localStorage.setItem(storageKey,JSON.stringify({parts,second,memories}));} catch {}
+  },[parts,second,memories,storageKey,loaded]);
   const select=(key:Part,choice:Choice|null)=>{
     if (choice && (["body","snowball","baseBall","middleBall","headBall"].includes(key)) && /Snowball|Snowman_Base/.test(choice.file)) play("snowballCollect",0.65);
-    setParts(prev=>({
+    const setter=editingSecond&&second?setSecond:setParts;
+    setter(prev=>({
       ...prev,
       ...(key==="body" && choice ? {baseBall:"",middleBall:"",headBall:""} : {}),
       ...(["baseBall","middleBall","headBall"].includes(key) && choice ? {body:""} : {}),
@@ -236,7 +243,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     setAnnouncement(choice?choice.name+" added as "+(PARTS.find(p=>p.key===key)?.label||key)+".":"Removed "+PARTS.find(p=>p.key===key)?.label+".");
   };
   const save=()=>{
-    const entry={date:new Date().toLocaleString(),parts:{...parts}};
+    const entry={date:new Date().toLocaleString(),parts:{...parts},second:second?{...second}:null};
     setMemories(prev=>[entry,...prev].slice(0,30));
     setAnnouncement("Snowman saved to your Winter Memory Book.");
   };
@@ -251,23 +258,24 @@ export default function SnowmanMaking({night}:{night:boolean}) {
     <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={preview} onChange={e=>{setLoaded(false);setPreview(e.target.checked);setAnnouncement("");}}/> Snowman preview mode (separate testing progress)</label>
     {(inWinter||preview)&&<>
       <button type="button" onClick={()=>setExpanded(true)} className="min-h-12 w-full rounded-xl border border-amber-200 bg-indigo-800 px-4 py-3 font-semibold">View Snowman Scene Full Screen</button>
-      <SnowmanScene night={night} parts={parts} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
+      <SnowmanScene night={night} parts={parts} second={second} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(parts)}/>
       {(expanded||viewingMemory)&&<div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-indigo-950 p-3 text-white" role="dialog" aria-modal="true" aria-label={viewingMemory?"Saved winter snowman scene":"Full-screen snowman scene"}>
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 pb-3">
           <h3 className="text-lg font-bold">{viewingMemory?"Winter Memory Book Scene":"Your Winter Snowman Scene"}</h3>
           <button type="button" autoFocus onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="min-h-12 rounded-lg border border-amber-200 bg-indigo-800 px-4 font-semibold">Close full-screen view</button>
         </div>
-        <SnowmanScene night={night} parts={viewingMemory?viewingMemory.parts:parts} expanded description={(viewingMemory?"Saved snowman":"Enlarged snowman")+" in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(viewingMemory?viewingMemory.parts:parts)}/>
+        <SnowmanScene night={night} parts={viewingMemory?viewingMemory.parts:parts} second={viewingMemory?viewingMemory.second:second} expanded description={(viewingMemory?"Saved snowman":"Enlarged snowman")+" in "+(night?"moonlit":"sunny")+" winter clearing. "+describe(viewingMemory?viewingMemory.parts:parts)}/>
         <p className="mx-auto mt-3 max-w-2xl text-sm">{viewingMemory?"Saved "+viewingMemory.date+". "+describe(viewingMemory.parts):"Your snowman and winter clearing. Close this view to change decorations or save your snowman in the Winter Memory Book."}</p>
         <button type="button" onClick={()=>{setExpanded(false);setViewingMemory(null);}} className="mx-auto mt-3 min-h-12 rounded-lg border border-sky-200 px-6">{viewingMemory?"Return to Winter Memory Book":"Return to decorating"}</button>
       </div>}
+      <div role="group" aria-label="Snowmen in the clearing" className="flex flex-wrap gap-2"><button type="button" aria-pressed={!editingSecond} onClick={()=>setEditingSecond(false)} className="min-h-12 rounded-lg border px-3">Decorate first snowman</button>{second?<><button type="button" aria-pressed={editingSecond} onClick={()=>setEditingSecond(true)} className="min-h-12 rounded-lg border px-3">Decorate second snowman</button><button type="button" onClick={()=>{setSecond(null);setEditingSecond(false);setAnnouncement("Second snowman removed.");}} className="min-h-12 rounded-lg border px-3">Remove second snowman</button></>:<button type="button" onClick={()=>{setSecond({...DEFAULT});setEditingSecond(true);setActive("body");setAnnouncement("Second snowman added. Choose its body.");}} className="min-h-12 rounded-lg border px-3">Add second snowman</button>}</div>
       <p className="text-sm">Live snowman preview. Choose a category, then select an item. Changes are saved automatically on this device.</p>
-      <div className="sticky top-0 z-20 flex items-center gap-3 rounded-xl border border-sky-300 bg-indigo-950/95 p-2 shadow-lg" aria-label="Live snowman mini preview">
-        <div className="w-28 shrink-0"><SnowmanScene night={night} parts={parts} compact description={"Current snowman: "+describe(parts)}/></div>
+      <div className="flex items-center gap-3 rounded-xl border border-sky-300 bg-indigo-950/95 p-2 shadow-lg" aria-label="Live snowman mini preview">
+        <div className="w-28 shrink-0"><SnowmanScene night={night} parts={parts} second={second} compact description={"Current snowman: "+describe(parts)}/></div>
         <div className="min-w-0 space-y-1">
-          <p className="font-semibold">Your snowman</p>
+          <p className="font-semibold">{editingSecond?"Decorating second snowman":"Decorating first snowman"}</p>
           <p className="text-sm">Preview updates as you decorate.</p>
-          <p className="text-xs text-sky-100">{PARTS.find(group=>group.key===active)?.label}: {PARTS.find(group=>group.key===active)?.options.find(o=>o.file===parts[active])?.name||"None"}</p>
+          <p className="text-xs text-sky-100">{PARTS.find(group=>group.key===active)?.label}: {PARTS.find(group=>group.key===active)?.options.find(o=>o.file===editingParts[active])?.name||"None"}</p>
         </div>
       </div>
       <section className="space-y-2 rounded-xl border border-sky-300 p-3" aria-label="Everlasting Snowball collection">
@@ -277,7 +285,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
           {(["small","medium","large"] as const).map(size=>{
             const owned=state.inventory["winter-everlasting-snowball-"+size]||0;
             const option=PARTS.find(p=>p.key==="snowball")?.options.find(o=>o.file.toLowerCase().startsWith(size));
-            return <button key={size} type="button" disabled={!preview&&owned===0} aria-pressed={!!option&&parts.snowball===option.file} onClick={()=>{if(option)select("snowball",option);}} className="min-h-12 rounded-lg border border-sky-200 p-2 disabled:opacity-50">
+            return <button key={size} type="button" disabled={!preview&&owned===0} aria-pressed={!!option&&editingParts.snowball===option.file} onClick={()=>{if(option)select("snowball",option);}} className="min-h-12 rounded-lg border border-sky-200 p-2 disabled:opacity-50">
               {size.charAt(0).toUpperCase()+size.slice(1)} — {owned} collected{preview?" (preview)":""}
             </button>;
           })}
@@ -298,14 +306,14 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       <p role="status" aria-live="polite">{announcement}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={save} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950">Save Snowman to Winter Memory Book</button>
-        <button type="button" onClick={()=>{const fresh={...DEFAULT};setParts(fresh);setActive("body");try{localStorage.setItem(storageKey,JSON.stringify({parts:fresh,memories}));}catch{}setAnnouncement("Started a new snowman. All snowballs, facial features, clothing, and accessories have been cleared. Your Winter Memory Book is unchanged.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
+        <button type="button" onClick={()=>{const fresh={...DEFAULT};setParts(fresh);setSecond(null);setEditingSecond(false);setActive("body");try{localStorage.setItem(storageKey,JSON.stringify({parts:fresh,second:null,memories}));}catch{}setAnnouncement("Started a new snowman. All snowballs, facial features, clothing, and accessories have been cleared. Your Winter Memory Book is unchanged.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
       </div>
       <section aria-label="Winter Memory Book" className="space-y-2">
         <h4 className="font-bold">Winter Memory Book — {memories.length} saved snowmen</h4>
         {memories.length===0?<p>No snowmen saved yet.</p>:<div className="space-y-2">{memories.map((entry,i)=><div key={i} className="rounded-lg border border-indigo-400 p-3">
-          <p>Snowman {memories.length-i}, saved {entry.date}. {describe(entry.parts)}</p>
+          <p>Snowman scene {memories.length-i}, saved {entry.date}. {describe(entry.parts)}{entry.second?" Second snowman: "+describe(entry.second):""}</p>
           <button type="button" className="mt-2 mr-2 min-h-11 rounded-lg border border-amber-200 px-3 py-2" onClick={()=>setViewingMemory(entry)}>View saved scene full screen</button>
-           <button type="button" className="mt-2 min-h-11 rounded-lg border border-sky-200 px-3 py-2" onClick={()=>{setParts({...DEFAULT,...entry.parts});setAnnouncement("Saved snowman loaded into preview.");}}>Load this snowman</button>
+           <button type="button" className="mt-2 min-h-11 rounded-lg border border-sky-200 px-3 py-2" onClick={()=>{setParts({...DEFAULT,...entry.parts});setSecond(entry.second?{...DEFAULT,...entry.second}:null);setEditingSecond(false);setAnnouncement("Saved snowman loaded into preview.");}}>Load this snowman</button>
         </div>)}</div>}
       </section>
     </>}
