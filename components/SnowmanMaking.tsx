@@ -82,7 +82,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const count=custom?keys.length:(parts.body==="Two_Ball_Snowman_Base.png"?2:3);
   // Snowballs are arranged bottom-up and meet at stable overlap points.
   const slots:Rect[]=count===1?[rect(37,72,26,22)]:count===2?
-    [rect(34,63,32,22),rect(40,64,20,17)]:
+    [rect(34,70,32,22),rect(40,64,20,17)]:
     [rect(33,76,34,19),rect(39,67,22,15),rect(43,59,14,12)];
   if(custom) keys.forEach((key,i)=>layout[key]=slots[i]);
   else layout.body=count===2?rect(31,57,38,37):rect(30,51,40,43);
@@ -159,6 +159,10 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
       if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
       const position:Rect = snowman===parts ? layout[part] : snowmanLayout(snowman)[part];
       const individualBall = part === "baseBall" || part === "middleBall" || part === "headBall";
+      const twoBallAssembly = !snowman.body && (["baseBall","middleBall","headBall"] as const).filter(key=>!!snowman[key]).length === 2;
+      // Keep individual snowball sprites anchored to one fixed layout. Their transparent
+      // image margins otherwise make correctly overlapping rectangles look disconnected.
+      const assemblyScale = twoBallAssembly && individualBall ? (part === "baseBall" ? 1.28 : 1.12) : 1;
       const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
       const arms = part === "arms" ? snowmanArmArtwork[file] : undefined;
       if (arms) {
@@ -191,7 +195,7 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
 
       return <div key={part} className="pointer-events-none absolute" style={{left:left+"%",top:top+"%",width:width+"%",height:height+"%",zIndex:part==="arms"?3:individualBall||part==="body"?2:(part==="eyes"||part==="nose"||part==="mouth")?6:4}}>
         {individualBall ? (
-          <img src={source} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1}}/>
+          <img src={source} alt="" draggable={false} style={{display:"block",width:"100%",height:"100%",objectFit:"contain",opacity:1,transform:`scale(${assemblyScale})`,transformOrigin:"center center"}}/>
         ) : (
           <Image src={source} alt="" fill unoptimized sizes={sizes} className="object-contain" style={{clipPath}}/>
         )}
