@@ -46,9 +46,10 @@ const LOW_TIDE_COVE_POOL = [
   ...["anchor","locket","compass","shell"].map(x => ({ id: "tide-trinket-" + x, weight: 2.5 })),
   { id: "tide-trinket-key", weight: 2 },
 ];
-function rollLowTideCove(): string {
-  let n = Math.random() * LOW_TIDE_COVE_POOL.reduce((sum, e) => sum + e.weight, 0);
-  for (const e of LOW_TIDE_COVE_POOL) { n -= e.weight; if (n < 0) return e.id; }
+function rollLowTideCove(tearUnlocked: boolean): string {
+  const pool = tearUnlocked ? [...LOW_TIDE_COVE_POOL, { id: "celeste-tear-of-the-tide", weight: 3 }] : LOW_TIDE_COVE_POOL;
+  let n = Math.random() * pool.reduce((sum, e) => sum + e.weight, 0);
+  for (const e of pool) { n -= e.weight; if (n < 0) return e.id; }
   return "white-porcelain-clay";
 }
 const coveNight = () => { const hour = new Date().getHours(); return hour >= 19 || hour < 6; };
@@ -330,7 +331,7 @@ export default function CoveScene() {
     let saved = 0;
     try { saved = Math.min(3, Math.max(0, Number(localStorage.getItem(lowTideKey) || "0"))); } catch {}
     if (saved >= 3) { setLowTideSearches(3); setLowTideMessage("All three low-tide searches are complete."); return; }
-    const id = rollLowTideCove();
+    const id = rollLowTideCove((state.nightVisitorVisits.celeste || 0) >= 2);
     if (!ITEMS[id]) return;
     try { localStorage.setItem(lowTideKey, String(saved + 1)); } catch {}
     setLowTideSearches(saved + 1);

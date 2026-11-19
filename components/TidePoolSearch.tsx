@@ -148,9 +148,15 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
   const hourglassStarted = state.foundBottleMessages.includes("sands-of-time");
   const hourglassRestored = state.crafted.includes("hourglass-restored");
   const missingHourglassPieces = hourglassPieceIds.filter(id => (state.inventory[id] || 0) < 1);
+  const pearlId = "celeste-glowing-translucent-pearl";
+  const pearlName = "Glowing Translucent Pearl";
   const exploreDeep = (hidden: boolean) => {
     if (!hasBoots || (hidden && !lowTide)) return;
     const pool = deepTreasures.filter(item => item.id !== "shoreline-looking-glass" || ((state.inventory["shoreline-looking-glass"] || 0) === 0 && !deepFinds.includes("shoreline-looking-glass"))).map(item => ({ ...item, weight: item.weight * (hidden && item.id !== "recycled-rubber" ? 2 : 1) }));
+    const hour = new Date().getHours();
+    if ((hour >= 19 || hour < 6) && (state.nightVisitorVisits.celeste || 0) >= 1) {
+      pool.push({ id: pearlId, weight: 3, description: "A translucent pearl glows softly beneath the water." });
+    }
     // Quest discoveries take priority over ordinary treasure rolls, without repeating pieces.
     if (hourglassStarted && !hourglassRestored && missingHourglassPieces.length && Math.random() < 0.28) {
       const id = missingHourglassPieces[Math.floor(Math.random() * missingHourglassPieces.length)];
@@ -165,12 +171,12 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
     let pick = Math.random() * total;
     const found = pool.find(item => (pick -= item.weight) < 0) || pool[0];
     collectItem(found.id, { silent: true });
-    const label = found.id === "recycled-rubber" ? "Recycled Rubber Strip" : found.id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    const label = found.id === pearlId ? pearlName : found.id === "recycled-rubber" ? "Recycled Rubber Strip" : found.id.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
     const result = `${hidden ? "Hidden tide pool" : "Deeper tide pool"}: ${found.description} ${label} added to your inventory.`;
     setDeepFinds(previous => [...previous, found.id]);
     setLastDeepTreasure(found.id);
     setDeepAnnouncement(result);
-    play("shell");
+    play(found.id === pearlId ? "pearl" : "shell");
   };
 
   const startSearch = () => {
@@ -340,13 +346,13 @@ export default function TidePoolSearch({ onClose, nighttime = false }: { onClose
               <div className="relative mt-1 overflow-hidden rounded-xl border-2 border-teal-300">
                 <Image src={nighttime ? "/images/TidePool/Tidepool-background-night.PNG" : "/images/TidePool/Tidepool-background-day.PNG"} alt={nighttime ? "Moonlit tide pool with deeper rocky pockets" : "Sunlit tide pool with deeper rocky pockets"} width={900} height={1350} unoptimized className="h-auto w-full" />
                 {lastDeepTreasure && <div className="pointer-events-none absolute left-[31%] top-[40%] w-[38%]" aria-hidden="true">
-                  <Image src={({"recycled-rubber":"/images/TidePool/Recycled-Rubber-Strips.png","shipwreck-teapot-fragment-spout":"/images/TidePool/Teapot-Fragment-Spout.png","shipwreck-teapot-fragment-handle":"/images/TidePool/Teapot-Fragment-Handle.png","shipwreck-teapot-fragment-lid":"/images/TidePool/Teapot-Fragment-Lid.png","shipwreck-teapot-fragment-body":"/images/TidePool/Teapot-Fragment-Body-Upper.png","shipwreck-teapot-fragment-body-lower":"/images/TidePool/Teapot-Fragment-Body-Lower.png","ancient-tide-crystal":"/images/TidePool/Ancient-Tide-Crystal.png","tidepool-ammonite-fossil":"/images/TidePool/Ammonite-Fossil.png","rainbow-clear-pearl":"/images/TidePool/Rainbow-Clear-Pearl.png","whispering-seashell":"/images/TidePool/Whispering-Seashell.png","shoreline-looking-glass":"/images/Looking glass/Shoreline-Looking-Glass-Day.png"})[lastDeepTreasure] ?? "/images/TidePool/Recycled-Rubber-Strips.png"} alt="" width={220} height={220} unoptimized className="aspect-square w-full object-contain" />
+                  {lastDeepTreasure === pearlId ? <span className="block text-center text-6xl">🔵</span> : <Image src={({"recycled-rubber":"/images/TidePool/Recycled-Rubber-Strips.png","shipwreck-teapot-fragment-spout":"/images/TidePool/Teapot-Fragment-Spout.png","shipwreck-teapot-fragment-handle":"/images/TidePool/Teapot-Fragment-Handle.png","shipwreck-teapot-fragment-lid":"/images/TidePool/Teapot-Fragment-Lid.png","shipwreck-teapot-fragment-body":"/images/TidePool/Teapot-Fragment-Body-Upper.png","shipwreck-teapot-fragment-body-lower":"/images/TidePool/Teapot-Fragment-Body-Lower.png","ancient-tide-crystal":"/images/TidePool/Ancient-Tide-Crystal.png","tidepool-ammonite-fossil":"/images/TidePool/Ammonite-Fossil.png","rainbow-clear-pearl":"/images/TidePool/Rainbow-Clear-Pearl.png","whispering-seashell":"/images/TidePool/Whispering-Seashell.png","shoreline-looking-glass":"/images/Looking glass/Shoreline-Looking-Glass-Day.png"})[lastDeepTreasure] ?? "/images/TidePool/Recycled-Rubber-Strips.png"} alt="" width={220} height={220} unoptimized className="aspect-square w-full object-contain" />}
                 </div>}
                 <button type="button" onClick={() => exploreDeep(false)} className="absolute left-[8%] top-[18%] min-h-11 w-[39%] rounded-full border border-white/70 bg-teal-950/65 px-2 py-2 text-xs font-semibold text-white shadow-sm">Search Rocky Ledge</button>
                 <button type="button" onClick={() => exploreDeep(false)} className="absolute right-[6%] top-[63%] min-h-11 w-[40%] rounded-full border border-white/70 bg-teal-950/65 px-2 py-2 text-xs font-semibold text-white shadow-sm">Search Deep Crevice</button>
                 {lowTide && <button type="button" onClick={() => exploreDeep(true)} className="absolute bottom-[8%] left-[19%] min-h-11 w-[62%] rounded-full border border-white/70 bg-indigo-950/75 px-2 py-2 text-xs font-semibold text-white shadow-sm">Explore Hidden Pool — Low Tide</button>}
               </div>
-              {lastDeepTreasure && <p className="mt-2 text-center font-semibold text-teal-950">Latest discovery: {lastDeepTreasure.replace(/-/g, " ").replace(/\b\w/g, letter => letter.toUpperCase())}</p>}
+              {lastDeepTreasure && <p className="mt-2 text-center font-semibold text-teal-950">Latest discovery: {lastDeepTreasure === pearlId ? pearlName : lastDeepTreasure.replace(/-/g, " ").replace(/\b\w/g, letter => letter.toUpperCase())}</p>}
               <p className="mt-2 text-sm text-teal-800">Finds this visit: {deepFinds.length}. Rare treasures are less common.</p>
               <p className="mt-2 font-semibold text-teal-950" role="status" aria-live="polite" aria-atomic="true">{deepAnnouncement}</p>
               {((state.inventory["shoreline-looking-glass"] || 0) > 0 || deepFinds.includes("shoreline-looking-glass")) && <section className="mt-4 space-y-3 rounded-xl bg-rose-50 p-3" aria-labelledby="looking-glass-title">
