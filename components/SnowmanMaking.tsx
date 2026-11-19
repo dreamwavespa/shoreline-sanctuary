@@ -152,7 +152,7 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
   return <div className={`relative mx-auto w-full overflow-hidden rounded-xl ${compact?"max-w-36":expanded?"max-w-[min(92vw,70vh)]":"max-w-md"}`} style={{aspectRatio:"1 / 1.25"}} role="img" aria-label={description}>
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     <div className="pointer-events-none absolute inset-0" style={expanded?{transform:"scale(1.15)",transformOrigin:"52% 76%"}:undefined}>
-    {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-18%":"18%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
+    {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-18%":"12%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
     {renderOrder.map(part => {
       const file = snowman[part];
       if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
