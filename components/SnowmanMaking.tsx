@@ -154,6 +154,14 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
     <Image src={night?"/images/Winter/Snowy-clearing-night.PNG":"/images/Winter/Snowy-clearing-day.PNG"} alt="" fill unoptimized sizes={compact?"144px":"(max-width: 768px) 100vw, 450px"} className="object-cover"/>
     <div className="pointer-events-none absolute inset-0" style={expanded?{transform:"scale(1.15)",transformOrigin:"52% 76%"}:undefined}>
     {[parts,...(second?[second]:[])].map((snowman,index)=><div key={index} className="absolute inset-0" style={second?{transform:`translateX(${index===0?"-18%":"12%"}) scale(.73)`,transformOrigin:"50% 80%"}:undefined}>
+    {(snowman.body || snowman.baseBall || snowman.middleBall || snowman.headBall) && (
+      <div aria-hidden="true" className="pointer-events-none absolute" style={{
+        left:"36%",top:"91%",width:"28%",height:"3.5%",
+        borderRadius:"50%",
+        background:"radial-gradient(ellipse, rgba(32,58,95,0.25) 0%, rgba(43,71,108,0.12) 43%, rgba(43,71,108,0) 75%)",
+        filter:"blur(4px)",zIndex:0
+      }}/>
+    )}
     {renderOrder.map(part => {
       const file = snowman[part];
       if (!file || (!(snowman.body||snowman.baseBall||snowman.middleBall||snowman.headBall) && part !== "snowball")) return null;
