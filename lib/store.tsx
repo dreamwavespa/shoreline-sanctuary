@@ -3088,7 +3088,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     stateRef.current = result.state;
     setState(result.state);
     if (result.sound) play(result.sound);
-    toast(result.message);
+    if (action.type !== 'dock-fishing') toast(result.message);
     return result.message;
   };
 
