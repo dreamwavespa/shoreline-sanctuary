@@ -82,7 +82,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const count=custom?keys.length:(parts.body==="Two_Ball_Snowman_Base.png"?2:3);
   // Snowballs are arranged bottom-up and meet at stable overlap points.
   const slots:Rect[]=count===1?[rect(37,72,26,22)]:count===2?
-    [rect(34,66,32,22),rect(40,64,20,17)]:
+    [rect(34,63,32,22),rect(40,64,20,17)]:
     [rect(33,76,34,19),rect(39,67,22,15),rect(43,59,14,12)];
   if(custom) keys.forEach((key,i)=>layout[key]=slots[i]);
   else layout.body=count===2?rect(31,57,38,37):rect(30,51,40,43);
