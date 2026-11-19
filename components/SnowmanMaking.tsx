@@ -82,7 +82,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   const count=custom?keys.length:(parts.body==="Two_Ball_Snowman_Base.png"?2:3);
   // Snowballs are arranged bottom-up and meet at stable overlap points.
   const slots:Rect[]=count===1?[rect(37,72,26,22)]:count===2?
-    [rect(34,70,32,22),rect(40,70,20,17)]:
+    [rect(34,65,32,27),rect(40,70,20,17)]:
     [rect(33,76,34,19),rect(39,67,22,15),rect(43,59,14,12)];
   if(custom) keys.forEach((key,i)=>layout[key]=slots[i]);
   else layout.body=count===2?rect(31,57,38,37):rect(30,51,40,43);
@@ -99,7 +99,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   // The three-ball body artwork sits lower inside its image box.
   // Hat artwork has different transparent padding: top hats need a higher anchor,
   // while beanies on individually stacked snowballs need a lower anchor.
-  const hatOffset = parts.hat === "Black_Top_Hat.png" ? -.43 : custom ? -.08 : !custom && count === 3 ? -.12 : -.38;
+  const hatOffset = parts.hat === "Black_Top_Hat.png" ? -.32 : custom ? -.08 : !custom && count === 3 ? -.12 : -.38;
   layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
   layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.38);
