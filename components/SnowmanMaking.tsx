@@ -99,7 +99,7 @@ function snowmanLayout(parts:Snowman):Record<Part,Rect>{
   // The three-ball body artwork sits lower inside its image box.
   // Hat artwork has different transparent padding: top hats need a higher anchor,
   // while beanies on individually stacked snowballs need a lower anchor.
-  const hatOffset = parts.hat === "Black_Top_Hat.png" ? -.43 : custom ? -.08 : !custom && count === 3 ? -.12 : -.38;
+  const hatOffset = parts.hat === "Black_Top_Hat.png" ? -.56 : custom ? -.08 : !custom && count === 3 ? -.12 : -.38;
   layout.hat=centered(head.width*1.35,head.height*.83,head.top+head.height*hatOffset);
   layout.scarf=centered(torso.width*.78,torso.height*.60,head.top+head.height*.77);
   layout.buttons=centered(base.width*.13,base.height*.16,base.top+base.height*.38);
