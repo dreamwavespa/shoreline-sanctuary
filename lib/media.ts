@@ -98,6 +98,7 @@ export const SFX_FILES: Record<string, string> = {
   shelbyBox: "/audio/Shelby-box.mp3",
   shelbyMailbox: "/audio/Shelby-mailbox.mp3",
   ceramicBell: "/audio/Ceramic-bell.mp3",
+  dockFishingReel: "/audio/Dockside_Fishing_Reel_In.mp3",
   dockFootsteps: "/audio/dock-footsteps.mp3",
   cameraFlash: "/audio/Camera-flash.mp3",
   offshorewalter: "/audio/offshore/walter.mp3", offshorelab: "/audio/offshore/lab.mp3", offshorestill: "/audio/offshore/still.mp3", offshorepolish: "/audio/offshore/polish.mp3", offshorechip: "/audio/offshore/chip.mp3", offshoresalt: "/audio/offshore/salt.mp3", offshoredock: "/audio/offshore/dock.mp3", offshoresailing: "/audio/offshore/sailing.mp3", offshorecarve: "/audio/offshore/carve.mp3",

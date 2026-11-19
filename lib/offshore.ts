@@ -22,6 +22,7 @@ export interface OffshoreProgress {
   expedition: boolean;
   voyage: null | { kind: 'sail' | 'raft'; step: number };
   dives: number;
+  dockFishLog?: string[];
   worryDiscovered?: string[];
   worryCompleted?: string[];
   tumblingBatch?: {readyAt:number; resultId:string} | null;
@@ -32,7 +33,11 @@ export interface OffshoreProgress {
 export const DEFAULT_OFFSHORE: OffshoreProgress = { labAccess: false, photos: [], cabinet: [], tests: 0, expedition: false, voyage: null, dives: 0, worryDiscovered: [], worryCompleted: [] };
 export const SIGHTINGS = ['A humpback whale lifts its tail beside the port rail.', 'Dolphins ride the bow wake.', 'A whale breaches beyond the starboard rail.'];
 export const SPECIMENS = ['cave-calcite', 'polished-enhydro', 'included-quartz', 'glowing-fluorite', 'tidal-heart'];
-export type OffshoreAction = { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
+export const DOCK_FISH = {
+  day: ["Silver Mullet", "Striped Porgy"],
+  night: ["Moonlit Silverside", "Lantern Goby"],
+} as const;
+export type OffshoreAction = { type: 'dock-fishing'; night: boolean } | { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
 export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
@@ -42,7 +47,20 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
   const add = (id: string, n = 1) => { inventory[id] = (inventory[id] || 0) + n; };
   const fail = (message: string) => ({ state: s, message, sound: '' });
   let message = '', sound = 'offshorelab';
-  if(action.type==='worry-identify'){
+  if (action.type === 'dock-fishing') {
+    if (Math.random() < 0.12) {
+      add('tide-trinket-compass');
+      message = "You reeled in a Sailor’s Compass Pendant. Added to your inventory.";
+      sound = 'sparkle';
+    } else {
+      const fish = DOCK_FISH[action.night ? 'night' : 'day'];
+      const name = fish[Math.floor(Math.random() * fish.length)];
+      const log = o.dockFishLog ?? [];
+      o.dockFishLog = log.includes(name) ? log : [...log, name];
+      message = `You caught and released a ${name}.${log.includes(name) ? '' : ' Added to your fishing log.'}`;
+      sound = '';
+    }
+  } else if(action.type==='worry-identify'){
     if(!have('raw-stone'))return fail('Bring Walter a Smooth Stone to identify.');
     const kind=identifyWorryStone(); const found=WORRY_STONES.find(x=>x.id===kind)!;
     add('raw-stone',-1);add('identified-stone-'+kind);
