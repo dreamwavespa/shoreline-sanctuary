@@ -66,3 +66,11 @@ export function defaultSandBottleName(layers: string[]): string {
   const first = ITEMS[layers[0]]?.name.replace(/ Sand$/, "") || "Shoreline";
   return `${first} Tide Bottle`;
 }
+
+export function getStardustNight() {
+  const date = new Date();
+  const hour = date.getHours();
+  if (hour >= 6 && hour < 19) return null;
+  if (hour < 6) date.setDate(date.getDate() - 1);
+  return localDateKey(date);
+}

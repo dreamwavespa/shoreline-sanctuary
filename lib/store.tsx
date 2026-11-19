@@ -9,7 +9,7 @@ import { VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, seaweedSalePrice, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
-import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, getBooSands, localDateKey } from "./customSandArt";
+import { BOO_SAND_IDS, calculateSandBottleValue, CUSTOM_SAND_ACCENT_IDS, CUSTOM_SAND_IDS, defaultSandBottleName, getBooSands, getStardustNight, localDateKey } from "./customSandArt";
 import { getScheduleStatus } from "./schedule";
 import { getTravelingMerchantStock, isShelbyBlueprintNeeded } from "./travelingMerchants";
 import { getOlliInkReward, OLLI_ART_BACKGROUNDS, OLLI_ART_PATTERNS, OLLI_ART_STAMPS, OLLI_INK_IDS, OlliHidingLocation } from "./olli";
@@ -208,6 +208,8 @@ interface GameState {
   flowerArrangements: SavedFlowerArrangement[];
   flowerDesigns: SavedFlowerArrangement[];
   booSandClaimDate: string;
+  stardustClaimDate: string;
+  hourglassHasStardust: boolean;
   booToolSetDelivered: boolean;
   honeybellStage: number;
   beeWaxClaimDate: string;
@@ -382,6 +384,8 @@ const DEFAULT_STATE: GameState = {
   flowerArrangements: [],
   flowerDesigns: [],
   booSandClaimDate: "",
+  stardustClaimDate: "",
+  hourglassHasStardust: false,
   booToolSetDelivered: false,
   honeybellStage: 0,
   beeWaxClaimDate: "",
@@ -600,6 +604,8 @@ interface Ctx {
   createCustomJewelry: (kind: JewelryKind, materials: string[], name?: string) => { ok: boolean; piece?: CustomJewelryPiece };
   toggleCustomJewelryFavorite: (pieceId: string) => void;
   sellCustomJewelry: (pieceId: string) => boolean;
+  collectStardust: () => void;
+  addHourglassStardust: () => void;
   claimBooSand: (itemId: string) => boolean;
   deliverBooToolSet: () => boolean;
   saveFlowerArrangement: (vaseId: string, stems: {id:string;slot:number}[], requestedName: string) => boolean;
@@ -2060,7 +2066,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }));
     if (rewardItemId) {
       play(ITEMS[rewardItemId].sfx, 0.8);
-      toast(`${VILLAGERS[villagerId].name} shared ${ITEMS[rewardItemId].name} with you! Nighttime visit ${visits}.`);
+      toast(`${VILLAGERS[villagerId].name} shared ${ITEMS[rewardItemId].name} with you! Nighttime visit ${visits}.${rewardItemId === "orion-stardust-drifts" ? " You can now find Stardust Drifts on the Moonlit Sandbar." : ""}`);
     } else {
       toast(`${VILLAGERS[villagerId].name} spends a quiet moonlit moment with you. Nighttime visit ${visits}.`);
     }
@@ -2875,6 +2881,37 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const collectStardust = () => {
+    const night = getStardustNight();
+    const current = stateRef.current;
+    if (!night || (current.nightVisitorVisits.orion || 0) < 3 || current.stardustClaimDate === night) return;
+    const itemId = "orion-stardust-drifts";
+    const next = {
+      ...current,
+      stardustClaimDate: night,
+      inventory: { ...current.inventory, [itemId]: (current.inventory[itemId] || 0) + 1 },
+    };
+    stateRef.current = next;
+    setState(next);
+    play("sparkle");
+    toast("Collected Stardust Drifts from the Moonlit Sandbar!");
+  };
+
+  const addHourglassStardust = () => {
+    const current = stateRef.current;
+    const itemId = "orion-stardust-drifts";
+    if (!current.crafted.includes("hourglass-restored") || current.hourglassHasStardust || !current.inventory[itemId]) return;
+    const next = {
+      ...current,
+      hourglassHasStardust: true,
+      inventory: deductCost({ ...current.inventory }, [{ itemId, count: 1 }]),
+    };
+    stateRef.current = next;
+    setState(next);
+    play("sparkle");
+    toast("Stardust Drifts now shimmer inside your Sands of Time Hourglass.");
+  };
+
   const claimBooSand = (itemId: string) => {
     const today = localDateKey();
     if (!stateRef.current.sandbarsUnlocked || !stateRef.current.booToolSetDelivered || stateRef.current.booSandClaimDate === today || !getBooSands().includes(itemId)) return false;
@@ -3190,6 +3227,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       createCustomJewelry,
       toggleCustomJewelryFavorite,
       sellCustomJewelry,
+      collectStardust,
+      addHourglassStardust,
       claimBooSand,
       deliverBooToolSet,
       createCustomSandBottle,

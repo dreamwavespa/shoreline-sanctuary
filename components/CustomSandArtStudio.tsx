@@ -74,7 +74,7 @@ function BottlePreview({ layers, accentId, compact = false, shape = "classic" }:
 }
 
 export default function CustomSandArtStudio({ onClose }: { onClose: () => void }) {
-  const { state, play, craft, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
+  const { state, play, craft, addHourglassStardust, createCustomSandBottle, toggleCustomSandBottleFavorite } = useGame();
   const hourglassIds = ["hourglass-cap", "hourglass-upper-chamber", "hourglass-lower-chamber", "hourglass-connector", "hourglass-base"];
   const hourglassUnlocked = state.foundBottleMessages.includes("sands-of-time");
   const hourglassMade = state.crafted.includes("hourglass-restored");
@@ -181,7 +181,7 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
           {hourglassUnlocked && <section className="rounded-2xl bg-cyan-50 p-4 ring-1 ring-teal-300" aria-labelledby="hourglass-studio-heading">
             <h3 id="hourglass-studio-heading" className="font-serif text-xl font-bold text-teal-950">Sands of Time Hourglass</h3>
             {hourglassMade ? <>
-              <div className="relative mx-auto h-72 w-56" role="img" aria-label="Restored coastal hourglass with pink, gold and turquoise sand. When flipped, sand drains from the upper glass chamber into the lower chamber over one minute.">
+              <div className="relative mx-auto h-72 w-56" role="img" aria-label={state.hourglassHasStardust ? "Restored hourglass filled with glowing gold Stardust Drifts." : "Restored coastal hourglass with pink, gold and turquoise sand."}>
                 <div key={hourglassFlippedAt ?? "resting"} className={hourglassFlippedAt ? "hourglass-turn relative h-full w-full" : "relative h-full w-full"}>
                   <Image src="/images/Hourglass/Hourglass-empty.PNG" alt="" fill unoptimized sizes="224px" className="object-contain" />
                   <svg aria-hidden="true" viewBox="0 0 224 336" className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet">
@@ -189,7 +189,9 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                       <clipPath id="hourglass-small-upper"><path d="M68 108 Q112 99 156 108 C154 133 128 155 117 166 Q112 171 107 166 C96 155 70 133 68 108 Z" /></clipPath>
                       <clipPath id="hourglass-small-lower"><path d="M107 186 Q112 180 117 186 C132 203 158 236 158 265 Q112 283 66 265 C66 236 92 203 107 186 Z" /></clipPath>
                       <linearGradient id="hourglass-sand-soft" x1="0" x2="1">
+                        {state.hourglassHasStardust ? <><stop offset="0%" stopColor="#f59e0b" /><stop offset="50%" stopColor="#fff7cc" /><stop offset="100%" stopColor="#facc15" /></> : <>
                         <stop offset="0" stopColor="#e982b7"/><stop offset=".5" stopColor="#eac069"/><stop offset="1" stopColor="#49c1b8"/>
+                        </>}
                       </linearGradient>
                     </defs>
                     <g clipPath="url(#hourglass-small-upper)">
@@ -207,6 +209,11 @@ export default function CustomSandArtStudio({ onClose }: { onClose: () => void }
                 </div>
               </div>
               <p className="text-teal-900">Your restored hourglass is ready. Flip it to watch the sand flow for one minute.</p>
+              {!state.hourglassHasStardust && (state.inventory["orion-stardust-drifts"] || 0) > 0 && (
+                 <button type="button" onClick={addHourglassStardust} className="mr-2 mt-3 min-h-11 rounded-xl bg-amber-200 px-4 py-3 font-bold text-amber-950">
+                   Add Stardust Drifts (uses 1)
+                 </button>
+               )}
               <button type="button" onClick={() => { setHourglassProgress(0); setHourglassFlippedAt(Date.now()); playSandSound("hourglass"); setHourglassMessage("Hourglass flipped. Sand is flowing for one minute."); play("shell"); }} className="mt-3 min-h-11 rounded-xl bg-teal-800 px-4 py-3 font-bold text-white">Flip Hourglass</button>
               {hourglassFlippedAt && <div aria-hidden="true" className="mt-3 h-3 overflow-hidden rounded-full bg-teal-200"><div key={hourglassFlippedAt} className="h-full w-full origin-left bg-amber-500" style={{ animation: "hourglass-flow 60s linear forwards" }} /></div>}
               <style>{`
