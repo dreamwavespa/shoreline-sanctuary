@@ -162,7 +162,7 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
       const twoBallAssembly = !snowman.body && (["baseBall","middleBall","headBall"] as const).filter(key=>!!snowman[key]).length === 2;
       // Keep individual snowball sprites anchored to one fixed layout. Their transparent
       // image margins otherwise make correctly overlapping rectangles look disconnected.
-      const assemblyScale = twoBallAssembly && individualBall ? (part === "baseBall" ? 1.28 : 1.12) : 1;
+      const assemblyScale = twoBallAssembly && individualBall ? (part === "baseBall" ? 1.46 : 1.34) : 1;
       const source = ROOT + file + (individualBall ? "?v=20261116-snowball-fix" : "?v=20261116-clean");
       const arms = part === "arms" ? snowmanArmArtwork[file] : undefined;
       if (arms) {
