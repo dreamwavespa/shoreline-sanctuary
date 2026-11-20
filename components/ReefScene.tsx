@@ -226,7 +226,7 @@ export default function ReefScene() {
     try { setRescuedLobster(JSON.parse(localStorage.getItem("shoreline-rescued-trap-animals-v1") || "[]").includes("Lobster")); } catch {}
   }, []);
 
-  const { state, collectItem, setMusicOverride, discoverBabyFish } = useGame();
+  const { state, collectItem, setMusicOverride, discoverBabyFish, offshoreAction } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
@@ -244,6 +244,7 @@ export default function ReefScene() {
       return;
     }
     setTab(area);
+    setShowFrost(false);
     setReefActivityOpen(true);
   };
   const [offshoreTrack, setOffshoreTrack] = useState<string | null>(null);
@@ -253,6 +254,7 @@ export default function ReefScene() {
   const reefRescueButtonRef = useRef<HTMLButtonElement>(null);
   const [salvageOpen, setSalvageOpen] = useState(false);
   const [reefSearchMessage, setReefSearchMessage] = useState("The restored reef is ready to explore.");
+  const [showFrost, setShowFrost] = useState(false);
   const salvageButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeArtifactGame = () => {
@@ -266,6 +268,14 @@ export default function ReefScene() {
   };
 
   const searchRestoredReef = (habitat: "coral" | "seagrass" | "rocks" | "open") => {
+    setShowFrost(false);
+    const hour = new Date().getHours();
+    const frostStage = state.offshore.frostDiscovery;
+    if (habitat === "rocks" && (hour >= 19 || hour < 6) && (frostStage === "rumor" || frostStage === "reported")) {
+      setReefSearchMessage(offshoreAction({ type: "search-for-frost" }));
+      setShowFrost(frostStage === "reported");
+      return;
+    }
     const roll = Math.random();
     if (roll < 0.16) {
       collectItem("fishing-net");
@@ -398,7 +408,7 @@ export default function ReefScene() {
   <button type="button" onClick={() => searchRestoredReef("seagrass")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Seagrass</button>
   <button type="button" onClick={() => searchRestoredReef("rocks")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Rock Shelters</button>
   <button type="button" onClick={() => searchRestoredReef("open")} className="rounded-xl bg-teal-700 py-3 px-2 font-bold text-white shadow active:bg-teal-800">Search Open Reef</button>
-</div><p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-teal-900 ring-1 ring-teal-200">{reefSearchMessage}</p>{state.pendingBabyFishId && <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900 ring-1 ring-amber-200">🐟 Nursery discovery waiting: {getAquariumSpecies(state.pendingBabyFishId)?.babyName}. Visit Waverly’s Marine Lab to place the baby in the aquarium.</p>}</section>}</div> : tab === "restore" ? (
+</div>{showFrost && <div className="mt-3 rounded-xl bg-slate-900 p-3 text-center text-white"><Image src="/images/Reef/frost-white-octopus.webp" alt="Frost, a pearly white octopus with pale aqua speckles and curling arms" width={640} height={427} unoptimized className="mx-auto h-auto w-full max-w-xs object-contain" /><p className="font-bold">Frost the White Octopus</p></div>}<p role="status" aria-live="polite" className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-teal-900 ring-1 ring-teal-200">{reefSearchMessage}</p>{state.pendingBabyFishId && <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900 ring-1 ring-amber-200">🐟 Nursery discovery waiting: {getAquariumSpecies(state.pendingBabyFishId)?.babyName}. Visit Waverly’s Marine Lab to place the baby in the aquarium.</p>}</section>}</div> : tab === "restore" ? (
           <div className="space-y-4">
             <ShipwreckCard />
             <section aria-labelledby="artifact-game-heading" className="rounded-2xl bg-gradient-to-br from-amber-50 to-cyan-50 p-4 shadow-md ring-1 ring-amber-200">
