@@ -6,6 +6,14 @@ import { ITEMS } from "@/lib/items";
 import { SPA_RECIPES } from "@/lib/spa-recipes";
 import { useGame } from "@/lib/store";
 
+const recipeArt: Record<(typeof SPA_RECIPES)[number]["id"], string> = {
+  "spa-coconut-cream-lotion": "0% 0%",
+  "spa-watermelon-sugar-scrub": "50% 0%",
+  "spa-citrus-lotion": "100% 0%",
+  "spa-coconut-seashell-soap": "0% 100%",
+  "spa-vanilla-flower-candle": "50% 100%",
+};
+
 export default function SpaRecipeCounter({ onCraft, button }: { onCraft: (message: string) => void; button: string }) {
   const { state, craft } = useGame();
   const [index, setIndex] = useState(0);
@@ -31,9 +39,9 @@ export default function SpaRecipeCounter({ onCraft, button }: { onCraft: (messag
           <span aria-hidden="true" className="mr-2">🐚</span>{item.name}
         </h5>
         <div className="grid sm:grid-cols-[2fr_3fr]">
-          <div aria-hidden="true" className="relative min-h-28 overflow-hidden bg-teal-900">
-            <Image src="/images/retreat/sea-glass-spa.webp" alt="" fill sizes="(max-width: 640px) 100vw, 320px" unoptimized className="object-cover object-[50%_65%] opacity-70" />
-            <span className="absolute bottom-3 left-3 rounded-full bg-amber-50 p-3 text-3xl shadow">{item.icon}</span>
+          <div aria-hidden="true" className="flex items-center justify-center border-amber-700/20 bg-[#fff7e9] sm:border-r">
+            <div className="aspect-square w-full max-w-52 bg-no-repeat"
+              style={{ backgroundImage: "url('/images/retreat/spa-recipe-art.png')", backgroundSize: "300% 200%", backgroundPosition: recipeArt[recipe.id] }} />
           </div>
           <div className="space-y-3 p-4">
             <p className="font-serif text-lg">{recipe.description}</p>
