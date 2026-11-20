@@ -1,5 +1,5 @@
 "use client";
-import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress } from "./offshore";
+import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
 import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
@@ -489,6 +489,7 @@ interface Ctx {
   recordShelbyForecast: () => boolean;
   createWeatheredShipChart: () => boolean;
   offshoreAction: (action: OffshoreAction) => string;
+  reelDockCatch: (night: boolean) => { message: string; dockCatch?: DockCatch };
   state: GameState;
   screen: Screen;
   zone: Zone;
@@ -3083,14 +3084,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, audio: { ...s.audio, [key]: value } }));
   };
 
-  const offshoreAction = (action: OffshoreAction) => {
+  const applyOffshoreAction = (action: OffshoreAction) => {
     const result = advanceOffshore(stateRef.current, action);
     stateRef.current = result.state;
     setState(result.state);
     if (result.sound) play(result.sound);
     if (action.type !== 'dock-fishing') toast(result.message);
-    return result.message;
+    return result;
   };
+  const offshoreAction = (action: OffshoreAction) => applyOffshoreAction(action).message;
+  const reelDockCatch = (night: boolean) => applyOffshoreAction({ type: 'dock-fishing', night });
 
   const resetProgress = () => {
     try {
@@ -3110,6 +3113,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       zone,
       setScreen,
       offshoreAction,
+      reelDockCatch,
       collectItem,
       openWinterIceBlock,
       talkToMaeve,

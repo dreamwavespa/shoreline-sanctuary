@@ -37,9 +37,11 @@ export const DOCK_FISH = {
   day: ["Silver Mullet", "Striped Porgy"],
   night: ["Moonlit Silverside", "Lantern Goby"],
 } as const;
+export type DockFish = (typeof DOCK_FISH)[keyof typeof DOCK_FISH][number];
+export type DockCatch = { fish: DockFish } | { treasure: 'tide-trinket-compass' };
 export type OffshoreAction = { type: 'dock-fishing'; night: boolean } | { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
-export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string } {
+export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string; dockCatch?: DockCatch } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
   const inventory = { ...s.inventory };
   let coins = s.sandDollars;
@@ -47,14 +49,17 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
   const add = (id: string, n = 1) => { inventory[id] = (inventory[id] || 0) + n; };
   const fail = (message: string) => ({ state: s, message, sound: '' });
   let message = '', sound = 'offshorelab';
+  let dockCatch: DockCatch | undefined;
   if (action.type === 'dock-fishing') {
     if (Math.random() < 0.12) {
       add('tide-trinket-compass');
+      dockCatch = { treasure: 'tide-trinket-compass' };
       message = "You reeled in a Sailor’s Compass Pendant. Added to your inventory.";
       sound = 'sparkle';
     } else {
       const fish = DOCK_FISH[action.night ? 'night' : 'day'];
       const name = fish[Math.floor(Math.random() * fish.length)];
+      dockCatch = { fish: name };
       const log = o.dockFishLog ?? [];
       o.dockFishLog = log.includes(name) ? log : [...log, name];
       message = `You caught and released a ${name}.${log.includes(name) ? '' : ' Added to your fishing log.'}`;
@@ -166,5 +171,5 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
       o.expedition = true; message = 'Maeve sounds the farewell horn. Seaweed delivers warm woolens. The research ship sails beneath the aurora toward drifting ice. The winter adventure is still to come; you can return to Shoreline.'; sound = 'offshoresailing';
     }
   }
-  return { state: { ...s, inventory, sandDollars: coins, offshore: o }, message, sound };
+  return { state: { ...s, inventory, sandDollars: coins, offshore: o }, message, sound, dockCatch };
 }
