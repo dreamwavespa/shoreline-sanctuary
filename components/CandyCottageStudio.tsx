@@ -70,6 +70,8 @@ const decorationChoices = [
   ["Teal candy lantern", "Candy-Lantern-Teal.png"],
 ] as const;
 const chocolateFence = "Chocolate-Fence";
+const candySeashells = "Garden-Candy-Seashells";
+const sugarPathway = "Sugar-Pathway";
 const gardenChoices = [
   ["Candy flowers", "Candy-Flowers.png"], ["Flower bush", "Flower-Bush.png"],
   ["Blue flower bush", "Blue-Flower-Bush.png"], ["Candy pumpkins", "Candy-Pumpkins.png"],
@@ -78,6 +80,7 @@ const gardenChoices = [
   ["Cookie birdhouse", "Cookie-Birdhouse.png"], ["Lollipop bush", "Lollipop-Bush.png"],
   ["Cookie fence", "Cookie-Fence.png"], ["Gingerbread fence", "Gingerbread-Cookie-Fence.png"],
   ["Rope fence", "Rope-Fence.png"], ["Chocolate fences", chocolateFence],
+  ["Candy seashells", candySeashells], ["Sugar pathways", sugarPathway],
 ] as const;
 const decorationSpots = {
   "Front gable": { left: 42, top: 33, width: 12, height: 12 },
@@ -90,6 +93,7 @@ const decorationSpots = {
 type DecorationSpot = keyof typeof decorationSpots;
 const decorationName = (art: string) => [...decorationChoices, ...gardenChoices].find((item) => item[1] === art)?.[0] || art;
 const allowedSpots = (art: string): DecorationSpot[] => {
+  if (art === candySeashells || art === sugarPathway) return ["Left path", "Right path", "Left garden", "Right garden"];
   if (/Tree|Bush|Flowers|Pumpkins|Sunflowers|Fence|Birdhouse/i.test(art)) return ["Left garden", "Right garden", "Left path", "Right path"];
   if (/Lantern/i.test(art)) return ["Left path", "Right path", "Left garden", "Right garden"];
   if (/Marshmallows|Gumdrops/i.test(art)) return ["Right path", "Left path", "Right garden", "Left garden"];
@@ -217,9 +221,22 @@ function CandyHouseScene({ house }: { house: House }) {
                     ? { left: 38, top: 37, width: 11, height: 11 }
                     : baseSpot;
                   const isChocolateFence = item.art === chocolateFence;
-                  return <img key={item.id} src={assetRoot + (isChocolateFence ? "Cookie-Fence.png" : item.art)} alt="" aria-hidden="true"
+                  const placement = {
+                    left: (spot.left + item.x) + "%",
+                    top: (spot.top + item.y) + "%",
+                    width: spot.width + "%",
+                    height: spot.height + "%",
+                  };
+                  if (item.art === sugarPathway) {
+                    return <div key={item.id} aria-hidden="true" className="pointer-events-none absolute" style={placement}>
+                      <div className="absolute inset-x-0 top-1/2 h-1/3 rounded-full border border-amber-200 shadow-sm"
+                        style={{ background: "radial-gradient(circle, #fff 0 18%, transparent 22%) 0 0 / 5px 5px, repeating-linear-gradient(90deg, #fdf0d2 0 27%, #e2c294 28% 32%)" }} />
+                    </div>;
+                  }
+                  const file = item.art === candySeashells ? "Candy-Seashell.png" : isChocolateFence ? "Cookie-Fence.png" : item.art;
+                  return <img key={item.id} src={assetRoot + file} alt="" aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
-                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%", filter: isChocolateFence ? "sepia(0.75) saturate(1.6) brightness(0.58)" : undefined }} />;
+                    style={{ ...placement, filter: isChocolateFence ? "sepia(0.75) saturate(1.6) brightness(0.58)" : undefined }} />;
                 })}
               </div>
   );
