@@ -2,18 +2,16 @@
 import { useEffect, useState } from "react";
 
 type PlacedDecoration = { id: number; art: string; spot: string; x: number; y: number };
-type House = { name: string; design: string; walls: string; roof: string; windows: string; garden: string; decoration: string; doorArt?: string; windowArt?: string; placedDecorations?: PlacedDecoration[] };
+type House = { name: string; design: string; walls: string; roof: string; decoration: string; doorArt?: string; windowArt?: string; placedDecorations?: PlacedDecoration[] };
 const seasonal = [
-  { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Candy pearls" },
-  { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", windows: "Sugar glass", garden: "Seashell candies", decoration: "Sprinkled icing swirls" },
-  { name: "Autumn Harvest House", walls: "Chocolate panels", roof: "Caramel icing", windows: "Candy panes", garden: "Candy pumpkins", decoration: "Marshmallows" },
-  { name: "Winter Gingerbread Cabin", walls: "Gingerbread", roof: "Snowy icing", windows: "Candy panes", garden: "Gumdrop trees", decoration: "Peppermint sticks" },
+  { name: "Spring Candy Greenhouse", walls: "Sugar glass", roof: "Pastel wafers", decoration: "Candy pearls" },
+  { name: "Summer Seaside Cottage", walls: "Wafer cookies", roof: "Coconut icing", decoration: "Sprinkled icing swirls" },
+  { name: "Autumn Harvest House", walls: "Chocolate panels", roof: "Caramel icing", decoration: "Marshmallows" },
+  { name: "Winter Gingerbread Cabin", walls: "Gingerbread", roof: "Snowy icing", decoration: "Peppermint sticks" },
 ] as const;
 const materials = {
   walls: ["Gingerbread", "Wafer cookies", "Chocolate panels", "Sugar glass", "Candy bricks", "Pretzel logs"],
   roof: ["Snowy icing", "Pastel wafers", "Coconut icing", "Caramel icing", "Chocolate tiles", "Peppermint shingles"],
-  windows: ["Sugar glass", "Candy panes", "Chocolate shutters", "Glowing candy windows"],
-  garden: ["Candy flowers", "Seashell candies", "Candy pumpkins", "Gumdrop trees", "Sugar pathways", "Chocolate fences"],
   decoration: ["Sprinkled icing swirls", "Peppermint sticks", "Marshmallows", "Candy pearls", "Pastel gumdrops"],
 } as const;
 const assetRoot = "/images/Candy%20cottage/";
@@ -71,6 +69,7 @@ const decorationChoices = [
   ["Pastel gumdrops", "Pastel-Gumdrops.png"], ["Copper candy lantern", "Candy-Lantern-Copper.png"],
   ["Teal candy lantern", "Candy-Lantern-Teal.png"],
 ] as const;
+const chocolateFence = "Chocolate-Fence";
 const gardenChoices = [
   ["Candy flowers", "Candy-Flowers.png"], ["Flower bush", "Flower-Bush.png"],
   ["Blue flower bush", "Blue-Flower-Bush.png"], ["Candy pumpkins", "Candy-Pumpkins.png"],
@@ -78,7 +77,7 @@ const gardenChoices = [
   ["Snow tree", "Snow-Tree.png"], ["Sunflowers", "Sunflowers.png"],
   ["Cookie birdhouse", "Cookie-Birdhouse.png"], ["Lollipop bush", "Lollipop-Bush.png"],
   ["Cookie fence", "Cookie-Fence.png"], ["Gingerbread fence", "Gingerbread-Cookie-Fence.png"],
-  ["Rope fence", "Rope-Fence.png"],
+  ["Rope fence", "Rope-Fence.png"], ["Chocolate fences", chocolateFence],
 ] as const;
 const decorationSpots = {
   "Front gable": { left: 42, top: 33, width: 12, height: 12 },
@@ -217,9 +216,10 @@ function CandyHouseScene({ house }: { house: House }) {
                   const spot = house.design !== "Free Build" && house.name === "Spring Candy Greenhouse" && /Candy-Heart/i.test(item.art) && (item.spot === "Above door" || item.spot === "Front gable")
                     ? { left: 38, top: 37, width: 11, height: 11 }
                     : baseSpot;
-                  return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
+                  const isChocolateFence = item.art === chocolateFence;
+                  return <img key={item.id} src={assetRoot + (isChocolateFence ? "Cookie-Fence.png" : item.art)} alt="" aria-hidden="true"
                     className="pointer-events-none absolute object-contain"
-                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
+                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%", filter: isChocolateFence ? "sepia(0.75) saturate(1.6) brightness(0.58)" : undefined }} />;
                 })}
               </div>
   );
@@ -289,7 +289,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <div className="grid grid-cols-2 gap-2">
             {seasonal.map((option, index) => <button key={option.name} type="button" onClick={() => chooseDesign(index)} className="min-h-11 rounded-xl border border-amber-400 bg-white p-2 text-sm font-semibold">{option.name}</button>)}
           </div>
-          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", windows: "Sugar glass", garden: "Candy flowers", decoration: "Candy pearls", doorArt: "", windowArt: "", placedDecorations: [] }); setSelectedDecorationId(null); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
+          <button type="button" onClick={() => { setHouse({ name: "My Custom Candy House", design: "Free Build", walls: "Gingerbread", roof: "Pastel wafers", decoration: "Candy pearls", doorArt: "", windowArt: "", placedDecorations: [] }); setSelectedDecorationId(null); setMessage("Free Build ready."); }} className="min-h-11 w-full rounded-xl bg-pink-200 p-3 font-bold">Start Free Build</button>
           <label className="block font-semibold" htmlFor="candy-house-name">Name your house</label>
           <input id="candy-house-name" className="min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2" value={house.name} onChange={event => setHouse({ ...house, name: event.target.value })} maxLength={70} />
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
@@ -300,7 +300,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
               {house.design === "Free Build" && <p className="mt-2 text-center text-xs text-amber-900">Free Build uses a clean cottage base for your selected doors and windows.</p>}
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
-            <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. Windows: {house.windows}. Garden: {house.garden}. Decorations: {house.decoration}.</p>
+            <p className="text-sm">Walls: {house.walls}. Roof: {house.roof}. {house.design === "Free Build" && house.windowArt && <>Windows: {windowChoices.find(([, file]) => file === house.windowArt)?.[0]}. </>} Decorations: {house.decoration}.</p>
           </div>
           {house.design === "Free Build" && (
           <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Visual door and window choices">
@@ -316,7 +316,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
             </label>
           </div>
           )}
-          {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || (part !== "windows" && part !== "walls")).map(part => (
+          {(Object.keys(materials) as (keyof typeof materials)[]).filter(part => house.design === "Free Build" || part !== "walls").map(part => (
             <label key={part} className="block font-semibold">
               {part.charAt(0).toUpperCase() + part.slice(1)}
               <select value={house[part]} onChange={event => { setHouse({ ...house, [part]: event.target.value }); setMessage(part + " updated to " + event.target.value + (part === "decoration" && !candyMaterialArt[event.target.value] ? ". This candy material is currently a description only; use Candy and garden decorations to add visible pieces." : "")); }} className="mt-1 min-h-11 w-full rounded-lg border border-amber-500 bg-white p-2">
