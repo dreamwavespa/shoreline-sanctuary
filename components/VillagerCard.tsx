@@ -38,9 +38,9 @@ const EMOJI_FALLBACK: Record<string, string> = {
   sandy: "🐦", olli: "🐙", kai: "🐚", sunny: "⭐", penelope: "🦢", coral: "🐴", mina: "🥭", bubbles: "🐬", pearl: "🪪", splash: "🥭", shelldon: "🐢", shelby: "🦀", misty: "🪼", angel: "🐠", melody: "💍", marella: "🔮", coralie: "🌿", kaiana: "🧭",
 };
 
-export default function VillagerCard({ villager, schedule }: { villager: VillagerDef; schedule?: ScheduleStatus | null; }) {
+export default function VillagerCard({ villager, schedule, initiallyExpanded = false }: { villager: VillagerDef; schedule?: ScheduleStatus | null; initiallyExpanded?: boolean }) {
   const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment, openShelbyCargo } = useGame();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initiallyExpanded);
   const [cargoResult, setCargoResult] = useState<string | null>(null);
   const [useShelbyChart, setUseShelbyChart] = useState(false);
   const scheduleKnown = schedule !== undefined && schedule !== null;
