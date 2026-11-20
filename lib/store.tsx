@@ -101,6 +101,7 @@ export interface PaintedShell {
 interface GameState {
   jelloReadyAt: number;
   shelbyPacked: Record<string, number>;
+  shelbyBoatTrapInstalled: boolean;
   shelbyShipmentDate: string;
   shelbyShipmentCount: number;
   shelbyChartBonusPending: boolean;
@@ -277,6 +278,7 @@ const BUCKET_CAPACITY = 20;
 const DEFAULT_STATE: GameState = {
   jelloReadyAt: 0,
   shelbyPacked: {},
+  shelbyBoatTrapInstalled: false,
   shelbyShipmentDate: "",
   shelbyShipmentCount: 0,
   shelbyChartBonusPending: false,
@@ -1884,6 +1886,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const villager = VILLAGERS[villagerId];
     if (!villager) return false;
     if (!hasEnough([{ itemId, count: 1 }])) return false;
+    const equipsShelbyBoat = villagerId === "shelby" && itemId === "lobster-trap";
+    const firstShelbyBoatTrap = equipsShelbyBoat && !stateRef.current.shelbyBoatTrapInstalled;
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     const goldenWishReturned = villagerId === "angel" && itemId === "golden-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
@@ -2009,14 +2013,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           if (nextGiftCount >= required) notebookDiscovered[reward] = true;
         }
       }
-      return { ...s, inventory: inv, villagerGiftCounts, crafted, notebookDiscovered };
+      return { ...s, inventory: inv, villagerGiftCounts, crafted, notebookDiscovered,
+        shelbyBoatTrapInstalled: s.shelbyBoatTrapInstalled || equipsShelbyBoat };
     });
 
     const def = ITEMS[itemId];
     play(loved ? def.sfx : "shell");
     if (starWishReturned || goldenWishReturned) window.setTimeout(() => play("pearl", 0.75), 600);
     toast(
-      goldenWishReturned
+      firstShelbyBoatTrap
+        ? "Shelby accepts your Lobster Trap and secures it aboard her boat."
+        : goldenWishReturned
         ? "Angel carries your Golden Feather Wish across the sea and returns with a Gold Pearl, Rainbow Pearl, and Angel’s Tide Geode!"
         : starWishReturned
         ? `Angel carries your Star Wish out to sea and returns with ${angelWishGiftName || "a rare treasure"}!`
