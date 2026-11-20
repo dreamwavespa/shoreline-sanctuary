@@ -9,7 +9,7 @@ import { currentShelbyOrder, isPackageComplete } from "@/lib/shelbyShipping";
 import { VillagerDef } from "@/lib/villagers";
 import { ScheduleStatus } from "@/lib/schedule";
 import { getTravelingMerchantStock } from "@/lib/travelingMerchants";
-import { getNextSeaGlassSisterReward, SEA_GLASS_SISTER_REWARDS, sisterRewardClaimId } from "@/lib/seaGlassSisterRewards";
+import { getNextSeaGlassSisterReward, getVillagerFriendshipRewards, sisterRewardClaimId } from "@/lib/seaGlassSisterRewards";
 
 const RING_BY_GROUP: Record<string, string> = {
   "sea-glass-sister": "ring-indigo-200",
@@ -48,7 +48,11 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
   const shippingOrder = currentShelbyOrder(state.shelbyShipmentDate ? Math.max(0, (state.shelbyShipmentCount || 1) - 1) : (state.shelbyShipmentCount || 0));
   const remainingItems = shippingOrder.requires.reduce((total, requirement) => total + Math.max(0, requirement.count - ((state.shelbyPacked || {})[requirement.itemId] || 0)), 0);
   const giftCount = state.villagerGiftCounts[villager.id] || 0;
-  const sisterRewards = SEA_GLASS_SISTER_REWARDS[villager.id] || [];
+  const isLinnea = villager.id === "linnea";
+  const sisterRewards = getVillagerFriendshipRewards(villager.id);
+  const pendingLinneaRewards = isLinnea && sisterRewards.some(reward =>
+    giftCount >= reward.gifts && !state.crafted.includes(sisterRewardClaimId(villager.id, reward.gifts))
+  );
   const nextSisterReward = getNextSeaGlassSisterReward(villager.id, giftCount);
   const merchantId: "shelldon" | "shelby" | null = villager.id === "shelldon" || villager.id === "shelby" ? villager.id : null;
   const merchantStock = merchantId ? getTravelingMerchantStock(merchantId, new Date(), state) : [];
@@ -109,14 +113,15 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
 
           {sisterRewards.length > 0 && (
             <section aria-label={`${villager.name} friendship rewards`} className="rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-200">
-              <div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-bold text-indigo-950">Sea Glass Sister Friendship</h3><p className="mt-0.5 text-xs text-indigo-800">{giftCount} loved {giftCount === 1 ? "gift" : "gifts"} given</p></div><span className="rounded-full bg-white px-2 py-1 text-[11px] font-bold text-indigo-800 ring-1 ring-indigo-200">{Math.min(giftCount, 12)}/12</span></div>
+              <div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-bold text-indigo-950">{isLinnea ? "Linnea’s Friendship" : "Sea Glass Sister Friendship"}</h3><p className="mt-0.5 text-xs text-indigo-800">{giftCount}{isLinnea ? "" : " loved"} {giftCount === 1 ? "gift" : "gifts"} given</p></div><span className="rounded-full bg-white px-2 py-1 text-[11px] font-bold text-indigo-800 ring-1 ring-indigo-200">{Math.min(giftCount, 12)}/12</span></div>
               <div className="mt-3 space-y-2">
                 {sisterRewards.map((reward) => {
                   const reached = giftCount >= reward.gifts;
                   const claimed = state.crafted.includes(sisterRewardClaimId(villager.id, reward.gifts));
-                  return <div key={reward.gifts} className={`rounded-lg p-2.5 ring-1 ${reached ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-indigo-100"}`}><p className={`text-xs font-bold ${reached ? "text-emerald-900" : "text-indigo-950"}`}>{reached ? "✓ " : ""}{reward.gifts} gifts · {reward.name}</p><p className={`mt-0.5 text-[11px] ${reached ? "text-emerald-700" : "text-indigo-700"}`}>{reward.description}</p>{claimed && <p className="mt-1 text-[11px] font-semibold text-emerald-800">Reward received · permanently unlocked</p>}</div>;
+                  return <div key={reward.gifts} className={`rounded-lg p-2.5 ring-1 ${reached ? "bg-emerald-50 ring-emerald-200" : "bg-white ring-indigo-100"}`}><p className={`text-xs font-bold ${reached ? "text-emerald-900" : "text-indigo-950"}`}>{reached ? "✓ " : ""}{reward.gifts} gifts · {reward.name}</p><p className={`mt-0.5 text-[11px] ${reached ? "text-emerald-700" : "text-indigo-700"}`}>{reward.description}</p>{claimed && <p className="mt-1 text-[11px] font-semibold text-emerald-800">{isLinnea ? "Reward received" : "Reward received · permanently unlocked"}</p>}</div>;
                 })}
               </div>
+              {pendingLinneaRewards && <p className="mt-3 text-xs text-indigo-900">Give Linnea another gift to receive your unlocked rewards.</p>}
               <p className="mt-3 text-xs font-semibold text-indigo-900" aria-live="polite">{nextSisterReward ? `Next reward at ${nextSisterReward.gifts} gifts: ${nextSisterReward.name}.` : "All current friendship milestones reached."}</p>
             </section>
           )}

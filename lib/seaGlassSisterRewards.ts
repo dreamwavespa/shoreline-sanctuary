@@ -33,15 +33,26 @@ export const SEA_GLASS_SISTER_REWARDS: Record<string, SeaGlassSisterReward[]> = 
   ],
 };
 
+const LINNEA_REWARDS: SeaGlassSisterReward[] = [
+  { gifts: 3, id: "sea-foam-sponges", name: "Sea-Foam Sponges", description: "Linnea shares soft sea sponges you can use at the soaking basin.", kind: "item" },
+  { gifts: 6, id: "spa-watermelon-sugar-scrub", name: "Watermelon Sugar Scrub", description: "A jar of Linnea’s handmade scrub to try at the basin or take home.", kind: "item" },
+  { gifts: 9, id: "tumbled-stone-moonstone", name: "Tumbled Moonstone", description: "A pearly gemstone for your crystal bowl.", kind: "item" },
+  { gifts: 12, id: "polished-enhydro", name: "Window-Clear Enhydro", description: "A clear crystal from Linnea’s collection. You can arrange it in your bowl.", kind: "item" },
+];
+
+export function getVillagerFriendshipRewards(villagerId: string) {
+  return villagerId === "linnea" ? LINNEA_REWARDS : SEA_GLASS_SISTER_REWARDS[villagerId] || [];
+}
+
 export const SEA_GLASS_SISTER_IDS = Object.keys(SEA_GLASS_SISTER_REWARDS);
 export const SEA_GLASS_SISTER_MILESTONES = [3, 6, 9, 12] as const;
 
 export function getNextSeaGlassSisterReward(villagerId: string, giftCount: number) {
-  return SEA_GLASS_SISTER_REWARDS[villagerId]?.find((reward) => reward.gifts > giftCount) || null;
+  return getVillagerFriendshipRewards(villagerId).find((reward) => reward.gifts > giftCount) || null;
 }
 
 export function getEarnedSeaGlassSisterRewards(villagerId: string, giftCount: number) {
-  return (SEA_GLASS_SISTER_REWARDS[villagerId] || []).filter((reward) => reward.gifts <= giftCount);
+  return getVillagerFriendshipRewards(villagerId).filter((reward) => reward.gifts <= giftCount);
 }
 
 /**

@@ -1935,6 +1935,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const goldenWishReturned = villagerId === "angel" && itemId === "golden-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
     let sisterReturnGiftName: string | null = null;
+    const linneaRewards = villagerId === "linnea"
+      ? getEarnedSeaGlassSisterRewards(villagerId, (stateRef.current.villagerGiftCounts[villagerId] || 0) + 1)
+        .filter(reward => !stateRef.current.crafted.includes(sisterRewardClaimId(villagerId, reward.gifts)))
+      : [];
     const sunnyReturnGiftId = villagerId === "sunny" && loved
       ? (() => { const roll = Math.random(); return roll < 0.65 ? "paint-pigment" : roll < 0.9 ? "clear-pottery-glaze" : roll < 0.97 ? "pearl-pottery-glaze" : "iridescent-pottery-glaze"; })()
       : null;
@@ -2014,7 +2018,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
       // Sea Glass Sister milestone rewards are granted in the same state update
       // as the loved gift, so inventory/unlocks cannot be lost between renders.
-      if (loved) {
+      if (loved || villagerId === "linnea") {
         for (const reward of getEarnedSeaGlassSisterRewards(villagerId, nextGiftCount)) {
           const claimId = sisterRewardClaimId(villagerId, reward.gifts);
           if (crafted.includes(claimId)) continue;
@@ -2034,7 +2038,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
         // Once a physical sister reward has been unlocked, it can appear again
         // as a random return gift whenever the player gives that sister a loved gift.
-        const pool = getSeaGlassSisterItemGiftPool(villagerId, nextGiftCount);
+        const pool = villagerId === "linnea" ? [] : getSeaGlassSisterItemGiftPool(villagerId, nextGiftCount);
         if (pool.length) {
           const reward = pool[Math.floor(Math.random() * pool.length)];
           const rewardItemId = reward.id === "marella-white-moonstone"
@@ -2072,6 +2076,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         ? `Angel carries your Star Wish out to sea and returns with ${angelWishGiftName || "a rare treasure"}!`
         : sunnyReturnGiftId
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ Sunny gives you ${ITEMS[sunnyReturnGiftId].name} in return!`
+        : linneaRewards.length
+        ? `Linnea thanks you for the ${def.name} and gives you ${linneaRewards.map(reward => reward.name).join(", ")} in return!`
         : sisterReturnGiftName
         ? `${villager.name} adores the ${def.name}! ${villager.gift.reactionVisual} ✨ ${villager.name} gives you ${sisterReturnGiftName} in return!`
         : loved
