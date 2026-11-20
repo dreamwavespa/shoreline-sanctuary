@@ -34,6 +34,37 @@ const CONSTELLATIONS: Constellation[] = [
   { id: "the-whale", name: "The Great Whale", emoji: "🐋", description: "A long, gentle curve of stars arcing across the sky like a breaching whale.", panMin: 0.5, panMax: 1, freq: 784, type: "sawtooth" },
 ];
 
+// Coordinates are percentages within the square constellation overlay.
+const constellationPoints: Record<string, readonly (readonly [number, number])[]> = {
+  "the-anchor": [[16, 57], [48, 77], [81, 57], [48, 24]],
+  "the-nautilus": [[71, 74], [40, 81], [19, 59], [24, 33], [49, 19], [72, 32], [77, 53], [61, 65], [43, 58], [43, 43], [56, 40]],
+  "the-lighthouse": [[26, 78], [34, 47], [47, 37], [50, 16], [57, 37], [67, 47], [75, 78], [26, 78]],
+  "the-whale": [[12, 60], [28, 44], [46, 39], [63, 48], [77, 62], [88, 49], [91, 68], [77, 62], [56, 73], [34, 72], [12, 60]],
+};
+
+function ConstellationSky({ pan, constellation }: { pan: number; constellation: Constellation | null }) {
+  const points = constellation ? constellationPoints[constellation.id] : [];
+  const edges = constellation?.id === "the-anchor" ? [[0, 1], [1, 2], [1, 3]] : points.slice(1).map((_, i) => [i, i + 1]);
+  return (
+    <div aria-hidden="true" className="relative mb-4 aspect-[3/2] overflow-hidden rounded-2xl bg-slate-950 ring-2 ring-amber-200">
+      <div className="absolute inset-0 bg-no-repeat motion-safe:transition-[background-position] motion-safe:duration-300"
+        style={{ backgroundImage: "url('/images/Lighthouse/lookout.webp')", backgroundSize: "145% 265%", backgroundPosition: `${(pan + 1) * 50}% 82%` }} />
+      <div className="absolute inset-0 bg-slate-950/15" />
+      {constellation && <div key={constellation.id} className="absolute left-1/2 top-[44%] aspect-square h-[86%] -translate-x-1/2 -translate-y-1/2">
+        {edges.map(([from, to]) => {
+          const [x, y] = points[from];
+          const [targetX, targetY] = points[to];
+          return <span key={`${from}-${to}`} className="absolute h-px origin-left bg-sky-200/90 shadow-[0_0_6px_#7dd3fc]"
+            style={{ left: `${x}%`, top: `${y}%`, width: `${Math.hypot(targetX - x, targetY - y)}%`, transform: `rotate(${Math.atan2(targetY - y, targetX - x)}rad)` }} />;
+        })}
+        {points.map(([x, y], i) => <span key={i} className="absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-50 shadow-[0_0_10px_3px_#7dd3fc]"
+          style={{ left: `${x}%`, top: `${y}%` }} />)}
+      </div>}
+      {!constellation && <div className="absolute left-1/2 top-[44%] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-sky-100/70" />}
+    </div>
+  );
+}
+
 const MARSHMALLOW_REACTIONS = [
   "Marshmallow leans into your hand and gives a tiny purr.",
   "Marshmallow closes his eyes and makes happy biscuits with his paws.",
@@ -245,6 +276,12 @@ export default function LighthouseScreen() {
     } catch {}
   };
 
+  const panView = (step: number) => {
+    setPan((current) => Math.max(-1, Math.min(1, +(current + step).toFixed(2))));
+    setFoundThisScan(null);
+    setSighting(null);
+  };
+
   const scan = () => {
     const match = CONSTELLATIONS.find((c) => pan >= c.panMin && pan <= c.panMax);
     if (match) {
@@ -359,14 +396,17 @@ export default function LighthouseScreen() {
           <h2 className="text-lg font-bold text-amber-900 mb-1">Star-Gazing Binoculars</h2>
           <p className="text-sm text-amber-700 mb-1">Pan across the horizon and scan for four ocean-themed constellations — headphones recommended.</p>
           <p className="text-xs font-semibold text-teal-700 mb-4">Found: {foundCount}/4</p>
+          <ConstellationSky pan={pan} constellation={foundThisScan} />
           <div className="flex items-center gap-3 mb-4">
-            <button type="button" onClick={() => setPan((p) => Math.max(-1, +(p - 0.34).toFixed(2)))} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">⬅️</button>
+            <button type="button" aria-label="Pan left" disabled={pan === -1} onClick={() => panView(-0.34)} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">⬅️</button>
             <div className="flex-1 h-2 rounded-full bg-amber-100 relative"><div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-teal-600 shadow" style={{ left: `calc(${((pan + 1) / 2) * 100}% - 8px)` }} /></div>
-            <button type="button" onClick={() => setPan((p) => Math.min(1, +(p + 0.34).toFixed(2)))} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">➡️</button>
+            <button type="button" aria-label="Pan right" disabled={pan === 1} onClick={() => panView(0.34)} className="w-11 h-11 rounded-full bg-teal-600 text-white text-lg active:scale-95">➡️</button>
           </div>
           <button type="button" onClick={scan} className="w-full py-3 rounded-xl font-semibold text-white bg-amber-700 active:bg-amber-800 shadow">🔭 Scan the Horizon</button>
-          {foundThisScan && <div className="mt-4 p-3 rounded-xl bg-teal-50 ring-1 ring-teal-300 text-center"><p className="text-2xl mb-1">{foundThisScan.emoji}</p><p className="font-semibold text-teal-900 text-sm">{foundThisScan.name}</p><p className="text-xs text-teal-700">{foundThisScan.description}</p></div>}
+          <div role="status" aria-atomic="true">
+          {foundThisScan && <div className="mt-4 p-3 rounded-xl bg-teal-50 ring-1 ring-teal-300 text-center"><p className="font-semibold text-teal-900 text-sm">{foundThisScan.name}</p><p className="text-xs text-teal-700">{foundThisScan.description}</p></div>}
           {!foundThisScan && sighting && <div className="mt-4 p-3 rounded-xl bg-amber-50 ring-1 ring-amber-200 text-center"><p className="text-2xl mb-1">{sighting.emoji}</p><p className="text-sm text-amber-800">{sighting.text}</p></div>}
+          </div>
         </div>
 
               </div>
