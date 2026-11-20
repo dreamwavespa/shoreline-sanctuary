@@ -53,7 +53,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     role: "Welcomes visitors to her floating ice-floe home.",
     gameplay: "Give Snowy favorite gifts to build a lasting friendship.",
     location: "Snowy's Winter Cove", imageUrl: "/images/Snowy-portrait.PNG",
-    gift: { lovedGiftIds: ["fresh-reef-fish","beach-ball","seashell-beach-ball","advent-snowflake-pearls","food-coconut-drops","food-frozen-pineapple-drink","food-frosted-coconut-drink","food-iced-berry-drink","food-iced-mint-tea"], reactionSfx: "happy seal chirp", reactionVisual: "Snowflake sparkles", redirectTo: [] },
+    gift: { lovedGiftIds: ["sewing-snowy-scarf","fresh-reef-fish","beach-ball","seashell-beach-ball","advent-snowflake-pearls","food-coconut-drops","food-frozen-pineapple-drink","food-frosted-coconut-drink","food-iced-berry-drink","food-iced-mint-tea"], reactionSfx: "happy seal chirp", reactionVisual: "Snowflake sparkles", redirectTo: [] },
   },
   lacey: {
     id: "lacey", name: "Lacey", title: "The Coastal Seamstress", group: "underwater-village",
