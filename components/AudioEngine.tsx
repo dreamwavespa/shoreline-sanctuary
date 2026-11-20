@@ -319,8 +319,10 @@ export default function AudioEngine() {
           : trackKey === "christmasAdvent" ? 1.3
           : trackKey === "inventory" ? 1.25
           : trackKey === "hut" || trackKey === "hutPatio" || isNewBeachTrack ? 1.22 : 1;
-        const musicTarget = settings.musicMuted ? 0 : clamp01(music * master * 1.25 * blockDucking * instrumentDucking * beachBallDucking);
-        const ambienceTarget = ambience * master;
+        const retreatMusicOff = document.querySelector('[data-retreat-music="off"]');
+        const retreatWavesOff = document.querySelector('[data-retreat-waves="off"]');
+        const musicTarget = settings.musicMuted || retreatMusicOff ? 0 : clamp01(music * master * 1.25 * blockDucking * instrumentDucking * beachBallDucking);
+        const ambienceTarget = retreatWavesOff ? 0 : ambience * master;
 
         const speed = 0.8; // volume units per second (~1.2s fade)
         const cv = currentVol.current;

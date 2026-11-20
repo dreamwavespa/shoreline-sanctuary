@@ -245,6 +245,7 @@ function MaevesKettleCard() {
 
 export default function CoveScene() {
   const { state, collectItem, setMusicOverride, recoverMaevesKettle } = useGame();
+  const [dockMusic, setDockMusic] = useState<string | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
@@ -384,9 +385,9 @@ export default function CoveScene() {
   }, []);
 
   useEffect(() => {
-    if (state.rowboatRepaired) setMusicOverride("cove");
+    if (state.rowboatRepaired) setMusicOverride(dockMusic ?? "cove");
     return () => setMusicOverride(null);
-  }, [state.rowboatRepaired, setMusicOverride]);
+  }, [state.rowboatRepaired, dockMusic, setMusicOverride]);
 
   if (!state.rowboatRepaired) {
     return (
@@ -428,7 +429,7 @@ export default function CoveScene() {
           fill unoptimized priority className="object-fill"
         />
         {releasedAnimals.includes("Hermit crab") && <button type="button" onClick={() => setAnnouncement("A hermit crab you rescued from the lobster trap is resting safely among the Cove rocks.")} aria-label="Visit rescued hermit crab among the Cove rocks" className="absolute left-[63%] top-[65%] z-10 h-[12%] w-[18%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"><Image src="/images/Cove/Hermit_Crab.png" alt="" fill unoptimized className="object-contain" /></button>}
-        <button type="button" ref={dockButtonRef} aria-label="Visit Cove Dock for wildlife photography and salvage voyages" aria-expanded={dockOpen} onClick={() => { setDockOpen(true); setShowChest(false); }}
+        <button type="button" ref={dockButtonRef} aria-label="Visit Cove Dock for the Island Retreat, wildlife photography, and salvage voyages" aria-expanded={dockOpen} onClick={() => { setDockOpen(true); setShowChest(false); }}
           className="absolute left-[3%] top-[38%] w-[37%] h-[23%] focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400">
           <Image src={coveImage("Cove-dock-rowboat.PNG")} alt="" fill unoptimized className="object-contain" />
         </button>
@@ -500,7 +501,7 @@ export default function CoveScene() {
 </section>}
               {showChest && <ChestCard />}
               {showCollection && <CoveTreasuresCollection discovered={state.coveTreasuresDiscovered || {}} />}
-              <OffshoreEntry kind="dock" sceneOpen={dockOpen} onSceneClose={closeActivity} />
+              <OffshoreEntry kind="dock" onMusicChange={setDockMusic} sceneOpen={dockOpen} onSceneClose={closeActivity} />
             </div>
           </div>
         </div>
