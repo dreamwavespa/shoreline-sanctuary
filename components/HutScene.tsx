@@ -1,4 +1,6 @@
 "use client";
+import { CRYSTAL_BOWL_ITEM } from "@/lib/crystal-bowl";
+import { CrystalBowlArt, crystalBowlDescription, useCrystalBowlChime } from "./CrystalBowl";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
@@ -79,6 +81,7 @@ const imagePath = (area: Area, night: boolean) =>
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
   const { state, setMusicOverride, collectItem } = useGame();
+  const playCrystalBowl = useCrystalBowlChime();
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [vaseFlowers, setVaseFlowers] = useState<string[]>([]);
@@ -604,7 +607,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "16%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "14%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
             return <button key={slot.id} type="button" onClick={() => openDecoration(slot.id)} aria-label={`${slot.name}, ${item ? item.name : slot.id === "patio-planter" ? (patioBoxFlowers.length ? `${patioBoxFlowers.length} flowers: ${patioBoxFlowers.map(flowerId => ITEMS[flowerId]?.name || flowerId).join(", ")}` : "no flowers yet") : "empty"}, decorate`} className="absolute z-10 flex items-center justify-center rounded-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300" style={{ left: `calc(${adjustedX}% - ${area === "inside" ? decorWidth : "10%"} / 2)`, top: `calc(${adjustedY}% - ${area === "inside" ? decorHeight : "8%"} / 2)`, width: area === "inside" ? decorWidth : slot.id === "patio-fountain" ? "24%" : slot.id.startsWith("patio-chair") ? "22%" : slot.id === "patio-chime" ? "11%" : slot.id === "patio-planter" ? "23%" : isWallSlot(slot.id) ? "14%" : isChairSlot(slot.id) ? "22%" : isPillowSlot(slot.id) ? "11%" : slot.id === "side-table" && !night ? "8%" : isTableSlot(slot.id) ? "11%" : "10%", height: area === "inside" ? decorHeight : slot.id === "patio-fountain" ? "23%" : slot.id.startsWith("patio-chair") ? "20%" : slot.id === "patio-chime" ? "14%" : slot.id === "patio-planter" ? "12%" : isWallSlot(slot.id) ? "12%" : isChairSlot(slot.id) ? "21%" : isPillowSlot(slot.id) ? "9%" : slot.id === "side-table" && !night ? "7%" : isTableSlot(slot.id) ? "9%" : "6.5%" }}>
-              {(item || slot.id === "patio-planter") && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
+              {(item || slot.id === "patio-planter") && <div className={area === "inside" && !night && slot.id === "shelf2-right" ? "h-[85%] w-[85%]" : "h-full w-full"}>{slot.id === "patio-planter" && !item ? <PatioFlowerBox flowers={patioBoxFlowers} /> : item && isArrangement(item.id) && arrangementFor(item.id) ? <ArrangementArt vaseIcon={item.icon} stems={arrangementFor(item.id)!.stems} name={item.name} /> : item && item.id === CRYSTAL_BOWL_ITEM && state.crystalBowl ? <CrystalBowlArt bowl={state.crystalBowl} /> : item ? <DisplayArt key={item.id} icon={item.icon} name={item.name} isEmoji={item.isEmoji} /> : null}</div>}
               <span className="sr-only">{slot.name}</span>
             </button>;
           })}
@@ -687,6 +690,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             <button type="button" onClick={clearSlot} className="min-h-11 rounded-lg border px-3">Remove</button>
             <button type="button" onClick={() => setSelectedSlot(null)} className="min-h-11 rounded-lg bg-teal-900 px-3 text-white">Done</button>
           </div>
+          {placements[selectedSlot] === CRYSTAL_BOWL_ITEM && state.crystalBowl && (
+            <div className="mt-2 space-y-2">
+              <p>{crystalBowlDescription(state.crystalBowl)}</p>
+              <button type="button" className="min-h-11 rounded-lg border px-3" onClick={() => {
+                if (state.crystalBowl) playCrystalBowl(state.crystalBowl.slots);
+              }}>Listen to your crystal bowl</button>
+            </div>
+          )}
           <label htmlFor="hut-slot" className="mt-3 block font-semibold">Display position</label>
           <select id="hut-slot" value={selectedSlot} onChange={e => setSelectedSlot(e.target.value)} className="min-h-11 w-full rounded-lg border p-2">{activeSlots.map(slot => <option key={slot.id} value={slot.id}>{slot.name}</option>)}</select>
           {selectedSlot === "patio-planter" && !placements["patio-planter"] && <div className="mt-3 rounded-lg border p-2">

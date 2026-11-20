@@ -7,6 +7,7 @@ import { KITCHEN_RECIPES } from "@/lib/recipes";
 import { SMOOTHIE_RECIPES } from "@/lib/smoothie-recipes";
 import { useGame } from "@/lib/store";
 import { SPA_RECIPES } from "@/lib/spa-recipes";
+import CrystalBowlTable from "./CrystalBowl";
 import SpaRecipeCounter from "./SpaRecipeCounter";
 
 const button = "min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white disabled:bg-slate-200 disabled:text-slate-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500";
@@ -92,7 +93,7 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const [position, setPosition] = useState(0);
   const [pattern, setPattern] = useState<(string | null)[]>(() => positions.map(() => null));
   const [spaMusic, setSpaMusic] = useState(true);
-  const [spaStation, setSpaStation] = useState<"basin" | "counter" | null>(null);
+  const [spaStation, setSpaStation] = useState<"basin" | "counter" | "crystals" | null>(null);
   const [candleLit, setCandleLit] = useState(false);
   const [bubblesReady, setBubblesReady] = useState(false);
   const stationHeading = useRef<HTMLHeadingElement>(null);
@@ -244,12 +245,20 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
             if (spaStation === "basin") stationHeading.current?.focus();
             else setSpaStation("basin");
           } },
+          { label: "Open the crystal table", caption: "Crystal Table", left: 20, top: 86, action: () => {
+            if (spaStation === "crystals") stationHeading.current?.focus();
+            else setSpaStation("crystals");
+          } },
           { label: "Open the spa recipe counter", caption: "Spa Counter", left: 82, top: 89, action: () => {
             if (spaStation === "counter") stationHeading.current?.focus();
             else setSpaStation("counter");
           } },
         ]} />
         <label className="flex min-h-12 items-center gap-2"><input type="checkbox" checked={spaMusic} onChange={(event) => setSpaMusic(event.target.checked)} /> Spa music</label>
+        {spaStation === "crystals" && <section aria-labelledby="crystal-table-heading" className="space-y-3">
+          <h4 id="crystal-table-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Crystal Table</h4>
+          <CrystalBowlTable button={button} />
+        </section>}
         {spaStation === "counter" && <section aria-labelledby="spa-counter-heading" className="space-y-3">
           <h4 id="spa-counter-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Spa recipe counter</h4>
           <SpaRecipeCounter onCraft={announce} button={`${button} aria-disabled:bg-slate-200 aria-disabled:text-slate-700`} />

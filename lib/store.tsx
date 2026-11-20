@@ -1,4 +1,5 @@
 "use client";
+import { CRYSTAL_BOWL_ITEM, CRYSTAL_IDS, readCrystalBowl, type CrystalBowl } from "./crystal-bowl";
 import type { SpaTreatmentId } from "./spa-recipes";
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -100,6 +101,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  crystalBowl: CrystalBowl | null;
   jelloReadyAt: number;
   shelbyPacked: Record<string, number>;
   shelbyBoatTrapInstalled: boolean;
@@ -278,6 +280,7 @@ export function savedWindTreasureItem(state: GameState, date: string, slot: numb
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  crystalBowl: null,
   jelloReadyAt: 0,
   shelbyPacked: {},
   shelbyBoatTrapInstalled: false,
@@ -520,6 +523,7 @@ interface Ctx {
   robinNestingAction: (action: "start" | "check") => boolean;
   activateRobinGreenhouse: () => boolean;
   emptyBucket: () => void;
+  saveCrystalBowl: (bowl: CrystalBowl) => boolean;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
   giveCadenceBlocks: (itemId: string) => boolean;
@@ -705,6 +709,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         setState({
           ...DEFAULT_STATE,
           ...parsed,
+          crystalBowl: readCrystalBowl(parsed.crystalBowl),
           offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
           coveTreasuresDiscovered: { ...Object.fromEntries(Object.entries(inventory).filter(([id, count]) => (id.startsWith('pottery-fragment-') || id.startsWith('tide-trinket-') || ['pearl-cream', 'pearl-chocolate', 'pearl-globe'].includes(id)) && Number(count) > 0).map(([id]) => [id, true])), ...(parsed.coveTreasuresDiscovered || {}) },
@@ -1245,6 +1250,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       };
     });
     toast("Shelby's returning cargo collected, including any chart bonus!");
+    return true;
+  };
+
+  const saveCrystalBowl = (draft: CrystalBowl) => {
+    const bowl = readCrystalBowl(draft);
+    if (!bowl) return false;
+
+    const current = stateRef.current;
+    const inventory = { ...current.inventory };
+    for (const id of current.crystalBowl?.slots ?? []) {
+      if (id) inventory[id] = (inventory[id] || 0) + 1;
+    }
+    const crystals = bowl.slots.filter(id => id !== null);
+    if (CRYSTAL_IDS.some(id => crystals.filter(crystal => crystal === id).length > (inventory[id] || 0))) return false;
+    for (const id of crystals) inventory[id] -= 1;
+
+    inventory[CRYSTAL_BOWL_ITEM] = 1;
+    const next = { ...current, crystalBowl: bowl, inventory };
+    stateRef.current = next;
+    setState(next);
+    play("sparkle", 0.45);
     return true;
   };
 
@@ -3165,6 +3191,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       recordShelbyForecast,
       createWeatheredShipChart,
       emptyBucket,
+      saveCrystalBowl,
       craft,
       cook,
       feedCadenceFood,

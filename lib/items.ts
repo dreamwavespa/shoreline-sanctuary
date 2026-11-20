@@ -15,6 +15,7 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "sea-glass-spa-crystal-bowl": { id: "sea-glass-spa-crystal-bowl", name: "Sea Glass Spa Crystal Bowl", category: "decor", icon: "💎", isEmoji: true, rarity: "uncommon", sfx: "sparkle", artDescription: "A shallow glazed ceramic bowl with hand-arranged crystals." },
   "spa-coconut-cream-lotion": { id: "spa-coconut-cream-lotion", name: "Coconut Cream Lotion", category: "special", icon: "🧴", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "spa-watermelon-sugar-scrub": { id: "spa-watermelon-sugar-scrub", name: "Watermelon Sugar Scrub", category: "special", icon: "🍉", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
   "spa-citrus-lotion": { id: "spa-citrus-lotion", name: "Citrus Lotion", category: "special", icon: "🍋", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
