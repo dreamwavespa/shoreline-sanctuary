@@ -3089,7 +3089,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     stateRef.current = result.state;
     setState(result.state);
     if (result.sound) play(result.sound);
-    if (action.type !== 'dock-fishing') toast(result.message);
+    if (action.type !== 'dock-fishing' && action.type !== 'talk-about-frost' && action.type !== 'search-for-frost') toast(result.message);
     return result;
   };
   const offshoreAction = (action: OffshoreAction) => applyOffshoreAction(action).message;
