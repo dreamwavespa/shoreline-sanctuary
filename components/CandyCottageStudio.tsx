@@ -157,8 +157,49 @@ const roofPlacement: Record<string, { left: string; top: string; width: string }
 function CandyHouseScene({ house }: { house: House }) {
   const decorations = house.placedDecorations || [];
   return (
-              <CandyHouseScene house={house} />
-              <button type="button" onClick={() => setFullScreenPreview(true)} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white">View Candy Cottage Full Screen</button>
+              <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
+                <img
+                  src={assetRoot + (house.design === "Free Build" ? "Cookie-cottage-free-build-clean.PNG" : houseArt[house.name] || "Cookie-cottage-free-build-clean.PNG")}
+                  alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
+                />
+                {house.design === "Free Build" && <img
+                  src={assetRoot + roofArt[house.roof]}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute object-contain"
+                  style={{
+                    ...(roofPlacement[house.design === "Free Build" ? "Free Build" : house.name] || roofPlacement["Free Build"]),
+                    maskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+                    WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+                  }}
+                />}
+                {house.design === "Free Build" && house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={doorPlacement[house.doorArt] || defaultDoorPlacement} />}
+                {house.design === "Free Build" && house.windowArt && <>
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
+                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
+                </>}
+                {candyMaterialArt[house.decoration] && (
+                  <img
+                    src={assetRoot + candyMaterialArt[house.decoration].file}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute object-contain"
+                    style={materialAttachment(house)}
+                  />
+                )}
+                {decorations.map(item => {
+                  const baseSpot = decorationSpots[item.spot as DecorationSpot];
+                  if (!baseSpot) return null;
+                  const spot = house.design !== "Free Build" && house.name === "Spring Candy Greenhouse" && /Candy-Heart/i.test(item.art) && (item.spot === "Above door" || item.spot === "Front gable")
+                    ? { left: 38, top: 37, width: 11, height: 11 }
+                    : baseSpot;
+                  return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
+                    className="pointer-events-none absolute object-contain"
+                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
+                })}
+              </div>
   );
 }
 
@@ -232,49 +273,8 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
           <div className="rounded-xl border border-amber-300 bg-white p-4" role="group" aria-label="Current candy house design">
             <div className="mx-auto w-full max-w-sm">
               <p className="mb-2 text-center text-sm font-semibold">Your candy house</p>
-              <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
-                <img
-                  src={assetRoot + (house.design === "Free Build" ? "Cookie-cottage-free-build-clean.PNG" : houseArt[house.name] || "Cookie-cottage-free-build-clean.PNG")}
-                  alt={house.design === "Free Build" ? "Undecorated Free Build cookie cottage" : "Base illustration for " + house.name}
-                  className="absolute inset-0 h-full w-full object-contain"
-                  style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
-                />
-                {house.design === "Free Build" && <img
-                  src={assetRoot + roofArt[house.roof]}
-                  alt=""
-                  aria-hidden="true"
-                  className="pointer-events-none absolute object-contain"
-                  style={{
-                    ...(roofPlacement[house.design === "Free Build" ? "Free Build" : house.name] || roofPlacement["Free Build"]),
-                    maskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-                    WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-                  }}
-                />}
-                {house.design === "Free Build" && house.doorArt && <img src={assetRoot + house.doorArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={doorPlacement[house.doorArt] || defaultDoorPlacement} />}
-                {house.design === "Free Build" && house.windowArt && <>
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).left, right: undefined }} />
-                  <img src={assetRoot + house.windowArt} alt="" aria-hidden="true" className="pointer-events-none absolute object-contain" style={{ ...windowPlacement[house.windowArt] || defaultWindowPlacement, left: (windowPlacement[house.windowArt] || defaultWindowPlacement).right, right: undefined }} />
-                </>}
-                {candyMaterialArt[house.decoration] && (
-                  <img
-                    src={assetRoot + candyMaterialArt[house.decoration].file}
-                    alt=""
-                    aria-hidden="true"
-                    className="pointer-events-none absolute object-contain"
-                    style={materialAttachment(house)}
-                  />
-                )}
-                {decorations.map(item => {
-                  const baseSpot = decorationSpots[item.spot as DecorationSpot];
-                  if (!baseSpot) return null;
-                  const spot = house.design !== "Free Build" && house.name === "Spring Candy Greenhouse" && /Candy-Heart/i.test(item.art) && (item.spot === "Above door" || item.spot === "Front gable")
-                    ? { left: 38, top: 37, width: 11, height: 11 }
-                    : baseSpot;
-                  return <img key={item.id} src={assetRoot + item.art} alt="" aria-hidden="true"
-                    className="pointer-events-none absolute object-contain"
-                    style={{ left: (spot.left + item.x) + "%", top: (spot.top + item.y) + "%", width: spot.width + "%", height: spot.height + "%" }} />;
-                })}
-              </div>
+              <CandyHouseScene house={house} />
+              <button type="button" onClick={() => setFullScreenPreview(true)} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white">View Candy Cottage Full Screen</button>
               {house.design === "Free Build" && <p className="mt-2 text-center text-xs text-amber-900">Free Build uses a clean cottage base for your selected doors and windows.</p>}
             </div>
             <h3 className="text-center font-bold">{house.name}</h3>
