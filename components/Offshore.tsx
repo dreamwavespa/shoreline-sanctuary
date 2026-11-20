@@ -142,23 +142,24 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
     {kind === 'dock' ? <>
       {dockSpot === 'fishing' && <DocksideFishing night={dockNight} />}
       {dockSpot === 'luxury' && <section className={card}><h4 className="font-bold">Island Retreat Voyage</h4><p>The luxury boat offers free passage to the Island Retreat.</p><button type="button" className={button} onClick={() => { play("dockFootsteps", 0.4); setAtRetreat(true); }}>Sail to the Island Retreat</button></section>}
-      {dockSpot === 'shelby' && <section className={card}>
-  <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-teal-950">
-    <Image src="/images/Cove/shelby-deck.webp" alt="Shelby’s trading boat deck, with a cabin, merchant counter, shipping crates, and a trap rack." fill unoptimized
+      {dockSpot === 'shelby' && <section className="mx-auto w-full max-w-xl space-y-3">
+  <p className="text-sm text-teal-950">Tap the cabin door, counter, crates, or trap rack.</p>
+  <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-teal-950">
+    <Image src="/images/Cove/shelby-deck-portrait.webp" alt="Shelby’s trading boat deck, with a cabin, merchant counter, shipping crates, and a trap rack." fill unoptimized
       className={`object-cover ${dockNight ? 'brightness-75' : ''}`} />
     {([
-      { id: 'gifts', label: 'Shelby’s Cabin', x: 26, y: 32 },
-      { id: 'trade', label: 'Trade Counter', x: 76, y: 34 },
-      { id: 'cargo', label: 'Shipping & Cargo', x: 24, y: 73 },
-      { id: 'trap', label: 'Lobster Trap', x: 77, y: 72 },
-    ] as const).map(({ id, label, x, y }) => <button key={id} type="button"
-      aria-expanded={boatArea === id} aria-controls="shelby-boat-activity"
-      className="absolute min-h-11 w-[43%] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/70 bg-teal-950/90 px-2 py-2 text-sm font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
-      style={{ left: `${x}%`, top: `${y}%` }}
+      { id: 'gifts', label: 'Shelby’s Cabin', left: '14%', top: '12%', width: '25%', height: '37%' },
+      { id: 'trade', label: 'Trade Counter', left: '49%', top: '22%', width: '50%', height: '30%' },
+      { id: 'cargo', label: 'Shipping & Cargo', left: '0%', top: '50%', width: '46%', height: '34%' },
+      { id: 'trap', label: 'Lobster Trap', left: '48%', top: '53%', width: '51%', height: '30%' },
+    ] as const).map(({ id, label, left, top, width, height }) => <button key={id} type="button"
+      aria-label={label} aria-expanded={boatArea === id} aria-controls="shelby-boat-activity"
+      className="absolute touch-manipulation rounded-xl bg-transparent hover:bg-white/10 focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-amber-300"
+      style={{ left, top, width, height }}
       onClick={(event) => {
         if (boatArea === id) { setBoatArea(null); event.currentTarget.focus(); }
         else setBoatArea(id);
-      }}>{label}</button>)}
+      }} />)}
   </div>
   <div id="shelby-boat-activity">
     {boatArea && <>
