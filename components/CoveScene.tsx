@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { OffshoreEntry } from "./Offshore";
+import CoveTimeCapsule, { CoveJournalClues } from "./CoveTimeCapsule";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { getShopDateKey } from "@/lib/shop";
@@ -98,7 +99,7 @@ const CHEST_TREASURE_NOTES: Record<string, string> = {
 
 const COVE_COLLECTIONS = [
   { title: "Tidekeeper's Vase", ids: ["pottery-fragment-lighthouse", "pottery-fragment-wave", "pottery-fragment-flower", "pottery-fragment-shell", "pottery-fragment-starfish"], description: "Collect five unique fragments to prepare for the future pottery restoration project." },
-  { title: "Lost Tide Trinkets", ids: ["tide-trinket-anchor", "tide-trinket-locket", "tide-trinket-compass", "tide-trinket-shell", "tide-trinket-key"], description: "The Forgotten Tide Key may someday open a hidden time capsule." },
+  { title: "Lost Tide Trinkets", ids: ["tide-trinket-anchor", "tide-trinket-locket", "tide-trinket-compass", "tide-trinket-shell", "tide-trinket-key"], description: "The Forgotten Tide Key opens an old time capsule hidden in the Cove." },
   { title: "Rare Cove Pearls", ids: ["pearl-cream", "pearl-chocolate", "pearl-globe"], description: "Chocolate and Globe Pearls will arrive with the unusually low tide discoveries." },
 ] as const;
 
@@ -410,7 +411,7 @@ export default function CoveScene() {
     const isFirstFragment = spot.itemId.startsWith("pottery-fragment-") && !Object.keys(state.inventory).some(id => id.startsWith("pottery-fragment-") && (state.inventory[id] || 0) > 0);
     const specialMessage = isFirstFragment
       ? " The Broken Tidekeeper's Vase: This patterned piece belongs to an old coastal vase. Find all five different fragments to uncover its story and restore it in a future Pottery Studio update."
-      : spot.itemId === "tide-trinket-key" ? " A mysterious inscription hints that this key may open a hidden time capsule one day. Keep it safe." : "";
+      : spot.itemId === "tide-trinket-key" ? " A worn wave on the handle matches the old journal’s description. Keep this key for the Cove time capsule." : "";
     setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.${specialMessage}`);
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
@@ -498,9 +499,10 @@ export default function CoveScene() {
 <p className="mt-2 font-semibold text-teal-950">{lowTideSearches} of 3 searches completed today.</p>
 <button type="button" disabled={lowTideSearches >= 3} onClick={searchLowTideCove} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500">{lowTideSearches >= 3 ? "All low-tide searches completed" : "Search the exposed Cove rocks"}</button>
 <p role="status" aria-live="polite" className="mt-2 text-sm text-teal-950">{lowTideMessage}</p>
+<CoveTimeCapsule search />
 </section>}
               {showChest && <ChestCard />}
-              {showCollection && <CoveTreasuresCollection discovered={state.coveTreasuresDiscovered || {}} />}
+              {showCollection && <><CoveTreasuresCollection discovered={state.coveTreasuresDiscovered || {}} /><CoveJournalClues /><CoveTimeCapsule /></> }
               <OffshoreEntry kind="dock" onMusicChange={setDockMusic} sceneOpen={dockOpen} onSceneClose={closeActivity} />
             </div>
           </div>
