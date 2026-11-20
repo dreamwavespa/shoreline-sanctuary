@@ -14,6 +14,18 @@ const drinks = [
   ...KITCHEN_RECIPES.filter((recipe) => recipe.station === "Chilled Drinks"),
   ...SMOOTHIE_RECIPES,
 ];
+const drinkColors: Record<string, string> = {
+  "iced-berry-drink": "#b44979",
+  "frozen-pineapple-drink": "#e8ba43",
+  "frosted-coconut-drink": "#f5e9c8",
+  "iced-mint-tea": "#80a260",
+  "orange-float": "#ed963e",
+  "fresh-orange-juice": "#ec7f25",
+  "strawberry-banana": "#ed8ba0",
+  "tropical-pineapple": "#f3c64e",
+  "mixed-berry": "#994b80",
+  "coastal-berry-mint": "#ab5f94",
+};
 const shells = ["shell-scallop", "shell-conch", "shell-cowrie"];
 const positions = [
   "Top left", "Top center", "Top right",
@@ -35,6 +47,8 @@ type Hotspot = {
   caption: string;
   left: number;
   top: number;
+  width?: number;
+  height?: number;
   action: () => void;
 };
 
@@ -49,16 +63,16 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
         unoptimized
         className={`block h-auto w-full ${night ? "brightness-[.72]" : ""}`}
       />
-      {hotspots.map(({ label, caption, left, top, action }) => (
+      {hotspots.map(({ label, caption, left, top, width = 29, height = 14, action }) => (
         <button
           key={label}
           type="button"
           aria-label={label}
           onClick={action}
-          style={{ left: `${left}%`, top: `${top}%` }}
-          className="absolute min-h-12 w-[29%] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-amber-300 sm:text-sm"
+          style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: spa ? undefined : `${height}%` }}
+          className={`absolute min-h-11 -translate-x-1/2 -translate-y-1/2 touch-manipulation rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 ${spa ? "border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 sm:text-sm" : "bg-transparent hover:bg-white/10"}`}
         >
-          {caption}
+          {spa && caption}
         </button>
       ))}
     </div>
@@ -71,7 +85,9 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const [waves, setWaves] = useState(true);
   const [music, setMusic] = useState(false);
   const [drink, setDrink] = useState("");
-  const [servedDrink, setServedDrink] = useState("");
+  const [servedDrinkId, setServedDrinkId] = useState("");
+  const [sipsLeft, setSipsLeft] = useState(0);
+  const servedDrink = drinks.find((item) => item.id === servedDrinkId);
   const [shell, setShell] = useState(shells[0]);
   const [position, setPosition] = useState(0);
   const [pattern, setPattern] = useState<(string | null)[]>(() => positions.map(() => null));
@@ -83,7 +99,7 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const [spongeWet, setSpongeWet] = useState(false);
   const [message, setMessage] = useState({ text: "", revision: 0 });
   const heading = useRef<HTMLHeadingElement>(null);
-  const servedDrinkText = useRef<HTMLParagraphElement>(null);
+  const servedDrinkButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     try {
@@ -110,8 +126,8 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   }, [area]);
 
   useEffect(() => {
-    if (servedDrink) servedDrinkText.current?.focus();
-  }, [servedDrink]);
+    if (servedDrinkId && area === "lounge") servedDrinkButton.current?.focus();
+  }, [servedDrinkId, area]);
 
   const announce = (text: string) => setMessage((current) => ({ text, revision: current.revision + 1 }));
 
@@ -145,15 +161,35 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
     >
       <h3 id="island-retreat-heading" ref={heading} tabIndex={-1} className="font-serif text-3xl font-bold focus:outline-none">{titles[area]}</h3>
       {area === "veranda" && <>
+        <p>Tap the lounge chair, spa door, or sandy path.</p>
         <RetreatScene night={night} hotspots={[
-          { label: "Have a drink by the shore", caption: "Shore Lounge", left: 25, top: 61, action: () => visit("lounge") },
-          { label: "Make a seashell pattern", caption: "Seashell Patterns", left: 50, top: 83, action: () => visit("sand") },
-          { label: "Visit Sea Glass Spa", caption: "Sea Glass Spa", left: 82, top: 56, action: () => visit("spa") },
+          { label: "Have a drink by the shore", caption: "Shore Lounge", left: 26, top: 53, width: 39, height: 22, action: () => visit("lounge") },
+          { label: "Make a seashell pattern", caption: "Seashell Patterns", left: 51, top: 84, width: 45, height: 18, action: () => visit("sand") },
+          { label: "Visit Sea Glass Spa", caption: "Sea Glass Spa", left: 83, top: 40, width: 31, height: 32, action: () => visit("spa") },
         ]} />
       </>}
       {area === "lounge" && <>
         <p>Settle into a chair by the water. Your welcome drink is complimentary.</p>
-        {servedDrink ? <p ref={servedDrinkText} tabIndex={-1} className="font-semibold">On your side table: {servedDrink}.</p> : <div className="space-y-3">
+        <div className="relative mx-auto max-w-[540px] overflow-hidden rounded-2xl bg-teal-900">
+          <Image src="/images/retreat/shore-lounge.png" alt="A cushioned wicker chair and side table overlook the sea."
+            width={1086} height={1448} unoptimized className={`block h-auto w-full ${night ? "brightness-[.72]" : ""}`} />
+          {servedDrink && <button ref={servedDrinkButton} type="button"
+            aria-label={sipsLeft > 0 ? `Sip your ${servedDrink.name}` : `Empty glass, ${servedDrink.name} finished`}
+            aria-disabled={sipsLeft === 0}
+            className="absolute flex min-h-11 w-[20%] -translate-x-1/2 items-end justify-center rounded-lg touch-manipulation focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400"
+            style={{ left: "67.5%", bottom: "45%", height: "19%" }}
+            onClick={() => {
+              if (!sipsLeft) return;
+              setSipsLeft((remaining) => Math.max(0, remaining - 1));
+              announce(sipsLeft === 1 ? `You finish your ${servedDrink.name}.` : `You take a sip of your ${servedDrink.name} as the waves roll in.`);
+            }}>
+            <span aria-hidden="true" className="relative block h-[60%] w-[52%] rounded-b-[25%] rounded-t-[8%] border-2 border-white/90 bg-white/25 shadow-md">
+              <span className="absolute bottom-0 left-0 right-0 rounded-b-[25%] transition-[height] motion-reduce:transition-none"
+                style={{ height: `${sipsLeft * 27}%`, backgroundColor: drinkColors[servedDrink.id] ?? "#e1b97e" }} />
+            </span>
+          </button>}
+        </div>
+        {servedDrink ? <p className="font-semibold">{sipsLeft ? `${servedDrink.name} is on the side table.` : `You finished your ${servedDrink.name}.`}</p> : <div className="space-y-3">
           <label className="block space-y-1">
             <span className="block font-semibold">Choose a welcome drink</span>
             <select value={drink} onChange={(event) => setDrink(event.target.value)} className="min-h-12 max-w-full rounded-lg border border-teal-700 bg-white px-3 text-slate-900">
@@ -164,7 +200,8 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
           <button type="button" className={button} disabled={!drink} onClick={() => {
             const selected = drinks.find((item) => item.id === drink);
             if (!selected || servedDrink) return;
-            setServedDrink(selected.name);
+            setServedDrinkId(selected.id);
+            setSipsLeft(3);
             play("teaPouring", 0.35);
           }}>Serve my drink</button>
         </div>}
