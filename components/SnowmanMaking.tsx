@@ -49,7 +49,7 @@ const PARTS: { key: Part; label: string; options: Choice[] }[] = [
   ] },
   { key: "buttons", label: "Buttons", options: [
     {name:"Wooden button",file:"Wooden_Button.png"},{name:"Heart button",file:"Heart_Button.png"},
-    {name:"Scallop button",file:"Scallop_Button.png"},{name:"Snowflake button",file:"Snowflake_Button.png"},
+    {name:"Scallop button",file:"Scallop_Button.png"},{name:"Snowflake button",file:"Snowflake_Button.PNG"},
     {name:"Sand dollar button",file:"Sand_Dollar_Button.png"},{name:"Blue gem button",file:"Blue_Gem_Button.png"},
   ] },
   { key: "accessory", label: "Accessory", options: [
