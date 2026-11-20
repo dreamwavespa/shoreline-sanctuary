@@ -174,6 +174,7 @@ interface GameState {
   villagerGiftCounts: Record<string, number>;
   notebookDiscovered: Record<string, boolean>;
   coveTreasuresDiscovered: Record<string, boolean>;
+  coveTimeCapsuleOpened: boolean;
   notebookSeenCount: number;
   notebookRewardsClaimed: string[];
   sandcastleGallery: SavedSandcastle[];
@@ -351,6 +352,7 @@ const DEFAULT_STATE: GameState = {
   villagerGiftCounts: {},
   notebookDiscovered: {},
   coveTreasuresDiscovered: {},
+  coveTimeCapsuleOpened: false,
   notebookSeenCount: 0,
   notebookRewardsClaimed: [],
   sandcastleGallery: [],
@@ -498,6 +500,7 @@ interface Ctx {
   zone: Zone;
   setScreen: (s: Screen) => void;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
+  openCoveTimeCapsule: () => boolean;
   openWinterIceBlock: (rewardId: string) => boolean;
   talkToMaeve: () => boolean;
   giftMaeve: (itemId: string) => boolean;
@@ -1078,6 +1081,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         [rewardId]: (prev.inventory[rewardId] || 0) + 1
       }, totalCollected: prev.totalCollected + 1 };
     });
+    return true;
+  };
+
+  const openCoveTimeCapsule = () => {
+    const current = stateRef.current;
+    const today = new Date().toLocaleDateString("en-CA");
+    if (current.coveTimeCapsuleOpened || !(current.inventory["tide-trinket-key"] > 0)
+      || current.currentForecast?.id !== "low-tide" || current.weatherForecastDate !== today) return false;
+
+    const next = { ...current, coveTimeCapsuleOpened: true };
+    stateRef.current = next;
+    setState(next);
+    play("chestOpen");
     return true;
   };
 
@@ -3123,6 +3139,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       offshoreAction,
       reelDockCatch,
       collectItem,
+      openCoveTimeCapsule,
       openWinterIceBlock,
       talkToMaeve,
       giftMaeve,
