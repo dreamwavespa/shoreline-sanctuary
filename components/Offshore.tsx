@@ -62,6 +62,9 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
       setObservatoryTestMode(sessionStorage.getItem("shoreline-observatory-test") === "1");
     } catch {}
   }, []);
+  const [boatArea, setBoatArea] = useState<'gifts' | 'trade' | 'cargo' | 'trap' | null>(null);
+  const boatAreaHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (boatArea) boatAreaHeading.current?.focus(); }, [boatArea]);
   const [dockSpot, setDockSpot] = useState<string | null>(null);
   const dockSpotTrigger = useRef<HTMLButtonElement | null>(null);
   const luxuryBoat = useRef<HTMLButtonElement>(null);
@@ -70,6 +73,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
     if (kind === 'dock') onMusicChange?.(atRetreat ? 'islandRetreat' : null);
   }, [kind, atRetreat, onMusicChange]);
   const closeDockSpot = () => {
+    setBoatArea(null);
     setDockSpot(null);
     window.requestAnimationFrame(() => dockSpotTrigger.current?.focus());
   };
@@ -139,11 +143,38 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
       {dockSpot === 'fishing' && <DocksideFishing night={dockNight} />}
       {dockSpot === 'luxury' && <section className={card}><h4 className="font-bold">Island Retreat Voyage</h4><p>The luxury boat offers free passage to the Island Retreat.</p><button type="button" className={button} onClick={() => { play("dockFootsteps", 0.4); setAtRetreat(true); }}>Sail to the Island Retreat</button></section>}
       {dockSpot === 'shelby' && <section className={card}>
-  <h4 className="font-bold">Boat Equipment</h4>
-  <p>{state.shelbyBoatTrapInstalled
-    ? 'Shelby’s Lobster Trap is secured aboard.'
-    : 'Give Shelby a crafted Lobster Trap when the Trading Ship docks to equip her boat.'}</p>
-  <VillagerCard villager={VILLAGERS.shelby} schedule={getScheduleStatus('shelby')} initiallyExpanded />
+  <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-teal-950">
+    <Image src="/images/Cove/shelby-deck.webp" alt="Shelby’s trading boat deck, with a cabin, merchant counter, shipping crates, and a trap rack." fill unoptimized
+      className={`object-cover ${dockNight ? 'brightness-75' : ''}`} />
+    {([
+      { id: 'gifts', label: 'Shelby’s Cabin', x: 26, y: 32 },
+      { id: 'trade', label: 'Trade Counter', x: 76, y: 34 },
+      { id: 'cargo', label: 'Shipping & Cargo', x: 24, y: 73 },
+      { id: 'trap', label: 'Lobster Trap', x: 77, y: 72 },
+    ] as const).map(({ id, label, x, y }) => <button key={id} type="button"
+      aria-expanded={boatArea === id} aria-controls="shelby-boat-activity"
+      className="absolute min-h-11 w-[43%] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/70 bg-teal-950/90 px-2 py-2 text-sm font-bold text-white focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
+      style={{ left: `${x}%`, top: `${y}%` }}
+      onClick={(event) => {
+        if (boatArea === id) { setBoatArea(null); event.currentTarget.focus(); }
+        else setBoatArea(id);
+      }}>{label}</button>)}
+  </div>
+  <div id="shelby-boat-activity">
+    {boatArea && <>
+      <h4 ref={boatAreaHeading} tabIndex={-1} className="mb-2 font-bold">
+        {{ gifts: 'Shelby’s Cabin', trade: 'Trade Counter', cargo: 'Shipping & Cargo', trap: 'Lobster Trap' }[boatArea]}
+      </h4>
+      {boatArea === 'trap' ? <>
+        <p>{state.shelbyBoatTrapInstalled ? 'Shelby’s Lobster Trap is secured aboard.' : 'Give Shelby a crafted Lobster Trap to equip her boat.'}</p>
+        {!state.shelbyBoatTrapInstalled && (getScheduleStatus('shelby').available
+          ? <button type="button" className={button} disabled={!count('lobster-trap')} onClick={() => giftVillager('shelby', 'lobster-trap')}>
+              Give Shelby a Lobster Trap ({count('lobster-trap')} available)
+            </button>
+          : <p>{getScheduleStatus('shelby').awayLabel}</p>)}
+      </> : <VillagerCard key={boatArea} villager={VILLAGERS.shelby} schedule={getScheduleStatus('shelby')} section={boatArea} initiallyExpanded />}
+    </>}
+  </div>
 </section>}
       {(dockSpot === 'sail' || dockSpot === 'raft' || (o.voyage && dockSpot !== 'counter' && dockSpot !== 'album' && dockSpot !== 'luxury')) && (photoPreview !== null ? <section className={card} aria-labelledby="captured-photo-heading"><h4 id="captured-photo-heading" className="text-lg font-bold">Photo Captured</h4><Image src={WILDLIFE_PHOTOS[photoPreview].src} alt={WILDLIFE_PHOTOS[photoPreview].alt} width={1200} height={800} unoptimized className="w-full rounded-xl object-contain" /><p>{SIGHTINGS[photoPreview]}</p><button type="button" className={button} autoFocus onClick={() => setPhotoPreview(null)}>{photoPreview < 2 ? 'Continue Wildlife Watch' : 'Return to Dock'}</button></section> : o.voyage ? <section className={card}><h4 className="text-lg font-bold">{o.voyage.kind === 'sail' ? 'White Sailboat · Wildlife Watch' : 'Inshore Raft · Flotsam Sweep'}</h4><p>Stop {o.voyage.step + 1} of 3</p><p>{o.voyage.kind === 'sail' ? SIGHTINGS[o.voyage.step] : ['A weathered plank floats beside you.', 'A sealed frosted bottle bobs in the current.', 'A small bottle holds an unfamiliar liquid for Waverly to test.'][o.voyage.step]}</p><button type="button" className={button} onClick={() => o.voyage?.kind === 'sail' ? takePhoto() : act({ type: 'salvage' })}>{o.voyage.kind === 'sail' ? 'Take Wildlife Photo · Earn 2 Sand Dollars' : 'Collect Salvage · Earn 1 Sand Dollar'}</button><button type="button" className={button} onClick={() => act({ type: 'return' })}>End Voyage and Return to Dock</button></section> : <div className="grid gap-4 md:grid-cols-2">{dockSpot === 'sail' && <section className={card}><h4 className="font-bold">White Sailboat</h4><p>Three peaceful whale and dolphin sightings. Each photo earns 2 Sand Dollars and joins Maeve’s album.</p><button type="button" className={button} onClick={() => act({ type: 'sail' })}>Board · 3 Sand Dollars</button><button type="button" className={button} onClick={() => act({ type: 'sail', materials: true })}>Trade 3 Scallop Shells for Passage ({count('shell-scallop')} owned)</button></section>}{dockSpot === 'raft' && <section className={card}><h4 className="font-bold">Inshore Salvage Raft</h4><p>A hired raft for collecting flotsam. Your personal sandbar raft remains available for its existing activities.</p><button type="button" className={button} onClick={() => act({ type: 'raft' })}>Board · 2 Sand Dollars</button><button type="button" className={button} onClick={() => act({ type: 'raft', materials: true })}>Trade 3 Driftwood for Passage ({count('raw-driftwood-arch')} owned)</button></section>}</div>)}
       {dockSpot === 'album' && <section className={card}><h4 className="font-bold">Maeve’s Wildlife Album · {o.photos.length}/3</h4>{SIGHTINGS.map((s,i) => <p key={s}>{o.photos.includes(`wildlife-${i}`) ? 'Photographed: ' : 'Not yet photographed: '}{s}</p>)}<p>Photograph all three sightings for Waverly’s free research clearance. Access her ship through the Reef.</p>{WILDLIFE_PHOTOS.map((photo,i) => o.photos.includes(`wildlife-${i}`) ? <Image key={photo.src} src={photo.src} alt={photo.alt} width={1200} height={800} unoptimized className="w-full rounded-xl object-contain" /> : null)}</section>}

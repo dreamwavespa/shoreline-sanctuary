@@ -38,7 +38,7 @@ const EMOJI_FALLBACK: Record<string, string> = {
   sandy: "🐦", olli: "🐙", kai: "🐚", sunny: "⭐", penelope: "🦢", coral: "🐴", mina: "🥭", bubbles: "🐬", pearl: "🪪", splash: "🥭", shelldon: "🐢", shelby: "🦀", misty: "🪼", angel: "🐠", melody: "💍", marella: "🔮", coralie: "🌿", kaiana: "🧭",
 };
 
-export default function VillagerCard({ villager, schedule, initiallyExpanded = false }: { villager: VillagerDef; schedule?: ScheduleStatus | null; initiallyExpanded?: boolean }) {
+export default function VillagerCard({ villager, schedule, initiallyExpanded = false, section = 'all' }: { villager: VillagerDef; schedule?: ScheduleStatus | null; initiallyExpanded?: boolean; section?: 'all' | 'gifts' | 'trade' | 'cargo' }) {
   const { state, giftVillager, buyFromTraveler, markVillagerEncounter, visitNightVisitor, play, packShelbyItem, sendShelbyShipment, claimShelbyShipment, openShelbyCargo } = useGame();
   const [expanded, setExpanded] = useState(initiallyExpanded);
   const [cargoResult, setCargoResult] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
             </section>
           )}
 
-          {villager.id === "shelby" && (
+          {villager.id === "shelby" && (section === "all" || section === "cargo") && (
             <section aria-label="Shelby's Shipping Orders" className="mt-3 rounded-xl bg-sky-50 p-3 ring-1 ring-sky-200 space-y-3">
               <h3 className="font-bold text-sky-950">📦 Shipping Orders</h3>
               <div className="rounded-lg border border-sky-200 bg-white p-3 space-y-2">
@@ -188,7 +188,7 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
             </section>
           )}
 
-          {merchantId && !isAway && (
+          {merchantId && !isAway && (section === "all" || section === "trade") && (
             <section aria-label={`${villager.name}'s current stock`} className="rounded-xl bg-amber-50 p-3 ring-1 ring-amber-200">
               <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-sm font-bold text-amber-950">Current Traveling Stock</h3><span className="text-xs font-semibold text-amber-800">🪙 {state.sandDollars}</span></div>
               <p className="mb-3 text-xs text-amber-700">{villager.id === "shelldon" ? "This selection changes each Shelldon Sunday." : "Shelby brings four rotating cargo items and any blueprints still needed for future locked areas."}</p>
@@ -203,11 +203,11 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
             </section>
           )}
 
-          {!nightVisitorId && (isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
+          {!nightVisitorId && section !== "cargo" && (section !== "trade" || isAway) && (isAway ? <div className="rounded-xl bg-slate-50 ring-1 ring-slate-200 p-3 text-center"><p className="text-xs font-semibold text-slate-600">{schedule!.awayLabel}</p><p className="text-[11px] text-slate-500 mt-1">Come back when they're around to gift them something.</p></div> : (
             <div><p className="text-[11px] font-semibold text-amber-800/70 uppercase tracking-wide mb-1.5">Loved Gifts</p>{availableGifts.length === 0 ? <p className="text-xs text-amber-500 italic">You don't have any of their favorite gifts yet.</p> : <div className="flex flex-wrap gap-2">{availableGifts.map((g) => <button key={g.id} type="button" disabled={g.have < 1} onClick={() => handleGift(g.id)} className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-full text-white disabled:bg-amber-100 disabled:text-amber-400 bg-rose-500 active:bg-rose-600">{g.def.isEmoji ? <span>{g.def.icon}</span> : <Image src={g.def.icon} alt={g.def.name} width={16} height={16} unoptimized />}Give {g.def.name} ({g.have})</button>)}</div>}
               {potteryGifts.length > 0 && <div className="mt-3 space-y-2"><label htmlFor={`pottery-gift-${villager.id}`} className="block text-xs font-semibold text-amber-900">Gift handmade pottery</label><select id={`pottery-gift-${villager.id}`} value={selectedPottery} onChange={event => setSelectedPottery(event.target.value)} className="min-h-11 w-full rounded-lg border border-amber-300 bg-white p-2 text-sm"><option value="">Choose a pottery piece</option>{potteryGifts.map(([id, count]) => <option key={id} value={id}>{ITEMS[id].name} ({count} owned)</option>)}</select><button type="button" disabled={!selectedPottery || !(state.inventory[selectedPottery] > 0)} onClick={() => { if (selectedPottery && giftVillager(villager.id, selectedPottery)) setSelectedPottery(""); }} className="min-h-11 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Give selected pottery</button><p className="text-xs text-amber-800">Handmade pottery counts as a gift. Favorite gifts still have their own special reactions.</p></div>}</div>
           ))}
-          {!nightVisitorId && <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>}
+          {!nightVisitorId && (section === "all" || section === "gifts") && <p className="text-[11px] text-amber-500 italic">Reaction: {villager.gift.reactionVisual} — {villager.gift.reactionSfx}</p>}
         </div>
       )}
     </div>
