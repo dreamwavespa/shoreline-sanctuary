@@ -31,6 +31,10 @@ const candyMaterialArt: Record<string, { file: string; left: string; top: string
 // These zones are independent of freely placed decorations and do not alter saved designs.
 type CandyAnchor = { left: string; top: string; width: string; height: string };
 const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
+  "Free Build": {
+    "Sprinkled icing swirls": { left: "27%", top: "39%", width: "21%", height: "6%" },
+    "Candy pearls": { left: "28%", top: "43%", width: "19%", height: "4%" },
+  },
   "Winter Gingerbread Cabin": {
     // Compact accent inside the timber gable, avoiding the sloped roof tiles.
     "Sprinkled icing swirls": { left: "34%", top: "37%", width: "23%", height: "7%" },
@@ -55,9 +59,8 @@ const structuralAttachments: Record<string, Record<string, CandyAnchor>> = {
 };
 const materialAttachment = (house: House): CandyAnchor => {
   const { left, top, width, height } = candyMaterialArt[house.decoration];
-  return house.design === "Free Build"
-    ? { left, top, width, height }
-    : structuralAttachments[house.name]?.[house.decoration] || { left, top, width, height };
+  const design = house.design === "Free Build" ? house.design : house.name;
+  return structuralAttachments[design]?.[house.decoration] || { left, top, width, height };
 };
 const decorationChoices = [
   ["Candy heart", "Candy-Heart.png"], ["Candy star", "Candy-Star.png"], ["Candy seashell", "Candy-Seashell.png"],
