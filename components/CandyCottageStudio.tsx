@@ -154,6 +154,14 @@ const roofPlacement: Record<string, { left: string; top: string; width: string }
   "Winter Gingerbread Cabin": { left: "12%", top: "16%", width: "76%" },
   "Free Build": { left: "1%", top: "7%", width: "98%" },
 };
+function CandyHouseScene({ house }: { house: House }) {
+  const decorations = house.placedDecorations || [];
+  return (
+              <CandyHouseScene house={house} />
+              <button type="button" onClick={() => setFullScreenPreview(true)} className="mt-3 min-h-12 w-full rounded-xl bg-teal-900 px-4 py-3 font-bold text-white">View Candy Cottage Full Screen</button>
+  );
+}
+
 const storageKey = "shoreline-candy-cottage-gallery-v1";
 export default function CandyCottageStudio({ onClose }: { onClose: () => void }) {
   const season = Math.floor(((new Date().getMonth() + 1) % 12) / 3);
@@ -161,6 +169,7 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
   const [house, setHouse] = useState<House>({ ...featured, design: "Seasonal Project" });
   const [gallery, setGallery] = useState<House[]>([]);
   const [message, setMessage] = useState("");
+  const [fullScreenPreview, setFullScreenPreview] = useState(false);
   const [selectedArt, setSelectedArt] = useState<string>(decorationChoices[0][1]);
   const [selectedSpot, setSelectedSpot] = useState<DecorationSpot>("Front gable");
   const [selectedDecorationId, setSelectedDecorationId] = useState<number | null>(null);
@@ -338,6 +347,19 @@ export default function CandyCottageStudio({ onClose }: { onClose: () => void })
             ))}
           </section>
         </div>
+        {fullScreenPreview && (
+          <div className="absolute inset-0 z-20 flex flex-col overflow-y-auto rounded-2xl bg-amber-50 p-3 text-teal-950 sm:p-5" role="dialog" aria-modal="true" aria-labelledby="candy-full-preview-title">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h3 id="candy-full-preview-title" className="font-serif text-xl font-bold">{house.name} — Full-Screen Preview</h3>
+              <button type="button" autoFocus onClick={() => setFullScreenPreview(false)} className="min-h-12 rounded-xl bg-teal-900 px-4 py-3 font-bold text-white">Close full-screen preview</button>
+            </div>
+            <div className="mx-auto w-full max-w-[min(88dvh,850px)]">
+              <CandyHouseScene house={house} />
+            </div>
+            <p className="mt-3 text-center text-sm">Your decorated candy cottage. Return to decorating to change accessories or save this design to your gallery.</p>
+            <button type="button" onClick={() => setFullScreenPreview(false)} className="mx-auto mt-3 min-h-12 rounded-xl border border-teal-900 px-5 py-3 font-semibold">Return to decorating</button>
+          </div>
+        )}
       </section>
     </div>
   );
