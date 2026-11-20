@@ -70,7 +70,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
   const luxuryBoat = useRef<HTMLButtonElement>(null);
   const [atRetreat, setAtRetreat] = useState(false);
   useEffect(() => {
-    if (kind === 'dock') onMusicChange?.(atRetreat ? 'islandRetreat' : null);
+    if (kind === 'dock' && !atRetreat) onMusicChange?.(null);
   }, [kind, atRetreat, onMusicChange]);
   const closeDockSpot = () => {
     setBoatArea(null);
@@ -103,7 +103,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
     } else setArea('lab');
     setLabSpot(spot);
   };
-  if (atRetreat) return <IslandRetreat night={dockNight} onReturn={() => {
+  if (atRetreat) return <IslandRetreat night={dockNight} onMusicChange={onMusicChange} onReturn={() => {
     setAtRetreat(false);
     setDockSpot(null);
     window.requestAnimationFrame(() => luxuryBoat.current?.focus());

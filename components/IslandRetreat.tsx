@@ -28,7 +28,42 @@ const titles: Record<Area, string> = {
   spa: "Sea Glass Spa",
 };
 
-export default function IslandRetreat({ night, onReturn }: { night: boolean; onReturn: () => void }) {
+type Hotspot = {
+  label: string;
+  caption: string;
+  left: number;
+  top: number;
+  action: () => void;
+};
+
+function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean; hotspots: Hotspot[] }) {
+  return (
+    <div className="relative mx-auto max-w-[540px] overflow-hidden rounded-2xl bg-teal-900">
+      <Image
+        src={spa ? "/images/retreat/sea-glass-spa.webp" : "/images/retreat/veranda.webp"}
+        alt={spa ? "Linnea rests on a stone ledge, with Jasmine on a cushion near the soaking basin." : "A lounge chair overlooks the sea. A sandy path leads to the shell spiral and the spa cottage."}
+        width={768}
+        height={1024}
+        unoptimized
+        className={`block h-auto w-full ${night ? "brightness-[.72]" : ""}`}
+      />
+      {hotspots.map(({ label, caption, left, top, action }) => (
+        <button
+          key={label}
+          type="button"
+          aria-label={label}
+          onClick={action}
+          style={{ left: `${left}%`, top: `${top}%` }}
+          className="absolute min-h-12 w-[29%] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-amber-300 sm:text-sm"
+        >
+          {caption}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function IslandRetreat({ night, onReturn, onMusicChange }: { night: boolean; onReturn: () => void; onMusicChange?: (track: string | null) => void }) {
   const { state, play, useCadenceBubbleBath } = useGame();
   const [area, setArea] = useState<Area>("veranda");
   const [waves, setWaves] = useState(true);
@@ -38,6 +73,10 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
   const [shell, setShell] = useState(shells[0]);
   const [position, setPosition] = useState(0);
   const [pattern, setPattern] = useState<(string | null)[]>(() => positions.map(() => null));
+  const [spaMusic, setSpaMusic] = useState(true);
+  const [basinOpen, setBasinOpen] = useState(false);
+  const [bubblesReady, setBubblesReady] = useState(false);
+  const basinHeading = useRef<HTMLHeadingElement>(null);
   const [spongeWet, setSpongeWet] = useState(false);
   const [message, setMessage] = useState({ text: "", revision: 0 });
   const heading = useRef<HTMLHeadingElement>(null);
@@ -54,6 +93,15 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
     }
   }, []);
 
+  const track = area === "spa" ? "seaGlassSpa" : "islandRetreat";
+  useEffect(() => {
+    onMusicChange?.(track);
+  }, [onMusicChange, track]);
+
+  useEffect(() => {
+    if (basinOpen) basinHeading.current?.focus();
+  }, [basinOpen]);
+
   useEffect(() => {
     heading.current?.focus();
   }, [area]);
@@ -66,6 +114,7 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
 
   const visit = (next: Area) => {
     announce("");
+    setBasinOpen(false);
     setArea(next);
   };
 
@@ -88,18 +137,16 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
     <section
       aria-labelledby="island-retreat-heading"
       data-retreat-waves={waves ? "on" : "off"}
-      data-retreat-music={music ? "on" : "off"}
+      data-retreat-music={(area === "spa" ? spaMusic : music) ? "on" : "off"}
       className={`space-y-4 rounded-2xl p-4 sm:p-6 ${night ? "bg-slate-900 text-amber-50" : "bg-teal-50 text-slate-900"}`}
     >
       <h3 id="island-retreat-heading" ref={heading} tabIndex={-1} className="font-serif text-3xl font-bold focus:outline-none">{titles[area]}</h3>
       {area === "veranda" && <>
-        <Image src="/images/Paintings/the-seaside-retreat.png" alt="A painting of the seaside retreat." width={900} height={600} unoptimized className="max-h-72 w-full rounded-2xl object-cover" />
-        <p>{night ? "Lanterns light the veranda as the waves roll in below." : "The luxury boat pulls up below a veranda overlooking the shore."}</p>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <button type="button" className={button} onClick={() => visit("lounge")}>Have a drink by the shore</button>
-          <button type="button" className={button} onClick={() => visit("sand")}>Make a seashell pattern</button>
-          <button type="button" className={button} onClick={() => visit("spa")}>Visit Sea Glass Spa</button>
-        </div>
+        <RetreatScene night={night} hotspots={[
+          { label: "Have a drink by the shore", caption: "Shore Lounge", left: 25, top: 61, action: () => visit("lounge") },
+          { label: "Make a seashell pattern", caption: "Seashell Patterns", left: 50, top: 83, action: () => visit("sand") },
+          { label: "Visit Sea Glass Spa", caption: "Sea Glass Spa", left: 82, top: 56, action: () => visit("spa") },
+        ]} />
       </>}
       {area === "lounge" && <>
         <p>Settle into a chair by the water. Your welcome drink is complimentary.</p>
@@ -150,12 +197,17 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
         </div>
       </>}
       {area === "spa" && <>
-        <p>Linnea, a mermaid with white flowers in her braid and a pearly lavender tail, sits beside the soaking basin. Her white poodle Jasmine wears lavender and pink bows.</p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className={button} onClick={() => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”")}>Talk to Linnea</button>
-          <button type="button" className={button} onClick={() => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.")}>Greet Jasmine</button>
-        </div>
-        <h4 className="text-lg font-bold">Warm soaking basin</h4>
+        <RetreatScene spa night={night} hotspots={[
+          { label: "Talk to Linnea", caption: "Linnea", left: 25, top: 52, action: () => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”") },
+          { label: "Greet Jasmine", caption: "Jasmine", left: 76, top: 53, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
+          { label: "Open the soaking basin", caption: "Soaking Basin", left: 54, top: 76, action: () => {
+            if (basinOpen) basinHeading.current?.focus();
+            else setBasinOpen(true);
+          } },
+        ]} />
+        <label className="flex min-h-12 items-center gap-2"><input type="checkbox" checked={spaMusic} onChange={(event) => setSpaMusic(event.target.checked)} /> Spa music</label>
+        {basinOpen && <section aria-labelledby="retreat-basin-heading" className="space-y-3">
+        <h4 id="retreat-basin-heading" ref={basinHeading} tabIndex={-1} className="text-lg font-bold">Warm soaking basin</h4>
         <p>Linnea has a sponge you can try. If you’ve found a Sea-Foam Sponge, you can use your own here.</p>
         <div className="flex flex-wrap gap-2">
           <button type="button" className={button} onClick={() => {
@@ -165,16 +217,22 @@ export default function IslandRetreat({ night, onReturn }: { night: boolean; onR
           }}>Dip sea sponge</button>
           <button type="button" className={button} disabled={!spongeWet} onClick={() => {
             setSpongeWet(false);
-            play("oceanWaterSplash", 0.3);
+            play("spaSpongeSqueeze", 0.75);
             announce("Warm water drips from the sponge back into the basin.");
           }}>Squeeze sea sponge</button>
           <button type="button" className={button} disabled={!state.inventory["cadence-rose-milk-bubble-bath"]} onClick={() => {
             if (!useCadenceBubbleBath()) return;
             play("oceanWaterSplash", 0.25);
+            setBubblesReady(true);
             announce("Rose Milk Bubble Bath foams across the surface of the basin.");
           }}>Use Rose Milk Bubble Bath</button>
+          {bubblesReady && <button type="button" className={button} onClick={() => {
+            play("spaBubblesPop", 0.65);
+            announce("A cluster of soap bubbles pops against the edge of the basin.");
+          }}>Pop soap bubbles</button>}
         </div>
         {!state.inventory["cadence-rose-milk-bubble-bath"] && <p>Bring a serving of Rose Milk Bubble Bath to add it to the basin.</p>}
+        </section>}
       </>}
       <p role="status" aria-atomic="true"><span key={message.revision}>{message.text}</span></p>
       {area === "veranda" ? <button type="button" className={button} onClick={onReturn}>Sail back to the Cove Dock</button> : <button type="button" className={button} onClick={() => visit("veranda")}>Return to the veranda</button>}

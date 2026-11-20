@@ -39,6 +39,7 @@ export const SCENES = {
 };
 
 export const MUSIC = {
+  seaGlassSpa: "/audio/Seaside%20Serenade.mp3",
   islandRetreat: "/audio/Petals%20%26%20Ocean%20Breeze.mp3",
   snowyWinterCove: "/audio/Snowy%27s%20Winter%20Playground.mp3",
   christmasAdvent: "/audio/Gifts%20by%20the%20Coast.mp3",
@@ -81,6 +82,8 @@ export const PWA_ICONS = {
 const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  spaSpongeSqueeze: "/audio/retreat/sponge-squeeze.mp3",
+  spaBubblesPop: "/audio/retreat/bubbles-pop.mp3",
   snowballCollect: "/audio/Snowballs/Snowball-collect-soft.mp3",
   winterIceCollect: "/audio/ice-block-collect.mp3",
   winterIceFirstChip: "/audio/ice-first-chip.mp3",
