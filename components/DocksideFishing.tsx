@@ -69,7 +69,7 @@ export default function DocksideFishing({ night }: { night: boolean }) {
 
   return <section className="space-y-4 rounded-2xl bg-white p-4 shadow">
     <div aria-hidden="true" className="relative aspect-[3/2] overflow-hidden rounded-xl bg-cyan-950">
-      <Image src="/images/Cove/dockside-fishing.webp" alt="" fill sizes="(max-width: 780px) 100vw, 720px"
+      <Image src="/images/Cove/dockside-fishing.webp" alt="" fill unoptimized
         className={`object-cover ${night ? "brightness-[.55] saturate-[.85]" : ""}`} />
       {night && <div className="absolute inset-0 bg-indigo-900/35" />}
       {phase !== "ready" && <div className="absolute inset-0">
@@ -93,7 +93,7 @@ export default function DocksideFishing({ night }: { night: boolean }) {
     `}</style>
     {catchArt && <div aria-hidden="true" className="flex items-center gap-3 rounded-xl bg-teal-50 px-3 text-sm font-semibold text-teal-950">
       {"fish" in catchArt ? <><FishSprite fish={catchArt.fish} className="w-24" />{catchArt.fish}</> :
-        <><Image src={ITEMS[catchArt.treasure].icon} alt="" width={72} height={72} className="h-18 w-18 object-contain" />{ITEMS[catchArt.treasure].name}</>}
+        <><Image src={ITEMS[catchArt.treasure].icon} alt="" width={72} height={72} unoptimized className="h-18 w-18 object-contain" />{ITEMS[catchArt.treasure].name}</>}
     </div>}
     <p role="status" aria-live="polite" aria-atomic="true" className="min-h-12 text-teal-950">{message}</p>
     <button type="button" onClick={fish} aria-disabled={phase === "waiting" || phase === "reeling"}
