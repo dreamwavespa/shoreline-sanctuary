@@ -154,8 +154,17 @@ const roofPlacement: Record<string, { left: string; top: string; width: string }
   "Winter Gingerbread Cabin": { left: "12%", top: "16%", width: "76%" },
   "Free Build": { left: "1%", top: "7%", width: "98%" },
 };
+const wallFinishes: Partial<Record<(typeof materials.walls)[number], string>> = {
+  "Wafer cookies": "repeating-linear-gradient(45deg, transparent 0 5px, #975a2c66 5px 6px), repeating-linear-gradient(-45deg, #edc691 0 5px, #bd824d 5px 6px)",
+  "Chocolate panels": "repeating-linear-gradient(90deg, transparent 0 13%, #391b16 13% 14%, #a4644a 14% 15%), linear-gradient(#9a5940, #603027)",
+  "Sugar glass": "repeating-linear-gradient(115deg, transparent 0 17%, #ffffff95 17% 19%, transparent 19% 24%), linear-gradient(135deg, #a5eee0, #bedaef 55%, #efc5e5)",
+  "Candy bricks": "repeating-linear-gradient(#fff0d9 0 2px, transparent 2px 100%) 0 0 / 100% 9%, repeating-linear-gradient(90deg, #fff0d9 0 2px, #e68191 2px 50%, #fff0d9 50% calc(50% + 2px), #d4677c calc(50% + 2px) 100%) 0 0 / 30% 100%",
+  "Pretzel logs": "repeating-linear-gradient(#75401f 0%, #c47e42 2%, #dfa16a 3%, #ad602c 7%, #75401f 9%)",
+};
+
 function CandyHouseScene({ house }: { house: House }) {
   const decorations = house.placedDecorations || [];
+  const wallFinish = house.design === "Free Build" ? wallFinishes[house.walls as (typeof materials.walls)[number]] : undefined;
   return (
               <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-sky-100 to-amber-100">
                 <img
@@ -164,6 +173,16 @@ function CandyHouseScene({ house }: { house: House }) {
                   className="absolute inset-0 h-full w-full object-contain"
                   style={{ maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)" }}
                 />
+                {wallFinish && <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background: wallFinish,
+                    opacity: 0.94,
+                    // Follow the inner edge of the gable and keep the cookie trim exposed.
+                    clipPath: "polygon(16% 53%, 23% 45%, 29% 36%, 34% 27%, 36% 23%, 42% 28%, 49% 39%, 57% 47%, 63% 52%, 69% 54%, 79% 54%, 84% 52%, 84% 73%, 16% 73%)",
+                  }}
+                />}
                 {house.design === "Free Build" && <img
                   src={assetRoot + roofArt[house.roof]}
                   alt=""
