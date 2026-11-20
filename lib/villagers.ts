@@ -47,6 +47,22 @@ export interface VillagerDef {
 }
 
 export const VILLAGERS: Record<string, VillagerDef> = {
+  linnea: {
+    id: "linnea",
+    name: "Linnea",
+    title: "of Sea Glass Spa",
+    group: "shoreline-resident",
+    personality: "A welcoming mermaid who lives at the retreat with Jasmine, her white poodle.",
+    role: "Sea Glass Spa host",
+    gameplay: "Give Linnea favorite gifts or handmade pottery to build your friendship.",
+    location: "Sea Glass Spa, Island Retreat",
+    gift: {
+      lovedGiftIds: ["sea-lavender", "sea-rose-petal", "tumbled-stone-amethyst", "spa-coconut-seashell-soap", "spa-vanilla-flower-candle"],
+      reactionSfx: "Soft coastal chime",
+      reactionVisual: "Linnea smiles and Jasmine wags her tail.",
+      redirectTo: ["coralie", "marella"],
+    },
+  },
   snowy: {
     id: "snowy", name: "Snowy", title: "The Little Harp Seal", group: "shoreline-resident",
     personality: "Playful and affectionate; she loves winter treasures and refreshing treats.",

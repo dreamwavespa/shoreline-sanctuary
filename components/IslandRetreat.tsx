@@ -1,13 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ITEMS } from "@/lib/items";
 import { KITCHEN_RECIPES } from "@/lib/recipes";
 import { SMOOTHIE_RECIPES } from "@/lib/smoothie-recipes";
 import { useGame } from "@/lib/store";
 import { SPA_RECIPES } from "@/lib/spa-recipes";
-import CrystalBowlTable from "./CrystalBowl";
+import CrystalBowlTable, { CrystalBowlArt } from "./CrystalBowl";
+import VillagerCard from "./VillagerCard";
+import { VILLAGERS } from "@/lib/villagers";
 import SpaRecipeCounter from "./SpaRecipeCounter";
 
 const button = "min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white disabled:bg-slate-200 disabled:text-slate-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500";
@@ -45,7 +47,7 @@ const titles: Record<Area, string> = {
 
 type Hotspot = {
   label: string;
-  caption?: string;
+  artwork?: ReactNode;
   left: number;
   top: number;
   width?: number;
@@ -64,16 +66,16 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
         unoptimized
         className={`block h-auto w-full ${night ? "brightness-[.72]" : ""}`}
       />
-      {hotspots.map(({ label, caption, left, top, width = 29, height = 14, action }) => (
+      {hotspots.map(({ label, artwork, left, top, width = 29, height = 14, action }) => (
         <button
           key={label}
           type="button"
           aria-label={label}
           onClick={action}
-          style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: caption ? undefined : `${height}%` }}
-          className={`absolute min-h-11 -translate-x-1/2 -translate-y-1/2 touch-manipulation rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 ${caption ? "border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 sm:text-sm" : "bg-transparent hover:bg-white/10"}`}
+          style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
+          className="absolute grid min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 touch-manipulation place-items-center rounded-xl bg-transparent hover:bg-white/10 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300"
         >
-          {caption}
+          {artwork}
         </button>
       ))}
     </div>
@@ -81,7 +83,7 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
 }
 
 export default function IslandRetreat({ night, onReturn, onMusicChange }: { night: boolean; onReturn: () => void; onMusicChange?: (track: string | null) => void }) {
-  const { state, play, useCadenceBubbleBath, useSpaTreatment } = useGame();
+  const { state, lastToast, play, markVillagerEncounter, useCadenceBubbleBath, useSpaTreatment } = useGame();
   const [area, setArea] = useState<Area>("veranda");
   const [waves, setWaves] = useState(true);
   const [music, setMusic] = useState(false);
@@ -93,7 +95,7 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const [position, setPosition] = useState(0);
   const [pattern, setPattern] = useState<(string | null)[]>(() => positions.map(() => null));
   const [spaMusic, setSpaMusic] = useState(true);
-  const [spaStation, setSpaStation] = useState<"basin" | "counter" | "crystals" | null>(null);
+  const [spaStation, setSpaStation] = useState<"basin" | "counter" | "crystals" | "linnea" | null>(null);
   const [candleLit, setCandleLit] = useState(false);
   const [bubblesReady, setBubblesReady] = useState(false);
   const stationHeading = useRef<HTMLHeadingElement>(null);
@@ -248,23 +250,43 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
         </div>
       </>}
       {area === "spa" && <>
+        <p>Tap Linnea, Jasmine, the basin, the crystal bowl, or the bottles on the side table.</p>
         <RetreatScene spa night={night} hotspots={[
-          { label: "Talk to Linnea", left: 23, top: 36, width: 40, height: 28, action: () => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”") },
-          { label: "Greet Jasmine", left: 76, top: 44, width: 37, height: 27, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
-          { label: "Open the soaking basin", left: 53, top: 70, width: 71, height: 23, action: () => {
+          { label: "Talk to Linnea", left: 23, top: 36, width: 40, height: 28, action: () => {
+            markVillagerEncounter("linnea");
+            if (spaStation === "linnea") stationHeading.current?.focus();
+            else setSpaStation("linnea");
+          } },
+          { label: "Greet Jasmine", left: 73, top: 43, width: 33, height: 24, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
+          { label: "Open the soaking basin", left: 52, top: 70, width: 62, height: 22, action: () => {
             if (spaStation === "basin") stationHeading.current?.focus();
             else setSpaStation("basin");
           } },
-          { label: "Open the crystal table", caption: "Crystal Table", left: 20, top: 86, action: () => {
+          { label: "Open the crystal table", left: 24, top: 88, width: 23, height: 13, artwork: (
+            <div className="pointer-events-none w-[88%]">
+              <CrystalBowlArt bowl={state.crystalBowl ?? { style: "seafoam", slots: ["tumbled-stone-amethyst", "tumbled-stone-clear-quartz", null] }} />
+            </div>
+          ), action: () => {
             if (spaStation === "crystals") stationHeading.current?.focus();
             else setSpaStation("crystals");
           } },
-          { label: "Open the spa recipe counter", caption: "Spa Counter", left: 82, top: 89, action: () => {
+          { label: "Open the spa recipe counter", left: 91, top: 60, width: 16, height: 13, artwork: (
+            <span aria-hidden="true" className="pointer-events-none flex h-[64%] w-[75%] items-end justify-center gap-[5%] drop-shadow-md">
+              <span className="relative h-[70%] w-[34%] rounded-b-[24%] rounded-t-[40%] border border-white/65 bg-gradient-to-br from-teal-50 via-teal-300 to-teal-700 before:absolute before:-top-[20%] before:left-[24%] before:h-[24%] before:w-[52%] before:rounded-sm before:bg-amber-200 before:content-['']" />
+              <span className="relative h-[53%] w-[37%] rounded-b-[22%] rounded-t-[40%] border border-white/65 bg-gradient-to-br from-rose-50 via-purple-200 to-purple-500 before:absolute before:-top-[24%] before:left-[24%] before:h-[28%] before:w-[52%] before:rounded-sm before:bg-amber-200 before:content-['']" />
+            </span>
+          ), action: () => {
             if (spaStation === "counter") stationHeading.current?.focus();
             else setSpaStation("counter");
           } },
         ]} />
         <label className="flex min-h-12 items-center gap-2"><input type="checkbox" checked={spaMusic} onChange={(event) => setSpaMusic(event.target.checked)} /> Spa music</label>
+        {spaStation === "linnea" && <section aria-labelledby="linnea-heading" className="space-y-3">
+          <h4 id="linnea-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Visit Linnea</h4>
+          <p>“Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”</p>
+          <VillagerCard villager={VILLAGERS.linnea} initiallyExpanded section="gifts" />
+          <p role="status" aria-atomic="true">{lastToast?.startsWith("Linnea ") ? lastToast : ""}</p>
+        </section>}
         {spaStation === "crystals" && <section aria-labelledby="crystal-table-heading" className="space-y-3">
           <h4 id="crystal-table-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Crystal Table</h4>
           <CrystalBowlTable button={button} />
