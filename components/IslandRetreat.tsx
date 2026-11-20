@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ITEMS } from "@/lib/items";
 import { KITCHEN_RECIPES } from "@/lib/recipes";
 import { SMOOTHIE_RECIPES } from "@/lib/smoothie-recipes";
@@ -45,7 +45,7 @@ const titles: Record<Area, string> = {
 
 type Hotspot = {
   label: string;
-  caption: string;
+  caption?: string;
   left: number;
   top: number;
   width?: number;
@@ -70,10 +70,10 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
           type="button"
           aria-label={label}
           onClick={action}
-          style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: spa ? undefined : `${height}%` }}
-          className={`absolute min-h-11 -translate-x-1/2 -translate-y-1/2 touch-manipulation rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 ${spa ? "border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 sm:text-sm" : "bg-transparent hover:bg-white/10"}`}
+          style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: caption ? undefined : `${height}%` }}
+          className={`absolute min-h-11 -translate-x-1/2 -translate-y-1/2 touch-manipulation rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300 ${caption ? "border border-teal-100 bg-teal-950/90 px-1.5 py-1 text-xs font-semibold text-white shadow-md hover:bg-teal-800 sm:text-sm" : "bg-transparent hover:bg-white/10"}`}
         >
-          {spa && caption}
+          {caption}
         </button>
       ))}
     </div>
@@ -122,13 +122,23 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
     if (spaStation) stationHeading.current?.focus();
   }, [spaStation]);
 
-  useEffect(() => {
-    heading.current?.focus();
+  useLayoutEffect(() => {
+    const title = heading.current;
+    const panel = title?.closest<HTMLElement>("[data-cove-dock-scroll]");
+    title?.focus({ preventScroll: true });
+    if (panel) panel.scrollTop = 0;
   }, [area]);
 
-  useEffect(() => {
-    if (servedDrinkId && area === "lounge") servedDrinkButton.current?.focus();
-  }, [servedDrinkId, area]);
+  useLayoutEffect(() => {
+    if (!servedDrinkId) return;
+    const glass = servedDrinkButton.current;
+    const panel = glass?.closest<HTMLElement>("[data-cove-dock-scroll]");
+    glass?.focus({ preventScroll: true });
+    if (panel) panel.scrollTop = 0;
+    if (glass && panel && glass.getBoundingClientRect().bottom > panel.getBoundingClientRect().bottom) {
+      glass.scrollIntoView({ block: "nearest" });
+    }
+  }, [servedDrinkId]);
 
   const announce = (text: string) => setMessage((current) => ({ text, revision: current.revision + 1 }));
 
@@ -164,9 +174,9 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
       {area === "veranda" && <>
         <p>Tap the lounge chair, spa door, or sandy path.</p>
         <RetreatScene night={night} hotspots={[
-          { label: "Have a drink by the shore", caption: "Shore Lounge", left: 26, top: 53, width: 39, height: 22, action: () => visit("lounge") },
-          { label: "Make a seashell pattern", caption: "Seashell Patterns", left: 51, top: 84, width: 45, height: 18, action: () => visit("sand") },
-          { label: "Visit Sea Glass Spa", caption: "Sea Glass Spa", left: 83, top: 40, width: 31, height: 32, action: () => visit("spa") },
+          { label: "Have a drink by the shore", left: 26, top: 53, width: 39, height: 22, action: () => visit("lounge") },
+          { label: "Make a seashell pattern", left: 51, top: 84, width: 45, height: 18, action: () => visit("sand") },
+          { label: "Visit Sea Glass Spa", left: 83, top: 40, width: 31, height: 32, action: () => visit("spa") },
         ]} />
       </>}
       {area === "lounge" && <>
@@ -239,9 +249,9 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
       </>}
       {area === "spa" && <>
         <RetreatScene spa night={night} hotspots={[
-          { label: "Talk to Linnea", caption: "Linnea", left: 25, top: 52, action: () => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”") },
-          { label: "Greet Jasmine", caption: "Jasmine", left: 76, top: 53, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
-          { label: "Open the soaking basin", caption: "Soaking Basin", left: 54, top: 76, action: () => {
+          { label: "Talk to Linnea", left: 23, top: 36, width: 40, height: 28, action: () => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”") },
+          { label: "Greet Jasmine", left: 76, top: 44, width: 37, height: 27, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
+          { label: "Open the soaking basin", left: 53, top: 70, width: 71, height: 23, action: () => {
             if (spaStation === "basin") stationHeading.current?.focus();
             else setSpaStation("basin");
           } },
