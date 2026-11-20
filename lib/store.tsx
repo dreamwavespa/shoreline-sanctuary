@@ -1,4 +1,5 @@
 "use client";
+import type { SpaTreatmentId } from "./spa-recipes";
 import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
@@ -521,6 +522,7 @@ interface Ctx {
   giveCadenceBlocks: (itemId: string) => boolean;
   feedCadenceFood: (itemId: string) => boolean;
   useCadenceBubbleBath: () => boolean;
+  useSpaTreatment: (id: SpaTreatmentId) => boolean;
   claimKitchenReward: (kind: "baby" | "ice" | "daily-ice" | "coffee" | "cooling" | "daily-cooling" | "soup" | "daily-soup" | "pumpkin" | "daily-pumpkin" | "mug" | "daily-marshmallow" | "vegetable-salad" | "fruit-salad" | "daily-vegetable" | "daily-fruit" | "water-bottle" | "daily-water" | "ice-cream-scoop" | "cookbook-stand", spice?: "pumpkin-spice" | "cinnamon" | "nutmeg" | "ginger-spice" | "cloves") => boolean;
   jelloAction: (action: "start" | "collect") => boolean;
   iceCreamAction: (action: "flavor" | "topping" | "assemble", first: string, second?: string, fruit?: string, toppingChoice?: string) => boolean;
@@ -1270,8 +1272,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const useCadenceBubbleBath = (): boolean => {
-    const itemId = "cadence-rose-milk-bubble-bath";
+  const useInventoryServing = (itemId: SpaTreatmentId | "cadence-rose-milk-bubble-bath"): boolean => {
     if ((stateRef.current.inventory[itemId] || 0) < 1) return false;
     setState(prev => ({ ...prev, inventory: { ...prev.inventory, [itemId]: Math.max(0, (prev.inventory[itemId] || 0) - 1) } }));
     return true;
@@ -3150,7 +3151,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       craft,
       cook,
       feedCadenceFood,
-      useCadenceBubbleBath,
+      useCadenceBubbleBath: () => useInventoryServing("cadence-rose-milk-bubble-bath"),
+      useSpaTreatment: useInventoryServing,
       giveCadenceBlocks,
       claimKitchenReward,
       jelloAction,

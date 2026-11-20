@@ -6,6 +6,8 @@ import { ITEMS } from "@/lib/items";
 import { KITCHEN_RECIPES } from "@/lib/recipes";
 import { SMOOTHIE_RECIPES } from "@/lib/smoothie-recipes";
 import { useGame } from "@/lib/store";
+import { SPA_RECIPES } from "@/lib/spa-recipes";
+import SpaRecipeCounter from "./SpaRecipeCounter";
 
 const button = "min-h-12 rounded-xl bg-teal-800 px-4 py-2 font-semibold text-white disabled:bg-slate-200 disabled:text-slate-600 focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-500";
 const drinks = [
@@ -64,7 +66,7 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
 }
 
 export default function IslandRetreat({ night, onReturn, onMusicChange }: { night: boolean; onReturn: () => void; onMusicChange?: (track: string | null) => void }) {
-  const { state, play, useCadenceBubbleBath } = useGame();
+  const { state, play, useCadenceBubbleBath, useSpaTreatment } = useGame();
   const [area, setArea] = useState<Area>("veranda");
   const [waves, setWaves] = useState(true);
   const [music, setMusic] = useState(false);
@@ -74,9 +76,10 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const [position, setPosition] = useState(0);
   const [pattern, setPattern] = useState<(string | null)[]>(() => positions.map(() => null));
   const [spaMusic, setSpaMusic] = useState(true);
-  const [basinOpen, setBasinOpen] = useState(false);
+  const [spaStation, setSpaStation] = useState<"basin" | "counter" | null>(null);
+  const [candleLit, setCandleLit] = useState(false);
   const [bubblesReady, setBubblesReady] = useState(false);
-  const basinHeading = useRef<HTMLHeadingElement>(null);
+  const stationHeading = useRef<HTMLHeadingElement>(null);
   const [spongeWet, setSpongeWet] = useState(false);
   const [message, setMessage] = useState({ text: "", revision: 0 });
   const heading = useRef<HTMLHeadingElement>(null);
@@ -99,8 +102,8 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   }, [onMusicChange, track]);
 
   useEffect(() => {
-    if (basinOpen) basinHeading.current?.focus();
-  }, [basinOpen]);
+    if (spaStation) stationHeading.current?.focus();
+  }, [spaStation]);
 
   useEffect(() => {
     heading.current?.focus();
@@ -114,7 +117,7 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
 
   const visit = (next: Area) => {
     announce("");
-    setBasinOpen(false);
+    setSpaStation(null);
     setArea(next);
   };
 
@@ -201,13 +204,26 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
           { label: "Talk to Linnea", caption: "Linnea", left: 25, top: 52, action: () => announce("Linnea says, “Welcome to Sea Glass Spa. I’m Linnea, and that’s Jasmine. She’ll say hello as soon as she decides whether you’re sitting in her favorite chair.”") },
           { label: "Greet Jasmine", caption: "Jasmine", left: 76, top: 53, action: () => announce(night ? "Jasmine is curled up on her cushion. She gives a sleepy sigh." : "Jasmine’s pearl collar jingles as she pads over to greet you.") },
           { label: "Open the soaking basin", caption: "Soaking Basin", left: 54, top: 76, action: () => {
-            if (basinOpen) basinHeading.current?.focus();
-            else setBasinOpen(true);
+            if (spaStation === "basin") stationHeading.current?.focus();
+            else setSpaStation("basin");
+          } },
+          { label: "Open the spa recipe counter", caption: "Spa Counter", left: 82, top: 89, action: () => {
+            if (spaStation === "counter") stationHeading.current?.focus();
+            else setSpaStation("counter");
           } },
         ]} />
         <label className="flex min-h-12 items-center gap-2"><input type="checkbox" checked={spaMusic} onChange={(event) => setSpaMusic(event.target.checked)} /> Spa music</label>
-        {basinOpen && <section aria-labelledby="retreat-basin-heading" className="space-y-3">
-        <h4 id="retreat-basin-heading" ref={basinHeading} tabIndex={-1} className="text-lg font-bold">Warm soaking basin</h4>
+        {spaStation === "counter" && <section aria-labelledby="spa-counter-heading" className="space-y-3">
+          <h4 id="spa-counter-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Spa recipe counter</h4>
+          <SpaRecipeCounter onCraft={announce} button={`${button} aria-disabled:bg-slate-200 aria-disabled:text-slate-700`} />
+          {!!state.inventory["spa-vanilla-flower-candle"] && <button type="button" className={button} aria-pressed={candleLit} onClick={() => {
+            if (!candleLit) play("candleLight", 0.5);
+            setCandleLit(!candleLit);
+            announce(candleLit ? "You put out the Vanilla Flower Candle." : "The Vanilla Flower Candle casts a warm glow over the counter.");
+          }}>Light Vanilla Flower Candle</button>}
+        </section>}
+        {spaStation === "basin" && <section aria-labelledby="retreat-basin-heading" className="space-y-3">
+        <h4 id="retreat-basin-heading" ref={stationHeading} tabIndex={-1} className="text-lg font-bold">Warm soaking basin</h4>
         <p>Linnea has a sponge you can try. If you’ve found a Sea-Foam Sponge, you can use your own here.</p>
         <div className="flex flex-wrap gap-2">
           <button type="button" className={button} onClick={() => {
@@ -231,6 +247,15 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
             announce("A cluster of soap bubbles pops against the edge of the basin.");
           }}>Pop soap bubbles</button>}
         </div>
+        {SPA_RECIPES.map((recipe) => "useLabel" in recipe && !!state.inventory[recipe.id] && (
+          <button type="button" key={recipe.id} className={`${button} mr-2`} onClick={() => {
+            if (!useSpaTreatment(recipe.id)) return;
+            if (recipe.id === "spa-coconut-seashell-soap") setBubblesReady(true);
+            play(recipe.sound, 0.32);
+            announce(recipe.useMessage);
+            if ((state.inventory[recipe.id] || 0) === 1) stationHeading.current?.focus();
+          }}>{recipe.useLabel}</button>
+        ))}
         {!state.inventory["cadence-rose-milk-bubble-bath"] && <p>Bring a serving of Rose Milk Bubble Bath to add it to the basin.</p>}
         </section>}
       </>}

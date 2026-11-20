@@ -15,6 +15,11 @@ export interface ItemDef {
 const ICON_BASE = "https://galaxy-prod.tlcdn.com/gen/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const ITEMS: Record<string, ItemDef> = {
+  "spa-coconut-cream-lotion": { id: "spa-coconut-cream-lotion", name: "Coconut Cream Lotion", category: "special", icon: "🧴", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "spa-watermelon-sugar-scrub": { id: "spa-watermelon-sugar-scrub", name: "Watermelon Sugar Scrub", category: "special", icon: "🍉", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "spa-citrus-lotion": { id: "spa-citrus-lotion", name: "Citrus Lotion", category: "special", icon: "🍋", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "spa-coconut-seashell-soap": { id: "spa-coconut-seashell-soap", name: "Coconut Seashell Soap", category: "special", icon: "🐚", isEmoji: true, rarity: "common", sfx: "craftSuccess" },
+  "spa-vanilla-flower-candle": { id: "spa-vanilla-flower-candle", name: "Vanilla Flower Candle", category: "decor", icon: "🕯️", isEmoji: true, rarity: "uncommon", sfx: "candleLight" },
   "snow-basket-small": {id:"snow-basket-small",name:"Small Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"uncommon",sfx:"craftSuccess"},
   "snow-basket-medium": {id:"snow-basket-medium",name:"Medium Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"uncommon",sfx:"craftSuccess"},
   "snow-basket-large": {id:"snow-basket-large",name:"Large Everlasting Snowball Basket",category:"decor",icon:"/images/Winter/Snowman/Snowball_Basket.png",rarity:"rare",sfx:"craftSuccess"},
