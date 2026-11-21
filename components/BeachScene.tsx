@@ -631,6 +631,16 @@ export default function BeachScene() {
     return () => window.removeEventListener("shoreline:visit-olli", openOlli);
   }, []);
   const residentCloseRef = useRef<HTMLButtonElement>(null);
+  const residentButtons = useRef<Record<string, HTMLButtonElement | null>>({});
+  const collectibleButtons = useRef<Record<string, HTMLButtonElement | null>>({});
+  const beachGamesButtonRef = useRef<HTMLButtonElement>(null);
+  const closeResident = () => {
+    const resident = selectedResident;
+    setSelectedResident(null);
+    window.setTimeout(() => {
+      if (resident) (residentButtons.current[resident] || hutEntranceRef.current)?.focus();
+    }, 0);
+  };
   const [nighttime, setNighttime] = useState(false);
   const [seagullDialogOpen, setSeagullDialogOpen] = useState(false);
   const picnicBasketButtonRef = useRef<HTMLButtonElement>(null);
@@ -696,6 +706,12 @@ export default function BeachScene() {
     collectItem(spot.itemId, spot.itemId === "winter-ice-block" || spot.itemId.startsWith("winter-everlasting-snowball-") ? { silent: true } : undefined);
     if (spot.itemId.startsWith("winter-everlasting-snowball-")) play("snowballCollect", 0.85);
     if (spot.itemId === "winter-ice-block") play("winterIceCollect", 1);
+    // Move focus before removing the activated button, including on iPad VoiceOver.
+    const index = spots.findIndex((s) => s.key === spot.key);
+    const next = [...spots.slice(index + 1), ...spots.slice(0, index)]
+      .find((s) => !poppingKeys[s.key] && collectibleButtons.current[s.key]);
+    if (next) collectibleButtons.current[next.key]?.focus();
+    else tidePoolButtonRef.current?.focus();
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => {
@@ -816,6 +832,7 @@ export default function BeachScene() {
         ] as const).map((character) => (
           <button
             key={character.id}
+            ref={(node) => { residentButtons.current[character.id] = node; }}
             type="button"
             aria-label={`Visit ${character.name}`}
             onClick={() => setSelectedResident(character.id)}
@@ -832,6 +849,8 @@ export default function BeachScene() {
           return (
             <button
               key={spot.key}
+              ref={(node) => { collectibleButtons.current[spot.key] = node; }}
+              type="button"
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
               className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/25 shadow-sm ring-1 ring-white/30 transition-all duration-200 active:scale-90 ${
@@ -877,11 +896,11 @@ export default function BeachScene() {
         {/* Resident interactions, special quests, and visitor exchanges live in the accessible character dialogs above. */}
       </div>
       {selectedResident && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={() => setSelectedResident(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4" role="presentation" onClick={closeResident}>
           <section role="dialog" aria-modal="true" aria-label={`${selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name} activities`} className="max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-[#fbf3e3] p-4 shadow-xl" onClick={(event) => event.stopPropagation()}>
             {/* Announce gift and reward results inside the active modal: aria-modal hides outside status regions from VoiceOver. */}
             <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">{lastToast || ""}</div>
-            <button ref={residentCloseRef} type="button" autoFocus onClick={() => setSelectedResident(null)} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name}</button>
+            <button ref={residentCloseRef} type="button" autoFocus onClick={closeResident} className="mb-3 min-h-11 rounded-xl bg-teal-800 px-4 py-2 font-bold text-white">Close {selectedResident === "elly" ? "Elly" : selectedResident === "snappy" ? "Snappy" : VILLAGERS[selectedResident].name}</button>
             {selectedResident === "elly" ? <><EllyCard /><EllyGarden /></> : selectedResident === "snappy" ? <SnappyCard /> : selectedResident === "olli" ? <OlliCard /> : selectedResident === "misty" ? <><VillagerCard villager={VILLAGERS.misty} schedule={travelerSchedule?.misty} /><MistyMoonlitExchange /></> : selectedResident === "shelldon" || selectedResident === "shelby" ? <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} schedule={travelerSchedule?.[selectedResident]} /> : (
               <>
                 <VillagerCard key={selectedResident} villager={VILLAGERS[selectedResident]} />
@@ -903,8 +922,8 @@ export default function BeachScene() {
         </div>
       )}
       {hutOpen && <HutScene onClose={() => { setHutOpen(false); window.setTimeout(() => hutEntranceRef.current?.focus(), 0); }} />}
-      <button type="button" onClick={() => setBeachGamesOpen(true)} className="mx-auto my-4 flex min-h-11 items-center gap-3 rounded-xl bg-teal-900 px-5 py-3 font-bold text-white"><Image src="/images/Seashell_Beach_Ball.png" alt="" width={48} height={48} unoptimized />Visit Beach Play Area</button>
-      {beachGamesOpen && <BeachPlayArea nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} onClose={() => setBeachGamesOpen(false)} />}
+      <button ref={beachGamesButtonRef} type="button" onClick={() => setBeachGamesOpen(true)} className="mx-auto my-4 flex min-h-11 items-center gap-3 rounded-xl bg-teal-900 px-5 py-3 font-bold text-white"><Image src="/images/Seashell_Beach_Ball.png" alt="" width={48} height={48} unoptimized />Visit Beach Play Area</button>
+      {beachGamesOpen && <BeachPlayArea nighttime={nighttime} inventory={state.inventory} crafted={state.crafted} onClose={() => { setBeachGamesOpen(false); window.setTimeout(() => beachGamesButtonRef.current?.focus(), 0); }} />}
       {currentRideOpen && <SnappyCurrentRide onClose={closeCurrentRide} />}
       {tidePoolOpen && <TidePoolSearch onClose={closeTidePool} nighttime={nighttime} />}
     </div>
