@@ -49,6 +49,24 @@ export interface VillagerDef {
 export const MAEVE_GIFT_IDS = ["shell-scallop", "glass-teal", "ribbon", "pearl-cream", "food-mint-tea"] as const;
 
 export const VILLAGERS: Record<string, VillagerDef> = {
+  frost: {
+    id: "frost",
+    name: "Frost",
+    title: "The White Octopus",
+    group: "underwater-village",
+    personality: "Shy at first, Frost loves glowing treasures and playful puzzles.",
+    role: "Nighttime reef friend",
+    gameplay: "Bring Frost a favorite gift or follow his ink clues to find hidden sea glass.",
+    schedule: "7 p.m. to 6 a.m. after the first sighting",
+    location: "Rock Shelters, Restored Reef",
+    imageUrl: "/images/Reef/frost-white-octopus.webp",
+    gift: {
+      lovedGiftIds: ["food-seaweed-chips", "food-beach-plum-jelly", "kelp", "glowing-sand-dollar", "firefly-jar"],
+      reactionSfx: "A soft underwater chime",
+      reactionVisual: "Frost curls his arms in delight.",
+      redirectTo: [],
+    },
+  },
   linnea: {
     id: "linnea",
     name: "Linnea",

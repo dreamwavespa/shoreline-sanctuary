@@ -1,7 +1,7 @@
 "use client";
 import { CRYSTAL_BOWL_ITEM, CRYSTAL_IDS, readCrystalBowl, type CrystalBowl } from "./crystal-bowl";
 import type { SpaTreatmentId } from "./spa-recipes";
-import { DEFAULT_OFFSHORE, advanceOffshore, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
+import { DEFAULT_OFFSHORE, advanceOffshore, frostNightKey, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
 import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
@@ -1940,6 +1940,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     const goldenWishReturned = villagerId === "angel" && itemId === "golden-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
+    if (villagerId === "frost" && (!loved || stateRef.current.offshore.frostDiscovery !== "met"
+      || !frostNightKey(new Date()))) return false;
     if (villagerId === "libby" && (!stateRef.current.libbyRescued || !loved
       || stateRef.current.notebookDiscovered[favoriteGiftDiscoveryKey(villagerId, itemId)])) return false;
     let sisterReturnGiftName: string | null = null;
@@ -3153,7 +3155,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     stateRef.current = result.state;
     setState(result.state);
     if (result.sound) play(result.sound);
-    if (action.type !== 'dock-fishing' && action.type !== 'talk-about-frost' && action.type !== 'search-for-frost') toast(result.message);
+    if (action.type !== 'dock-fishing' && action.type !== 'talk-about-frost'
+      && action.type !== 'search-for-frost' && action.type !== 'finish-frost-hide-and-seek') toast(result.message);
     return result;
   };
   const offshoreAction = (action: OffshoreAction) => applyOffshoreAction(action).message;

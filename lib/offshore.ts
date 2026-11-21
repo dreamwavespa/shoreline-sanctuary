@@ -24,6 +24,7 @@ export interface OffshoreProgress {
   dives: number;
   dockFishLog?: string[];
   frostDiscovery?: 'rumor' | 'clue' | 'reported' | 'met';
+  frostTreasureNight?: string;
   worryDiscovered?: string[];
   worryCompleted?: string[];
   tumblingBatch?: {readyAt:number; resultId:string} | null;
@@ -40,7 +41,15 @@ export const DOCK_FISH = {
 } as const;
 export type DockFish = (typeof DOCK_FISH)[keyof typeof DOCK_FISH][number];
 export type DockCatch = { fish: DockFish } | { treasure: 'tide-trinket-compass' };
-export type OffshoreAction = { type: 'talk-about-frost' | 'search-for-frost' } | { type: 'dock-fishing'; night: boolean } | { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
+export type OffshoreAction = { type: 'talk-about-frost' | 'search-for-frost' | 'finish-frost-hide-and-seek' } | { type: 'dock-fishing'; night: boolean } | { type: 'charter' | 'sail' | 'raft'; materials?: boolean } | { type: 'photo' | 'salvage' | 'return' | 'distill' | 'test' | 'expedition' } | { type: 'dive'; chamber: number; uv: boolean } | { type: 'polish' | 'display' | 'carve'; item: string } | {type:'worry-identify'|'worry-carve'|'worry-finish';stone?:string} | {type:'tumble-start'|'tumble-collect'|'tumble-open';pouchId?:string};
+export function frostNightKey(now: Date) {
+  const hour = now.getHours();
+  if (hour >= 6 && hour < 19) return null;
+  const evening = new Date(now.getTime());
+  if (hour < 6) evening.setDate(evening.getDate() - 1);
+  return [evening.getFullYear(), evening.getMonth() + 1, evening.getDate()].join("-");
+}
+
 interface BaseState { inventory: Record<string, number>; sandDollars: number; hasDivingGear: boolean; rowboatRepaired: boolean; offshore: OffshoreProgress }
 export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreAction): { state: T; message: string; sound: string; dockCatch?: DockCatch } {
   const o = { ...DEFAULT_OFFSHORE, ...s.offshore };
@@ -64,8 +73,7 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
         : 'Search the restored reef’s Rock Shelters at night.');
     }
   } else if (action.type === 'search-for-frost') {
-    const hour = new Date().getHours();
-    if (hour >= 6 && hour < 19) return fail('Come back after dark to look for the white octopus.');
+    if (!frostNightKey(new Date())) return fail('Come back after dark to look for the white octopus.');
     if (o.frostDiscovery === 'rumor') {
       o.frostDiscovery = 'clue';
       message = 'A chip of glowing sea glass rests beside a trail of tiny suction-cup prints. Tell Waverly what you found.';
@@ -76,6 +84,22 @@ export function advanceOffshore<T extends BaseState>(s: T, action: OffshoreActio
       return fail('Talk to Waverly about the white octopus.');
     }
     sound = 'sparkle';
+  } else if (action.type === 'finish-frost-hide-and-seek') {
+    const night = frostNightKey(new Date());
+    if (!night || o.frostDiscovery !== 'met') return fail('Frost plays hide-and-seek after dark.');
+    const found = 'You found the glowing sea glass! Frost does a little twirl.';
+    if (o.frostTreasureNight === night) return fail(found);
+    const firstTreasure = !o.frostTreasureNight;
+    o.frostTreasureNight = night;
+    message = found;
+    sound = 'sparkle';
+    if (firstTreasure || Math.random() < 1 / 3) {
+      const rainbowPearl = !firstTreasure && Math.random() < 0.5;
+      add(rainbowPearl ? 'pearl-rainbow' : 'bioluminescent-shard');
+      message += rainbowPearl
+        ? ' Frost shares a Rainbow Pearl with you.'
+        : ' Frost shares a Bioluminescent Shard with you.';
+    }
   } else if (action.type === 'dock-fishing') {
     if (Math.random() < 0.12) {
       add('tide-trinket-compass');
