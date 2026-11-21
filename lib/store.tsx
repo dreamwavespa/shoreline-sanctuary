@@ -7,7 +7,7 @@ import { ITEMS } from "./items";
 import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
-import { favoriteGiftDiscoveryKey, VILLAGERS } from "./villagers";
+import { favoriteGiftDiscoveryKey, MAEVE_GIFT_IDS, VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, seaweedSalePrice, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
@@ -692,6 +692,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         // give Snappy the gift without spending rare materials again.
         if (crafted.includes("tidal-pearl-choker") && !parsed.snappyChokerGifted && (inventory["tidal-pearl-choker"] || 0) < 1) {
           inventory["tidal-pearl-choker"] = 1;
+        }
+        // Older saves recorded the pendant craft without an inventory item.
+        if (crafted.includes("sea-glass-pendant")
+          && inventory["sea-glass-pendant"] === undefined
+          && !parsed.notebookDiscovered?.[favoriteGiftDiscoveryKey("libby", "sea-glass-pendant")]) {
+          inventory["sea-glass-pendant"] = 1;
         }
         // Restore the missing physical reward for players who completed the
         // earlier version of Oliver's picnic quest.
@@ -1934,6 +1940,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const starWishReturned = villagerId === "angel" && itemId === "star-wish-bottle";
     const goldenWishReturned = villagerId === "angel" && itemId === "golden-wish-bottle";
     const loved = villager.gift.lovedGiftIds.includes(itemId);
+    if (villagerId === "libby" && (!stateRef.current.libbyRescued || !loved
+      || stateRef.current.notebookDiscovered[favoriteGiftDiscoveryKey(villagerId, itemId)])) return false;
     let sisterReturnGiftName: string | null = null;
     const linneaRewards = villagerId === "linnea"
       ? getEarnedSeaGlassSisterRewards(villagerId, (stateRef.current.villagerGiftCounts[villagerId] || 0) + 1)
@@ -2236,14 +2244,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const giftMaeve = (itemId: string) => {
-    const likes = ["shell-scallop", "glass-teal", "ribbon", "pearl-cream"];
     const today = localDateKey();
-    if (!likes.includes(itemId) || stateRef.current.maeveLastGiftDate === today || (stateRef.current.inventory[itemId] || 0) < 1) return false;
+    if (!MAEVE_GIFT_IDS.some(id => id === itemId) || stateRef.current.maeveLastGiftDate === today || (stateRef.current.inventory[itemId] || 0) < 1) return false;
     setState(s => ({
       ...s,
       inventory: { ...s.inventory, [itemId]: (s.inventory[itemId] || 0) - 1 },
       maeveFriendship: (s.maeveFriendship || 0) + (itemId === "pearl-cream" ? 3 : 2),
       maeveLastGiftDate: today,
+      notebookDiscovered: { ...s.notebookDiscovered, [favoriteGiftDiscoveryKey("maeve", itemId)]: true },
     }));
     return true;
   };

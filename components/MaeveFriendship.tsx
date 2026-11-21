@@ -4,7 +4,7 @@ import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
 import { localDateKey } from "@/lib/customSandArt";
 
-const GIFTS = ["shell-scallop", "glass-teal", "ribbon", "pearl-cream"] as const;
+import { MAEVE_GIFT_IDS } from "@/lib/villagers";
 const REWARDS = [
   { at: 3, item: "shell-sanddollar", title: "A keeper's thank-you" },
   { at: 8, item: "glass-teal", title: "A sea-glass keepsake" },
@@ -21,7 +21,7 @@ const STORIES = [
 export default function MaeveFriendship() {
   const { state, talkToMaeve, giftMaeve, claimMaeveReward } = useGame();
   const [message, setMessage] = useState("");
-  const [giftId, setGiftId] = useState<string>(GIFTS[0]);
+  const [giftId, setGiftId] = useState<string>(MAEVE_GIFT_IDS[0]);
   const points = state.maeveFriendship || 0;
   const today = localDateKey();
   const talked = state.maeveLastConversationDate === today;
@@ -46,7 +46,7 @@ export default function MaeveFriendship() {
       </button>
       <label htmlFor="maeve-gift" className="mt-4 block text-sm font-semibold text-amber-950">Choose a gift from your inventory</label>
       <select id="maeve-gift" value={giftId} onChange={e => setGiftId(e.target.value)} className="mt-1 w-full rounded-lg border border-amber-400 bg-white p-3 text-amber-950">
-        {GIFTS.map(id => <option key={id} value={id}>{ITEMS[id]?.name || id} — owned: {state.inventory[id] || 0}</option>)}
+        {MAEVE_GIFT_IDS.map(id => <option key={id} value={id}>{ITEMS[id]?.name || id} — owned: {state.inventory[id] || 0}</option>)}
       </select>
       <button type="button" disabled={gifted || (state.inventory[giftId] || 0) < 1} onClick={give} className="mt-2 w-full rounded-xl bg-teal-800 px-4 py-3 font-semibold text-white disabled:opacity-50">
         {gifted ? "Maeve has received a gift today" : "Give Maeve a Gift"}

@@ -46,6 +46,8 @@ export interface VillagerDef {
   imageUrl?: string;
 }
 
+export const MAEVE_GIFT_IDS = ["shell-scallop", "glass-teal", "ribbon", "pearl-cream", "food-mint-tea"] as const;
+
 export const VILLAGERS: Record<string, VillagerDef> = {
   linnea: {
     id: "linnea",
@@ -345,6 +347,22 @@ export const VILLAGERS: Record<string, VillagerDef> = {
       redirectTo: ["coralie"],
     },
   },
+  libby: {
+    id: "libby",
+    name: "Libby",
+    title: "the Blue Lobster",
+    group: "underwater-village",
+    personality: "Grateful and fond of rare reef treasures.",
+    role: "Reef trader",
+    gameplay: "Trade rare finds or give her a handcrafted pendant after rescuing her.",
+    location: "Reef",
+    gift: {
+      lovedGiftIds: ["sea-glass-pendant"],
+      reactionSfx: "Soft sea glass chime",
+      reactionVisual: "Her new pendant glows in the reef.",
+      redirectTo: [],
+    },
+  },
   waverly: {
     id: "waverly",
     name: "Waverly",
@@ -355,7 +373,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "Studies marine life and raises rescued baby fish.",
     location: "Marine Lab, accessed from the Reef",
     gift: {
-      lovedGiftIds: ["food-black-iced-coffee"],
+      lovedGiftIds: ["food-black-iced-coffee", "milky-moonstone-pebbles", "moonwashed-shell"],
       reactionSfx: "Gentle chime",
       reactionVisual: "A delighted smile",
       redirectTo: [],

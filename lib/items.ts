@@ -827,6 +827,7 @@ export const ITEMS: Record<string, ItemDef> = {
   "coastal-honey-jar": { id: "coastal-honey-jar", name: "Jar of Coastal Honey", category: "food", icon: "🍯", isEmoji: true, rarity: "rare", sfx: "honeyJar" },
   "glowing-moonlight-candle": { id: "glowing-moonlight-candle", name: "Glowing Moonlight Candle", category: "decor", icon: "/images/Glowing-moonlight-candle.PNG", rarity: "rare", sfx: "candleLight", glows: true, artDescription: "A softly glowing sea-glass candle with a moonwashed shell and pale blue-green light." },
   "coastal-beeswax-candle": { id: "coastal-beeswax-candle", name: "Sea-Rose Coastal Candle", category: "decor", icon: "/images/Bees-wax-candle.PNG", rarity: "rare", sfx: "candleLight", artDescription: "A creamy white beeswax candle decorated with pastel coastal flowers, sea-rose petals, scallop and spiral shells, a small starfish, and a natural twine bow." },
+  "sea-glass-pendant": { id: "sea-glass-pendant", name: "Sea Glass Wire Pendant", category: "decor", icon: "📿", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },
   "tidal-pearl-choker": { id: "tidal-pearl-choker", name: "Tidal Pearl Choker", category: "decor", icon: "📿", isEmoji: true, rarity: "rare", sfx: "pearl" },
   "sand-pink": { id: "sand-pink", name: "Pastel Pink Sand", category: "raw", icon: "🌸", isEmoji: true, rarity: "uncommon", sfx: "shell" },
   "sand-teal": { id: "sand-teal", name: "Deep Ocean Teal Sand", category: "raw", icon: "🌊", isEmoji: true, rarity: "uncommon", sfx: "seaGlass" },

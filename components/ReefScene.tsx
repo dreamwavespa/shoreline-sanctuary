@@ -4,6 +4,7 @@ import Image from "next/image";
 import { OffshoreEntry } from "./Offshore";
 import { ITEMS, rollReefSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
+import { favoriteGiftDiscoveryKey, VILLAGERS } from "@/lib/villagers";
 import { SCENES } from "@/lib/media";
 import ArtifactRestoration from "./ArtifactRestoration";
 import LibbyReefRescue from "./LibbyReefRescue";
@@ -80,7 +81,10 @@ function TradeRow({ trade }: { trade: (typeof LIBBY_TRADES)[number] }) {
 }
 
 function LibbyCard() {
-  const { state, pryTrap, trapPryTarget } = useGame();
+  const { state, pryTrap, trapPryTarget, giftVillager } = useGame();
+  const [pendantId] = VILLAGERS.libby.gift.lovedGiftIds;
+  const pendantCount = state.inventory[pendantId] || 0;
+  const wearingPendant = !!state.notebookDiscovered[favoriteGiftDiscoveryKey("libby", pendantId)];
   const pct = Math.min(100, Math.round((state.trapProgress / trapPryTarget) * 100));
 
   if (!state.libbyRescued) {
@@ -123,6 +127,20 @@ function LibbyCard() {
       {LIBBY_TRADES.map((t, i) => (
         <TradeRow key={i} trade={t} />
       ))}
+      <section className="mt-3 rounded-xl bg-cyan-50 p-3 text-cyan-950" aria-labelledby="libby-gift-heading">
+        <h3 id="libby-gift-heading" className="font-bold">Give Libby a Gift</h3>
+        {wearingPendant ? (
+          <p className="mt-1 text-sm"><span aria-hidden="true" className="mr-1 inline-block drop-shadow-[0_0_8px_#22d3ee]">📿</span>Libby wears her glowing Sea Glass Wire Pendant.</p>
+        ) : <p className="mt-1 text-sm">Craft the pendant at the Workshop’s Jewelry Bench.</p>}
+        <button
+          type="button"
+          aria-disabled={pendantCount < 1 || wearingPendant}
+          onClick={() => { if (pendantCount > 0 && !wearingPendant) giftVillager("libby", pendantId); }}
+          className="mt-2 min-h-11 rounded-lg bg-cyan-700 px-3 py-2 text-sm font-semibold text-white aria-disabled:opacity-60"
+        >
+          {wearingPendant ? "Pendant gifted to Libby" : `Give Libby ${ITEMS[pendantId].name} (${pendantCount} available)`}
+        </button>
+      </section>
       <p className="mt-3 rounded-xl bg-cyan-50 p-3 text-sm text-cyan-800 ring-1 ring-cyan-200">
         Since Libby&apos;s rescue, rare Iridescent Blue Shell Flakes can appear among the Reef finds above. Trade them to Libby for the Nautilus Flakes used in the Tidal Pearl Choker.
       </p>

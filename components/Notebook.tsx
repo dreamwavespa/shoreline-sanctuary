@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
-import { favoriteGiftDiscoveryKey, VILLAGERS } from "@/lib/villagers";
+import { favoriteGiftDiscoveryKey, MAEVE_GIFT_IDS, VILLAGERS } from "@/lib/villagers";
 import { NOTEBOOK_SECTIONS, NotebookSection } from "@/lib/notebook";
 import { KITCHEN_RECIPES } from "@/lib/recipes";
 
@@ -155,28 +155,28 @@ function RecipeCollectionPage() {
 
 function CharacterFavoritesPage() {
   const { state } = useGame();
-  const characters = Object.values(VILLAGERS)
-    .map((villager) => ({
-      villager,
-      gifts: villager.gift.lovedGiftIds.filter((id) => ITEMS[id]),
-    }))
+  const characters = [
+    ...Object.values(VILLAGERS).map(({ id, name, gift }) => ({ id, name, gifts: gift.lovedGiftIds })),
+    { id: "maeve", name: "Maeve", gifts: MAEVE_GIFT_IDS },
+  ]
+    .map(character => ({ ...character, gifts: character.gifts.filter(id => ITEMS[id]) }))
     .filter(({ gifts }) => gifts.length > 0);
   const total = characters.reduce((sum, entry) => sum + entry.gifts.length, 0);
-  const discovered = characters.reduce((sum, { villager, gifts }) =>
-    sum + gifts.filter((id) => state.notebookDiscovered[favoriteGiftDiscoveryKey(villager.id, id)]).length, 0);
+  const discovered = characters.reduce((sum, { id, gifts }) =>
+    sum + gifts.filter(itemId => state.notebookDiscovered[favoriteGiftDiscoveryKey(id, itemId)]).length, 0);
   return (
     <section aria-labelledby="favorite-gifts-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
       <h3 id="favorite-gifts-heading" className="font-serif text-xl font-bold">Character Favorites</h3>
       <p className="mt-1 text-sm" role="status">{discovered} of {total} favorite gifts discovered</p>
       <p className="mt-2 text-sm">Give characters gifts to discover what they love. The notebook records a favorite when they receive it.</p>
       <ul className="mt-3 space-y-3">
-        {characters.map(({ villager, gifts }) => (
-          <li key={villager.id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
-            <h4 className="font-semibold">{villager.name}</h4>
+        {characters.map(({ id, name, gifts }) => (
+          <li key={id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
+            <h4 className="font-semibold">{name}</h4>
             <ul className="mt-1 space-y-1">
-              {gifts.map((id, index) => {
-                const found = !!state.notebookDiscovered[favoriteGiftDiscoveryKey(villager.id, id)];
-                return <li key={id} className="text-sm">{found ? `✓ ${ITEMS[id].name} — Discovered` : `○ Favorite gift ${index + 1} — Undiscovered`}</li>;
+              {gifts.map((itemId, index) => {
+                const found = !!state.notebookDiscovered[favoriteGiftDiscoveryKey(id, itemId)];
+                return <li key={itemId} className="text-sm">{found ? `✓ ${ITEMS[itemId].name} — Discovered` : `○ Favorite gift ${index + 1} — Undiscovered`}</li>;
               })}
             </ul>
           </li>
