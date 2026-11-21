@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 
-type Props = { discovered: string[]; onClose: () => void; testMode?: boolean };
+type Props = { discovered: string[]; onClose: () => void };
 const VISITORS = {
   day: [{name:"Elly the jellyfish",symbol:"🪼",image:"/images/Elly-transparent.PNG"},{name:"Olli the octopus",symbol:"🐙",image:"/images/Olli-transparent.PNG"},{name:"Snappy the turtle",symbol:"🐢",image:"/images/Snappy-transparent.PNG"},{name:"Libby the blue lobster",symbol:"🦞",image:"/images/Reef/Libby-transparent.PNG"}],
   night: [{name:"Celeste the moon jellyfish",symbol:"🪼",image:"/images/Celeste-transparent.PNG"},{name:"Orion the sea butterfly",symbol:"🦋",image:"/images/Orion-transparent.PNG"}]
@@ -17,7 +17,7 @@ const fishPosition = (index: number) => ({
   ["--drift-x" as string]: `${index % 2 ? -35 : 35}%`,
   ["--drift-y" as string]: `${index % 3 ? -15 : 12}%`
 });
-export default function OceanObservatory({ discovered, onClose, testMode = false }: Props) {
+export default function OceanObservatory({ discovered, onClose }: Props) {
   const [night, setNight] = useState(false);
   const showNight = night;
   const [peaceful, setPeaceful] = useState(false);

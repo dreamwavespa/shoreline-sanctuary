@@ -214,13 +214,11 @@ function SnowmanScene({night,parts,second,description,compact=false,expanded=fal
   </div>;
 }
 const STORAGE = "shoreline-snowman-winter-v1";
-const PREVIEW_STORAGE = "shoreline-snowman-preview-v1";
 type Memory = { date:string; parts:Snowman; second?:Snowman|null };
 export default function SnowmanMaking({night}:{night:boolean}) {
   const {state,play}=useGame();
   const month=new Date().getMonth();
   const inWinter=month===11||month===0||month===1;
-  const [preview,setPreview]=useState(!inWinter);
   const [expanded,setExpanded]=useState(false);
   const [viewingMemory,setViewingMemory]=useState<Memory|null>(null);
   const [parts,setParts]=useState<Snowman>(DEFAULT);
@@ -231,22 +229,24 @@ export default function SnowmanMaking({night}:{night:boolean}) {
   const [memories,setMemories]=useState<Memory[]>([]);
   const [announcement,setAnnouncement]=useState("");
   const [loaded,setLoaded]=useState(false);
-  const storageKey=preview?PREVIEW_STORAGE:STORAGE;
   useEffect(()=>{
     try {
-      const raw=JSON.parse(localStorage.getItem(storageKey)||"{}");
+      const raw=JSON.parse(localStorage.getItem(STORAGE)||"{}");
       setParts({...DEFAULT,...(raw.parts||{})});
       setSecond(raw.second?{...DEFAULT,...raw.second}:null);
       setEditingSecond(false);
       setMemories(Array.isArray(raw.memories)?raw.memories:[]);
     } catch {setParts(DEFAULT);setSecond(null);setMemories([]);}
     setLoaded(true);
-  },[storageKey]);
+  },[]);
   useEffect(()=>{
     if(!loaded)return;
-    try {localStorage.setItem(storageKey,JSON.stringify({parts,second,memories}));} catch {}
-  },[parts,second,memories,storageKey,loaded]);
+    try {localStorage.setItem(STORAGE,JSON.stringify({parts,second,memories}));} catch {}
+  },[parts,second,memories,loaded]);
+  const ownsEverlastingSnowball = (file: string) =>
+    (state.inventory["winter-everlasting-snowball-" + file.split("_")[0].toLowerCase()] || 0) > 0;
   const select=(key:Part,choice:Choice|null)=>{
+    if (key === "snowball" && choice && !ownsEverlastingSnowball(choice.file)) return;
     if (choice && (["body","snowball","baseBall","middleBall","headBall"].includes(key)) && /Snowball|Snowman_Base/.test(choice.file)) play("snowballCollect",0.65);
     const applyChoice=(prev:Snowman):Snowman=>({
       ...prev,
@@ -270,9 +270,8 @@ export default function SnowmanMaking({night}:{night:boolean}) {
   return <section className="space-y-4" aria-label="Snowman making activity">
     <h3 className="text-lg font-bold">Build Your Winter Snowman</h3>
     <p>Choose snowballs, a face, arms, and cozy accessories. Your snowman appears in the clearing as you decorate. Save your favorites in the Winter Memory Book.</p>
-    {!inWinter&&<p>The winter activity opens December 1 and remains available through February. Preview mode lets you test without changing winter progress.</p>}
-    <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={preview} onChange={e=>{setLoaded(false);setPreview(e.target.checked);setAnnouncement("");}}/> Snowman preview mode (separate testing progress)</label>
-    {(inWinter||preview)&&<>
+    {!inWinter&&<p>The winter activity opens December 1 and remains available through February.</p>}
+    {inWinter&&<>
       <button type="button" onClick={()=>setExpanded(true)} className="min-h-12 w-full rounded-xl border border-amber-200 bg-indigo-800 px-4 py-3 font-semibold">View Snowman Scene Full Screen</button>
       <SnowmanScene night={night} parts={parts} second={second} description={"Full snowman preview in "+(night?"moonlit":"sunny")+" winter clearing. First snowman: "+describe(parts)+(second?". Second snowman: "+describe(second):"")}/>
       {(expanded||viewingMemory)&&<div className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-indigo-950 p-3 text-white" role="dialog" aria-modal="true" aria-label={viewingMemory?"Saved winter snowman scene":"Full-screen snowman scene"}>
@@ -296,13 +295,13 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       </div>
       <section className="space-y-2 rounded-xl border border-sky-300 p-3" aria-label="Everlasting Snowball collection">
         <h4 className="font-semibold">Everlasting Snowballs</h4>
-        <p>Rare snowballs stay in your inventory when used. Choose a collected size to display beside your snowman. Preview mode allows testing all sizes without adding them to inventory.</p>
+        <p>Rare snowballs stay in your inventory when used. Choose a collected size to display beside your snowman.</p>
         <div className="grid grid-cols-3 gap-2">
           {(["small","medium","large"] as const).map(size=>{
             const owned=state.inventory["winter-everlasting-snowball-"+size]||0;
             const option=PARTS.find(p=>p.key==="snowball")?.options.find(o=>o.file.toLowerCase().startsWith(size));
-            return <button key={size} type="button" disabled={!preview&&owned===0} aria-pressed={!!option&&editingParts.snowball===option.file} onClick={()=>{if(option)select("snowball",option);}} className="min-h-12 rounded-lg border border-sky-200 p-2 disabled:opacity-50">
-              {size.charAt(0).toUpperCase()+size.slice(1)} — {owned} collected{preview?" (preview)":""}
+            return <button key={size} type="button" disabled={owned===0} aria-pressed={!!option&&editingParts.snowball===option.file} onClick={()=>{if(option)select("snowball",option);}} className="min-h-12 rounded-lg border border-sky-200 p-2 disabled:opacity-50">
+              {size.charAt(0).toUpperCase()+size.slice(1)} — {owned} collected
             </button>;
           })}
         </div>
@@ -313,7 +312,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       </div>
       <h4 className="font-semibold">Choose {PARTS.find(p=>p.key===active)?.label.toLowerCase()}</h4>
       <div className="grid grid-cols-2 gap-2">
-        {PARTS.find(p=>p.key===active)?.options.map(choice=><button key={choice.file} type="button" aria-pressed={parts[active]===choice.file} onClick={()=>select(active,choice)} className={`min-h-28 rounded-xl border p-2 ${parts[active]===choice.file?"border-yellow-300 bg-indigo-700":"border-sky-300 bg-indigo-900"}`}>
+        {PARTS.find(p=>p.key===active)?.options.map(choice=><button key={choice.file} type="button" disabled={active === "snowball" && !ownsEverlastingSnowball(choice.file)} aria-pressed={parts[active]===choice.file} onClick={()=>select(active,choice)} className={`min-h-28 rounded-xl border p-2 disabled:opacity-50 ${parts[active]===choice.file?"border-yellow-300 bg-indigo-700":"border-sky-300 bg-indigo-900"}`}>
           <Image src={ROOT+choice.file+"?v=20261116-clean"} alt="" width={92} height={92} unoptimized className="mx-auto h-20 w-20 object-contain"/>
           <span className="block text-sm">{choice.name}{parts[active]===choice.file?" — selected":""}</span>
         </button>)}
@@ -322,7 +321,7 @@ export default function SnowmanMaking({night}:{night:boolean}) {
       <p role="status" aria-live="polite">{announcement}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={save} className="min-h-12 rounded-lg bg-amber-100 px-4 py-2 font-bold text-indigo-950">Save Snowman to Winter Memory Book</button>
-        <button type="button" onClick={()=>{const fresh={...DEFAULT};setParts(fresh);setSecond(null);setEditingSecond(false);setActive("body");try{localStorage.setItem(storageKey,JSON.stringify({parts:fresh,second:null,memories}));}catch{}setAnnouncement("Started a new snowman. All snowballs, facial features, clothing, and accessories have been cleared. Your Winter Memory Book is unchanged.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
+        <button type="button" onClick={()=>{const fresh={...DEFAULT};setParts(fresh);setSecond(null);setEditingSecond(false);setActive("body");try{localStorage.setItem(STORAGE,JSON.stringify({parts:fresh,second:null,memories}));}catch{}setAnnouncement("Started a new snowman. All snowballs, facial features, clothing, and accessories have been cleared. Your Winter Memory Book is unchanged.");}} className="min-h-12 rounded-lg border border-amber-100 px-4 py-2">Start New Snowman</button>
       </div>
       <section aria-label="Winter Memory Book" className="space-y-2">
         <h4 className="font-bold">Winter Memory Book — {memories.length} saved snowmen</h4>
