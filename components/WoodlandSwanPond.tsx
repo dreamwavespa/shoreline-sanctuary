@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useGame } from "@/lib/store";
+import LilyPadCrossing from "./LilyPadCrossing";
 
 const seasonalFeathers = [
   "robin-blossom-feather",
@@ -46,6 +47,7 @@ export default function WoodlandSwanPond({ now }: { now: number }) {
           : visiting ? "A white swan is visiting the pond today."
           : "The pond is quiet today. The swan returns every few days."}
       </p>
+      <LilyPadCrossing />
       <style jsx>{`
         @media (prefers-reduced-motion: no-preference) {
           .woodland-swan-glide { animation: swan-glide 7s ease-out both; }
