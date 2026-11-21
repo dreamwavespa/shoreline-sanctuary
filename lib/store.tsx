@@ -107,6 +107,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  lilyPadRewardDate: string;
   retreatPostcards: RetreatPostcards;
   crystalBowl: CrystalBowl | null;
   jelloReadyAt: number;
@@ -288,6 +289,7 @@ export function savedWindTreasureItem(state: GameState, date: string, slot: numb
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  lilyPadRewardDate: "",
   retreatPostcards: {},
   crystalBowl: null,
   jelloReadyAt: 0,
@@ -515,6 +517,7 @@ interface Ctx {
   updateCoveLobsterTrap: (update: Pick<CoveLobsterTrap, "placed" | "checked" | "creature">) => void;
   releaseCoveTrapCreature: () => string | null;
   openShelbyRescueSeedPacket: () => string | null;
+  claimLilyPadReward: () => boolean;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
   openCoveTimeCapsule: () => boolean;
   openWinterIceBlock: (rewardId: string) => boolean;
@@ -1180,6 +1183,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(next);
     play("bagRustle");
     return `You opened Shelby’s Mystery Seed Packet and found two ${ITEMS[seed].name}. Added to your inventory.`;
+  };
+
+  const claimLilyPadReward = () => {
+    const current = stateRef.current;
+    const today = getShopDateKey();
+    if (current.lilyPadRewardDate === today) return false;
+    const next = { ...current, lilyPadRewardDate: today, sandDollars: current.sandDollars + 2 };
+    stateRef.current = next;
+    setState(next);
+    return true;
   };
 
   const collectItem = (itemId: string, opts?: { silent?: boolean }) => {
@@ -3280,6 +3293,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       offshoreAction,
       reelDockCatch,
       collectItem,
+      claimLilyPadReward,
       updateCoveLobsterTrap,
       releaseCoveTrapCreature,
       openShelbyRescueSeedPacket,
