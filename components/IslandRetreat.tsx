@@ -9,6 +9,7 @@ import { useGame } from "@/lib/store";
 import { SPA_RECIPES } from "@/lib/spa-recipes";
 import CrystalBowlTable, { CrystalBowlArt } from "./CrystalBowl";
 import VillagerCard from "./VillagerCard";
+import { RETREAT_POSTCARDS, RETREAT_PATTERN_SHELLS as shells, RETREAT_SHELL_PATTERN_KEY, readRetreatShellPattern } from "@/lib/retreat-postcards";
 import { VILLAGERS } from "@/lib/villagers";
 import SpaRecipeCounter from "./SpaRecipeCounter";
 
@@ -29,13 +30,11 @@ const drinkColors: Record<string, string> = {
   "mixed-berry": "#994b80",
   "coastal-berry-mint": "#ab5f94",
 };
-const shells = ["shell-scallop", "shell-conch", "shell-cowrie"];
 const positions = [
   "Top left", "Top center", "Top right",
   "Middle left", "Center", "Middle right",
   "Bottom left", "Bottom center", "Bottom right",
 ];
-const patternKey = "shoreline-island-retreat-shell-pattern";
 
 type Area = "veranda" | "lounge" | "sand" | "spa";
 const titles: Record<Area, string> = {
@@ -83,7 +82,7 @@ function RetreatScene({ spa, night, hotspots }: { spa?: boolean; night: boolean;
 }
 
 export default function IslandRetreat({ night, onReturn, onMusicChange }: { night: boolean; onReturn: () => void; onMusicChange?: (track: string | null) => void }) {
-  const { state, lastToast, play, markVillagerEncounter, useCadenceBubbleBath, useSpaTreatment } = useGame();
+  const { state, lastToast, play, markVillagerEncounter, unlockRetreatPostcard, useCadenceBubbleBath, useSpaTreatment } = useGame();
   const [area, setArea] = useState<Area>("veranda");
   const [waves, setWaves] = useState(true);
   const [music, setMusic] = useState(false);
@@ -105,13 +104,9 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
   const servedDrinkButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    try {
-      const saved: unknown = JSON.parse(localStorage.getItem(patternKey) ?? "null");
-      if (Array.isArray(saved) && saved.length === positions.length) {
-        setPattern(saved.map((id) => typeof id === "string" && shells.includes(id) ? id : null));
-      }
-    } catch {
-      // A missing or unreadable save starts with an empty stretch of sand.
+    const saved = readRetreatShellPattern(localStorage);
+    if (Array.isArray(saved) && saved.length === positions.length) {
+      setPattern(saved.map((id) => typeof id === "string" && shells.includes(id) ? id : null));
     }
   }, []);
 
@@ -158,8 +153,11 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
 
   const savePattern = () => {
     try {
-      localStorage.setItem(patternKey, JSON.stringify(pattern));
-      announce("Your seashell pattern is saved on this device.");
+      localStorage.setItem(RETREAT_SHELL_PATTERN_KEY, JSON.stringify(pattern));
+      const found = pattern.some(Boolean) && unlockRetreatPostcard("shells-in-the-sand");
+      announce(found
+        ? "Your seashell pattern is saved. Shells in the Sand was added to the Lighthouse Library postcard album."
+        : "Your seashell pattern is saved on this device.");
     } catch {
       announce("Your seashell pattern could not be saved on this device.");
     }
@@ -213,6 +211,9 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
           <button type="button" className={button} disabled={!drink} onClick={() => {
             const selected = drinks.find((item) => item.id === drink);
             if (!selected || servedDrink) return;
+            if (unlockRetreatPostcard("a-seat-by-the-sea")) {
+              announce(`${RETREAT_POSTCARDS["a-seat-by-the-sea"].title} was added to the Lighthouse Library postcard album.`);
+            }
             setServedDrinkId(selected.id);
             setSipsLeft(3);
             play("teaPouring", 0.35);
@@ -338,7 +339,10 @@ export default function IslandRetreat({ night, onReturn, onMusicChange }: { nigh
         </section>}
       </>}
       <p role="status" aria-atomic="true"><span key={message.revision}>{message.text}</span></p>
-      {area === "veranda" ? <button type="button" className={button} onClick={onReturn}>Sail back to the Cove Dock</button> : <button type="button" className={button} onClick={() => visit("veranda")}>Return to the veranda</button>}
+      {area === "veranda" ? <button type="button" className={button} onClick={() => {
+        if (night) unlockRetreatPostcard("the-moonlight-crossing");
+        onReturn();
+      }}>Sail back to the Cove Dock</button> : <button type="button" className={button} onClick={() => visit("veranda")}>Return to the veranda</button>}
     </section>
   );
 }

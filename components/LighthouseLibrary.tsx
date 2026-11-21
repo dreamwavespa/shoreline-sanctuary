@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 import { ARCHIE_GIFTS, ARCHIE_STORAGE_KEY, type ArchieGift } from "@/lib/archie";
+import { RetreatPostcardAlbum } from "./RetreatPostcards";
+import { postcardImage } from "@/lib/retreat-postcards";
 import { ITEMS } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { CoveJournalClues, OldKeepersLetter, OldShorelineArchive, OldShorelineMapArt } from "./CoveTimeCapsule";
@@ -14,6 +16,7 @@ const objects = [
   { id: "conch", name: "Echo Conch Listening Shelf", bounds: [69, 43, 28, 11] },
   { id: "journal", name: "Journal Cabinet", bounds: [40, 51, 23, 18] },
   { id: "nook", name: "Reading Chair and Side Table", bounds: [0, 55, 38, 25] },
+  { id: "postcards", name: "Retreat Postcard Album", bounds: [43, 75, 22, 13] },
   { id: "cadence", name: "Cadence’s Picture Book Basket", bounds: [70, 60, 29, 17] },
 ] as const;
 
@@ -114,7 +117,11 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
           return (
             <button key={object.id} type="button" aria-label={object.name} aria-haspopup="dialog" title={object.name}
               className={objectFocus} style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
-              onClick={event => { trigger.current = event.currentTarget; setSelected(object); }} />
+              onClick={event => { trigger.current = event.currentTarget; setSelected(object); }}>
+              {object.id === "postcards" && <span aria-hidden="true" className="pointer-events-none mx-auto block w-[80%] rotate-[-8deg] rounded-md border-2 border-amber-100 bg-amber-950 p-1 shadow-lg">
+                <Image src={postcardImage("a-seat-by-the-sea")} alt="" width={112} height={74} unoptimized className="w-full rounded-sm" />
+              </span>}
+            </button>
           );
         })}
       </div>
@@ -178,6 +185,7 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
                 </details>)}
                 {hasCharm && <p>Orion’s Star Charm casts a gold glow across the table.</p>}
               </>}
+              {selected.id === "postcards" && <RetreatPostcardAlbum />}
               {selected.id === "cadence" && <>
                 <h3 className="font-serif text-lg font-bold">Goodnight, Little Ducky</h3>
                 <div role="status" aria-atomic="true">

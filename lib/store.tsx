@@ -1,5 +1,9 @@
 "use client";
 import { CRYSTAL_BOWL_ITEM, CRYSTAL_IDS, readCrystalBowl, type CrystalBowl } from "./crystal-bowl";
+import {
+  POSTCARD_RECIPIENTS, RETREAT_POSTCARDS, RETREAT_PATTERN_SHELLS, readRetreatPostcards, readRetreatShellPattern,
+  type PostcardRecipient, type RetreatPostcardId, type RetreatPostcards,
+} from "./retreat-postcards";
 import type { SpaTreatmentId } from "./spa-recipes";
 import { DEFAULT_OFFSHORE, advanceOffshore, frostNightKey, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -103,6 +107,7 @@ export interface PaintedShell {
 }
 
 interface GameState {
+  retreatPostcards: RetreatPostcards;
   crystalBowl: CrystalBowl | null;
   jelloReadyAt: number;
   shelbyPacked: Record<string, number>;
@@ -283,6 +288,7 @@ export function savedWindTreasureItem(state: GameState, date: string, slot: numb
 const BUCKET_CAPACITY = 20;
 
 const DEFAULT_STATE: GameState = {
+  retreatPostcards: {},
   crystalBowl: null,
   jelloReadyAt: 0,
   shelbyPacked: {},
@@ -530,6 +536,8 @@ interface Ctx {
   robinNestingAction: (action: "start" | "check") => boolean;
   activateRobinGreenhouse: () => boolean;
   emptyBucket: () => void;
+  unlockRetreatPostcard: (id: RetreatPostcardId) => boolean;
+  sendRetreatPostcard: (id: RetreatPostcardId, recipient: PostcardRecipient) => boolean;
   saveCrystalBowl: (bowl: CrystalBowl) => boolean;
   craft: (recipeId: string, cost: { itemId: string; count: number }[]) => boolean;
   cook: (cost: { itemId: string; count: number }[], outputItemId: string, outputCount?: number) => boolean;
@@ -719,10 +727,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         const sandDollars = Math.max(0, Number(parsed.sandDollars ?? DEFAULT_STATE.sandDollars) || 0) + collectedSandDollars;
         const legacyUnclaimedRain = Math.max(0, (Number(parsed.stormCleanupCompletions) || 0) - (Number(parsed.rainGaugeVialsClaimed) || 0));
         const rainBarrelLevel = Math.min(3, Math.max(0, Number(parsed.rainBarrelLevel ?? legacyUnclaimedRain) || 0));
+        const crystalBowl = readCrystalBowl(parsed.crystalBowl);
+        const retreatPostcards = readRetreatPostcards(parsed.retreatPostcards);
+        if (crystalBowl) retreatPostcards["jasmine-at-sea-glass-spa"] ??= [];
+        const pattern = readRetreatShellPattern(localStorage);
+        if (Array.isArray(pattern) && pattern.length === 9 && pattern.some(id => RETREAT_PATTERN_SHELLS.includes(id))) {
+          retreatPostcards["shells-in-the-sand"] ??= [];
+        }
         setState({
           ...DEFAULT_STATE,
           ...parsed,
-          crystalBowl: readCrystalBowl(parsed.crystalBowl),
+          crystalBowl,
+          retreatPostcards,
           coveLobsterTrap: parsed.coveLobsterTrap ?? readLegacyCoveLobsterTrap(localStorage),
           offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
@@ -1317,6 +1333,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
+  const unlockRetreatPostcard = (id: RetreatPostcardId) => {
+    const current = stateRef.current;
+    if (!Object.hasOwn(RETREAT_POSTCARDS, id) || current.retreatPostcards[id]) return false;
+    const next = { ...current, retreatPostcards: { ...current.retreatPostcards, [id]: [] } };
+    stateRef.current = next;
+    setState(next);
+    if (id === "the-moonlight-crossing") toast("The Moonlight Crossing was added to the Lighthouse Library postcard album.");
+    return true;
+  };
+
+  const sendRetreatPostcard = (id: RetreatPostcardId, recipient: PostcardRecipient) => {
+    const current = stateRef.current;
+    const sent = current.retreatPostcards[id];
+    if (!sent || !Object.hasOwn(POSTCARD_RECIPIENTS, recipient) || sent.includes(recipient)) return false;
+    const next = { ...current, retreatPostcards: { ...current.retreatPostcards, [id]: [...sent, recipient] } };
+    stateRef.current = next;
+    setState(next);
+    play("notebookPage", 0.45);
+    return true;
+  };
+
   const saveCrystalBowl = (draft: CrystalBowl) => {
     const bowl = readCrystalBowl(draft);
     if (!bowl) return false;
@@ -1331,7 +1368,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     for (const id of crystals) inventory[id] -= 1;
 
     inventory[CRYSTAL_BOWL_ITEM] = 1;
-    const next = { ...current, crystalBowl: bowl, inventory };
+    const retreatPostcards = current.retreatPostcards["jasmine-at-sea-glass-spa"]
+      ? current.retreatPostcards
+      : { ...current.retreatPostcards, "jasmine-at-sea-glass-spa": [] };
+    const next = { ...current, crystalBowl: bowl, inventory, retreatPostcards };
     stateRef.current = next;
     setState(next);
     play("sparkle", 0.45);
@@ -3269,6 +3309,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       recordShelbyForecast,
       createWeatheredShipChart,
       emptyBucket,
+      unlockRetreatPostcard,
+      sendRetreatPostcard,
       saveCrystalBowl,
       craft,
       cook,

@@ -146,7 +146,7 @@ export default function CrystalBowlTable({ button }: { button: string }) {
             setNotice("Check that all the selected crystals are available.");
             return;
           }
-          setNotice(alreadyOwned ? "Your crystal bowl arrangement is saved." : "You took your crystal bowl home. You can display it on a shelf or table in the Hut.");
+          setNotice(alreadyOwned ? "Your crystal bowl arrangement is saved." : "You took your crystal bowl home. Display it in the Hut. Jasmine at Sea Glass Spa was added to the Lighthouse Library postcard album.");
         }}>{state.crystalBowl ? "Save arrangement" : "Take the bowl home"}</button>
       </div>
       <p role="status" aria-atomic="true">{notice}</p>

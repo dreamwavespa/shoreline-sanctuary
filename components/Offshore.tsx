@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import OceanObservatory from './OceanObservatory';
 import DocksideFishing from './DocksideFishing';
+import { RetreatPostcardMail } from "./RetreatPostcards";
 import IslandRetreat from './IslandRetreat';
 import VillagerCard from './VillagerCard';
 import { VILLAGERS } from '@/lib/villagers';
@@ -119,7 +120,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
         {spot:"luxury",label:"Luxury Retreat Boat, sail to the Island Retreat",x:72,y:30,w:48,h:16},
         {spot:"raft",label:"Salvage Raft, choose a salvage voyage",x:28,y:45,w:45,h:13},
         {spot:"sail",label:"White Sailboat, choose a wildlife voyage",x:77,y:45,w:44,h:15},
-        {spot:"counter",label:"Seaweed's Pier Counter, voyage tickets and equipment",x:27,y:69,w:48,h:25},
+        {spot:"counter",label:"Seaweed's Pier Counter, postcards, voyage tickets and equipment",x:27,y:69,w:48,h:25},
         {spot:"album",label:"Photo Album, view wildlife photographs",x:73,y:73,w:43,h:22},
         {spot:"fishing",label:"Dockside Fishing",x:86,y:62,w:22,h:13},
         {spot:"return",label:"Return to Cove",x:50,y:94,w:55,h:9}
@@ -143,6 +144,7 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
     {(kind === 'lab' ? !!labSpot : !!dockSpot) && <div ref={kind === 'lab' ? labDialog : undefined} role="dialog" aria-modal={true} aria-label={kind === 'lab' ? ({waverly:"Waverly's Research Desk",aquarium:"Nursery Aquarium",guide:"Reef Fish Field Guide",shells:"Rare Shell Collection",caves:"Crystal Caves",cabinet:"Specimen Cabinet",walter:"Walter's Raft",observatory:"Ocean Observatory"}[labSpot || ''] || 'Marine Lab Activity') : ({sail:'White Sailboat',raft:'Salvage Raft',counter:"Seaweed's Pier Counter",album:'Wildlife Photo Album',shelby:"Shelby's Boat",luxury:'Luxury Retreat Boat',fishing:'Dockside Fishing'}[dockSpot || ''] || 'Cove Dock Activity')} tabIndex={-1} onKeyDown={(e) => { if (e.key === 'Escape') { if (kind === 'lab') closeLabSpot(); else closeDockSpot(); } }} className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/85 p-3 sm:p-8"><div className="mx-auto max-w-[780px] space-y-4 rounded-2xl bg-teal-50 p-4 text-slate-900 shadow-2xl">{kind === 'dock' && <button type="button" className={button} onClick={closeDockSpot}>Close and return to Cove Dock</button>}{kind === 'lab' && <button type="button" className={button} onClick={closeLabSpot}>Close activity and return to Marine Lab</button>}
     <h3 ref={heading} tabIndex={-1} className="text-xl font-bold focus:outline-none">{kind === 'dock' ? ({sail:'White Sailboat',raft:'Inshore Salvage Raft',counter:'Seaweed’s Pier Counter',album:'Maeve’s Wildlife Album',shelby:'Shelby’s Boat',luxury:'Luxury Retreat Boat',fishing:'Dockside Fishing'}[dockSpot || ''] || 'Cove Dock') : 'Marine Lab & The Benthic Pocket'}</h3><p>Wallet: {state.sandDollars} Sand Dollars</p><p role="status" aria-live="polite" aria-atomic="true" className="rounded-xl bg-teal-50 p-3"><span key={message.revision}>{dockSpot === 'shelby' ? lastToast || '' : message.text || 'Choose an activity. There are no timed controls.'}</span></p>
     {kind === 'dock' ? <>
+      {dockSpot === 'counter' && <RetreatPostcardMail />}
       {dockSpot === 'fishing' && <DocksideFishing night={dockNight} />}
       {dockSpot === 'luxury' && <section className={card}><h4 className="font-bold">Island Retreat Voyage</h4><p>The luxury boat offers free passage to the Island Retreat.</p><button type="button" className={button} onClick={() => { play("dockFootsteps", 0.4); setAtRetreat(true); }}>Sail to the Island Retreat</button></section>}
       {dockSpot === 'shelby' && <section className="mx-auto w-full max-w-xl space-y-3">
