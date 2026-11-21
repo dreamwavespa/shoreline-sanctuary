@@ -15,6 +15,7 @@ const objects = [
   { id: "history", name: "Old Shoreline Bookcase", bounds: [2, 17, 28, 36] },
   { id: "science", name: "Waverly’s Science Books", bounds: [69, 16, 29, 25] },
   { id: "conch", name: "Echo Conch Listening Shelf", bounds: [69, 43, 28, 11] },
+  { id: "bookmarks", name: "Bookmark Jar", bounds: [42, 39, 14, 9] },
   { id: "journal", name: "Journal Cabinet", bounds: [40, 51, 23, 18] },
   { id: "nook", name: "Reading Chair and Side Table", bounds: [0, 55, 38, 25] },
   { id: "postcards", name: "Retreat Postcard Album", bounds: [43, 75, 22, 13] },
@@ -52,6 +53,13 @@ const cadenceBooks = [
     ],
   },
 ] as const;
+const bookmarkIds = [
+  "bookmark-cozy-marshmallow",
+  "bookmark-cozy-maeve-kettle",
+  "advent-lighthouse-bookmark",
+] as const;
+const archieBookmark = ARCHIE_GIFTS.find(gift => gift.id === "salt-grass-bookmark")!;
+
 const pageText = "Before the dock had lanterns, the keeper carried a candle down to the timber pier. From his boat, the ferryman knew he was home as soon as he saw it.";
 const button = "min-h-11 rounded-lg bg-amber-900 px-3 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-900 disabled:opacity-50";
 const objectFocus = "absolute z-10 rounded-xl hover:ring-2 hover:ring-inset hover:ring-amber-200 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-white focus-visible:ring-2 focus-visible:ring-slate-900";
@@ -82,6 +90,23 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
   const charmArt = ITEMS["orion-star-charm"].icon;
   const candle = ARCHIE_GIFTS.find(gift => gift.id === "midnight-candle")!;
   const gifts = ARCHIE_GIFTS.map(gift => ({ ...gift, count: found.filter(item => item?.id === gift.id).length })).filter(gift => gift.count > 0);
+  const bookmarks = [
+    ...bookmarkIds.map(id => ({
+      id,
+      name: ITEMS[id].name,
+      image: ITEMS[id].icon,
+      description: ITEMS[id].artDescription || "A winter lighthouse keepsake from the Christmas Advent calendar.",
+      source: id === "advent-lighthouse-bookmark" ? "Christmas Advent calendar" : "Frosted bottles washed up on the beach",
+      collected: has(id) || !!state.notebookDiscovered[id],
+    })),
+    {
+      ...archieBookmark,
+      description: "A blade of salt grass is pressed between two pieces of translucent paper.",
+      source: "Archie’s overnight keepsakes on the Hut patio",
+      collected: gifts.some(gift => gift.id === archieBookmark.id),
+    },
+  ];
+  const bookmarksCollected = bookmarks.filter(bookmark => bookmark.collected).length;
   const hasCandle = gifts.some(gift => gift.id === candle.id);
   const fish = AQUARIUM_SPECIES.filter(species => state.discoveredAquariumFish.includes(species.id));
   const winterKeepsakes = ["winter-silver-snowflake-key", "winter-golden-shell-key", "winter-crystal-seal"].filter(has);
@@ -145,6 +170,10 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
             <button key={object.id} type="button" aria-label={object.name} aria-haspopup="dialog" title={object.name}
               className={objectFocus} style={{ left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` }}
               onClick={event => { trigger.current = event.currentTarget; setSelected(object); }}>
+              {object.id === "bookmarks" && (
+                <KeepsakeArt src="/images/Lighthouse/bookmark-jar.webp"
+                  className="pointer-events-none absolute bottom-0 left-1/2 h-full w-[88%] -translate-x-1/2 object-contain object-bottom drop-shadow-md" />
+              )}
               {object.id === "postcards" && <span aria-hidden="true" className="pointer-events-none mx-auto block w-[80%] rotate-[-8deg] rounded-md border-2 border-amber-100 bg-amber-950 p-1 shadow-lg">
                 <Image src={postcardImage("a-seat-by-the-sea")} alt="" width={112} height={74} unoptimized className="w-full rounded-sm" />
               </span>}
@@ -212,6 +241,26 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
                   {gift.id === "midnight-candle" && <button type="button" className={button} aria-pressed={candleLit} onClick={() => setCandleLit(lit => !lit)}>Light the Midnight Reading Candle</button>}
                 </details>)}
                 {hasCharm && <p>Orion’s Star Charm casts a gold glow across the table.</p>}
+              </>}
+              {selected.id === "bookmarks" && <>
+                <p className="text-sm font-semibold">{bookmarksCollected} of {bookmarks.length} bookmarks collected</p>
+                <p className="text-sm">Bookmarks appear here as you find them.</p>
+                <ul className="space-y-2">
+                  {bookmarks.map(bookmark => (
+                    <li key={bookmark.id}>
+                      <details className="rounded-lg bg-white/80 p-3">
+                        <summary className="cursor-pointer rounded font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-900">
+                          {bookmark.name} · {bookmark.collected ? "Collected" : "To find"}
+                        </summary>
+                        {bookmark.collected && <>
+                          <KeepsakeArt src={bookmark.image} className="my-2 h-40 w-full object-contain object-left" />
+                          <p className="text-sm">{bookmark.description}</p>
+                        </>}
+                        <p className="mt-2 text-sm"><strong>Where to look</strong> {bookmark.source}.</p>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
               </>}
               {selected.id === "postcards" && <RetreatPostcardAlbum />}
               {selected.id === "cadence" && <>
