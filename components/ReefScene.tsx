@@ -228,6 +228,7 @@ export default function ReefScene() {
 
   const { state, collectItem, setMusicOverride, discoverBabyFish, offshoreAction } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const collectibleButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [tab, setTab] = useState<"dive" | "restore" | "libby">("dive");
   const activitiesRef = useRef<HTMLDivElement>(null);
@@ -345,6 +346,12 @@ export default function ReefScene() {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
     collectItem(spot.itemId);
+    // Preserve screen reader focus before the collected hotspot disappears.
+    const index = spots.findIndex((s) => s.key === spot.key);
+    const next = [...spots.slice(index + 1), ...spots.slice(0, index)]
+      .find((s) => !poppingKeys[s.key] && collectibleButtons.current[s.key]);
+    if (next) collectibleButtons.current[next.key]?.focus();
+    else labEntranceRef.current?.focus();
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1, state.libbyRescued)] : cur));
@@ -388,7 +395,7 @@ export default function ReefScene() {
           const popping = poppingKeys[spot.key];
           return (
             <button
-              key={spot.key}
+              key={spot.key} ref={(node) => { collectibleButtons.current[spot.key] = node; }}
               type="button"
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
