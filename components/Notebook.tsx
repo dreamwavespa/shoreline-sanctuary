@@ -85,6 +85,12 @@ function SectionPage({ section }: { section: NotebookSection }) {
         })}
       </div>
 
+      {section.id === "wildlife-sightings" && state.notebookDiscovered["woodland-swan"] && (
+        <article className="relative mt-3 rounded-xl bg-white/70 p-3 ring-1 ring-amber-200">
+          <h4 className="font-semibold text-amber-900">Swan Sighting</h4>
+          <p className="text-sm text-amber-800">A white swan sometimes glides across the pond along Coconut Grove’s Woodland Trail.</p>
+        </article>
+      )}
       <div className="relative mt-4 flex items-center justify-between">
         <p className="text-[11px] text-amber-700/80 italic">Reward: {section.completionReward}</p>
         {complete && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-white bg-[#1c2f5c] rounded-full px-2.5 py-1 rotate-[-4deg] shadow ring-2 ring-[#1c2f5c]/40">✦ PAGE COMPLETED ✦</span>}

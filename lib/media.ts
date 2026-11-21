@@ -82,6 +82,7 @@ export const PWA_ICONS = {
 const SFX_BASE = "https://static.galaxy.ai/user_32o6JOgK3frOagwPkyqjrJpmKC3";
 
 export const SFX_FILES: Record<string, string> = {
+  woodlandSwanCall: "/audio/Birds/woodland-swan-call.mp3",
   spaSpongeSqueeze: "/audio/retreat/sponge-squeeze.mp3",
   spaBubblesPop: "/audio/retreat/bubbles-pop.mp3",
   snowballCollect: "/audio/Snowballs/Snowball-collect-soft.mp3",
