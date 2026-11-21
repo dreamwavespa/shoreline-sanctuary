@@ -6,6 +6,7 @@ import CoveTimeCapsule, { CoveJournalClues } from "./CoveTimeCapsule";
 import { ITEMS, rollCoveSpawn } from "@/lib/items";
 import { useGame } from "@/lib/store";
 import { getShopDateKey } from "@/lib/shop";
+import { nextTrapReleaseMilestone, TRAP_DESTINATIONS, type TrapCreature } from "@/lib/coveLobsterTrap";
 import ShellMatch from "./ShellMatch";
 
 interface Spot {
@@ -245,7 +246,7 @@ function MaevesKettleCard() {
 }
 
 export default function CoveScene() {
-  const { state, collectItem, setMusicOverride, recoverMaevesKettle } = useGame();
+  const { state, collectItem, setMusicOverride, recoverMaevesKettle, updateCoveLobsterTrap, releaseCoveTrapCreature } = useGame();
   const [dockMusic, setDockMusic] = useState<string | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
   const collectibleButtons = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -253,33 +254,10 @@ export default function CoveScene() {
   const [showChest, setShowChest] = useState(false);
   const [showTrap, setShowTrap] = useState(false);
   const trapButtonRef = useRef<HTMLButtonElement>(null);
-  const [trapPlaced, setTrapPlaced] = useState(false);
-  const [trapChecked, setTrapChecked] = useState("");
-  const [trapCreature, setTrapCreature] = useState("");
+  const { placed: trapPlaced, checked: trapChecked, creature: trapCreature, releases, releasedAnimals } = state.coveLobsterTrap;
   const [trapMessage, setTrapMessage] = useState("");
-  useEffect(() => {
-    try {
-      const data = JSON.parse(localStorage.getItem("shoreline-cove-lobster-trap-v1") || "{}");
-      setTrapPlaced(!!data.placed);
-      setTrapChecked(typeof data.checked === "string" ? data.checked : "");
-      setTrapCreature(typeof data.creature === "string" ? data.creature : "");
-    } catch {}
-  }, []);
-  const persistTrap = (placed: boolean, checked: string, creature: string) => {
-    setTrapPlaced(placed); setTrapChecked(checked); setTrapCreature(creature);
-    try { localStorage.setItem("shoreline-cove-lobster-trap-v1", JSON.stringify({ placed, checked, creature })); } catch {}
-  };
-  const [releasedAnimals, setReleasedAnimals] = useState<string[]>([]);
-  useEffect(() => {
-    try { setReleasedAnimals(JSON.parse(localStorage.getItem("shoreline-rescued-trap-animals-v1") || "[]")); } catch {}
-  }, []);
   const trapDay = getShopDateKey();
-  const trapDestinations: Record<string, string> = {
-    "Hermit crab": "Sheltered Cove rocks",
-    "Sea snail": "Shallow Tide Pool",
-    "Starfish": "Shallow Tide Pool",
-    "Lobster": "Libby's Reef",
-  };
+  const trapDestinations = TRAP_DESTINATIONS;
   const playTrapSound = (file: string, volume = 0.7) => { const audio = new Audio(`/audio/${file}`); audio.volume = volume; void audio.play().catch(() => {}); };
   const checkTrap = () => {
     if (!trapPlaced || trapCreature || trapChecked === trapDay) return;
@@ -288,23 +266,19 @@ export default function CoveScene() {
     if (roll < 0.12) {
       const reward = Math.random() < 0.6 ? "sea-foam-sponges" : "deep-sea-seed";
       collectItem(reward, { silent: true });
-      persistTrap(true, trapDay, "");
+      updateCoveLobsterTrap({ placed: true, checked: trapDay, creature: "" });
       setTrapMessage(`You found ${ITEMS[reward].name} caught in the netting. Added to inventory. No animal was trapped today.`);
     } else {
-      const creature = ["Hermit crab", "Sea snail", "Starfish", "Lobster"][Math.floor(Math.random() * 4)];
-      persistTrap(true, trapDay, creature);
+      const creatures = Object.keys(trapDestinations) as TrapCreature[];
+      const creature = creatures[Math.floor(Math.random() * creatures.length)];
+      updateCoveLobsterTrap({ placed: true, checked: trapDay, creature });
       if (creature === "Lobster" || creature === "Hermit crab") playTrapSound("lobster-discovery-clicks.mp3", 0.75);
       setTrapMessage(`A ${creature.toLowerCase()} is waiting safely in the trap. Choose where to release it.`);
     }
   };
   const releaseTrapCreature = () => {
-    if (!trapCreature) return;
-    const destination = trapDestinations[trapCreature];
-    setTrapMessage(`You gently release the ${trapCreature.toLowerCase()} toward ${destination}. It swims or crawls away safely. Come back tomorrow to check the trap again.`);
-    const updated = Array.from(new Set([...releasedAnimals, trapCreature]));
-    setReleasedAnimals(updated);
-    try { localStorage.setItem("shoreline-rescued-trap-animals-v1", JSON.stringify(updated)); } catch {}
-    persistTrap(true, trapChecked, "");
+    const message = releaseCoveTrapCreature();
+    if (message) setTrapMessage(message);
   };
 
   const [showCollection, setShowCollection] = useState(false);
@@ -494,10 +468,13 @@ export default function CoveScene() {
               {showTrap && <section aria-label="Lobster trap care" className="space-y-3 rounded-xl bg-white p-4">
                 <h3 className="font-bold text-teal-950">Cove Lobster Trap</h3>
                 <p className="text-sm text-teal-900">{trapPlaced ? "Your reusable trap is set in the sheltered water. Check it once a day, and release any creatures gently." : "Place a lobster trap you have crafted to begin daily discoveries. It stays in your inventory."}</p>
-                {!trapPlaced && <button type="button" disabled={(state.inventory["lobster-trap"] || 0) < 1} onClick={() => { persistTrap(true, "", ""); setTrapMessage("Your lobster trap is ready in the sheltered Cove water."); }} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white disabled:opacity-50">Place Lobster Trap</button>}
+                <p className="text-sm font-semibold text-teal-950">
+                  {releases} of {nextTrapReleaseMilestone(releases)} animals released toward {releases < 10 ? "a Deep-Sea Seed" : "Shelby’s Mystery Seed Packet"}.
+                </p>
+                {!trapPlaced && <button type="button" disabled={(state.inventory["lobster-trap"] || 0) < 1} onClick={() => { updateCoveLobsterTrap({ placed: true, checked: trapChecked, creature: "" }); setTrapMessage("Your lobster trap is ready in the sheltered Cove water."); }} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white disabled:opacity-50">Place Lobster Trap</button>}
                 {trapPlaced && !trapCreature && <button type="button" disabled={trapChecked === trapDay} onClick={checkTrap} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white disabled:opacity-50">{trapChecked === trapDay ? "Trap checked today" : "Check Lobster Trap"}</button>}
                 {trapCreature && <div className="space-y-2">{({ "Lobster": "Lobster.png", "Hermit crab": "Hermit_Crab.png", "Starfish": "Starfish.png", "Sea snail": "Sea_snail.PNG" } as Record<string, string>)[trapCreature] && <Image src={`/images/Cove/${({ "Lobster": "Lobster.png", "Hermit crab": "Hermit_Crab.png", "Starfish": "Starfish.png", "Sea snail": "Sea_snail.PNG" } as Record<string, string>)[trapCreature]}`} alt={`${trapCreature} discovered in the lobster trap`} width={220} height={180} unoptimized className="mx-auto h-44 w-auto object-contain" />}<p>A {trapCreature.toLowerCase()} is waiting safely. Release destination: {trapDestinations[trapCreature]}.</p><button type="button" onClick={releaseTrapCreature} className="min-h-12 rounded-lg bg-teal-900 px-4 py-2 font-bold text-white">Release {trapCreature} toward {trapDestinations[trapCreature]}</button></div>}
-                {trapPlaced && !trapCreature && <button type="button" onClick={() => { persistTrap(false, trapChecked, ""); setTrapMessage("Trap retrieved. Your crafted lobster trap remains in inventory."); }} className="min-h-12 rounded-lg border border-teal-700 px-4 py-2 font-semibold">Retrieve Trap</button>}
+                {trapPlaced && !trapCreature && <button type="button" onClick={() => { updateCoveLobsterTrap({ placed: false, checked: trapChecked, creature: "" }); setTrapMessage("Trap retrieved. Your crafted lobster trap remains in inventory."); }} className="min-h-12 rounded-lg border border-teal-700 px-4 py-2 font-semibold">Retrieve Trap</button>}
                 {!trapCreature && trapMessage.includes("caught in the netting") && <Image src={trapMessage.includes("Sea-Foam") ? "/images/Cove/Sea_Sponge.png" : "/images/Cove/Deep_Sea_Seed.png"} alt={trapMessage.includes("Sea-Foam") ? "Discovered sea sponge" : "Discovered deep-sea seed"} width={220} height={180} unoptimized className="mx-auto h-44 w-auto object-contain" />}
                 <p role="status" aria-live="polite" className="text-sm text-teal-950">{trapMessage}</p>
               </section>}

@@ -9,6 +9,7 @@ import { VILLAGERS } from '@/lib/villagers';
 import { getScheduleStatus } from '@/lib/schedule';
 import { useGame } from '@/lib/store';
 import { ITEMS } from '@/lib/items';
+import { pendingShelbySeedPackets } from '@/lib/coveLobsterTrap';
 import { WORRY_STONES } from '@/lib/worry-stones';
 import { SIGHTINGS, SPECIMENS, type OffshoreAction } from '@/lib/offshore';
 import { AQUARIUM_SHELL_MILESTONES, AQUARIUM_SPECIES, aquariumDateKey, aquariumStage, getAquariumSpecies } from '@/lib/aquarium';
@@ -50,7 +51,7 @@ const TUMBLING_POUCHES=[
 ] as const;
 const TUMBLED_NAMES:Record<string,string>={"coastal-white":"Coastal White Pebble","sea-blue":"Sea Blue Pebble","sunset-pink":"Sunset Pink Pebble","clear-quartz":"Tumbled Clear Quartz","ocean-jasper":"Tumbled Ocean Jasper","amethyst":"Tumbled Amethyst","moonstone":"Tumbled Moonstone","rainbow-fluorite":"Tumbled Rainbow Fluorite"};
 function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock'; onClose: () => void; onMusicChange?: (track: string | null) => void }) {
-  const { state, lastToast, markVillagerEncounter, offshoreAction, buyFromSeaweed, play, giftVillager, admitBabyFish, releaseAquariumFish, careForAquariumFish } = useGame(); const [message, setMessage] = useState({ text: '', revision: 0 }); const [area, setArea] = useState('lab'); const [chamber, setChamber] = useState(1); const [uv, setUv] = useState(false); const [photoPreview, setPhotoPreview] = useState<number | null>(null);
+  const { state, lastToast, markVillagerEncounter, offshoreAction, buyFromSeaweed, play, giftVillager, admitBabyFish, releaseAquariumFish, careForAquariumFish, openShelbyRescueSeedPacket } = useGame(); const [message, setMessage] = useState({ text: '', revision: 0 }); const [area, setArea] = useState('lab'); const [chamber, setChamber] = useState(1); const [uv, setUv] = useState(false); const [photoPreview, setPhotoPreview] = useState<number | null>(null);
   const [labSpot, setLabSpot] = useState<string | null>(null);
   const [observatoryTestMode, setObservatoryTestMode] = useState(false);
   useEffect(() => {
@@ -62,6 +63,8 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
       setObservatoryTestMode(sessionStorage.getItem("shoreline-observatory-test") === "1");
     } catch {}
   }, []);
+  const [seedPacketMessage, setSeedPacketMessage] = useState("");
+  const seedPackets = pendingShelbySeedPackets(state.coveLobsterTrap);
   const [boatArea, setBoatArea] = useState<'gifts' | 'trade' | 'cargo' | 'trap' | null>(null);
   const boatAreaHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (boatArea) boatAreaHeading.current?.focus(); }, [boatArea]);
@@ -173,6 +176,14 @@ function OffshorePanel({ kind, onClose, onMusicChange }: { kind: 'lab' | 'dock';
               Give Shelby a Lobster Trap ({count('lobster-trap')} available)
             </button>
           : <p>{getScheduleStatus('shelby').awayLabel}</p>)}
+        {(seedPackets > 0 || seedPacketMessage) && <div className="space-y-2 rounded-xl bg-emerald-50 p-3 text-emerald-950">
+          <p>Shelby’s Mystery Seed Packets waiting at the trap rack: {seedPackets}</p>
+          <button type="button" className={`${button} aria-disabled:opacity-60`} aria-disabled={seedPackets === 0} onClick={() => {
+            const result = openShelbyRescueSeedPacket();
+            if (result) setSeedPacketMessage(result);
+          }}>Open Shelby’s Mystery Seed Packet</button>
+          <p role="status" aria-atomic="true">{seedPacketMessage}</p>
+        </div>}
       </> : <VillagerCard key={boatArea} villager={VILLAGERS.shelby} schedule={getScheduleStatus('shelby')} section={boatArea} initiallyExpanded />}
     </>}
   </div>
