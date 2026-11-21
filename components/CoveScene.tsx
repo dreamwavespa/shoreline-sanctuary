@@ -248,6 +248,7 @@ export default function CoveScene() {
   const { state, collectItem, setMusicOverride, recoverMaevesKettle } = useGame();
   const [dockMusic, setDockMusic] = useState<string | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
+  const collectibleButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [showChest, setShowChest] = useState(false);
   const [showTrap, setShowTrap] = useState(false);
@@ -413,6 +414,12 @@ export default function CoveScene() {
       ? " The Broken Tidekeeper's Vase: This patterned piece belongs to an old coastal vase. Find all five different fragments to uncover its story and restore it in a future Pottery Studio update."
       : spot.itemId === "tide-trinket-key" ? " A worn wave on the handle matches the old journal’s description. Keep this key for the Cove time capsule." : "";
     setAnnouncement(`${ITEMS[spot.itemId].name} collected and added to inventory.${specialMessage}`);
+    // Preserve screen reader focus before the collected hotspot disappears.
+    const index = spots.findIndex((s) => s.key === spot.key);
+    const next = [...spots.slice(index + 1), ...spots.slice(0, index)]
+      .find((s) => !poppingKeys[s.key] && collectibleButtons.current[s.key]);
+    if (next) collectibleButtons.current[next.key]?.focus();
+    else collectionButtonRef.current?.focus();
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 5 ? [...cur, ...randomSpots(1, cur)] : cur));
@@ -466,7 +473,7 @@ export default function CoveScene() {
           const def = ITEMS[spot.itemId];
           const art = coveFindArt(spot.itemId);
           return (
-            <button key={spot.key} type="button" onClick={() => handleTap(spot)} aria-label={`Collect ${def.name}`}
+            <button key={spot.key} ref={(node) => { collectibleButtons.current[spot.key] = node; }} type="button" onClick={() => handleTap(spot)} aria-label={`Collect ${def.name}`}
               className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full drop-shadow-md focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-400 ${poppingKeys[spot.key] ? "opacity-0" : "animate-bob"}`}
               style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: 44, height: 44 }}>
               {art ? <Image src={art} alt="" width={38} height={38} unoptimized className="object-contain" /> : <span aria-hidden="true" className="text-2xl drop-shadow-md">{def.category === "shell" ? "🐚" : def.category === "raw" ? "🪵" : def.category === "food" ? "🍒" : def.category === "special" ? "✨" : "💎"}</span>}
