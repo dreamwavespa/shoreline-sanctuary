@@ -4,6 +4,8 @@ import type { SpaTreatmentId } from "./spa-recipes";
 import { DEFAULT_OFFSHORE, advanceOffshore, frostNightKey, type OffshoreAction, type OffshoreProgress, type DockCatch } from "./offshore";
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS } from "./items";
+import { EMPTY_COVE_LOBSTER_TRAP, TRAP_DESTINATIONS, SHELBY_PACKET_SEEDS, nextTrapReleaseMilestone,
+  pendingShelbySeedPackets, readLegacyCoveLobsterTrap, type CoveLobsterTrap } from "./coveLobsterTrap";
 import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
@@ -105,6 +107,7 @@ interface GameState {
   jelloReadyAt: number;
   shelbyPacked: Record<string, number>;
   shelbyBoatTrapInstalled: boolean;
+  coveLobsterTrap: CoveLobsterTrap;
   shelbyShipmentDate: string;
   shelbyShipmentCount: number;
   shelbyChartBonusPending: boolean;
@@ -284,6 +287,7 @@ const DEFAULT_STATE: GameState = {
   jelloReadyAt: 0,
   shelbyPacked: {},
   shelbyBoatTrapInstalled: false,
+  coveLobsterTrap: EMPTY_COVE_LOBSTER_TRAP,
   shelbyShipmentDate: "",
   shelbyShipmentCount: 0,
   shelbyChartBonusPending: false,
@@ -502,6 +506,9 @@ interface Ctx {
   screen: Screen;
   zone: Zone;
   setScreen: (s: Screen) => void;
+  updateCoveLobsterTrap: (update: Pick<CoveLobsterTrap, "placed" | "checked" | "creature">) => void;
+  releaseCoveTrapCreature: () => string | null;
+  openShelbyRescueSeedPacket: () => string | null;
   collectItem: (itemId: string, opts?: { silent?: boolean }) => void;
   openCoveTimeCapsule: () => boolean;
   openWinterIceBlock: (rewardId: string) => boolean;
@@ -716,6 +723,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           ...DEFAULT_STATE,
           ...parsed,
           crystalBowl: readCrystalBowl(parsed.crystalBowl),
+          coveLobsterTrap: parsed.coveLobsterTrap ?? readLegacyCoveLobsterTrap(localStorage),
           offshore: { ...DEFAULT_OFFSHORE, ...(parsed.offshore || {}) },
           inventory,
           coveTreasuresDiscovered: { ...Object.fromEntries(Object.entries(inventory).filter(([id, count]) => (id.startsWith('pottery-fragment-') || id.startsWith('tide-trinket-') || ['pearl-cream', 'pearl-chocolate', 'pearl-globe'].includes(id)) && Number(count) > 0).map(([id]) => [id, true])), ...(parsed.coveTreasuresDiscovered || {}) },
@@ -1106,6 +1114,56 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setState(next);
     play("chestOpen");
     return true;
+  };
+
+  const updateCoveLobsterTrap = (update: Pick<CoveLobsterTrap, "placed" | "checked" | "creature">) => {
+    setState(s => ({ ...s, coveLobsterTrap: { ...s.coveLobsterTrap, ...update } }));
+  };
+
+  const releaseCoveTrapCreature = () => {
+    const previous = stateRef.current;
+    const { creature, releasedAnimals, releases: previousCount } = previous.coveLobsterTrap;
+    if (!creature) return null;
+    const releases = previousCount + 1;
+    const seed = "deep-sea-seed";
+    const next: GameState = {
+      ...previous,
+      coveLobsterTrap: {
+        ...previous.coveLobsterTrap,
+        creature: "",
+        releasedAnimals: Array.from(new Set([...releasedAnimals, creature])),
+        releases,
+      },
+      inventory: releases === 10
+        ? { ...previous.inventory, [seed]: (previous.inventory[seed] || 0) + 1 }
+        : previous.inventory,
+    };
+    stateRef.current = next;
+    setState(next);
+
+    const released = `You gently release the ${creature.toLowerCase()} toward ${TRAP_DESTINATIONS[creature]}.`;
+    const progress = `${releases} of ${nextTrapReleaseMilestone(releases)} animals released toward your next reward.`;
+    if (releases === 10) return `${released} Shelby saved a ${ITEMS[seed].name} for you. It’s in your inventory. ${progress}`;
+    if (releases % 20 === 0) return `${released} Shelby left a Mystery Seed Packet at the trap rack on her boat. ${progress}`;
+    return `${released} ${progress}`;
+  };
+
+  const openShelbyRescueSeedPacket = () => {
+    const previous = stateRef.current;
+    if (pendingShelbySeedPackets(previous.coveLobsterTrap) === 0) return null;
+    const seed = SHELBY_PACKET_SEEDS[Math.floor(Math.random() * SHELBY_PACKET_SEEDS.length)];
+    const next: GameState = {
+      ...previous,
+      coveLobsterTrap: {
+        ...previous.coveLobsterTrap,
+        seedPacketsOpened: previous.coveLobsterTrap.seedPacketsOpened + 1,
+      },
+      inventory: { ...previous.inventory, [seed]: (previous.inventory[seed] || 0) + 2 },
+    };
+    stateRef.current = next;
+    setState(next);
+    play("bagRustle");
+    return `You opened Shelby’s Mystery Seed Packet and found two ${ITEMS[seed].name}. Added to your inventory.`;
   };
 
   const collectItem = (itemId: string, opts?: { silent?: boolean }) => {
@@ -3182,6 +3240,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       offshoreAction,
       reelDockCatch,
       collectItem,
+      updateCoveLobsterTrap,
+      releaseCoveTrapCreature,
+      openShelbyRescueSeedPacket,
       openCoveTimeCapsule,
       openWinterIceBlock,
       talkToMaeve,
