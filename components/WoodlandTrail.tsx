@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGame } from "@/lib/store";
 import GroveCoffeePlant from "./GroveCoffeePlant";
 import GroveFiberPatch from "./GroveFiberPatch";
+import WoodlandSwanPond from "./WoodlandSwanPond";
 import { ITEMS } from "@/lib/items";
 
 const ARRIVAL_MS = 24 * 60 * 60 * 1000;
@@ -184,6 +185,7 @@ export default function WoodlandTrail({ onBack }: { onBack: () => void }) {
       <style jsx global>{`@keyframes woodland-hummingbird-hover { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-9px) rotate(3deg); } } .woodland-hummingbird-hover { animation: woodland-hummingbird-hover 1.5s ease-in-out infinite; } @media (prefers-reduced-motion: reduce) { .woodland-hummingbird-hover { animation: none; } }`}</style>
       <div className="mx-auto max-w-3xl space-y-5 px-4 py-5">
         <p role="status" aria-live="polite" aria-atomic="true" className="font-semibold text-emerald-950">{announcement}</p>
+        <WoodlandSwanPond now={now} />
         <section aria-labelledby="robin-nest-title" className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-emerald-300">
           <h2 id="robin-nest-title" className="text-xl font-bold text-emerald-950">Robin's Bird Sanctuary</h2>
           {state.robinBirdhousePlaced ? (
