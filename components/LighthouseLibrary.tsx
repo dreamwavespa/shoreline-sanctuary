@@ -23,11 +23,35 @@ const objects = [
 
 type LibraryObject = (typeof objects)[number];
 
-const bookPages = [
-  "Little Ducky sits by the shore. Along comes a wave. Splish, splash!",
-  "Little Ducky bobs past a shell. A sleepy crab waves one tiny claw. Hello, Ducky!",
-  "The tide rolls Little Ducky home. Cadence tucks him under her blanket. Goodnight, Ducky.",
-];
+const cadenceBooks = [
+  {
+    id: "little-ducky",
+    title: "Goodnight, Little Ducky",
+    pages: [
+      "Little Ducky sits by the shore. Along comes a wave. Splish, splash!",
+      "Little Ducky bobs past a shell. A sleepy crab waves one tiny claw. Hello, Ducky!",
+      "The tide rolls Little Ducky home. Cadence tucks him under her blanket. Goodnight, Ducky.",
+    ],
+  },
+  {
+    id: "marshmallow",
+    title: "Marshmallow and the Lighthouse Light",
+    pages: [
+      "Marshmallow sits in the lighthouse window. Outside, the sky turns dark. Inside, Maeve turns on the light. Click!",
+      "A bright spot dances across the floor. Marshmallow reaches out one soft paw. Pat, pat! The little light slips right past his toes.",
+      "Maeve shakes out his blanket. Marshmallow turns once, twice, three times, then curls up. The lighthouse shines over the sea, and Marshmallow purrs himself to sleep.",
+    ],
+  },
+  {
+    id: "snowy",
+    title: "Snowy and the Runaway Ball",
+    pages: [
+      "Snowy, the little harp seal, wiggles her whiskers. Her blue snowflake scarf flutters as she scoots to the edge of her pool.",
+      "Plop! Her ball lands in the water and floats away. Snowy dives in. Splash, splash! She catches up and gives the ball a nudge with her nose.",
+      "The ball bobs back to the edge. Snowy pops her head up and claps her flippers. Again, Snowy? In she dives!",
+    ],
+  },
+] as const;
 const pageText = "Before the dock had lanterns, the keeper carried a candle down to the timber pier. From his boat, the ferryman knew he was home as soon as he saw it.";
 const button = "min-h-11 rounded-lg bg-amber-900 px-3 py-2 font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-900 disabled:opacity-50";
 const objectFocus = "absolute z-10 rounded-xl hover:ring-2 hover:ring-inset hover:ring-amber-200 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-white focus-visible:ring-2 focus-visible:ring-slate-900";
@@ -41,7 +65,9 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
   const [selected, setSelected] = useState<LibraryObject | null>(null);
   const [found, setFound] = useState<ArchieGift[]>([]);
   const [candleLit, setCandleLit] = useState(false);
+  const [bookIndex, setBookIndex] = useState(0);
   const [page, setPage] = useState(0);
+  const book = cadenceBooks[bookIndex];
   const [audioMessage, setAudioMessage] = useState("");
   const roomHeading = useRef<HTMLHeadingElement>(null);
   const panelHeading = useRef<HTMLHeadingElement>(null);
@@ -189,14 +215,26 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
               </>}
               {selected.id === "postcards" && <RetreatPostcardAlbum />}
               {selected.id === "cadence" && <>
-                <h3 className="font-serif text-lg font-bold">Goodnight, Little Ducky</h3>
+                <label htmlFor="cadence-basket-book" className="block font-semibold">Choose a story</label>
+                <select
+                  id="cadence-basket-book"
+                  value={bookIndex}
+                  onChange={event => {
+                    setBookIndex(event.currentTarget.selectedIndex);
+                    setPage(0);
+                  }}
+                  className="min-h-11 w-full rounded-lg border border-amber-800 bg-white px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-900"
+                >
+                  {cadenceBooks.map((story, index) => <option key={story.id} value={index}>{story.title}</option>)}
+                </select>
                 <div role="status" aria-atomic="true">
-                  <p className="text-sm">Page {page + 1} of {bookPages.length}</p>
-                  <p className="mt-1">{bookPages[page]}</p>
+                  <h3 className="font-serif text-lg font-bold">{book.title}</h3>
+                  <p className="text-sm">Page {page + 1} of {book.pages.length}</p>
+                  <p className="mt-1">{book.pages[page]}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button type="button" className={button} disabled={page === 0} onClick={() => setPage(value => value - 1)}>Previous page</button>
-                  <button type="button" className={button} disabled={page === bookPages.length - 1} onClick={() => setPage(value => value + 1)}>Next page</button>
+                  <button type="button" className={button} disabled={page === book.pages.length - 1} onClick={() => setPage(value => value + 1)}>Next page</button>
                 </div>
               </>}
             </div>
