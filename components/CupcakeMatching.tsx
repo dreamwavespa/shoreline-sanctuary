@@ -4,13 +4,30 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 
-type Flavor = "vanilla" | "chocolate" | "strawberry" | "lemon" | "blueberry" | "coconut" | "christmas";
+type Flavor = "vanilla" | "chocolate" | "strawberry" | "lemon" | "blueberry" | "coconut" | "christmas" | "pumpkin";
 type Mode = "beginner" | "intermediate" | "advanced";
 type Card = { id: string; flavor: Flavor; kind: "decorated" | "plain" | "frosting"; label: string };
 const FLAVORS: Flavor[] = ["vanilla", "chocolate", "strawberry", "lemon", "blueberry", "coconut"];
 const REWARD_KEY = "shoreline-cupcake-match-reward-date";
 const IMAGE_DIR = "/images/Cupcakes";
-const cupcakeImage = (card: Card) => card.flavor === "christmas" ? (card.kind === "decorated" ? "/images/Christmas/Gifts/Christmas-Cupcake.png" : `${IMAGE_DIR}/cupcake-vanilla-${card.kind}.png`) : `${IMAGE_DIR}/cupcake-${card.flavor}-${card.kind}.png`;
+const seasonalArt = {
+  christmas: { plain: "0% 0%", frosting: "50% 0%", decorated: null },
+  pumpkin: { plain: "0% 100%", frosting: "50% 100%", decorated: "100% 100%" },
+} as const;
+
+function CupcakeCardArt({ card }: { card: Card }) {
+  const position = card.flavor === "christmas" || card.flavor === "pumpkin"
+    ? seasonalArt[card.flavor][card.kind]
+    : null;
+  if (position) {
+    return <span aria-hidden="true" className="block aspect-square w-full max-w-24 bg-no-repeat"
+      style={{ backgroundImage: "url('/images/Cupcakes/seasonal-cupcake-parts.webp')", backgroundSize: "300% 200%", backgroundPosition: position }} />;
+  }
+  const image = card.flavor === "christmas"
+    ? "/images/Christmas/Gifts/Christmas-Cupcake.png"
+    : `${IMAGE_DIR}/cupcake-${card.flavor}-${card.kind}.png`;
+  return <Image src={image} alt="" width={120} height={120} unoptimized className="h-24 w-24 object-contain" />;
+}
 const label = (flavor: Flavor) => flavor[0].toUpperCase() + flavor.slice(1);
 const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
 const localDay = () => new Date().toLocaleDateString("en-CA");
@@ -23,6 +40,11 @@ const playFlip = () => {
 export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
   const { collectItem, play, state } = useGame();
   const christmasUnlocked = (state.inventory["advent-christmas-cupcake"] || 0) > 0;
+  const month = new Date().getMonth() + 1;
+  const pumpkinInSeason = month >= 9 && month <= 11;
+  const seasonalFlavors: Flavor[] = [];
+  if (pumpkinInSeason) seasonalFlavors.push("pumpkin");
+  if (christmasUnlocked) seasonalFlavors.push("christmas");
   const [mode, setMode] = useState<Mode>("beginner");
   const [cards, setCards] = useState<Card[]>([]);
   const [revealed, setRevealed] = useState<string[]>([]);
@@ -53,10 +75,10 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
     if (pendingRef.current !== null) clearTimeout(pendingRef.current);
     pendingRef.current = null;
     setMode(nextMode);
-    const flavors = [...(nextMode === "beginner" ? FLAVORS.slice(0, 3) : FLAVORS), ...(christmasUnlocked ? (["christmas"] as Flavor[]) : [])];
+    const flavors = [...(nextMode === "beginner" ? FLAVORS.slice(0, 3) : FLAVORS), ...seasonalFlavors];
     const nextCards = flavors.flatMap((flavor) => {
       const kinds: Card["kind"][] = nextMode === "beginner" ? ["decorated", "decorated"] : nextMode === "intermediate" ? ["plain", "frosting"] : ["plain", "decorated"];
-      return kinds.map((kind, index) => ({ id: `${flavor}-${kind}-${index}`, flavor, kind, label: `${label(flavor)} ${kind === "plain" ? "plain cupcake" : kind === "frosting" ? "frosting and decorations" : "decorated cupcake"}` }));
+      return kinds.map((kind, index) => ({ id: `${flavor}-${kind}-${index}`, flavor, kind, label: `${label(flavor)} ${kind === "plain" ? "plain cupcake" : kind === "frosting" ? (flavor === "pumpkin" ? "cream cheese frosting" : "frosting and decorations") : "decorated cupcake"}` }));
     });
     setCards(shuffle(nextCards));
     setRevealed([]);
@@ -133,11 +155,12 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={onClose} className="rounded-lg bg-white px-4 py-2 font-bold ring-1 ring-rose-300">Close</button>
         </div>
         {christmasUnlocked && <p className="mt-3 font-semibold text-emerald-800">Christmas Cupcake unlocked! A festive pair is included in every difficulty level.</p>}
+        {pumpkinInSeason && <p className="mt-3 font-semibold text-amber-800">Fall special: Pumpkin Cupcake with cream cheese frosting.</p>}
         <p className="mt-3">Match cupcake flavors! Beginner pairs identical decorated cupcakes. Intermediate pairs plain cupcakes with their frosting. Advanced pairs plain cupcakes with their finished decorated versions.</p>
         <div className="mt-4 flex flex-wrap gap-2" aria-label="Choose a matching level">
-          <button type="button" onClick={() => start("beginner")} className="rounded-lg bg-rose-700 px-4 py-3 font-semibold text-white">Beginner: {christmasUnlocked ? 4 : 3} pairs</button>
-          <button type="button" onClick={() => start("intermediate")} className="rounded-lg bg-teal-800 px-4 py-3 font-semibold text-white">Intermediate: {christmasUnlocked ? 7 : 6} pairs</button>
-          <button type="button" onClick={() => start("advanced")} className="rounded-lg bg-purple-800 px-4 py-3 font-semibold text-white">Advanced: {christmasUnlocked ? 7 : 6} pairs</button>
+          <button type="button" onClick={() => start("beginner")} className="rounded-lg bg-rose-700 px-4 py-3 font-semibold text-white">Beginner: {3 + seasonalFlavors.length} pairs</button>
+          <button type="button" onClick={() => start("intermediate")} className="rounded-lg bg-teal-800 px-4 py-3 font-semibold text-white">Intermediate: {6 + seasonalFlavors.length} pairs</button>
+          <button type="button" onClick={() => start("advanced")} className="rounded-lg bg-purple-800 px-4 py-3 font-semibold text-white">Advanced: {6 + seasonalFlavors.length} pairs</button>
         </div>
         <p className="mt-3 text-sm">One surprise baking ingredient per day for your first completed round. No ingredients are spent to play. Flip cards to hear the bubble pop sound. Unmatched cards stay revealed for four seconds, then turn back over automatically.</p>
         {started && (
@@ -152,7 +175,7 @@ export default function CupcakeMatching({ onClose }: { onClose: () => void }) {
                     aria-label={`Card ${index + 1}: ${faceUp ? card.label : "hidden cupcake"}. ${found ? "Matched." : faceUp ? "Revealed." : "Select to reveal."}`}
                     className={`flex min-h-28 flex-col items-center justify-center rounded-xl border-2 p-2 focus-visible:outline focus-visible:outline-4 focus-visible:outline-teal-800 ${found ? "border-emerald-600 bg-emerald-100" : "border-rose-300 bg-white"}`}>
                     {faceUp ? (
-                      <Image src={cupcakeImage(card)} alt="" width={120} height={120} unoptimized className="h-24 w-24 object-contain" />
+                      <CupcakeCardArt card={card} />
                     ) : <span aria-hidden="true" className="text-5xl">🧁</span>}
                     <span className="mt-1 text-xs font-semibold">{faceUp ? card.label : `Card ${index + 1}`}</span>
                   </button>
