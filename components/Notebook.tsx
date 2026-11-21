@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
-import { VILLAGERS } from "@/lib/villagers";
+import { favoriteGiftDiscoveryKey, VILLAGERS } from "@/lib/villagers";
 import { NOTEBOOK_SECTIONS, NotebookSection } from "@/lib/notebook";
 import { KITCHEN_RECIPES } from "@/lib/recipes";
 
@@ -158,25 +158,25 @@ function CharacterFavoritesPage() {
   const characters = Object.values(VILLAGERS)
     .map((villager) => ({
       villager,
-      recipes: villager.gift.lovedGiftIds.filter((id) => id.startsWith("food-") && ITEMS[id]),
+      gifts: villager.gift.lovedGiftIds.filter((id) => ITEMS[id]),
     }))
-    .filter(({ recipes }) => recipes.length > 0);
-  const total = characters.reduce((sum, entry) => sum + entry.recipes.length, 0);
-  const discovered = characters.reduce((sum, { villager, recipes }) =>
-    sum + recipes.filter((id) => state.notebookDiscovered[`favorite-recipe:${villager.id}:${id}`]).length, 0);
+    .filter(({ gifts }) => gifts.length > 0);
+  const total = characters.reduce((sum, entry) => sum + entry.gifts.length, 0);
+  const discovered = characters.reduce((sum, { villager, gifts }) =>
+    sum + gifts.filter((id) => state.notebookDiscovered[favoriteGiftDiscoveryKey(villager.id, id)]).length, 0);
   return (
-    <section aria-labelledby="favorite-recipes-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
-      <h3 id="favorite-recipes-heading" className="font-serif text-xl font-bold">Character Favorites</h3>
-      <p className="mt-1 text-sm" role="status">{discovered} of {total} favorite recipes discovered</p>
-      <p className="mt-2 text-sm">Experiment by gifting prepared recipes to discover what each character loves. Favorites are recorded after a successful gift.</p>
+    <section aria-labelledby="favorite-gifts-heading" className="rounded-2xl bg-[#fdf6e8] p-4 text-amber-950">
+      <h3 id="favorite-gifts-heading" className="font-serif text-xl font-bold">Character Favorites</h3>
+      <p className="mt-1 text-sm" role="status">{discovered} of {total} favorite gifts discovered</p>
+      <p className="mt-2 text-sm">Give characters gifts to discover what they love. The notebook records a favorite when they receive it.</p>
       <ul className="mt-3 space-y-3">
-        {characters.map(({ villager, recipes }) => (
+        {characters.map(({ villager, gifts }) => (
           <li key={villager.id} className="rounded-xl border border-amber-200 bg-white/80 p-3">
             <h4 className="font-semibold">{villager.name}</h4>
             <ul className="mt-1 space-y-1">
-              {recipes.map((id, index) => {
-                const found = !!state.notebookDiscovered[`favorite-recipe:${villager.id}:${id}`];
-                return <li key={id} className="text-sm">{found ? `✓ ${ITEMS[id].name} — Discovered` : `○ Favorite recipe ${index + 1} — Undiscovered`}</li>;
+              {gifts.map((id, index) => {
+                const found = !!state.notebookDiscovered[favoriteGiftDiscoveryKey(villager.id, id)];
+                return <li key={id} className="text-sm">{found ? `✓ ${ITEMS[id].name} — Discovered` : `○ Favorite gift ${index + 1} — Undiscovered`}</li>;
               })}
             </ul>
           </li>

@@ -189,6 +189,20 @@ export default function VillagerCard({ villager, schedule, initiallyExpanded = f
               <button type="button" onClick={() => { const result = visitNightVisitor(nightVisitorId); setNightVisitFeedback(result.counted ? (result.rewardItemId ? `${villager.name} shared a special treasure! Nighttime visit ${result.visits} recorded.` : `Moonlit moment shared with ${villager.name}. Nighttime visit ${result.visits} recorded.`) : `No new visit recorded. You can spend time with ${villager.name} once per night.`); }} className="mt-3 min-h-11 w-full rounded-lg bg-cyan-700 px-3 py-2 text-sm font-bold text-white active:bg-cyan-800">
                 Spend a Moonlit Moment with {villager.name}
               </button>
+              <h4 className="mt-4 text-sm font-bold text-cyan-950">Favorite Gifts</h4>
+              <div className="mt-2 grid gap-2">
+                {availableGifts.map(({ id, have, def }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-disabled={have < 1}
+                    onClick={() => { if (have > 0) handleGift(id); }}
+                    className="min-h-11 rounded-lg border border-cyan-300 bg-white px-3 py-2 text-left text-sm font-semibold text-cyan-950 aria-disabled:opacity-60"
+                  >
+                    Give {def.name} ({have} available)
+                  </button>
+                ))}
+              </div>
               {nightVisitFeedback && <p role="status" aria-live="polite" className="mt-2 text-sm text-cyan-900">{nightVisitFeedback}</p>}
             </section>
           )}

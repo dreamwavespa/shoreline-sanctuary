@@ -7,7 +7,7 @@ import { ITEMS } from "./items";
 import { currentShelbyOrder, shelbyMysteryCargo, canPackItem, isPackageComplete } from "./shelbyShipping";
 import { SFX_FILES } from "./media";
 import { QuestDef } from "./quests";
-import { VILLAGERS } from "./villagers";
+import { favoriteGiftDiscoveryKey, VILLAGERS } from "./villagers";
 import { getShopDateKey, SEAWEED_DISCOVERIES, seaweedSalePrice, SHOP_STOCK, GLAZE_PACKS } from "./shop";
 import { FOUND_BOTTLE_BONUSES, FOUND_BOTTLE_MESSAGES } from "./bottleFinds";
 import { calculateJewelryValue, defaultJewelryName, JEWELRY_KIND_DETAILS, JEWELRY_MATERIAL_IDS, JewelryKind } from "./jewelry";
@@ -2052,8 +2052,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
 
       const notebookDiscovered = { ...s.notebookDiscovered };
-      if (loved && itemId.startsWith("food-")) {
-        notebookDiscovered[`favorite-recipe:${villagerId}:${itemId}`] = true;
+      if (loved) {
+        notebookDiscovered[favoriteGiftDiscoveryKey(villagerId, itemId)] = true;
       }
       if (villagerId === "shelldon") {
         for (const [required, reward] of ([[3, "shelldon-botanical-journal"], [5, "shelldon-verdant-tide-shell"], [8, "shelldon-turtle-watering-can"], [12, "shelldon-moon-tide-seed"]] as const)) {

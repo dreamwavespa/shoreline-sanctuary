@@ -442,7 +442,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "A hidden moonlit visitor revealed by the Master Lookout Journal Page. Her friendship rewards will include rare ethereal tide treasures.",
     location: "Moonlit Shoreline",
     imageUrl: "/images/IMG_6443.jpeg",
-    gift: { lovedGiftIds: [], reactionSfx: "Soft crystal tide chime", reactionVisual: "Sky-blue moon glow", redirectTo: [] },
+    gift: { lovedGiftIds: ["glass-blue", "moonlit-sea-glass"], reactionSfx: "Soft crystal tide chime", reactionVisual: "Sky-blue moon glow", redirectTo: [] },
   },
   orion: {
     id: "orion",
@@ -456,7 +456,7 @@ export const VILLAGERS: Record<string, VillagerDef> = {
     gameplay: "A secret sea butterfly visible to Master Lookouts. His friendship rewards will include rare celestial shoreline treasures.",
     location: "Moonlit Shoreline",
     imageUrl: "/images/IMG_6444.jpeg",
-    gift: { lovedGiftIds: [], reactionSfx: "Tiny star chimes", reactionVisual: "Warm starlight shimmer", redirectTo: [] },
+    gift: { lovedGiftIds: ["glass-white", "moonstone"], reactionSfx: "Tiny star chimes", reactionVisual: "Warm starlight shimmer", redirectTo: [] },
   },
   angel: {
     id: "angel",
@@ -577,3 +577,8 @@ export const BOTTLE_UNBOXING_SFX_SEQUENCE = [
   'Glass-Clinking Scroll Release ("tink-slide")',
   'Crisp Parchment Unfurling ("crrrk-unfold")',
 ];
+
+export function favoriteGiftDiscoveryKey(villagerId: string, itemId: string): string {
+  const prefix = itemId.startsWith("food-") ? "favorite-recipe" : "favorite-gift";
+  return `${prefix}:${villagerId}:${itemId}`;
+}
