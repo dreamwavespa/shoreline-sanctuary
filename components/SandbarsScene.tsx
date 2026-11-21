@@ -189,6 +189,7 @@ function RaftCard() {
 export default function SandbarsScene() {
   const { state, collectItem, claimBooSand, deliverBooToolSet } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
+  const collectibleButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   const [poppingKeys, setPoppingKeys] = useState<Record<string, boolean>>({});
   const [sandcastleOpen, setSandcastleOpen] = useState(false);
   const [booMessage, setBooMessage] = useState("");
@@ -278,6 +279,12 @@ export default function SandbarsScene() {
     if (poppingKeys[spot.key]) return;
     setPoppingKeys((p) => ({ ...p, [spot.key]: true }));
     collectItem(spot.itemId);
+    // Preserve screen reader focus before the collected hotspot disappears.
+    const index = spots.findIndex((s) => s.key === spot.key);
+    const next = [...spots.slice(index + 1), ...spots.slice(0, index)]
+      .find((s) => !poppingKeys[s.key] && collectibleButtons.current[s.key]);
+    if (next) collectibleButtons.current[next.key]?.focus();
+    else sandcastleButtonRef.current?.focus();
     window.setTimeout(() => {
       setSpots((cur) => cur.filter((s) => s.key !== spot.key));
       setSpots((cur) => (cur.length < 4 ? [...cur, ...randomSpots(1, cur)] : cur));
@@ -300,7 +307,7 @@ export default function SandbarsScene() {
           const popping = poppingKeys[spot.key];
           return (
             <button
-              key={spot.key}
+              key={spot.key} ref={(node) => { collectibleButtons.current[spot.key] = node; }}
               onClick={() => handleTap(spot)}
               aria-label={`Collect ${def.name}`}
               className={`absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/25 backdrop-blur-[1px] shadow-md ring-1 ring-white/35 transition-all duration-200 active:scale-90 ${
