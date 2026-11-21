@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import ShorelineFieldGuides from "./ShorelineFieldGuides";
 import { AQUARIUM_SPECIES } from "@/lib/aquarium";
 import { ARCHIE_GIFTS, ARCHIE_STORAGE_KEY, type ArchieGift } from "@/lib/archie";
 import { RetreatPostcardAlbum } from "./RetreatPostcards";
@@ -146,6 +147,7 @@ export default function LighthouseLibrary({ isNight, onBack }: { isNight: boolea
                 <OldShorelineArchive />
               </>}
               {selected.id === "science" && <>
+                <ShorelineFieldGuides hasArchieKeepsakes={gifts.length > 0} />
                 <details className="rounded-lg bg-white/80 p-3">
                   <summary className="cursor-pointer font-semibold">Reef Conservation</summary>
                   <p className="mt-2">Waverly’s field note: A restored reef needs small shelters as much as open water. Look for fish between the rocks and among the seagrass.</p>

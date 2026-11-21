@@ -1,4 +1,5 @@
 "use client";
+import { BEACH_SEAGULL } from "@/lib/shoreline-field-guides";
 import { useEffect, useRef, useState } from "react";
 
 const versionedImage = (src: string) => src.startsWith("/images/") ? `${src}?v=${process.env.NEXT_PUBLIC_SHORELINE_ASSET_VERSION || "development"}` : src;
@@ -619,7 +620,7 @@ function BeachBouncyBall({ nighttime, inventory, crafted }: { nighttime: boolean
 }
 
 export default function BeachScene() {
-  const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play } = useGame();
+  const { state, collectItem, collectWindTreasure, collectSeaWater, setScreen, lastToast, play, markVillagerEncounter } = useGame();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [hutOpen, setHutOpen] = useState(false);
   const hutEntranceRef = useRef<HTMLButtonElement>(null);
@@ -802,7 +803,10 @@ export default function BeachScene() {
           <button
             ref={picnicBasketButtonRef}
             type="button"
-            onClick={() => setSeagullDialogOpen(true)}
+            onClick={() => {
+              if (state.seagullDismissedDate !== localDateKey()) markVillagerEncounter(BEACH_SEAGULL.id);
+              setSeagullDialogOpen(true);
+            }}
             aria-label={state.seagullDismissedDate === localDateKey() ? "Picnic basket. The seagull has flown away until tomorrow." : "Picnic basket. Visit the seagull to trade or shoo him away."}
             className="absolute left-[48%] top-[73%] z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-amber-50/30 text-4xl drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-sky-700"
           >

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
+import { ARCHIE_BIRD, PATIO_BIRDS } from "@/lib/shoreline-field-guides";
 import { ARCHIE_GIFTS, ARCHIE_STORAGE_KEY, type ArchieGift } from "@/lib/archie";
 
 type Area = "inside" | "patio";
@@ -81,7 +82,7 @@ const imagePath = (area: Area, night: boolean) =>
   area === "inside" && !night ? "/images/Hut/Hut-day-updated.PNG" : `/images/Hut/${area === "inside" ? "Hut" : "Patio"}-${night ? "night" : "day"}.PNG${area === "inside" && night ? "?v=night-hut-refresh-20261108" : ""}`;
 
 export default function HutScene({ onClose }: { onClose: () => void }) {
-  const { state, setMusicOverride, collectItem } = useGame();
+  const { state, setMusicOverride, collectItem, markVillagerEncounter } = useGame();
   const playCrystalBowl = useCrystalBowlChime();
   const [area, setArea] = useState<Area>("inside");
   const [placements, setPlacements] = useState<Record<string, string>>({});
@@ -308,14 +309,6 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, placements["patio-fountain"], fountainOn]);
   useEffect(() => () => { effectAudioRef.current?.pause(); fountainAudioRef.current?.pause(); }, []);
   const [night, setNight] = useState(false);
-  const patioBirds = [
-    { name: "Robin", calls: ["Robin-greeting.mp3"], image: "/images/Birds/bird-robin.png" },
-    { name: "Blue jay", calls: ["bird-bluejay-1.mp3", "bird-bluejay-2.mp3", "bird-bluejay-3.mp3"], image: "/images/Birds/bird-bluejay.png" },
-    { name: "Chickadee", calls: ["bird-chickadee-1.mp3"], image: "/images/Birds/bird-chickadee.png" },
-    { name: "Goldfinch", calls: ["bird-goldfinch-1.mp3", "bird-goldfinch-2.mp3", "bird-goldfinch-3.mp3"], image: "/images/Birds/bird-goldfinch.png" },
-    { name: "Hummingbird", calls: ["bird-hummingbird-1.mp3"], image: "/images/Birds/bird-hummingbird.png" },
-    { name: "Wren", calls: ["bird-wren-1.mp3", "bird-wren-2.mp3", "bird-wren-3.mp3"], image: "/images/Birds/bird-wren.png" },
-  ];
   const [visitingBird, setVisitingBird] = useState<number | null>(null);
   const [birdMessage, setBirdMessage] = useState("");
   const birdAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -336,7 +329,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
       saved.lastVisit = today;
       if (!saved.pending && Math.random() < 0.55) {
         const item = Math.random() < 0.8 ? "bird-feather" : "pinecone";
-        saved.pending = { day: today, item, bird: patioBirds[index].name };
+        saved.pending = { day: today, item, bird: PATIO_BIRDS[index].name };
         setBirdGift(saved.pending);
         setBirdGiftMessage("A visiting bird has left something near the birdbath. Search the patio to collect it.");
       }
@@ -357,11 +350,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   };
 
   const playBirdCall = (index: number) => {
-    const bird = patioBirds[index];
+    const bird = PATIO_BIRDS[index];
     if (!bird) return;
     birdAudioRef.current?.pause();
     const file = bird.calls[Math.floor(Math.random() * bird.calls.length)];
-    const audio = new Audio(file === "Robin-greeting.mp3" ? "/audio/" + file : "/audio/Birds/" + file);
+    const audio = new Audio(file);
     audio.volume = 0.28;
     birdAudioRef.current = audio;
     void audio.play().catch(() => setBirdMessage("Bird sound could not play. Try the Listen button again."));
@@ -379,10 +372,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
       arrivalTimer = setTimeout(() => {
         if (!active) return;
         if (!document.hidden) {
-          const index = Math.floor(Math.random() * patioBirds.length);
+          const index = Math.floor(Math.random() * PATIO_BIRDS.length);
           setVisitingBird(index);
+          markVillagerEncounter(PATIO_BIRDS[index].id);
           leaveBirdGift(index);
-          setBirdMessage(patioBirds[index].name + " is visiting the patio.");
+          setBirdMessage(PATIO_BIRDS[index].name + " is visiting the patio.");
           clearTimeout(departureTimer);
           departureTimer = setTimeout(() => {
             if (active) { setVisitingBird(null); setBirdMessage("The bird has flown away."); }
@@ -439,10 +433,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { archieAudioRef.current?.pause(); }, []);
   const listenForArchie = () => {
     archieAudioRef.current?.pause();
-    const audio = new Audio("/audio/Birds/Archie_Owl_Call_Ready.mp3");
+    const audio = new Audio(ARCHIE_BIRD.calls[0]);
     audio.volume = 0.32;
     archieAudioRef.current = audio;
     void audio.play().catch(() => setArchieMessage("Archie's call could not play. Try again."));
+    markVillagerEncounter(ARCHIE_BIRD.id);
     setArchieMessage(archieSeen ? "A soft owl call echoes across the patio. Archie watches quietly from the railing." : "A soft owl call echoes across the patio. Archie remains hidden in the night.");
   };
   const searchArchie = (place: number) => {
@@ -573,10 +568,10 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             </button>
           )}
           {area === "patio" && visitingBird !== null && !night && (
-            <button type="button" onClick={() => { setBirdMessage(patioBirds[visitingBird].name + " sings near the patio birdbath."); playBirdCall(visitingBird); }}
-              aria-label={patioBirds[visitingBird].name + " visiting the patio. Listen to bird call"}
+            <button type="button" onClick={() => { setBirdMessage(PATIO_BIRDS[visitingBird].name + " sings near the patio birdbath."); playBirdCall(visitingBird); }}
+              aria-label={PATIO_BIRDS[visitingBird].name + " visiting the patio. Listen to bird call"}
               className="absolute left-[12%] top-[48%] z-20 flex h-[12%] w-[16%] items-center justify-center rounded-full drop-shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-amber-300">
-              <Image src={patioBirds[visitingBird].image} alt="" fill unoptimized sizes="15vw" className="object-contain drop-shadow-lg" />
+              <Image src={PATIO_BIRDS[visitingBird].image} alt="" fill unoptimized sizes="15vw" className="object-contain drop-shadow-lg" />
             </button>
           )}
           {activeSlots.map(slot => {
@@ -619,7 +614,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
         </div>
         {area === "patio" && <section aria-label="Patio bird visitors" className="mt-2 rounded-xl border border-teal-800/40 p-3 text-sm text-teal-950">
           <p aria-live="polite">{birdMessage || (night ? "The daytime birds are resting." : "Listen for birds visiting the patio during the day.")}</p>
-          {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {patioBirds[visitingBird].name}</button>}
+          {visitingBird !== null && !night && <button type="button" onClick={() => playBirdCall(visitingBird)} className="mt-2 min-h-11 rounded-lg border border-teal-800 px-3 py-2 font-semibold">Listen to {PATIO_BIRDS[visitingBird].name}</button>}
           {!night && birdGift && <button type="button" onClick={collectBirdGift} className="mt-2 min-h-11 rounded-lg bg-teal-800 px-3 py-2 font-semibold text-white">Search near the birdbath for a bird gift</button>}
           {birdGiftMessage && <p role="status" className="mt-2">{birdGiftMessage}</p>}
         </section>}
