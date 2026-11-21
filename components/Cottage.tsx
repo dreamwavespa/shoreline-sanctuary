@@ -60,7 +60,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
     // Nested activities can clear their own music override on close.
     // Restore the cottage harmony track whenever a popup closes.
     if (sortingOpen || mosaicOpen || gardenOpen || cadenceOpen) return;
-    if (seasonalOpen && (new Date().getMonth() === 10 || new Date().getMonth() === 11)) {
+    if (seasonalOpen && new Date().getMonth() === 11) {
       setMusicOverride(adventMusicEnabled ? "christmasAdvent" : (bondedSisterCount >= 1 ? `cottage${Math.min(4, bondedSisterCount)}` : null));
       return () => setMusicOverride(null);
     }
@@ -133,7 +133,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
               <button type="button" onClick={() => setCadenceOpen(true)} aria-label="Visit Cadence's Nursery" className="absolute bottom-[3%] left-[35%] h-[19%] w-[30%] rounded-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-300"><span className="sr-only">Cadence's Nursery</span></button>
             </div>
           </div>
-          <button type="button" onClick={() => setSeasonalOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-amber-700 px-4 py-2 font-semibold text-white">{month === 9 ? "Halloween Cauldron" : month === 11 || month === 10 ? "Christmas Advent Tree (Preview available)" : month === 3 ? "Spring Egg Hunt — coming soon" : month >= 5 && month <= 7 ? "Summer Campfire — coming soon" : "Seasonal Corner — coming soon"}</button>
+          <button type="button" onClick={() => setSeasonalOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-amber-700 px-4 py-2 font-semibold text-white">{month === 9 ? "Halloween Cauldron" : month === 11 ? "Christmas Advent Tree" : month === 10 ? "Christmas Advent Tree opens December 1" : month === 3 ? "Spring Egg Hunt — coming soon" : month >= 5 && month <= 7 ? "Summer Campfire — coming soon" : "Seasonal Corner — coming soon"}</button>
           <button type="button" onClick={() => setNotebookOpen(true)} className="mx-4 mt-2 min-h-11 rounded-xl bg-indigo-700 px-4 py-2 font-semibold text-white">Explorer's Notebook</button>
           <p className="px-4 text-sm text-amber-100" aria-live="polite">{bondedSisterCount}/4 sisters bonded. {currentLayer?.description || "Give a sister a loved gift to begin the cottage harmony."}</p>
         </div>
@@ -192,7 +192,7 @@ export default function Cottage({ openNursery = false, onGoToKitchen }: { openNu
       </div></div>}
 
       </>)}
-      {seasonalOpen && <div role="dialog" aria-modal="true" aria-label="Seasonal Corner" className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4"><button type="button" onClick={() => setSeasonalOpen(false)} className="mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-bold text-indigo-950">Close Seasonal Corner</button>{month === 9 ? <HalloweenCauldron /> : month === 11 || month === 10 ? <ChristmasAdvent musicEnabled={adventMusicEnabled} onMusicChange={setAdventMusicEnabled} /> : <p className="text-amber-100">This seasonal activity is coming soon.</p>}</div>}
+      {seasonalOpen && <div role="dialog" aria-modal="true" aria-label="Seasonal Corner" className="fixed inset-0 z-50 overflow-y-auto bg-[#241a3d] p-4"><button type="button" onClick={() => setSeasonalOpen(false)} className="mb-4 min-h-11 rounded-xl bg-amber-100 px-4 py-2 font-bold text-indigo-950">Close Seasonal Corner</button>{month === 9 ? <HalloweenCauldron /> : month === 11 ? <ChristmasAdvent musicEnabled={adventMusicEnabled} onMusicChange={setAdventMusicEnabled} /> : <p className="text-amber-100">{month === 10 ? "The Christmas Advent Tree opens December 1." : "This seasonal activity is coming soon."}</p>}</div>}
       {notebookOpen && <Notebook onClose={() => setNotebookOpen(false)} />}
       {sortingOpen && <SeaGlassSorting onClose={closeSorting} />}
       {mosaicOpen && <KaianaMosaicStudio onClose={closeMosaic} />}

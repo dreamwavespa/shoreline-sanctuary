@@ -12,7 +12,7 @@ const SPOTS: { id: Spot; label: string; description: string; left: string; top: 
   { id: "snowy", label: "Visit Snowy the harp seal pup", description: "Snowy welcomes you from her favorite ice floe. Her blue snowflake scarf keeps her cozy.", left: "22%", top: "73%" },
   { id: "floes", label: "Explore the floating ice floes", description: "Search the floating ice floes for winter treasures and unopened frozen ice blocks.", left: "43%", top: "44%" },
   { id: "blocks", label: "Visit the ice block game area", description: "Use Snowy’s carving tool to chip open saved winter ice blocks and discover hidden treasures.", left: "81%", top: "54%" },
-  { id: "snowmen", label: "Visit the snowman-making clearing", description: "Build and decorate a snowman with a live preview. Save your creations to the Winter Memory Book. Available December through February, with a separate testing preview.", left: "83%", top: "27%" },
+  { id: "snowmen", label: "Visit the snowman-making clearing", description: "Build and decorate a snowman with a live preview. Save your creations to the Winter Memory Book. Available December through February.", left: "83%", top: "27%" },
   { id: "pool", label: "Explore Snowy's sheltered swimming pool", description: "Toss a floating ball for Snowy. She swims, catches it, and brings it back.", left: "47%", top: "66%" },
 ];
 
