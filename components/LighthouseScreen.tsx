@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { MARSHMALLOW_TREAT_COOLDOWN_MS, useGame } from "@/lib/store";
 import { SCENES } from "@/lib/media";
+import LighthouseLibrary from "./LighthouseLibrary";
 import LighthouseLookout from "./LighthouseLookout";
 import WeatherStation from "./WeatherStation";
 import { OldKeepersLetter } from "./CoveTimeCapsule";
@@ -297,25 +298,13 @@ export default function LighthouseScreen() {
     }
   };
 
-  if (!state.chestOpened && !state.weatherStationUnlocked) {
-    return (
-      <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#fbf3e3] flex items-center justify-center">
-        <div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm">
-          <p className="text-3xl mb-2">🗺️</p>
-          <p className="font-semibold text-amber-900 mb-1">The cliff path is still overgrown</p>
-          <p className="text-sm text-amber-700">Return Maeve&apos;s missing kettle or open the locked chest on the Hidden Beach to reveal the way up to the lighthouse.</p>
-        </div>
-      </div>
-    );
-  }
-
   const foundCount = state.foundConstellations.length;
   const closeLookout = () => {
     setLookoutOpen(false);
     window.setTimeout(() => lookoutButtonRef.current?.focus(), 0);
   };
 
-  const [floor, setFloor] = useState<"downstairs" | "upstairs">("downstairs");
+  const [floor, setFloor] = useState<"downstairs" | "upstairs" | "library">("downstairs");
   const [activity, setActivity] = useState<"maeve" | "marshmallow" | "weather" | "binoculars" | null>(null);
   const [isNight, setIsNight] = useState(false);
   const activityTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -346,6 +335,22 @@ export default function LighthouseScreen() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [activity, lookoutOpen]);
+  if (!state.chestOpened && !state.weatherStationUnlocked) {
+    return (
+      <div className="h-full overflow-y-auto pb-24 px-4 pt-4 bg-[#fbf3e3] flex items-center justify-center">
+        <div className="rounded-2xl bg-white/90 p-6 shadow-md ring-1 ring-amber-200 text-center max-w-sm">
+          <p className="text-3xl mb-2">🗺️</p>
+          <p className="font-semibold text-amber-900 mb-1">The cliff path is still overgrown</p>
+          <p className="text-sm text-amber-700">Return Maeve&apos;s missing kettle or open the locked chest on the Hidden Beach to reveal the way up to the lighthouse.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (floor === "library") {
+    return <LighthouseLibrary isNight={isNight} onBack={() => setFloor("downstairs")} />;
+  }
+
   const hotspot = (label: string, left: string, top: string, width: string, height: string, onClick: (button: HTMLButtonElement) => void) => (
     <button type="button" aria-label={label} title={label}
       className="absolute rounded-xl border-2 border-transparent focus-visible:border-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -353,7 +358,7 @@ export default function LighthouseScreen() {
       <span className="sr-only">{label}</span>
     </button>
   );
-  const goFloor = (next: "downstairs" | "upstairs") => { setFloor(next); setActivity(null); };
+  const goFloor = (next: "downstairs" | "upstairs" | "library") => { setFloor(next); setActivity(null); };
   const image = floor === "downstairs"
     ? (isNight ? "/images/Lighthouse/Lighthouse-downstairs-night.PNG" : "/images/Lighthouse/Lighthouse-downstairs-day.PNG")
     : (isNight ? "/images/Lighthouse/Lighthouse-upstairs-night.PNG" : "/images/Lighthouse/Lighthouse-upstairs-day.PNG");
@@ -368,6 +373,7 @@ export default function LighthouseScreen() {
         <Image src={image} alt={floor === "downstairs" ? "Cozy lighthouse room with Maeve's tea table, Marshmallow sleeping in his bed, bookshelves and spiral staircase" : "Circular observatory with telescope, weather instruments, binoculars, observation journal and staircase"} width={1024} height={1536} unoptimized priority className="block h-auto w-full" />
         {floor === "downstairs" ? (
           <>
+            {hotspot("Enter the Lighthouse Library at the bookcase", "4%", "13%", "22%", "33%", () => goFloor("library"))}
             {hotspot("Tea with Maeve", "26%", "39%", "49%", "24%", (button) => openActivity("maeve", button))}
             {hotspot("Care and play with Marshmallow at his cat bed", "66%", "63%", "33%", "24%", (button) => openActivity("marshmallow", button))}
             {hotspot("Go upstairs to observatory", "73%", "2%", "27%", "57%", () => goFloor("upstairs"))}

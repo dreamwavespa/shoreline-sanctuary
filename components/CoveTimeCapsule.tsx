@@ -7,7 +7,7 @@ const letter = "To whoever finds this, I kept the lighthouse in the days when on
 
 const finds = [
   { name: "Antique Vase Sea Glass", position: "50% 0%", description: "A thick, curved piece of aquamarine glass. A spray of painted flowers still shows through its frosted surface." },
-  { name: "Old Shoreline Map", position: "100% 0%", description: "A hand-drawn map of the island before the harbor grew. It marks the keeper’s path and a single timber pier. The Lighthouse Library could preserve it when it opens." },
+  { name: "Old Shoreline Map", position: "100% 0%", description: "A hand-drawn map of the island before the harbor grew. It marks the keeper’s path and a single timber pier. You can revisit it at the Lighthouse Library." },
   { name: "Photograph of Old Shoreline", position: "0% 100%", description: "In the sepia photograph, the old wooden pier is barely wide enough for two people. Behind it stands the lighthouse you know today." },
   { name: "Letter from a Former Lighthouse Keeper", position: "50% 100%", description: letter },
   { name: "Ancient Sand Dollar", position: "100% 100%", description: "This palm-sized sand dollar is much larger than the little ones on Shoreline today. A deep five-point star is still visible on its pale, weathered surface." },
@@ -16,6 +16,27 @@ const finds = [
 function CapsuleArt({ position }: { position: string }) {
   return <div aria-hidden="true" className="mx-auto aspect-square w-full max-w-44 bg-no-repeat"
     style={{ backgroundImage: "url('/images/Cove/time-capsule-art.webp')", backgroundSize: "300% 200%", backgroundPosition: position }} />;
+}
+
+export function OldShorelineArchive() {
+  const { state } = useGame();
+  if (!state.coveTimeCapsuleOpened) {
+    return <p>The stand has room for the old Shoreline map. Look for clues in the Washed-Up Journal.</p>;
+  }
+
+  return <div className="space-y-2">
+    {finds.slice(1, 4).map((find) => (
+      <details key={find.name} className="rounded-lg bg-white/80 p-3">
+        <summary className="cursor-pointer font-semibold">{find.name}</summary>
+        <CapsuleArt position={find.position} />
+        <p>{find.description}</p>
+      </details>
+    ))}
+  </div>;
+}
+
+export function OldShorelineMapArt() {
+  return <CapsuleArt position="100% 0%" />;
 }
 
 export function CoveJournalClues() {

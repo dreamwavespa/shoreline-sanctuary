@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGame } from "@/lib/store";
 import { ITEMS } from "@/lib/items";
+import { ARCHIE_GIFTS, ARCHIE_STORAGE_KEY, type ArchieGift } from "@/lib/archie";
 
 type Area = "inside" | "patio";
 const SNOW_BASKETS = [
@@ -395,23 +396,15 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
   }, [area, night]);
   useEffect(() => () => { birdAudioRef.current?.pause(); }, []);
 
-  type ArchieGift = { id: string; name: string; night: string; hidingPlace: number };
   const archiePlaces = ["behind the flower planter", "beside the patio birdbath", "under the patio chair"];
-  const archieGifts = [
-    { id: "shoreline-page", name: "Forgotten Shoreline Book Page", image: "/images/Hut/Archie-book-pages.png" },
-    { id: "salt-grass-bookmark", name: "Pressed Salt-Grass Bookmark", image: "/images/Hut/Archie-bookmark.png" },
-    { id: "midnight-candle", name: "Midnight Reading Candle", image: "/images/Hut/Archie-midnight-candle.png" },
-    { id: "old-map-fragment", name: "Old Shoreline Map Fragment", image: "/images/Hut/Archie-map-fragment.png" },
-  ];
   const [archiePending, setArchiePending] = useState<ArchieGift[]>([]);
   const [archieFound, setArchieFound] = useState<ArchieGift[]>([]);
   const [archieMessage, setArchieMessage] = useState("");
   const [archieSeen, setArchieSeen] = useState(false);
   const [archieReady, setArchieReady] = useState(false);
   const archieAudioRef = useRef<HTMLAudioElement | null>(null);
-  const archieKey = "shoreline-archie-visits-v1";
   const saveArchie = (pending: ArchieGift[], found: ArchieGift[], lastNight: string) => {
-    try { window.localStorage.setItem(archieKey, JSON.stringify({ pending, found, lastNight })); } catch {}
+    try { window.localStorage.setItem(ARCHIE_STORAGE_KEY, JSON.stringify({ pending, found, lastNight })); } catch {}
     setArchiePending(pending);
     setArchieFound(found);
   };
@@ -422,14 +415,14 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     const eligibleNight = night ? today : previous;
     const nightKey = dayKey(eligibleNight);
     let saved: { pending?: ArchieGift[]; found?: ArchieGift[]; lastNight?: string } = {};
-    try { saved = JSON.parse(window.localStorage.getItem(archieKey) || "{}"); } catch {}
+    try { saved = JSON.parse(window.localStorage.getItem(ARCHIE_STORAGE_KEY) || "{}"); } catch {}
     const pending = Array.isArray(saved.pending) ? saved.pending : [];
     const found = Array.isArray(saved.found) ? saved.found : [];
     // Archie visits roughly three nights a week. Unfound gifts stay until collected.
     const dayNumber = Math.floor(new Date(eligibleNight.getFullYear(), eligibleNight.getMonth(), eligibleNight.getDate()).getTime() / 86400000);
     if (saved.lastNight !== nightKey && dayNumber % 7 < 3) {
       const count = pending.length + found.length;
-      const gift = archieGifts[count % archieGifts.length];
+      const gift = ARCHIE_GIFTS[count % ARCHIE_GIFTS.length];
       pending.push({ ...gift, night: nightKey, hidingPlace: (dayNumber + 700000) % archiePlaces.length });
     }
     const lastNight = saved.lastNight === nightKey || dayNumber % 7 < 3 ? nightKey : (saved.lastNight || nightKey);
@@ -458,7 +451,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
     if (index < 0) { setArchieMessage("You searched " + archiePlaces[place] + ", but found no gift this time."); return; }
     const gift = archiePending[index];
     const nextPending = archiePending.filter((_, i) => i !== index);
-    const saved = (() => { try { return JSON.parse(window.localStorage.getItem(archieKey) || "{}"); } catch { return {}; } })();
+    const saved = (() => { try { return JSON.parse(window.localStorage.getItem(ARCHIE_STORAGE_KEY) || "{}"); } catch { return {}; } })();
     saveArchie(nextPending, [...archieFound, gift], saved.lastNight || "");
     setArchieMessage("You found Archie's " + gift.name + "! It has been added to Archie's keepsake collection.");
   };
@@ -641,7 +634,7 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
             )}
             {archieMessage && <p className="mt-2" role="status" aria-live="polite">{archieMessage}</p>}
             <p className="mt-2">Archie's keepsakes discovered: {archieFound.length}. Book pages: {archieFound.filter(g => g.id === "shoreline-page").length}. Map fragments: {archieFound.filter(g => g.id === "old-map-fragment").length}.</p>
-            {archieFound.length > 0 && <details className="mt-2"><summary className="cursor-pointer font-semibold">View discovered keepsakes</summary><ul className="mt-1 list-inside list-disc">{archieFound.map((gift, index) => <li key={gift.night + index} className="flex items-center gap-2"><Image src={archieGifts.find(item => item.id === gift.id)?.image || "/images/Hut/Archie-book-pages.png"} alt="" width={56} height={56} unoptimized className="h-14 w-14 object-contain" /><span>{gift.name}</span></li>)}</ul></details>}
+            {archieFound.length > 0 && <details className="mt-2"><summary className="cursor-pointer font-semibold">View discovered keepsakes</summary><ul className="mt-1 list-inside list-disc">{archieFound.map((gift, index) => <li key={gift.night + index} className="flex items-center gap-2"><Image src={ARCHIE_GIFTS.find(item => item.id === gift.id)?.image || "/images/Hut/Archie-book-pages.png"} alt="" width={56} height={56} unoptimized className="h-14 w-14 object-contain" /><span>{gift.name}</span></li>)}</ul></details>}
           </section>
         )}
         {area === "inside" && <span className="sr-only" role="status">Fireplace {fireOn ? "on" : "off"}. Magical colored flames are displayed when the fireplace is on.</span>}
