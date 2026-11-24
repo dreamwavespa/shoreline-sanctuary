@@ -589,8 +589,11 @@ export default function HutScene({ onClose }: { onClose: () => void }) {
               "coffee-table": { x: 55.5, y: 49.7 }, "side-table": { x: 96, y: 64 },
             };
             const adjustedX = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.x ?? slotX) : slotX;
-            const adjustedY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
             const item = id && (isArrangement(id) || snowBasket(id) ? { id, name: decorName(id), icon: decorIcon(id), isEmoji: false } : ITEMS[id]);
+            const slotCenterY = area === "inside" && !night ? (daytimeAdjustments[slot.id]?.y ?? slotY) : slotY;
+            // Standalone vase art is centered in a shorter box than the bouquet art.
+            const coffeeTableVase = slot.id === "coffee-table" && item && !isArrangement(item.id) && /\bvase\b/i.test(item.name);
+            const adjustedY = coffeeTableVase ? slotCenterY + 3.6 : slotCenterY;
             const smallTableDecor = isTableSlot(slot.id) && /cup|mug|candle|teacup/i.test(item ? item.name : "");
             const decorWidth = item && isArrangement(item.id) && slot.id === "coffee-table" ? "16%" : isChairSlot(slot.id) ? "24%" : isPillowSlot(slot.id) ? "7.2%" : isWallSlot(slot.id) ? "12%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "10%" : "9%";
             const decorHeight = item && isArrangement(item.id) && slot.id === "coffee-table" ? "14%" : isChairSlot(slot.id) ? "17%" : isPillowSlot(slot.id) ? "5.6%" : isWallSlot(slot.id) ? "10%" : smallTableDecor ? "7%" : isTableSlot(slot.id) ? "8%" : "6%";
